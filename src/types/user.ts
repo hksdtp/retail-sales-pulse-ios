@@ -13,6 +13,7 @@ export interface User {
   phone?: string;
   position?: string;
   status: 'active' | 'inactive';
+  password_changed: boolean; // Đánh dấu người dùng đã đổi mật khẩu chưa
 }
 
 export interface Team {
@@ -22,4 +23,9 @@ export interface Team {
   location: UserLocation;
   description?: string;
   created_at: string;
+}
+
+export interface UserCredentials {
+  email: string;
+  password: string;
 }

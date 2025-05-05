@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -27,11 +29,7 @@ const Login = () => {
       });
       navigate('/');
     } catch (error) {
-      toast({
-        title: 'Đăng nhập thất bại',
-        description: 'Email hoặc mật khẩu không chính xác',
-        variant: 'destructive',
-      });
+      // Lỗi đã được xử lý trong hàm login
     } finally {
       setIsSubmitting(false);
     }
@@ -71,14 +69,25 @@ const Login = () => {
                   Quên mật khẩu?
                 </button>
               </div>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute inset-y-0 right-0 h-full"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
             <Button 
               type="submit" 
@@ -91,11 +100,36 @@ const Login = () => {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-center text-xs text-muted-foreground mt-4">
-            <p>Mẫu đăng nhập:</p>
-            <p>Email: director@example.com (Giám đốc)</p>
-            <p>Email: leader_hn1@example.com (Trưởng nhóm HN)</p>
-            <p>Email: employee_hn1@example.com (Nhân viên HN)</p>
-            <p>Mật khẩu: Nhập bất kỳ</p>
+            <p>Danh sách tài khoản mẫu:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+              <div className="text-left">
+                <p className="font-semibold">Giám đốc:</p>
+                <p>director@example.com</p>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold">Trưởng nhóm Hà Nội:</p>
+                <p>leader_hn1@example.com</p>
+                <p>leader_hn2@example.com</p>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold">Trưởng nhóm HCM:</p>
+                <p>leader_hcm1@example.com</p>
+                <p>leader_hcm2@example.com</p>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold">Nhân viên Hà Nội:</p>
+                <p>employee_hn1@example.com</p>
+                <p>employee_hn2@example.com</p>
+                <p>employee_hn3@example.com</p>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold">Nhân viên HCM:</p>
+                <p>employee_hcm1@example.com</p>
+                <p>employee_hcm2@example.com</p>
+              </div>
+            </div>
+            <p className="mt-2">Mật khẩu mặc định: password123</p>
+            <p className="mt-2 font-medium">Lần đầu đăng nhập sẽ yêu cầu đổi mật khẩu</p>
           </div>
         </CardFooter>
       </Card>

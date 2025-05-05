@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole, UserLocation } from '@/types/user';
+import { User, UserRole, UserLocation, Team, UserCredentials } from '@/types/user';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -8,6 +9,10 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  isFirstLogin: boolean;
+  changePassword: (newPassword: string) => void;
+  users: User[];
+  teams: Team[];
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -15,12 +20,52 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   login: async () => {},
   logout: () => {},
-  isLoading: false
+  isLoading: false,
+  isFirstLogin: false,
+  changePassword: () => {},
+  users: [],
+  teams: []
 });
 
 export const useAuth = () => useContext(AuthContext);
 
-// Mock data - sẽ được thay thế bằng API thực tế sau này
+// Dữ liệu mẫu các nhóm
+const MOCK_TEAMS: Team[] = [
+  {
+    id: '1',
+    name: 'Nhóm Kinh doanh 1 - Hà Nội',
+    leader_id: '2',
+    location: 'hanoi',
+    description: 'Nhóm kinh doanh khu vực phía Bắc 1',
+    created_at: '2023-01-01'
+  },
+  {
+    id: '2',
+    name: 'Nhóm Kinh doanh 2 - Hà Nội',
+    leader_id: '3',
+    location: 'hanoi',
+    description: 'Nhóm kinh doanh khu vực phía Bắc 2',
+    created_at: '2023-01-01'
+  },
+  {
+    id: '3',
+    name: 'Nhóm Kinh doanh 1 - Hồ Chí Minh',
+    leader_id: '4',
+    location: 'hcm',
+    description: 'Nhóm kinh doanh khu vực phía Nam 1',
+    created_at: '2023-01-01'
+  },
+  {
+    id: '4',
+    name: 'Nhóm Kinh doanh 2 - Hồ Chí Minh',
+    leader_id: '7',
+    location: 'hcm',
+    description: 'Nhóm kinh doanh khu vực phía Nam 2',
+    created_at: '2023-02-15'
+  }
+];
+
+// Dữ liệu mẫu chi tiết người dùng
 const MOCK_USERS: User[] = [
   {
     id: '1',
@@ -30,7 +75,8 @@ const MOCK_USERS: User[] = [
     team_id: '0',
     location: 'hanoi',
     position: 'Giám đốc Kinh doanh',
-    status: 'active'
+    status: 'active',
+    password_changed: true
   },
   {
     id: '2',
@@ -40,7 +86,8 @@ const MOCK_USERS: User[] = [
     team_id: '1',
     location: 'hanoi',
     position: 'Trưởng nhóm 1 - Hà Nội',
-    status: 'active'
+    status: 'active',
+    password_changed: false
   },
   {
     id: '3',
@@ -50,7 +97,8 @@ const MOCK_USERS: User[] = [
     team_id: '2',
     location: 'hanoi',
     position: 'Trưởng nhóm 2 - Hà Nội',
-    status: 'active'
+    status: 'active',
+    password_changed: false
   },
   {
     id: '4',
@@ -60,7 +108,8 @@ const MOCK_USERS: User[] = [
     team_id: '3',
     location: 'hcm',
     position: 'Trưởng nhóm 1 - HCM',
-    status: 'active'
+    status: 'active',
+    password_changed: false
   },
   {
     id: '5',
@@ -70,7 +119,8 @@ const MOCK_USERS: User[] = [
     team_id: '1',
     location: 'hanoi',
     position: 'Nhân viên kinh doanh',
-    status: 'active'
+    status: 'active',
+    password_changed: false
   },
   {
     id: '6',
@@ -80,19 +130,77 @@ const MOCK_USERS: User[] = [
     team_id: '3',
     location: 'hcm',
     position: 'Nhân viên kinh doanh',
-    status: 'active'
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '7',
+    name: 'Vũ Thị G',
+    email: 'leader_hcm2@example.com',
+    role: 'team_leader',
+    team_id: '4',
+    location: 'hcm',
+    position: 'Trưởng nhóm 2 - HCM',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '8',
+    name: 'Ngô Văn H',
+    email: 'employee_hn2@example.com',
+    role: 'employee',
+    team_id: '1',
+    location: 'hanoi',
+    position: 'Nhân viên kinh doanh',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '9',
+    name: 'Trịnh Thị I',
+    email: 'employee_hn3@example.com',
+    role: 'employee',
+    team_id: '2',
+    location: 'hanoi',
+    position: 'Nhân viên kinh doanh',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '10',
+    name: 'Bùi Văn K',
+    email: 'employee_hcm2@example.com',
+    role: 'employee',
+    team_id: '4',
+    location: 'hcm',
+    position: 'Nhân viên kinh doanh',
+    status: 'active',
+    password_changed: false
   }
 ];
+
+// Lưu trữ mật khẩu (trong thực tế sẽ được hash và lưu trong database)
+const DEFAULT_PASSWORD = 'password123';
+const MOCK_CREDENTIALS: Record<string, string> = {};
+
+// Tạo mật khẩu mặc định cho tất cả người dùng
+MOCK_USERS.forEach(user => {
+  MOCK_CREDENTIALS[user.email] = DEFAULT_PASSWORD;
+});
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Kiểm tra người dùng đã đăng nhập từ localStorage
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+      const user = JSON.parse(storedUser);
+      setCurrentUser(user);
+      setIsFirstLogin(!user.password_changed);
     }
     setIsLoading(false);
   }, []);
@@ -100,19 +208,38 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      // Giả lập API call - sau này sẽ thay bằng gọi API thực
+      // Kiểm tra thông tin đăng nhập
+      const storedPassword = MOCK_CREDENTIALS[email];
+      
+      if (!storedPassword) {
+        throw new Error('Tài khoản không tồn tại');
+      }
+      
+      if (storedPassword !== password) {
+        throw new Error('Mật khẩu không chính xác');
+      }
+      
+      // Tìm thông tin người dùng
       const user = MOCK_USERS.find(u => u.email === email);
       
       if (!user) {
-        throw new Error('Tài khoản không tồn tại');
+        throw new Error('Không tìm thấy thông tin người dùng');
       }
       
       // Lưu thông tin người dùng vào state và localStorage
       setCurrentUser(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
       
+      // Kiểm tra xem đây có phải là lần đăng nhập đầu tiên
+      setIsFirstLogin(!user.password_changed);
+      
       return Promise.resolve();
-    } catch (error) {
+    } catch (error: any) {
+      toast({
+        title: "Đăng nhập thất bại",
+        description: error.message,
+        variant: "destructive"
+      });
       return Promise.reject(error);
     } finally {
       setIsLoading(false);
@@ -121,7 +248,31 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
   const logout = () => {
     setCurrentUser(null);
+    setIsFirstLogin(false);
     localStorage.removeItem('currentUser');
+  };
+
+  const changePassword = (newPassword: string) => {
+    if (!currentUser) return;
+    
+    // Trong môi trường thực tế, cần gọi API để cập nhật mật khẩu
+    // Ở đây chúng ta chỉ cập nhật trong dữ liệu mẫu
+    MOCK_CREDENTIALS[currentUser.email] = newPassword;
+    
+    // Cập nhật trạng thái đã đổi mật khẩu
+    const updatedUser = {
+      ...currentUser,
+      password_changed: true
+    };
+    
+    setCurrentUser(updatedUser);
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    setIsFirstLogin(false);
+    
+    toast({
+      title: "Đổi mật khẩu thành công",
+      description: "Mật khẩu của bạn đã được cập nhật"
+    });
   };
 
   return (
@@ -130,7 +281,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       isAuthenticated: !!currentUser,
       login,
       logout,
-      isLoading
+      isLoading,
+      isFirstLogin,
+      changePassword,
+      users: MOCK_USERS,
+      teams: MOCK_TEAMS
     }}>
       {children}
     </AuthContext.Provider>
