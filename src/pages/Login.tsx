@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -12,16 +11,21 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Users, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
-
 const Login = () => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, users, teams } = useAuth();
+  const {
+    login,
+    users,
+    teams
+  } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Lọc người dùng theo vai trò và vị trí
   const filteredUsers = users.filter(user => {
@@ -29,12 +33,11 @@ const Login = () => {
     if (selectedLocation === 'all') {
       return user.role === 'director';
     }
-    
+
     // Nếu chọn khu vực cụ thể, hiển thị tất cả người dùng thuộc khu vực đó
     if (selectedTeam) {
       return user.team_id === selectedTeam.id;
     }
-    
     return user.location === selectedLocation;
   });
 
@@ -42,30 +45,26 @@ const Login = () => {
   const filteredTeams = teams.filter(team => {
     if (selectedLocation === 'all') {
       // Không hiển thị teams khi chọn "Toàn Quốc" vì người dùng sẽ chọn trực tiếp Giám đốc
-      return false; 
+      return false;
     }
     return team.location === selectedLocation;
   });
-
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    
     if (!selectedUser) {
       toast({
         title: 'Lỗi đăng nhập',
         description: 'Vui lòng chọn người dùng',
-        variant: 'destructive',
+        variant: 'destructive'
       });
       return;
     }
-    
     setIsSubmitting(true);
-    
     try {
       await login(selectedUser.email, password);
       toast({
         title: 'Đăng nhập thành công',
-        description: 'Chào mừng bạn quay trở lại!',
+        description: 'Chào mừng bạn quay trở lại!'
       });
       navigate('/');
     } catch (error) {
@@ -77,29 +76,33 @@ const Login = () => {
 
   // Xác định xem có hiển thị mục chọn nhóm không
   const showTeamSelector = selectedLocation !== 'all';
-  
+
   // Xác định xem có hiển thị mục chọn người dùng không
   const showUserSelector = selectedLocation === 'all' || selectedTeam;
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 300, 
-          damping: 25 
-        }}
-        className="w-full max-w-md"
-      >
+  return <div className="flex min-h-screen items-center justify-center p-4 py-0 bg-slate-600 rounded-2xl mx-0 my-[6px] px-[240px]">
+      <motion.div initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      type: "spring",
+      stiffness: 300,
+      damping: 25
+    }} className="w-full max-w-md">
         <Card className="shadow-md border rounded-xl overflow-hidden">
           <CardHeader className="space-y-1 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
-            >
+            <motion.div initial={{
+            opacity: 0,
+            y: -10
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            delay: 0.1,
+            duration: 0.5
+          }}>
               <CardTitle className="text-3xl font-bold">Đăng nhập</CardTitle>
               <p className="text-base text-gray-500 mt-2">
                 Chọn người dùng và nhập mật khẩu để tiếp tục
@@ -110,31 +113,27 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <AnimatePresence mode="wait">
-                <motion.div
-                  key="login-form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 500, 
-                    damping: 30 
-                  }}
-                  className="space-y-4"
-                >
+                <motion.div key="login-form" initial={{
+                opacity: 0
+              }} animate={{
+                opacity: 1
+              }} exit={{
+                opacity: 0
+              }} transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30
+              }} className="space-y-4">
                   {/* Khu vực */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
                       Khu vực
                     </label>
-                    <Select 
-                      value={selectedLocation} 
-                      onValueChange={(value: UserLocation | 'all') => {
-                        setSelectedLocation(value);
-                        setSelectedTeam(null);
-                        setSelectedUser(null);
-                      }}
-                    >
+                    <Select value={selectedLocation} onValueChange={(value: UserLocation | 'all') => {
+                    setSelectedLocation(value);
+                    setSelectedTeam(null);
+                    setSelectedUser(null);
+                  }}>
                       <SelectTrigger className="w-full h-12">
                         <SelectValue placeholder="Chọn khu vực">
                           {locationNames[selectedLocation]}
@@ -170,96 +169,68 @@ const Login = () => {
                   </div>
 
                   {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
-                  {showTeamSelector && (
-                    <div className="space-y-2">
+                  {showTeamSelector && <div className="space-y-2">
                       <label className="text-sm font-medium">
                         Team
                       </label>
-                      <Select 
-                        value={selectedTeam?.id || ''} 
-                        onValueChange={(teamId) => {
-                          const team = teams.find(t => t.id === teamId);
-                          setSelectedTeam(team || null);
-                          setSelectedUser(null);
-                        }}
-                        disabled={filteredTeams.length === 0}
-                      >
+                      <Select value={selectedTeam?.id || ''} onValueChange={teamId => {
+                    const team = teams.find(t => t.id === teamId);
+                    setSelectedTeam(team || null);
+                    setSelectedUser(null);
+                  }} disabled={filteredTeams.length === 0}>
                         <SelectTrigger className="w-full h-12">
                           <SelectValue placeholder="Chọn nhóm">
                             {selectedTeam?.name || 'Chọn nhóm'}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {filteredTeams.map(team => (
-                            <SelectItem key={team.id} value={team.id} className="py-3">
+                          {filteredTeams.map(team => <SelectItem key={team.id} value={team.id} className="py-3">
                               <div className="flex items-center">
                                 <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
                                   <Users className="h-3 w-3 text-white" />
                                 </div>
                                 {team.name}
                               </div>
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                  )}
+                    </div>}
 
                   {/* Người dùng */}
-                  {showUserSelector && (
-                    <div className="space-y-2">
+                  {showUserSelector && <div className="space-y-2">
                       <label className="text-sm font-medium">
                         Người dùng
                       </label>
-                      <Select 
-                        value={selectedUser?.id || ''} 
-                        onValueChange={(userId) => {
-                          const user = users.find(u => u.id === userId);
-                          setSelectedUser(user || null);
-                        }}
-                        disabled={filteredUsers.length === 0}
-                      >
+                      <Select value={selectedUser?.id || ''} onValueChange={userId => {
+                    const user = users.find(u => u.id === userId);
+                    setSelectedUser(user || null);
+                  }} disabled={filteredUsers.length === 0}>
                         <SelectTrigger className="w-full h-12">
                           <SelectValue placeholder="Chọn người dùng">
-                            {selectedUser ? (
-                              <div className="flex items-center">
+                            {selectedUser ? <div className="flex items-center">
                                 <Avatar className="h-6 w-6 mr-2">
-                                  <AvatarFallback className={`text-white ${
-                                    selectedUser.role === 'director' ? 'bg-purple-500' : 
-                                    selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 
-                                    'bg-gray-500'
-                                  }`}>
+                                  <AvatarFallback className={`text-white ${selectedUser.role === 'director' ? 'bg-purple-500' : selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 'bg-gray-500'}`}>
                                     {getAvatarText(selectedUser.name)}
                                   </AvatarFallback>
                                 </Avatar>
                                 {selectedUser.name}
-                              </div>
-                            ) : (
-                              'Chọn người dùng'
-                            )}
+                              </div> : 'Chọn người dùng'}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {filteredUsers.map(user => (
-                            <SelectItem key={user.id} value={user.id} className="py-3">
+                          {filteredUsers.map(user => <SelectItem key={user.id} value={user.id} className="py-3">
                               <div className="flex items-center">
                                 <Avatar className="h-6 w-6 mr-2">
-                                  <AvatarFallback className={`text-white ${
-                                    user.role === 'director' ? 'bg-purple-500' : 
-                                    user.role === 'team_leader' ? 'bg-ios-blue' : 
-                                    'bg-gray-500'
-                                  }`}>
+                                  <AvatarFallback className={`text-white ${user.role === 'director' ? 'bg-purple-500' : user.role === 'team_leader' ? 'bg-ios-blue' : 'bg-gray-500'}`}>
                                     {getAvatarText(user.name)}
                                   </AvatarFallback>
                                 </Avatar>
                                 {user.name}
                               </div>
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                  )}
+                    </div>}
 
                   {/* Mật khẩu */}
                   <div className="space-y-2">
@@ -267,28 +238,17 @@ const Login = () => {
                       Mật khẩu
                     </label>
                     <div className="relative">
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-12"
-                        placeholder="Nhập mật khẩu"
-                        disabled={!selectedUser}
-                      />
+                      <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full h-12" placeholder="Nhập mật khẩu" disabled={!selectedUser} />
                     </div>
                   </div>
 
                   {/* Nút đăng nhập */}
-                  <motion.div
-                    whileHover={{ scale: selectedUser && password ? 1.02 : 1 }}
-                    whileTap={{ scale: selectedUser && password ? 0.98 : 1 }}
-                  >
-                    <Button 
-                      type="submit" 
-                      className="w-full h-12 text-lg font-medium bg-ios-blue mt-4"
-                      disabled={isSubmitting || !selectedUser || !password}
-                    >
+                  <motion.div whileHover={{
+                  scale: selectedUser && password ? 1.02 : 1
+                }} whileTap={{
+                  scale: selectedUser && password ? 0.98 : 1
+                }}>
+                    <Button type="submit" className="w-full h-12 text-lg font-medium bg-ios-blue mt-4" disabled={isSubmitting || !selectedUser || !password}>
                       {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
                     </Button>
                   </motion.div>
@@ -298,9 +258,6 @@ const Login = () => {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
-  );
+    </div>;
 };
-
 export default Login;
-
