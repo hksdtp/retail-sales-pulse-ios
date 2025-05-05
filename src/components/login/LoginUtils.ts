@@ -22,7 +22,7 @@ export const locationNames: Record<string, string> = {
 
 export const getFilteredTeams = (teams: Team[], selectedLocation: UserLocation | 'all'): Team[] => {
   if (selectedLocation === 'all') {
-    return teams;
+    return []; // Không hiển thị teams khi chọn "Toàn Quốc"
   }
   return teams.filter(team => team.location === selectedLocation);
 };
@@ -32,13 +32,18 @@ export const getFilteredUsers = (
   selectedTeam: Team | null, 
   selectedLocation: UserLocation | 'all'
 ): User[] => {
+  // Nếu chọn "Toàn Quốc", chỉ hiển thị người dùng có vai trò "director"
+  if (selectedLocation === 'all') {
+    return users.filter(user => user.role === 'director');
+  }
+  
+  // Nếu đã chọn team, lọc người dùng theo team
   if (selectedTeam) {
     return users.filter(user => user.team_id === selectedTeam.id);
   }
-  if (selectedLocation !== 'all') {
-    return users.filter(user => user.location === selectedLocation);
-  }
-  return users;
+  
+  // Nếu chỉ chọn location mà không chọn team, hiển thị tất cả người dùng thuộc location đó
+  return users.filter(user => user.location === selectedLocation);
 };
 
 export const getTeamMembers = (users: User[], teamId: string): User[] => {

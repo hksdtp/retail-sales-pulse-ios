@@ -8,9 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserType, UserLocation, Team } from '@/types/user';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { MapPin, Users, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
 
 const Login = () => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
@@ -22,16 +22,28 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Lọc teams dựa trên location
-  const filteredTeams = teams.filter(team => {
-    if (selectedLocation === 'all') return true;
-    return team.location === selectedLocation;
+  // Lọc người dùng theo vai trò và vị trí
+  const filteredUsers = users.filter(user => {
+    // Nếu chọn "Toàn Quốc", chỉ hiển thị người dùng có vai trò "director"
+    if (selectedLocation === 'all') {
+      return user.role === 'director';
+    }
+    
+    // Nếu chọn khu vực cụ thể, hiển thị tất cả người dùng thuộc khu vực đó
+    if (selectedTeam) {
+      return user.team_id === selectedTeam.id;
+    }
+    
+    return user.location === selectedLocation;
   });
 
-  // Lọc users dựa trên team
-  const filteredUsers = users.filter(user => {
-    if (!selectedTeam) return false;
-    return user.team_id === selectedTeam.id;
+  // Lọc teams dựa trên location
+  const filteredTeams = teams.filter(team => {
+    if (selectedLocation === 'all') {
+      // Không hiển thị teams khi chọn "Toàn Quốc" vì người dùng sẽ chọn trực tiếp Giám đốc
+      return false; 
+    }
+    return team.location === selectedLocation;
   });
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -62,18 +74,11 @@ const Login = () => {
     }
   };
 
-  const locationNames = {
-    all: 'Toàn quốc',
-    hanoi: 'Hà Nội',
-    hcm: 'Hồ Chí Minh'
-  };
-
-  const getAvatarText = (name: string) => {
-    if (!name) return '';
-    const nameParts = name.split(' ');
-    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
-    return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
-  };
+  // Xác định xem có hiển thị mục chọn nhóm không
+  const showTeamSelector = selectedLocation !== 'all';
+  
+  // Xác định xem có hiển thị mục chọn người dùng không
+  const showUserSelector = selectedLocation === 'all' || selectedTeam;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
@@ -163,89 +168,97 @@ const Login = () => {
                     </Select>
                   </div>
 
-                  {/* Team */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Team
-                    </label>
-                    <Select 
-                      value={selectedTeam?.id || ''} 
-                      onValueChange={(teamId) => {
-                        const team = teams.find(t => t.id === teamId);
-                        setSelectedTeam(team || null);
-                        setSelectedUser(null);
-                      }}
-                      disabled={filteredTeams.length === 0}
-                    >
-                      <SelectTrigger className="w-full h-12">
-                        <SelectValue placeholder="Chọn nhóm">
-                          {selectedTeam?.name || 'Chọn nhóm'}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredTeams.map(team => (
-                          <SelectItem key={team.id} value={team.id} className="py-3">
-                            <div className="flex items-center">
-                              <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
-                                <Users className="h-3 w-3 text-white" />
+                  {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
+                  {showTeamSelector && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Team
+                      </label>
+                      <Select 
+                        value={selectedTeam?.id || ''} 
+                        onValueChange={(teamId) => {
+                          const team = teams.find(t => t.id === teamId);
+                          setSelectedTeam(team || null);
+                          setSelectedUser(null);
+                        }}
+                        disabled={filteredTeams.length === 0}
+                      >
+                        <SelectTrigger className="w-full h-12">
+                          <SelectValue placeholder="Chọn nhóm">
+                            {selectedTeam?.name || 'Chọn nhóm'}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filteredTeams.map(team => (
+                            <SelectItem key={team.id} value={team.id} className="py-3">
+                              <div className="flex items-center">
+                                <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
+                                  <Users className="h-3 w-3 text-white" />
+                                </div>
+                                {team.name}
                               </div>
-                              {team.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   {/* Người dùng */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Người dùng
-                    </label>
-                    <Select 
-                      value={selectedUser?.id || ''} 
-                      onValueChange={(userId) => {
-                        const user = users.find(u => u.id === userId);
-                        setSelectedUser(user || null);
-                      }}
-                      disabled={filteredUsers.length === 0 || !selectedTeam}
-                    >
-                      <SelectTrigger className="w-full h-12">
-                        <SelectValue placeholder="Chọn người dùng">
-                          {selectedUser ? (
-                            <div className="flex items-center">
-                              <Avatar className="h-6 w-6 mr-2">
-                                <AvatarFallback>
-                                  {getAvatarText(selectedUser.name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              {selectedUser.name}
-                            </div>
-                          ) : (
-                            'Chọn người dùng'
-                          )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredUsers.map(user => (
-                          <SelectItem key={user.id} value={user.id} className="py-3">
-                            <div className="flex items-center">
-                              <Avatar className="h-6 w-6 mr-2">
-                                <AvatarFallback className={`text-white ${
-                                  user.role === 'director' ? 'bg-purple-500' : 
-                                  user.role === 'team_leader' ? 'bg-ios-blue' : 
-                                  'bg-gray-500'
-                                }`}>
-                                  {getAvatarText(user.name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              {user.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {showUserSelector && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Người dùng
+                      </label>
+                      <Select 
+                        value={selectedUser?.id || ''} 
+                        onValueChange={(userId) => {
+                          const user = users.find(u => u.id === userId);
+                          setSelectedUser(user || null);
+                        }}
+                        disabled={filteredUsers.length === 0}
+                      >
+                        <SelectTrigger className="w-full h-12">
+                          <SelectValue placeholder="Chọn người dùng">
+                            {selectedUser ? (
+                              <div className="flex items-center">
+                                <Avatar className="h-6 w-6 mr-2">
+                                  <AvatarFallback className={`text-white ${
+                                    selectedUser.role === 'director' ? 'bg-purple-500' : 
+                                    selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 
+                                    'bg-gray-500'
+                                  }`}>
+                                    {getAvatarText(selectedUser.name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {selectedUser.name}
+                              </div>
+                            ) : (
+                              'Chọn người dùng'
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filteredUsers.map(user => (
+                            <SelectItem key={user.id} value={user.id} className="py-3">
+                              <div className="flex items-center">
+                                <Avatar className="h-6 w-6 mr-2">
+                                  <AvatarFallback className={`text-white ${
+                                    user.role === 'director' ? 'bg-purple-500' : 
+                                    user.role === 'team_leader' ? 'bg-ios-blue' : 
+                                    'bg-gray-500'
+                                  }`}>
+                                    {getAvatarText(user.name)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {user.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   {/* Mật khẩu */}
                   <div className="space-y-2">
@@ -289,3 +302,4 @@ const Login = () => {
 };
 
 export default Login;
+
