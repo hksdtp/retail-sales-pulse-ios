@@ -6,8 +6,14 @@ import TaskKanban from './TaskKanban';
 import TaskList from './TaskList';
 import TaskCalendar from './TaskCalendar';
 
+// Dữ liệu mẫu và các hàm sẽ được chuyển vào các hook và context trong tương lai
+// khi ứng dụng được kết nối với backend
+
 const TaskTabs = () => {
   const [view, setView] = useState('kanban');
+
+  // Trong thực tế, chúng ta sẽ thêm các state và hàm xử lý để quản lý 
+  // danh sách công việc và các thao tác CRUD, nhưng hiện tại, chúng chỉ là mẫu
 
   return (
     <Tabs value={view} onValueChange={setView} className="w-full">
