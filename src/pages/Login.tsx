@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -12,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Users, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
-
 const Login = () => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
@@ -51,7 +49,6 @@ const Login = () => {
     }
     return team.location === selectedLocation;
   });
-  
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!selectedUser) {
@@ -82,43 +79,32 @@ const Login = () => {
 
   // Xác định xem có hiển thị mục chọn người dùng không
   const showUserSelector = selectedLocation === 'all' || selectedTeam;
-  
-  return (
-    <div className="flex min-h-screen items-center justify-center p-4 py-0 bg-gradient-to-br from-[#1A1F2C] to-[#2C3E50] mx-0 my-0">
-      <motion.div 
-        initial={{
-          opacity: 0,
-          y: 20
-        }} 
-        animate={{
-          opacity: 1,
-          y: 0
-        }} 
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 25
-        }} 
-        className="w-full max-w-md"
-      >
-        <Card className="shadow-lg border-0 rounded-xl overflow-hidden bg-black/30 backdrop-blur-xl text-white border-white/10">
+  return <div className="flex min-h-screen items-center justify-center p-4 py-0 bg-slate-600 mx-0 my-0 rounded-md px-[240px]">
+      <motion.div initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      type: "spring",
+      stiffness: 300,
+      damping: 25
+    }} className="w-full max-w-md">
+        <Card className="shadow-md border rounded-xl overflow-hidden">
           <CardHeader className="space-y-1 text-center">
-            <motion.div 
-              initial={{
-                opacity: 0,
-                y: -10
-              }} 
-              animate={{
-                opacity: 1,
-                y: 0
-              }} 
-              transition={{
-                delay: 0.1,
-                duration: 0.5
-              }}
-            >
-              <CardTitle className="text-3xl font-bold text-white">Đăng nhập</CardTitle>
-              <p className="text-base text-gray-300 mt-2">
+            <motion.div initial={{
+            opacity: 0,
+            y: -10
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            delay: 0.1,
+            duration: 0.5
+          }}>
+              <CardTitle className="text-3xl font-bold">Đăng nhập</CardTitle>
+              <p className="text-base text-gray-500 mt-2">
                 Chọn người dùng và nhập mật khẩu để tiếp tục
               </p>
             </motion.div>
@@ -127,44 +113,34 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <AnimatePresence mode="wait">
-                <motion.div 
-                  key="login-form" 
-                  initial={{
-                    opacity: 0
-                  }} 
-                  animate={{
-                    opacity: 1
-                  }} 
-                  exit={{
-                    opacity: 0
-                  }} 
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 30
-                  }} 
-                  className="space-y-4"
-                >
+                <motion.div key="login-form" initial={{
+                opacity: 0
+              }} animate={{
+                opacity: 1
+              }} exit={{
+                opacity: 0
+              }} transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30
+              }} className="space-y-4">
                   {/* Khu vực */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-200">
+                    <label className="text-sm font-medium">
                       Khu vực
                     </label>
-                    <Select 
-                      value={selectedLocation} 
-                      onValueChange={(value: UserLocation | 'all') => {
-                        setSelectedLocation(value);
-                        setSelectedTeam(null);
-                        setSelectedUser(null);
-                      }}
-                    >
-                      <SelectTrigger className="w-full h-12 bg-white/10 border-white/10 text-white">
+                    <Select value={selectedLocation} onValueChange={(value: UserLocation | 'all') => {
+                    setSelectedLocation(value);
+                    setSelectedTeam(null);
+                    setSelectedUser(null);
+                  }}>
+                      <SelectTrigger className="w-full h-12">
                         <SelectValue placeholder="Chọn khu vực">
                           {locationNames[selectedLocation]}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent className="bg-[#2A3441] text-white border-white/10">
-                        <SelectItem value="all" className="py-3 focus:bg-white/10 focus:text-white">
+                      <SelectContent>
+                        <SelectItem value="all" className="py-3">
                           <div className="flex items-center">
                             <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
                               <MapPin className="h-3 w-3 text-white" />
@@ -172,7 +148,7 @@ const Login = () => {
                             Toàn quốc
                           </div>
                         </SelectItem>
-                        <SelectItem value="hanoi" className="py-3 focus:bg-white/10 focus:text-white">
+                        <SelectItem value="hanoi" className="py-3">
                           <div className="flex items-center">
                             <div className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center mr-2">
                               <MapPin className="h-3 w-3 text-white" />
@@ -180,7 +156,7 @@ const Login = () => {
                             Hà Nội
                           </div>
                         </SelectItem>
-                        <SelectItem value="hcm" className="py-3 focus:bg-white/10 focus:text-white">
+                        <SelectItem value="hcm" className="py-3">
                           <div className="flex items-center">
                             <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center mr-2">
                               <MapPin className="h-3 w-3 text-white" />
@@ -193,72 +169,56 @@ const Login = () => {
                   </div>
 
                   {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
-                  {showTeamSelector && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-200">
+                  {showTeamSelector && <div className="space-y-2">
+                      <label className="text-sm font-medium">
                         Team
                       </label>
-                      <Select 
-                        value={selectedTeam?.id || ''} 
-                        onValueChange={teamId => {
-                          const team = teams.find(t => t.id === teamId);
-                          setSelectedTeam(team || null);
-                          setSelectedUser(null);
-                        }} 
-                        disabled={filteredTeams.length === 0}
-                      >
-                        <SelectTrigger className="w-full h-12 bg-white/10 border-white/10 text-white">
+                      <Select value={selectedTeam?.id || ''} onValueChange={teamId => {
+                    const team = teams.find(t => t.id === teamId);
+                    setSelectedTeam(team || null);
+                    setSelectedUser(null);
+                  }} disabled={filteredTeams.length === 0}>
+                        <SelectTrigger className="w-full h-12">
                           <SelectValue placeholder="Chọn nhóm">
                             {selectedTeam?.name || 'Chọn nhóm'}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="bg-[#2A3441] text-white border-white/10">
-                          {filteredTeams.map(team => (
-                            <SelectItem key={team.id} value={team.id} className="py-3 focus:bg-white/10 focus:text-white">
+                        <SelectContent>
+                          {filteredTeams.map(team => <SelectItem key={team.id} value={team.id} className="py-3">
                               <div className="flex items-center">
                                 <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
                                   <Users className="h-3 w-3 text-white" />
                                 </div>
                                 {team.name}
                               </div>
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                  )}
+                    </div>}
 
                   {/* Người dùng */}
-                  {showUserSelector && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-200">
+                  {showUserSelector && <div className="space-y-2">
+                      <label className="text-sm font-medium">
                         Người dùng
                       </label>
-                      <Select 
-                        value={selectedUser?.id || ''} 
-                        onValueChange={userId => {
-                          const user = users.find(u => u.id === userId);
-                          setSelectedUser(user || null);
-                        }} 
-                        disabled={filteredUsers.length === 0}
-                      >
-                        <SelectTrigger className="w-full h-12 bg-white/10 border-white/10 text-white">
+                      <Select value={selectedUser?.id || ''} onValueChange={userId => {
+                    const user = users.find(u => u.id === userId);
+                    setSelectedUser(user || null);
+                  }} disabled={filteredUsers.length === 0}>
+                        <SelectTrigger className="w-full h-12">
                           <SelectValue placeholder="Chọn người dùng">
-                            {selectedUser ? (
-                              <div className="flex items-center">
+                            {selectedUser ? <div className="flex items-center">
                                 <Avatar className="h-6 w-6 mr-2">
                                   <AvatarFallback className={`text-white ${selectedUser.role === 'director' ? 'bg-purple-500' : selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 'bg-gray-500'}`}>
                                     {getAvatarText(selectedUser.name)}
                                   </AvatarFallback>
                                 </Avatar>
                                 {selectedUser.name}
-                              </div>
-                            ) : 'Chọn người dùng'}
+                              </div> : 'Chọn người dùng'}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="bg-[#2A3441] text-white border-white/10">
-                          {filteredUsers.map(user => (
-                            <SelectItem key={user.id} value={user.id} className="py-3 focus:bg-white/10 focus:text-white">
+                        <SelectContent>
+                          {filteredUsers.map(user => <SelectItem key={user.id} value={user.id} className="py-3">
                               <div className="flex items-center">
                                 <Avatar className="h-6 w-6 mr-2">
                                   <AvatarFallback className={`text-white ${user.role === 'director' ? 'bg-purple-500' : user.role === 'team_leader' ? 'bg-ios-blue' : 'bg-gray-500'}`}>
@@ -267,45 +227,28 @@ const Login = () => {
                                 </Avatar>
                                 {user.name}
                               </div>
-                            </SelectItem>
-                          ))}
+                            </SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                  )}
+                    </div>}
 
                   {/* Mật khẩu */}
                   <div className="space-y-2">
-                    <label htmlFor="password" className="text-sm font-medium text-gray-200">
+                    <label htmlFor="password" className="text-sm font-medium">
                       Mật khẩu
                     </label>
                     <div className="relative">
-                      <Input 
-                        id="password" 
-                        type="password" 
-                        value={password} 
-                        onChange={e => setPassword(e.target.value)} 
-                        className="w-full h-12 bg-white/10 border-white/10 text-white placeholder:text-gray-400" 
-                        placeholder="Nhập mật khẩu" 
-                        disabled={!selectedUser} 
-                      />
+                      <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full h-12" placeholder="Nhập mật khẩu" disabled={!selectedUser} />
                     </div>
                   </div>
 
                   {/* Nút đăng nhập */}
-                  <motion.div 
-                    whileHover={{
-                      scale: selectedUser && password ? 1.02 : 1
-                    }} 
-                    whileTap={{
-                      scale: selectedUser && password ? 0.98 : 1
-                    }}
-                  >
-                    <Button 
-                      type="submit" 
-                      className="w-full h-12 text-lg font-medium bg-ios-blue hover:bg-ios-blue/90 mt-4" 
-                      disabled={isSubmitting || !selectedUser || !password}
-                    >
+                  <motion.div whileHover={{
+                  scale: selectedUser && password ? 1.02 : 1
+                }} whileTap={{
+                  scale: selectedUser && password ? 0.98 : 1
+                }}>
+                    <Button type="submit" className="w-full h-12 text-lg font-medium bg-ios-blue mt-4" disabled={isSubmitting || !selectedUser || !password}>
                       {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
                     </Button>
                   </motion.div>
@@ -315,8 +258,6 @@ const Login = () => {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
-  );
+    </div>;
 };
-
 export default Login;
