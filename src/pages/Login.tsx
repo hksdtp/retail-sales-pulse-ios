@@ -2,36 +2,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserType, UserLocation, Team } from '@/types/user';
-import LocationSelector from '@/components/login/LocationSelector';
-import UserSelector from '@/components/login/UserSelector';
-import PasswordInput from '@/components/login/PasswordInput';
-import StepIndicator from '@/components/login/StepIndicator';
-
-// Enum để theo dõi các bước đăng nhập
-enum LoginStep {
-  LOCATION = 'location',
-  USER = 'user',
-  PASSWORD = 'password'
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { MapPin, Users, User } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Login = () => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<LoginStep>(LoginStep.LOCATION);
   const { login, users, teams } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Lọc người dùng dựa trên vị trí đã chọn
-  const filteredUsers = users.filter(user => {
+  // Lọc teams dựa trên location
+  const filteredTeams = teams.filter(team => {
     if (selectedLocation === 'all') return true;
-    return user.location === selectedLocation;
+    return team.location === selectedLocation;
+  });
+
+  // Lọc users dựa trên team
+  const filteredUsers = users.filter(user => {
+    if (!selectedTeam) return false;
+    return user.team_id === selectedTeam.id;
   });
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -62,59 +62,17 @@ const Login = () => {
     }
   };
 
-  const handleLocationSelect = (location: UserLocation | 'all') => {
-    setSelectedLocation(location);
-    setCurrentStep(LoginStep.USER);
+  const locationNames = {
+    all: 'Toàn quốc',
+    hanoi: 'Hà Nội',
+    hcm: 'Hồ Chí Minh'
   };
 
-  const handleUserSelect = (user: UserType) => {
-    setSelectedUser(user);
-    setCurrentStep(LoginStep.PASSWORD);
-  };
-
-  const handleBackToLocation = () => {
-    setCurrentStep(LoginStep.LOCATION);
-    setSelectedUser(null);
-  };
-
-  const handleBackToUser = () => {
-    setCurrentStep(LoginStep.USER);
-    setPassword('');
-  };
-
-  // Render bước hiện tại
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case LoginStep.LOCATION:
-        return (
-          <LocationSelector 
-            selectedLocation={selectedLocation}
-            onLocationChange={handleLocationSelect}
-          />
-        );
-      case LoginStep.USER:
-        return (
-          <UserSelector 
-            filteredUsers={filteredUsers}
-            onUserSelect={handleUserSelect}
-            onBack={handleBackToLocation}
-          />
-        );
-      case LoginStep.PASSWORD:
-        return (
-          <PasswordInput
-            selectedUser={selectedUser}
-            password={password}
-            onPasswordChange={setPassword}
-            isSubmitting={isSubmitting}
-            onSubmit={handleSubmit}
-            onBack={handleBackToUser}
-            teams={teams}
-          />
-        );
-      default:
-        return null;
-    }
+  const getAvatarText = (name: string) => {
+    if (!name) return '';
+    const nameParts = name.split(' ');
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
+    return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
   };
 
   return (
@@ -137,48 +95,193 @@ const Login = () => {
               transition={{ delay: 0.1, duration: 0.5 }}
             >
               <CardTitle className="text-3xl font-bold">Đăng nhập</CardTitle>
-              <CardDescription className="text-base pb-4">
-                {currentStep === LoginStep.LOCATION && "Chọn khu vực để tiếp tục"}
-                {currentStep === LoginStep.USER && "Chọn người dùng để tiếp tục"}
-                {currentStep === LoginStep.PASSWORD && "Nhập mật khẩu để đăng nhập"}
-              </CardDescription>
+              <p className="text-base text-gray-500 mt-2">
+                Chọn người dùng và nhập mật khẩu để tiếp tục
+              </p>
             </motion.div>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <StepIndicator currentStep={
-                currentStep === LoginStep.LOCATION ? 1 :
-                currentStep === LoginStep.USER ? 2 : 3
-              } />
-              
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  key="login-form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   transition={{ 
                     type: "spring", 
                     stiffness: 500, 
                     damping: 30 
                   }}
+                  className="space-y-4"
                 >
-                  {renderCurrentStep()}
+                  {/* Khu vực */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Khu vực
+                    </label>
+                    <Select 
+                      value={selectedLocation} 
+                      onValueChange={(value: UserLocation | 'all') => {
+                        setSelectedLocation(value);
+                        setSelectedTeam(null);
+                        setSelectedUser(null);
+                      }}
+                    >
+                      <SelectTrigger className="w-full h-12">
+                        <SelectValue placeholder="Chọn khu vực">
+                          {locationNames[selectedLocation]}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all" className="py-3">
+                          <div className="flex items-center">
+                            <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
+                              <MapPin className="h-3 w-3 text-white" />
+                            </div>
+                            Toàn quốc
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="hanoi" className="py-3">
+                          <div className="flex items-center">
+                            <div className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center mr-2">
+                              <MapPin className="h-3 w-3 text-white" />
+                            </div>
+                            Hà Nội
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="hcm" className="py-3">
+                          <div className="flex items-center">
+                            <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center mr-2">
+                              <MapPin className="h-3 w-3 text-white" />
+                            </div>
+                            Hồ Chí Minh
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Team */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Team
+                    </label>
+                    <Select 
+                      value={selectedTeam?.id || ''} 
+                      onValueChange={(teamId) => {
+                        const team = teams.find(t => t.id === teamId);
+                        setSelectedTeam(team || null);
+                        setSelectedUser(null);
+                      }}
+                      disabled={filteredTeams.length === 0}
+                    >
+                      <SelectTrigger className="w-full h-12">
+                        <SelectValue placeholder="Chọn nhóm">
+                          {selectedTeam?.name || 'Chọn nhóm'}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredTeams.map(team => (
+                          <SelectItem key={team.id} value={team.id} className="py-3">
+                            <div className="flex items-center">
+                              <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
+                                <Users className="h-3 w-3 text-white" />
+                              </div>
+                              {team.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Người dùng */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Người dùng
+                    </label>
+                    <Select 
+                      value={selectedUser?.id || ''} 
+                      onValueChange={(userId) => {
+                        const user = users.find(u => u.id === userId);
+                        setSelectedUser(user || null);
+                      }}
+                      disabled={filteredUsers.length === 0 || !selectedTeam}
+                    >
+                      <SelectTrigger className="w-full h-12">
+                        <SelectValue placeholder="Chọn người dùng">
+                          {selectedUser ? (
+                            <div className="flex items-center">
+                              <Avatar className="h-6 w-6 mr-2">
+                                <AvatarFallback>
+                                  {getAvatarText(selectedUser.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {selectedUser.name}
+                            </div>
+                          ) : (
+                            'Chọn người dùng'
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredUsers.map(user => (
+                          <SelectItem key={user.id} value={user.id} className="py-3">
+                            <div className="flex items-center">
+                              <Avatar className="h-6 w-6 mr-2">
+                                <AvatarFallback className={`text-white ${
+                                  user.role === 'director' ? 'bg-purple-500' : 
+                                  user.role === 'team_leader' ? 'bg-ios-blue' : 
+                                  'bg-gray-500'
+                                }`}>
+                                  {getAvatarText(user.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {user.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Mật khẩu */}
+                  <div className="space-y-2">
+                    <label htmlFor="password" className="text-sm font-medium">
+                      Mật khẩu
+                    </label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full h-12"
+                        placeholder="Nhập mật khẩu"
+                        disabled={!selectedUser}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Nút đăng nhập */}
+                  <motion.div
+                    whileHover={{ scale: selectedUser && password ? 1.02 : 1 }}
+                    whileTap={{ scale: selectedUser && password ? 0.98 : 1 }}
+                  >
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 text-lg font-medium bg-ios-blue mt-4"
+                      disabled={isSubmitting || !selectedUser || !password}
+                    >
+                      {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    </Button>
+                  </motion.div>
                 </motion.div>
               </AnimatePresence>
             </form>
           </CardContent>
-          
-          <CardFooter className="flex justify-center">
-            <motion.p 
-              className="text-center text-blue-500 hover:underline cursor-pointer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Chưa có tài khoản? Đăng ký ngay
-            </motion.p>
-          </CardFooter>
         </Card>
       </motion.div>
     </div>

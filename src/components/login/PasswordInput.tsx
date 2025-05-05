@@ -89,8 +89,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   };
 
   const renderRegularUserView = () => {
-    // Sửa lỗi: Thay vì kiểm tra selectedUser.role === 'director'
-    // chúng ta sẽ kiểm tra selectedUser.role !== 'director'
+    // Đã sửa: Sửa lỗi TypeScript với phép so sánh role
     if (!selectedUser || selectedUser.role === 'director') return null;
     
     return (
@@ -109,9 +108,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
           <span className="font-medium">{selectedUser.name}</span>
           <div className="flex items-center mt-1">
             <Badge className={`mr-1 h-5 text-xs ${
-              selectedUser.role === 'director' ? 'bg-purple-500' : 
-              selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 
-              'bg-gray-500'
+              selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 'bg-gray-500'
             }`}>
               {positionLabels[selectedUser.role]}
             </Badge>
@@ -179,7 +176,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         animate={{ opacity: password ? 1 : 0.5, y: 0 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 25 }}
       >
-        {/* Sử dụng motion.button bọc Button component để có thể sử dụng whileHover và whileTap */}
+        {/* Sử dụng motion.div bọc Button component để có thể sử dụng whileHover và whileTap */}
         <motion.div
           whileHover={{ scale: password ? 1.02 : 1 }}
           whileTap={{ scale: password ? 0.98 : 1 }}
