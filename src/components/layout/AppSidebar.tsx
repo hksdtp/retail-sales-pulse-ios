@@ -16,7 +16,6 @@ const AppSidebar = () => {
   const navigate = useNavigate();
   const { state, toggleSidebar } = useSidebar();
   const [autoHideTimer, setAutoHideTimer] = useState<NodeJS.Timeout | null>(null);
-  const [showControls, setShowControls] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -71,11 +70,7 @@ const AppSidebar = () => {
   }];
 
   return (
-    <div 
-      className="relative group" 
-      onMouseEnter={() => setShowControls(true)}
-      onMouseLeave={() => setShowControls(false)}
-    >
+    <div className="relative">
       <Sidebar>
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-gray-200 flex items-center">
@@ -124,9 +119,9 @@ const AppSidebar = () => {
         </div>
       </Sidebar>
       
-      {/* Nút điều khiển ẩn hiện - hiển thị ở cả desktop và mobile */}
+      {/* Nút điều khiển ẩn hiện - hiển thị rõ ràng ở cả desktop và mobile */}
       <div 
-        className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full' : 'left-[3rem]'} transition-opacity duration-300 z-20 ${showControls ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full' : 'left-[3rem]'} z-20`}
       >
         <div className="bg-ios-blue text-white p-2 rounded-r-lg shadow-md cursor-pointer hover:bg-blue-600 transition-colors" onClick={toggleSidebar}>
           {state === 'expanded' ? <ChevronLeft size={20} /> : <Menu size={20} />}
