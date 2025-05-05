@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Team } from '@/types/user';
+import { motion } from 'framer-motion';
 
 interface PasswordInputProps {
   selectedUser: User | null;
@@ -46,7 +47,12 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
     if (!selectedUser || selectedUser.role !== 'director') return null;
     
     return (
-      <div className="flex flex-col items-center space-y-4 p-6 bg-ios-gray rounded-lg">
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="flex flex-col items-center space-y-4 p-6 bg-ios-gray rounded-lg"
+      >
         <Avatar className="h-24 w-24 border-4 border-ios-blue">
           <AvatarImage src={selectedUser.avatar} />
           <AvatarFallback className="bg-ios-blue text-white text-2xl">
@@ -78,7 +84,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -86,7 +92,12 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
     if (!selectedUser || selectedUser.role === 'director') return null;
     
     return (
-      <div className="flex items-center gap-3 p-3 rounded-lg border">
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="flex items-center gap-3 p-3 rounded-lg border"
+      >
         <Avatar className="h-12 w-12">
           <AvatarFallback className={`text-white ${selectedUser.role === 'team_leader' ? 'bg-ios-blue' : 'bg-gray-500'}`}>
             {getAvatarText(selectedUser.name)}
@@ -105,12 +116,18 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
             <span className="text-xs text-gray-500">{selectedUser.email}</span>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="space-y-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="space-y-4"
+    >
       <div className="flex items-center justify-between">
         <label htmlFor="password" className="text-lg font-medium">
           Mật khẩu
@@ -128,7 +145,12 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       {renderDirectorView()}
       {renderRegularUserView()}
 
-      <div className="relative mt-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 25 }}
+        className="relative mt-4"
+      >
         <Input
           id="password"
           type={showPassword ? "text" : "password"}
@@ -148,17 +170,25 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         >
           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </Button>
-      </div>
+      </motion.div>
 
-      <Button 
-        type="button" 
-        className="w-full h-12 text-lg font-medium bg-ios-blue mt-4"
-        disabled={isSubmitting || !password}
-        onClick={onSubmit}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: password ? 1 : 0.5, y: 0 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 25 }}
       >
-        {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
-      </Button>
-    </div>
+        <Button 
+          type="button" 
+          className="w-full h-12 text-lg font-medium bg-ios-blue mt-4"
+          disabled={isSubmitting || !password}
+          onClick={onSubmit}
+          whileHover={{ scale: password ? 1.02 : 1 }}
+          whileTap={{ scale: password ? 0.98 : 1 }}
+        >
+          {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 };
 
