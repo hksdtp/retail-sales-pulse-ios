@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserType, UserLocation, Team } from '@/types/user';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { MapPin, Users, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
