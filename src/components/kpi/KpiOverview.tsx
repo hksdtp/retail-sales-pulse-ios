@@ -17,8 +17,18 @@ const timeFrames = [
   { id: 'yearly', name: 'Năm nay' },
 ];
 
-// Sample KPI data
-const kpiData = {
+interface KpiItem {
+  id: string;
+  name: string;
+  value: number;
+  target: number;
+  category: string;
+  trend: 'up' | 'down' | 'flat';
+  unit?: string;
+}
+
+// Sample KPI data with properly typed fields
+const kpiData: Record<string, Record<string, KpiItem[]>> = {
   personal: {
     weekly: [
       { id: '1', name: 'Số đối tác mới', value: 3, target: 5, category: 'partner', trend: 'up' },
@@ -51,7 +61,6 @@ const kpiData = {
       { id: '22', name: 'Doanh số', value: 1500000000, target: 1800000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
   },
-  // Similar data structure for team and department...
   team: {
     weekly: [
       { id: '23', name: 'Số đối tác mới', value: 12, target: 15, category: 'partner', trend: 'up' },
@@ -68,11 +77,9 @@ const kpiData = {
       { id: '32', name: 'Doanh số', value: 480000000, target: 450000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
     quarterly: [
-      // Quarterly data...
       { id: '33', name: 'Doanh số', value: 1420000000, target: 1350000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
     yearly: [
-      // Yearly data...
       { id: '34', name: 'Doanh số', value: 5700000000, target: 5400000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
   },
@@ -92,11 +99,9 @@ const kpiData = {
       { id: '44', name: 'Doanh số', value: 960000000, target: 900000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
     quarterly: [
-      // Quarterly data...
       { id: '45', name: 'Doanh số', value: 2840000000, target: 2700000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
     yearly: [
-      // Yearly data...
       { id: '46', name: 'Doanh số', value: 11400000000, target: 10800000000, category: 'revenue', trend: 'up', unit: 'VND' },
     ],
   },
@@ -123,18 +128,19 @@ const KpiOverview = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center">
-        <TabsList>
-          {categories.map(cat => (
-            <TabsTrigger 
-              key={cat.id} 
-              value={cat.id}
-              onClick={() => setCategory(cat.id)}
-              className={category === cat.id ? 'bg-primary text-white' : ''}
-            >
-              {cat.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <Tabs value={category} onValueChange={setCategory}>
+          <TabsList>
+            {categories.map(cat => (
+              <TabsTrigger 
+                key={cat.id} 
+                value={cat.id}
+                className={category === cat.id ? 'bg-primary text-white' : ''}
+              >
+                {cat.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
         
         <div className="flex items-center space-x-2 overflow-x-auto">
           {timeFrames.map(time => (
