@@ -14,7 +14,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-ios-gray to-white fixed inset-0 overflow-auto">
         <AppSidebar />
         <main className="flex-1 flex flex-col overflow-hidden">
