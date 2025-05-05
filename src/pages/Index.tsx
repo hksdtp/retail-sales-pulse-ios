@@ -12,6 +12,8 @@ import { useAuth } from '@/context/AuthContext';
 const Index = () => {
   const { currentUser } = useAuth();
   const isDirector = currentUser?.role === 'director';
+  const isTeamLeader = currentUser?.role === 'team_leader';
+  const canViewTeamData = isDirector || isTeamLeader;
 
   // Dữ liệu KPI sẽ khác nhau tùy theo người dùng
   const getKpiData = () => {
@@ -50,6 +52,40 @@ const Index = () => {
     }
     // Dữ liệu cho Việt Anh (Trưởng nhóm, id: '2')
     else if (currentUser?.id === '2') {
+      // Dữ liệu cá nhân của Việt Anh
+      if (!canViewTeamData) {
+        return [
+          {
+            title: 'Đối tác mới',
+            value: '8',
+            oldValue: '25',
+            change: 7.5,
+            data: Array(10).fill(0).map((_, i) => ({ value: 6 + Math.random() * 10 }))
+          },
+          {
+            title: 'KTS mới',
+            value: '5',
+            oldValue: '12',
+            change: 4.2,
+            data: Array(10).fill(0).map((_, i) => ({ value: 3 + Math.random() * 8 }))
+          },
+          {
+            title: 'SBG mới',
+            value: '10',
+            oldValue: '18',
+            change: 3.8,
+            data: Array(10).fill(0).map((_, i) => ({ value: 8 + Math.random() * 12 }))
+          },
+          {
+            title: 'Doanh số',
+            value: '90tr',
+            oldValue: '120tr',
+            change: 8.2,
+            data: Array(10).fill(0).map((_, i) => ({ value: 80 + Math.random() * 50 }))
+          }
+        ];
+      }
+      // Dữ liệu cho trưởng nhóm - bao gồm dữ liệu tổng hợp của cả nhóm
       return [
         {
           title: 'Đối tác mới',
@@ -78,6 +114,40 @@ const Index = () => {
           oldValue: '380tr',
           change: 14.2,
           data: Array(10).fill(0).map((_, i) => ({ value: 250 + Math.random() * 150 }))
+        }
+      ];
+    }
+    // Dữ liệu cho nhân viên khác
+    else if (currentUser?.role === 'employee') {
+      // Mỗi nhân viên có dữ liệu cá nhân riêng
+      return [
+        {
+          title: 'Đối tác mới',
+          value: `${5 + Math.floor(Math.random() * 10)}`,
+          oldValue: `${15 + Math.floor(Math.random() * 20)}`,
+          change: 5 + Math.random() * 8,
+          data: Array(10).fill(0).map((_, i) => ({ value: 4 + Math.random() * 12 }))
+        },
+        {
+          title: 'KTS mới',
+          value: `${3 + Math.floor(Math.random() * 7)}`,
+          oldValue: `${10 + Math.floor(Math.random() * 15)}`,
+          change: 3 + Math.random() * 7,
+          data: Array(10).fill(0).map((_, i) => ({ value: 2 + Math.random() * 8 }))
+        },
+        {
+          title: 'SBG mới',
+          value: `${8 + Math.floor(Math.random() * 12)}`,
+          oldValue: `${20 + Math.floor(Math.random() * 15)}`,
+          change: -2 + Math.random() * 6,
+          data: Array(10).fill(0).map((_, i) => ({ value: 7 + Math.random() * 14 }))
+        },
+        {
+          title: 'Doanh số',
+          value: `${70 + Math.floor(Math.random() * 50)}tr`,
+          oldValue: `${120 + Math.floor(Math.random() * 80)}tr`,
+          change: 8 + Math.random() * 6,
+          data: Array(10).fill(0).map((_, i) => ({ value: 60 + Math.random() * 60 }))
         }
       ];
     }
@@ -117,12 +187,23 @@ const Index = () => {
   };
 
   const kpiData = getKpiData();
+  
+  // Xây dựng tiêu đề phụ (subtitle) dựa trên loại người dùng
+  const getSubtitle = () => {
+    if (isDirector) {
+      return "Tổng quan về hiệu suất kinh doanh toàn bộ phòng/ban";
+    } else if (isTeamLeader) {
+      return "Tổng quan về hiệu suất kinh doanh của nhóm của bạn";
+    } else {
+      return "Tổng quan về hiệu suất kinh doanh cá nhân của bạn";
+    }
+  };
 
   return (
     <AppLayout>
       <PageHeader 
         title="Dashboard" 
-        subtitle="Xem tổng quan về hiệu suất kinh doanh"
+        subtitle={getSubtitle()}
         actions={
           <Button>Xuất báo cáo</Button>
         }
@@ -143,18 +224,20 @@ const Index = () => {
           ))}
         </div>
         
-        {/* Charts */}
+        {/* Charts - Chỉ hiển thị RevenueChart cho tất cả người dùng */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <RevenueChart />
           </div>
           <div className="lg:col-span-1">
+            {/* TopPerformers chỉ hiển thị cho giám đốc */}
             <TopPerformers />
           </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
+            {/* RegionDistribution chỉ hiển thị cho giám đốc */}
             <RegionDistribution />
           </div>
           <div className="lg:col-span-2">
