@@ -15,7 +15,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-ios-gray">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-[#1A1F2C] to-[#2C3E50]">
         <AppSidebar />
         <main className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
