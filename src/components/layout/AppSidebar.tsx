@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Sidebar, 
   SidebarContent, 
@@ -18,10 +18,21 @@ import {
   CalendarCheck, 
   FileText,
   Users,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
 
 const AppSidebar = () => {
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const menuItems = [
     {
       title: "Dashboard",
@@ -85,15 +96,30 @@ const AppSidebar = () => {
         </SidebarContent>
         
         <div className="mt-auto p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-ios-blue rounded-full flex items-center justify-center text-white">
-              <User className="h-4 w-4" />
+          {currentUser && (
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 bg-ios-blue rounded-full flex items-center justify-center text-white">
+                  <User className="h-4 w-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{currentUser.name}</span>
+                  <span className="text-xs text-gray-500">{currentUser.position || currentUser.role}</span>
+                </div>
+              </div>
+              <div className="pt-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Đăng xuất</span>
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">Giám đốc Kinh doanh</span>
-              <span className="text-xs text-gray-500">Quản lý</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </Sidebar>

@@ -29,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 // Schema xác thực form
 const formSchema = z.object({
@@ -47,7 +49,8 @@ const formSchema = z.object({
   date: z.string().min(1, {
     message: "Vui lòng chọn ngày"
   }),
-  time: z.string().optional()
+  time: z.string().optional(),
+  team_id: z.string().optional()
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,6 +61,9 @@ interface TaskFormDialogProps {
 }
 
 const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
+  const { currentUser } = useAuth();
+  const { toast } = useToast();
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,14 +72,30 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
       type: 'partner',
       status: 'todo',
       date: new Date().toISOString().split('T')[0], // Ngày hiện tại
-      time: ''
+      time: '',
+      team_id: currentUser?.team_id
     }
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log("Dữ liệu công việc mới:", data);
+    // Thêm thông tin người dùng vào dữ liệu công việc
+    const taskWithUserInfo = {
+      ...data,
+      user_id: currentUser?.id,
+      user_name: currentUser?.name,
+      team_id: currentUser?.team_id,
+      location: currentUser?.location,
+      created_at: new Date().toISOString()
+    };
+    
+    console.log("Dữ liệu công việc mới:", taskWithUserInfo);
     // Ở đây sẽ thêm logic lưu dữ liệu
     // Trong thực tế, ta sẽ kết nối API hoặc cơ sở dữ liệu
+
+    toast({
+      title: "Thành công!",
+      description: "Công việc đã được tạo thành công."
+    });
 
     // Đóng form sau khi submit
     onOpenChange(false);
@@ -208,6 +230,13 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
                   </FormItem>
                 )}
               />
+            </div>
+
+            <div className="mt-2 p-3 bg-muted rounded-md">
+              <p className="text-sm mb-1">Thông tin người tạo:</p>
+              <p className="text-xs">Người tạo: <strong>{currentUser?.name}</strong></p>
+              <p className="text-xs">Vị trí: <strong>{currentUser?.position}</strong></p>
+              <p className="text-xs">Khu vực: <strong>{currentUser?.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh'}</strong></p>
             </div>
 
             <DialogFooter className="mt-6">
