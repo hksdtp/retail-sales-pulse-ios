@@ -10,9 +10,10 @@ interface KpiCardProps {
   change: number;
   data: Array<{ value: number }>;
   className?: string;
+  oldValue?: string | number;
 }
 
-const KpiCard = ({ title, value, change, data, className }: KpiCardProps) => {
+const KpiCard = ({ title, value, change, data, className, oldValue }: KpiCardProps) => {
   const isPositive = change >= 0;
 
   return (
@@ -20,7 +21,15 @@ const KpiCard = ({ title, value, change, data, className }: KpiCardProps) => {
       <CardContent className="p-6">
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-500">{title}</span>
-          <span className="text-2xl font-bold mt-1">{value}</span>
+          <div className="flex items-baseline mt-1 gap-2">
+            <span className="text-2xl font-bold">{value}</span>
+            {oldValue && (
+              <div className="flex items-center">
+                <span className="text-sm text-gray-500">Cũ: </span>
+                <span className="text-sm font-medium ml-1">{oldValue}</span>
+              </div>
+            )}
+          </div>
           
           <div className="flex items-center mt-2">
             <span className={`inline-flex items-center text-xs font-medium ${isPositive ? 'text-ios-green' : 'text-ios-red'}`}>
