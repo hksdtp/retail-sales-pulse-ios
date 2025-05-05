@@ -84,14 +84,14 @@ const Login = () => {
   const showUserSelector = selectedLocation === 'all' || selectedTeam;
   
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-ios-gray">
+    <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-ios-gray to-white">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         className="w-full max-w-md"
       >
-        <Card className="shadow-lg border rounded-xl overflow-hidden">
+        <Card className="shadow-lg border-gray-200 rounded-xl overflow-hidden">
           <CardHeader className="space-y-1 text-center">
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
@@ -129,7 +129,7 @@ const Login = () => {
                         setSelectedUser(null);
                       }}
                     >
-                      <SelectTrigger className="w-full h-10 md:h-12">
+                      <SelectTrigger className="w-full h-10 md:h-12 bg-white/80 border border-gray-200">
                         <SelectValue placeholder="Chọn khu vực">
                           {locationNames[selectedLocation]}
                         </SelectValue>
@@ -178,7 +178,7 @@ const Login = () => {
                         }} 
                         disabled={filteredTeams.length === 0}
                       >
-                        <SelectTrigger className="w-full h-10 md:h-12">
+                        <SelectTrigger className="w-full h-10 md:h-12 bg-white/80 border border-gray-200">
                           <SelectValue placeholder="Chọn nhóm">
                             {selectedTeam?.name || 'Chọn nhóm'}
                           </SelectValue>
@@ -213,7 +213,7 @@ const Login = () => {
                         }} 
                         disabled={filteredUsers.length === 0}
                       >
-                        <SelectTrigger className="w-full h-10 md:h-12">
+                        <SelectTrigger className="w-full h-10 md:h-12 bg-white/80 border border-gray-200">
                           <SelectValue placeholder="Chọn người dùng">
                             {selectedUser ? (
                               <div className="flex items-center">
@@ -256,7 +256,7 @@ const Login = () => {
                         type="password" 
                         value={password} 
                         onChange={e => setPassword(e.target.value)} 
-                        className="w-full h-10 md:h-12" 
+                        className="w-full h-10 md:h-12 bg-white/80 border border-gray-200" 
                         placeholder="Nhập mật khẩu" 
                         disabled={!selectedUser} 
                       />
