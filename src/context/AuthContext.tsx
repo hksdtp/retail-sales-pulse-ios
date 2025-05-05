@@ -33,35 +33,51 @@ export const useAuth = () => useContext(AuthContext);
 const MOCK_TEAMS: Team[] = [
   {
     id: '1',
-    name: 'Nhóm Kinh doanh 1 - Hà Nội',
+    name: 'NHÓM 1 - VIỆT ANH',
     leader_id: '2',
     location: 'hanoi',
-    description: 'Nhóm kinh doanh khu vực phía Bắc 1',
+    description: 'Nhóm kinh doanh 1 Hà Nội',
     created_at: '2023-01-01'
   },
   {
     id: '2',
-    name: 'Nhóm Kinh doanh 2 - Hà Nội',
-    leader_id: '3',
+    name: 'NHÓM 2 - THẢO',
+    leader_id: '4',
     location: 'hanoi',
-    description: 'Nhóm kinh doanh khu vực phía Bắc 2',
+    description: 'Nhóm kinh doanh 2 Hà Nội',
     created_at: '2023-01-01'
   },
   {
     id: '3',
-    name: 'Nhóm Kinh doanh 1 - Hồ Chí Minh',
-    leader_id: '4',
-    location: 'hcm',
-    description: 'Nhóm kinh doanh khu vực phía Nam 1',
-    created_at: '2023-01-01'
+    name: 'NHÓM 3',
+    leader_id: '6',
+    location: 'hanoi',
+    description: 'Nhóm kinh doanh 3 Hà Nội',
+    created_at: '2023-01-15'
   },
   {
     id: '4',
-    name: 'Nhóm Kinh doanh 2 - Hồ Chí Minh',
+    name: 'NHÓM 4',
     leader_id: '7',
+    location: 'hanoi',
+    description: 'Nhóm kinh doanh 4 Hà Nội',
+    created_at: '2023-02-01'
+  },
+  {
+    id: '5',
+    name: 'NHÓM 1',
+    leader_id: '8',
     location: 'hcm',
-    description: 'Nhóm kinh doanh khu vực phía Nam 2',
-    created_at: '2023-02-15'
+    description: 'Nhóm kinh doanh 1 Hồ Chí Minh',
+    created_at: '2023-01-01'
+  },
+  {
+    id: '6',
+    name: 'NHÓM 2',
+    leader_id: '10',
+    location: 'hcm',
+    description: 'Nhóm kinh doanh 2 Hồ Chí Minh',
+    created_at: '2023-01-15'
   }
 ];
 
@@ -69,7 +85,7 @@ const MOCK_TEAMS: Team[] = [
 const MOCK_USERS: User[] = [
   {
     id: '1',
-    name: 'Nguyễn Văn A',
+    name: 'Khổng Đức Mạnh',
     email: 'director@example.com',
     role: 'director',
     team_id: '0',
@@ -80,8 +96,8 @@ const MOCK_USERS: User[] = [
   },
   {
     id: '2',
-    name: 'Trần Thị B',
-    email: 'leader_hn1@example.com',
+    name: 'Lương Việt Anh',
+    email: 'vietanh@example.com',
     role: 'team_leader',
     team_id: '1',
     location: 'hanoi',
@@ -91,8 +107,19 @@ const MOCK_USERS: User[] = [
   },
   {
     id: '3',
-    name: 'Lê Văn C',
-    email: 'leader_hn2@example.com',
+    name: 'Lê Khánh Duy',
+    email: 'khanhduy@example.com',
+    role: 'employee',
+    team_id: '1',
+    location: 'hanoi',
+    position: 'Nhân viên Sale',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '4',
+    name: 'Nguyễn Thị Thảo',
+    email: 'thao@example.com',
     role: 'team_leader',
     team_id: '2',
     location: 'hanoi',
@@ -101,79 +128,79 @@ const MOCK_USERS: User[] = [
     password_changed: false
   },
   {
-    id: '4',
-    name: 'Phạm Thị D',
-    email: 'leader_hcm1@example.com',
+    id: '5',
+    name: 'Nguyễn Mạnh Linh',
+    email: 'manhlinh@example.com',
+    role: 'employee',
+    team_id: '2',
+    location: 'hanoi',
+    position: 'Nhân viên Sale',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '6',
+    name: 'Trịnh Thị Bốn',
+    email: 'bon@example.com',
     role: 'team_leader',
     team_id: '3',
+    location: 'hanoi',
+    position: 'Trưởng nhóm 3 - Hà Nội',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '7',
+    name: 'Phạm Thị Hương',
+    email: 'huong@example.com',
+    role: 'team_leader',
+    team_id: '4',
+    location: 'hanoi',
+    position: 'Trưởng nhóm 4 - Hà Nội',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: '8',
+    name: 'Nguyễn Thị Nga',
+    email: 'nga@example.com',
+    role: 'team_leader',
+    team_id: '5',
     location: 'hcm',
     position: 'Trưởng nhóm 1 - HCM',
     status: 'active',
     password_changed: false
   },
   {
-    id: '5',
-    name: 'Hoàng Văn E',
-    email: 'employee_hn1@example.com',
+    id: '9',
+    name: 'Hà Nguyễn Thanh Tuyền',
+    email: 'tuyen@example.com',
     role: 'employee',
-    team_id: '1',
-    location: 'hanoi',
-    position: 'Nhân viên kinh doanh',
-    status: 'active',
-    password_changed: false
-  },
-  {
-    id: '6',
-    name: 'Đỗ Thị F',
-    email: 'employee_hcm1@example.com',
-    role: 'employee',
-    team_id: '3',
+    team_id: '5',
     location: 'hcm',
-    position: 'Nhân viên kinh doanh',
+    position: 'Nhân viên Sale',
     status: 'active',
     password_changed: false
   },
   {
-    id: '7',
-    name: 'Vũ Thị G',
-    email: 'leader_hcm2@example.com',
+    id: '10',
+    name: 'Nguyễn Ngọc Việt Khanh',
+    email: 'khanh@example.com',
     role: 'team_leader',
-    team_id: '4',
+    team_id: '6',
     location: 'hcm',
     position: 'Trưởng nhóm 2 - HCM',
     status: 'active',
     password_changed: false
   },
   {
-    id: '8',
-    name: 'Ngô Văn H',
-    email: 'employee_hn2@example.com',
+    id: '11',
+    name: 'Phùng Thị Thuỳ Vân',
+    email: 'thuyvan@example.com',
     role: 'employee',
-    team_id: '1',
-    location: 'hanoi',
-    position: 'Nhân viên kinh doanh',
-    status: 'active',
-    password_changed: false
-  },
-  {
-    id: '9',
-    name: 'Trịnh Thị I',
-    email: 'employee_hn3@example.com',
-    role: 'employee',
-    team_id: '2',
-    location: 'hanoi',
-    position: 'Nhân viên kinh doanh',
-    status: 'active',
-    password_changed: false
-  },
-  {
-    id: '10',
-    name: 'Bùi Văn K',
-    email: 'employee_hcm2@example.com',
-    role: 'employee',
-    team_id: '4',
+    team_id: '6',
     location: 'hcm',
-    position: 'Nhân viên kinh doanh',
+    position: 'Nhân viên Sale',
     status: 'active',
     password_changed: false
   }
