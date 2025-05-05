@@ -79,7 +79,7 @@ const Login = () => {
 
   // Xác định xem có hiển thị mục chọn người dùng không
   const showUserSelector = selectedLocation === 'all' || selectedTeam;
-  return <div className="flex min-h-screen items-center justify-center p-4 py-0 bg-slate-600 rounded-2xl mx-0 my-[6px] px-[240px]">
+  return <div className="flex min-h-screen items-center justify-center p-4 bg-slate-600 my-0 py-[15px] mx-[10px] px-0 rounded-none">
       <motion.div initial={{
       opacity: 0,
       y: 20
