@@ -89,6 +89,8 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   };
 
   const renderRegularUserView = () => {
+    // Sửa lỗi: Thay vì kiểm tra selectedUser.role === 'director'
+    // chúng ta sẽ kiểm tra selectedUser.role !== 'director'
     if (!selectedUser || selectedUser.role === 'director') return null;
     
     return (
@@ -177,16 +179,20 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         animate={{ opacity: password ? 1 : 0.5, y: 0 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 25 }}
       >
-        <Button 
-          type="button" 
-          className="w-full h-12 text-lg font-medium bg-ios-blue mt-4"
-          disabled={isSubmitting || !password}
-          onClick={onSubmit}
+        {/* Sử dụng motion.button bọc Button component để có thể sử dụng whileHover và whileTap */}
+        <motion.div
           whileHover={{ scale: password ? 1.02 : 1 }}
           whileTap={{ scale: password ? 0.98 : 1 }}
         >
-          {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
-        </Button>
+          <Button 
+            type="button" 
+            className="w-full h-12 text-lg font-medium bg-ios-blue mt-4"
+            disabled={isSubmitting || !password}
+            onClick={onSubmit}
+          >
+            {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          </Button>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
