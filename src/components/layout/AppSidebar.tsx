@@ -124,7 +124,7 @@ const AppSidebar = () => {
         </div>
       </Sidebar>
       
-      {/* Nút điều khiển ẩn hiện */}
+      {/* Nút điều khiển ẩn hiện - hiển thị ở cả desktop và mobile */}
       <div 
         className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full' : 'left-[3rem]'} transition-opacity duration-300 z-20 ${showControls ? 'opacity-100' : 'opacity-0'}`}
       >
