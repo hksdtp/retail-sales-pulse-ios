@@ -31,7 +31,7 @@ const Login = () => {
   useEffect(() => {
     if (selectedLocation === 'all') {
       // Tìm CEO (Khổng Đức Mạnh)
-      const ceo = users.find(user => user.role === 'director' as UserRole);
+      const ceo = users.find(user => user.role === 'director');
       if (ceo) {
         setSelectedUser(ceo);
         setStep(4); // Chuyển thẳng đến bước nhập mật khẩu
@@ -140,7 +140,7 @@ const Login = () => {
   };
 
   const renderDirectorView = () => {
-    if (!selectedUser || selectedUser.role !== 'director' as UserRole) return null;
+    if (!selectedUser || selectedUser.role !== ('director' as const)) return null;
     
     return (
       <div className="flex flex-col items-center space-y-4 p-6 bg-ios-gray rounded-lg">
