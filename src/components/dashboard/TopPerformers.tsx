@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/context/AuthContext';
 
 interface Performer {
   id: number;
@@ -43,6 +44,13 @@ const topPerformers: Performer[] = [
 ];
 
 const TopPerformers = () => {
+  const { currentUser } = useAuth();
+  
+  // Chỉ hiển thị nếu người dùng có vai trò là director
+  if (currentUser?.role !== 'director') {
+    return null;
+  }
+  
   return (
     <Card className="shadow-sm h-full">
       <CardHeader>

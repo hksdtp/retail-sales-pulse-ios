@@ -7,8 +7,12 @@ import RevenueChart from '@/components/dashboard/RevenueChart';
 import TopPerformers from '@/components/dashboard/TopPerformers';
 import RegionDistribution from '@/components/dashboard/RegionDistribution';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
+  const { currentUser } = useAuth();
+  const isDirector = currentUser?.role === 'director';
+
   const kpiData = [
     {
       title: 'Đối tác mới',
