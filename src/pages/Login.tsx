@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -140,7 +139,7 @@ const Login = () => {
   };
 
   const renderDirectorView = () => {
-    if (!selectedUser || selectedUser.role !== ('director' as const)) return null;
+    if (!selectedUser || selectedUser.role !== 'director') return null;
     
     return (
       <div className="flex flex-col items-center space-y-4 p-6 bg-ios-gray rounded-lg">
