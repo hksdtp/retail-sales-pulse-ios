@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,13 @@ interface PasswordFieldProps {
 
 const PasswordField: React.FC<PasswordFieldProps> = ({ password, onPasswordChange }) => {
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Thiết lập mật khẩu mặc định là "1" khi component được tạo
+  useEffect(() => {
+    if (!password) {
+      onPasswordChange("1");
+    }
+  }, []);
 
   return (
     <motion.div 
