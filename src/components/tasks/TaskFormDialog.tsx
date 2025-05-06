@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { Briefcase, Users, FileText, FilePen, Plus } from 'lucide-react';
 
 // Schema xác thực form
 const formSchema = z.object({
@@ -40,7 +41,7 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: "Mô tả phải có ít nhất 10 ký tự"
   }),
-  type: z.enum(['partner', 'architect', 'client', 'quote'], {
+  type: z.enum(['partner_new', 'partner_old', 'architect_new', 'architect_old', 'client_new', 'client_old', 'quote_new', 'quote_old', 'other'], {
     required_error: "Vui lòng chọn loại công việc"
   }),
   status: z.enum(['todo', 'in-progress', 'on-hold', 'completed'], {
@@ -76,7 +77,7 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
     defaultValues: {
       title: '',
       description: '',
-      type: 'partner',
+      type: 'partner_new',
       status: 'todo',
       date: new Date().toISOString().split('T')[0], // Ngày hiện tại
       time: '',
@@ -130,6 +131,15 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
     // Đóng form sau khi submit
     onOpenChange(false);
     form.reset();
+  };
+
+  // Hàm lấy biểu tượng cho loại công việc
+  const getTypeIcon = (type: string) => {
+    if (type.startsWith('partner')) return <Briefcase className="mr-2 h-4 w-4" />;
+    if (type.startsWith('architect')) return <FilePen className="mr-2 h-4 w-4" />;
+    if (type.startsWith('client')) return <Users className="mr-2 h-4 w-4" />;
+    if (type.startsWith('quote')) return <FileText className="mr-2 h-4 w-4" />;
+    return <Plus className="mr-2 h-4 w-4" />;
   };
 
   return (
@@ -196,11 +206,61 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
                           <SelectValue placeholder="Chọn loại công việc" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="partner">Đối tác</SelectItem>
-                        <SelectItem value="architect">KTS</SelectItem>
-                        <SelectItem value="client">Khách hàng</SelectItem>
-                        <SelectItem value="quote">Báo giá</SelectItem>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="partner_new" className="flex items-center">
+                          <div className="flex items-center">
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            <span>Đối tác mới</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="partner_old" className="flex items-center">
+                          <div className="flex items-center">
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            <span>Đối tác cũ</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="architect_new" className="flex items-center">
+                          <div className="flex items-center">
+                            <FilePen className="mr-2 h-4 w-4" />
+                            <span>KTS mới</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="architect_old" className="flex items-center">
+                          <div className="flex items-center">
+                            <FilePen className="mr-2 h-4 w-4" />
+                            <span>KTS cũ</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="client_new" className="flex items-center">
+                          <div className="flex items-center">
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Khách hàng mới</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="client_old" className="flex items-center">
+                          <div className="flex items-center">
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Khách hàng cũ</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="quote_new" className="flex items-center">
+                          <div className="flex items-center">
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span>Báo giá mới</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="quote_old" className="flex items-center">
+                          <div className="flex items-center">
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span>Báo giá cũ</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="other" className="flex items-center">
+                          <div className="flex items-center">
+                            <Plus className="mr-2 h-4 w-4" />
+                            <span>Khác</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -223,7 +283,7 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
                           <SelectValue placeholder="Chọn trạng thái" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="todo">Chưa bắt đầu</SelectItem>
                         <SelectItem value="in-progress">Đang thực hiện</SelectItem>
                         <SelectItem value="on-hold">Đang chờ</SelectItem>
@@ -282,7 +342,7 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
                           <SelectValue placeholder="Chọn người thực hiện" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {filteredUsers.map(user => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.name} {user.id === currentUser?.id ? '(Bản thân)' : ''}

@@ -3,20 +3,36 @@
 
 export const getTypeColor = (type: string) => {
   switch (type) {
-    case 'partner': return 'bg-ios-blue text-white';
-    case 'architect': return 'bg-ios-green text-white';
-    case 'client': return 'bg-ios-orange text-white';
-    case 'quote': return 'bg-ios-yellow text-black';
-    default: return 'bg-gray-200 text-gray-800';
+    case 'partner_new':
+    case 'partner_old': 
+      return 'bg-ios-blue text-white';
+    case 'architect_new':
+    case 'architect_old': 
+      return 'bg-ios-green text-white';
+    case 'client_new':
+    case 'client_old': 
+      return 'bg-ios-orange text-white';
+    case 'quote_new':
+    case 'quote_old': 
+      return 'bg-ios-yellow text-black';
+    case 'other':
+      return 'bg-purple-500 text-white';
+    default: 
+      return 'bg-gray-200 text-gray-800';
   }
 };
 
 export const getTypeName = (type: string) => {
   switch (type) {
-    case 'partner': return 'Đối tác';
-    case 'architect': return 'KTS';
-    case 'client': return 'Khách hàng';
-    case 'quote': return 'Báo giá';
+    case 'partner_new': return 'Đối tác mới';
+    case 'partner_old': return 'Đối tác cũ';
+    case 'architect_new': return 'KTS mới';
+    case 'architect_old': return 'KTS cũ';
+    case 'client_new': return 'Khách hàng mới';
+    case 'client_old': return 'Khách hàng cũ';
+    case 'quote_new': return 'Báo giá mới';
+    case 'quote_old': return 'Báo giá cũ';
+    case 'other': return 'Khác';
     default: return type;
   }
 };
