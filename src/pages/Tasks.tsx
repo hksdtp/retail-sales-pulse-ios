@@ -9,17 +9,34 @@ import { useAuth } from '@/context/AuthContext';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { currentUser } = useAuth();
+  const { currentUser, teams } = useAuth();
   
+  // Xác định vị trí và tiêu đề phù hợp với vai trò
   const locationName = currentUser?.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
-  const subtitle = `Theo dõi và quản lý các công việc của phòng kinh doanh - ${locationName}`;
+  
+  let subtitle = '';
+  let headerTitle = 'Quản lý công việc';
+  
+  if (currentUser?.role === 'director') {
+    subtitle = `Theo dõi và quản lý tất cả công việc của phòng kinh doanh`;
+  } else if (currentUser?.role === 'team_leader') {
+    const userTeam = teams.find(team => team.leader_id === currentUser.id);
+    subtitle = `Theo dõi và quản lý công việc của ${userTeam?.name || 'nhóm'} - ${locationName}`;
+  } else {
+    subtitle = `Theo dõi công việc được giao - ${locationName}`;
+    headerTitle = 'Công việc của tôi';
+  }
+
+  // Chỉ giám đốc và trưởng nhóm có thể tạo công việc mới
+  const canCreateTask = currentUser?.role === 'director' || currentUser?.role === 'team_leader';
 
   return (
     <AppLayout>
       <PageHeader 
-        title="Quản lý công việc" 
+        title={headerTitle} 
         subtitle={subtitle}
         actions={
+          canCreateTask && 
           <Button onClick={() => setIsFormOpen(true)}>Tạo công việc mới</Button>
         }
       />

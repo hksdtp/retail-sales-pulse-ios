@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -156,13 +157,34 @@ const getLocationName = (location: string) => {
 };
 
 const TaskList = ({ location, teamId }: TaskListProps) => {
-  const { teams, users } = useAuth();
+  const { teams, users, currentUser } = useAuth();
   
-  // Lọc công việc dựa trên khu vực và nhóm đã chọn
+  // Lọc công việc dựa trên vai trò người dùng và các tham số lọc
   const filteredTasks = tasks.filter(task => {
+    // Lọc theo khu vực
     const matchLocation = location === 'all' || task.location === location;
+    
+    // Lọc theo quyền của người dùng
+    let hasPermissionToView = false;
+    
+    if (currentUser) {
+      if (currentUser.role === 'director') {
+        // Giám đốc xem tất cả công việc
+        hasPermissionToView = true;
+      } else if (currentUser.role === 'team_leader') {
+        // Trưởng nhóm chỉ xem công việc của nhóm mình
+        const userTeam = teams.find(team => team.leader_id === currentUser.id);
+        hasPermissionToView = userTeam ? task.teamId === userTeam.id : false;
+      } else {
+        // Nhân viên chỉ xem công việc được giao cho mình
+        hasPermissionToView = task.assignedTo === currentUser.id;
+      }
+    }
+    
+    // Lọc theo nhóm nếu được chọn
     const matchTeam = teamId === 'all' || task.teamId === teamId;
-    return matchLocation && matchTeam;
+    
+    return matchLocation && matchTeam && hasPermissionToView;
   });
   
   // Nhóm công việc theo thời gian

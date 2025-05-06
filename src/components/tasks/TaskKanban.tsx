@@ -147,14 +147,35 @@ const getLocationName = (location: string) => {
 };
 
 const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
-  const { teams, users } = useAuth();
+  const { teams, users, currentUser } = useAuth();
 
-  // Lọc dữ liệu theo khu vực và nhóm đã chọn
+  // Lọc dữ liệu theo khu vực, nhóm và vai trò người dùng
   const filteredColumns = columns.map(column => {
     const filteredTasks = column.tasks.filter(task => {
+      // Lọc theo khu vực
       const matchLocation = location === 'all' || task.location === location;
+      
+      // Lọc theo quyền của người dùng
+      let hasPermissionToView = false;
+      
+      if (currentUser) {
+        if (currentUser.role === 'director') {
+          // Giám đốc xem tất cả công việc
+          hasPermissionToView = true;
+        } else if (currentUser.role === 'team_leader') {
+          // Trưởng nhóm chỉ xem công việc của nhóm mình
+          const userTeam = teams.find(team => team.leader_id === currentUser.id);
+          hasPermissionToView = userTeam ? task.teamId === userTeam.id : false;
+        } else {
+          // Nhân viên chỉ xem công việc được giao cho mình
+          hasPermissionToView = task.assignedTo === currentUser.id;
+        }
+      }
+      
+      // Lọc theo nhóm nếu được chọn
       const matchTeam = teamId === 'all' || task.teamId === teamId;
-      return matchLocation && matchTeam;
+      
+      return matchLocation && matchTeam && hasPermissionToView;
     });
 
     return {
