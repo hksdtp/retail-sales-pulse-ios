@@ -5,18 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
 import { MapPin, User, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  type: 'partner' | 'architect' | 'client' | 'quote';
-  date: string;
-  isNew: boolean;
-  location: 'hanoi' | 'hcm';
-  teamId: string;
-  assignedTo: string;
-}
+import { Task } from './types/TaskTypes';
+import { getTypeColor, getTypeName, getLocationName } from './task-utils/TaskFormatters';
 
 interface Column {
   id: string;
@@ -35,8 +25,10 @@ const tasks: Task[] = [
     id: '1',
     title: 'Gặp đối tác ABC',
     description: 'Thảo luận về hợp tác mới',
-    type: 'partner',
+    type: 'partner_new',
     date: '10/05/2025',
+    status: 'todo',
+    progress: 0,
     isNew: true,
     location: 'hanoi',
     teamId: 'team-1',
@@ -46,8 +38,10 @@ const tasks: Task[] = [
     id: '2',
     title: 'Báo giá dự án X',
     description: 'Chuẩn bị báo giá cho khách hàng',
-    type: 'quote',
+    type: 'quote_new',
     date: '12/05/2025',
+    status: 'todo',
+    progress: 0,
     isNew: true,
     location: 'hcm',
     teamId: 'team-3',
@@ -57,8 +51,10 @@ const tasks: Task[] = [
     id: '3',
     title: 'Khảo sát công trình Y',
     description: 'Đo đạc và đánh giá hiện trạng',
-    type: 'client',
+    type: 'client_old',
     date: '08/05/2025',
+    status: 'in-progress',
+    progress: 60,
     isNew: false,
     location: 'hcm',
     teamId: 'team-2',
@@ -68,8 +64,10 @@ const tasks: Task[] = [
     id: '4',
     title: 'Làm việc với KTS Nguyễn',
     description: 'Trao đổi về thiết kế mới',
-    type: 'architect',
+    type: 'architect_new',
     date: '09/05/2025',
+    status: 'in-progress',
+    progress: 30,
     isNew: true,
     location: 'hanoi',
     teamId: 'team-1',
@@ -79,8 +77,10 @@ const tasks: Task[] = [
     id: '5',
     title: 'Phản hồi báo giá',
     description: 'Chờ khách hàng phản hồi',
-    type: 'quote',
+    type: 'quote_old',
     date: '05/05/2025',
+    status: 'on-hold',
+    progress: 80,
     isNew: false,
     location: 'hanoi',
     teamId: 'team-2',
@@ -90,8 +90,10 @@ const tasks: Task[] = [
     id: '6',
     title: 'Ký hợp đồng với Z',
     description: 'Hoàn tất thủ tục ký kết',
-    type: 'client',
+    type: 'client_new',
     date: '01/05/2025',
+    status: 'completed',
+    progress: 100,
     isNew: false,
     location: 'hcm',
     teamId: 'team-1',
