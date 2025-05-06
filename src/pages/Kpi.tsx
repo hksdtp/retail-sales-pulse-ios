@@ -4,6 +4,8 @@ import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import KpiOverview from '@/components/kpi/KpiOverview';
+import TaskKpiOverview from '@/components/kpi/TaskKpiOverview';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Kpi = () => {
   return (
@@ -17,7 +19,20 @@ const Kpi = () => {
       />
       
       <div className="p-4 md:p-6">
-        <KpiOverview />
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Tổng quan doanh số</TabsTrigger>
+            <TabsTrigger value="tasks">KPI theo công việc</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview" className="space-y-6">
+            <KpiOverview />
+          </TabsContent>
+          
+          <TabsContent value="tasks" className="space-y-6">
+            <TaskKpiOverview />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
