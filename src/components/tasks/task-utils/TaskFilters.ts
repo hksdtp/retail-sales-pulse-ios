@@ -2,7 +2,7 @@
 // Các hàm tiện ích liên quan đến việc lọc công việc
 
 import { Task } from '../types/TaskTypes';
-import { User, Team } from '@/context/AuthContext';
+import { User, Team } from '@/types/user';
 
 export const filterTasksByUserRole = (
   tasks: Task[], 
