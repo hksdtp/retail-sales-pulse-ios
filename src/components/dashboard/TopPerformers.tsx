@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 
 interface Performer {
-  id: number;
+  id: string;
   name: string;
   role: string;
   avatar: string;
@@ -13,38 +13,44 @@ interface Performer {
   completion: number;
 }
 
-const topPerformers: Performer[] = [
-  {
-    id: 1,
-    name: 'Nguyễn Minh Vân',
-    role: 'Nhóm trưởng',
-    avatar: 'V',
-    sales: 384500000,
-    deals: 23,
-    completion: 145,
-  },
-  {
-    id: 2,
-    name: 'Trần Đình Hùng',
-    role: 'Nhân viên',
-    avatar: 'H',
-    sales: 356700000,
-    deals: 19,
-    completion: 131,
-  },
-  {
-    id: 3,
-    name: 'Lê Thị Mai',
-    role: 'Nhân viên',
-    avatar: 'M',
-    sales: 312300000,
-    deals: 17,
-    completion: 120,
-  },
-];
-
 const TopPerformers = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, users } = useAuth();
+  
+  // Lọc danh sách nhân viên xuất sắc từ dữ liệu người dùng thực
+  const topPerformers = useMemo(() => {
+    // Lấy danh sách nhân viên (không bao gồm giám đốc)
+    const employees = users.filter(user => user.role !== 'director');
+    
+    // Tạo dữ liệu hiệu suất giả lập cho mỗi nhân viên
+    return employees
+      .slice(0, 3)  // Lấy 3 người đầu tiên
+      .map((user) => {
+        // Tính toán giả lập doanh số cho mỗi nhân viên
+        const sales = user.role === 'team_leader' 
+          ? Math.floor(Math.random() * 100000000) + 300000000 
+          : Math.floor(Math.random() * 50000000) + 250000000;
+        
+        const deals = user.role === 'team_leader' 
+          ? Math.floor(Math.random() * 10) + 15 
+          : Math.floor(Math.random() * 5) + 10;
+        
+        const completion = user.role === 'team_leader' 
+          ? Math.floor(Math.random() * 30) + 120 
+          : Math.floor(Math.random() * 20) + 100;
+          
+        return {
+          id: user.id,
+          name: user.name,
+          role: user.role === 'team_leader' ? 'Nhóm trưởng' : 'Nhân viên',
+          avatar: user.name.charAt(0),
+          sales,
+          deals,
+          completion
+        };
+      })
+      // Sắp xếp theo doanh số từ cao đến thấp
+      .sort((a, b) => b.sales - a.sales);
+  }, [users]);
   
   // Chỉ hiển thị nếu người dùng có vai trò là director
   if (currentUser?.role !== 'director') {
