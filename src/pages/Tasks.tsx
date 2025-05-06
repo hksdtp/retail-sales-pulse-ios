@@ -27,8 +27,8 @@ const Tasks = () => {
     headerTitle = 'Công việc của tôi';
   }
 
-  // Chỉ giám đốc và trưởng nhóm có thể tạo công việc mới
-  const canCreateTask = currentUser?.role === 'director' || currentUser?.role === 'team_leader';
+  // Tất cả người dùng đều có thể tạo công việc mới, nhân viên chỉ có thể tạo công việc cho chính mình
+  const canCreateTask = true; // Cho phép tất cả người dùng tạo công việc
 
   return (
     <AppLayout>
@@ -37,7 +37,9 @@ const Tasks = () => {
         subtitle={subtitle}
         actions={
           canCreateTask && 
-          <Button onClick={() => setIsFormOpen(true)}>Tạo công việc mới</Button>
+          <Button onClick={() => setIsFormOpen(true)}>
+            {currentUser?.role === 'employee' ? 'Tạo công việc mới cho bản thân' : 'Tạo công việc mới'}
+          </Button>
         }
       />
       

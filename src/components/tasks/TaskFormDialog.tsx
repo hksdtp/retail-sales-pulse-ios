@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,7 +50,8 @@ const formSchema = z.object({
     message: "Vui lòng chọn ngày"
   }),
   time: z.string().optional(),
-  team_id: z.string().optional()
+  team_id: z.string().optional(),
+  assignedTo: z.string().optional() // Thêm trường để chỉ định người được giao công việc
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -61,8 +62,14 @@ interface TaskFormDialogProps {
 }
 
 const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
-  const { currentUser } = useAuth();
+  const { currentUser, teams, users } = useAuth();
   const { toast } = useToast();
+  const [canAssignToOthers, setCanAssignToOthers] = useState(false);
+  
+  useEffect(() => {
+    // Chỉ giám đốc và trưởng nhóm mới có thể giao việc cho người khác
+    setCanAssignToOthers(currentUser?.role === 'director' || currentUser?.role === 'team_leader');
+  }, [currentUser]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,18 +80,41 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
       status: 'todo',
       date: new Date().toISOString().split('T')[0], // Ngày hiện tại
       time: '',
-      team_id: currentUser?.team_id
+      team_id: currentUser?.team_id,
+      assignedTo: currentUser?.id // Mặc định gán cho người dùng hiện tại
     }
   });
 
+  // Lọc danh sách người dùng dựa trên vai trò và nhóm
+  const getFilteredUsers = () => {
+    if (!currentUser || !users) return [];
+    
+    if (currentUser.role === 'director') {
+      // Giám đốc có thể giao việc cho bất kỳ ai
+      return users;
+    } else if (currentUser.role === 'team_leader') {
+      // Trưởng nhóm chỉ có thể giao việc cho thành viên trong nhóm của mình
+      return users.filter(user => user.team_id === currentUser.team_id);
+    } else {
+      // Nhân viên chỉ có thể tạo việc cho chính mình
+      return users.filter(user => user.id === currentUser.id);
+    }
+  };
+
+  const filteredUsers = getFilteredUsers();
+
   const onSubmit = (data: FormValues) => {
+    // Đảm bảo có người được giao công việc
+    const assignee = data.assignedTo || currentUser?.id;
+    
     // Thêm thông tin người dùng vào dữ liệu công việc
     const taskWithUserInfo = {
       ...data,
-      user_id: currentUser?.id,
+      user_id: currentUser?.id, // Người tạo
       user_name: currentUser?.name,
       team_id: currentUser?.team_id,
       location: currentUser?.location,
+      assignedTo: assignee, // Người được giao việc
       created_at: new Date().toISOString()
     };
     
@@ -106,9 +136,13 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Tạo công việc mới</DialogTitle>
+          <DialogTitle>
+            {currentUser?.role === 'employee' ? 'Tạo công việc mới cho bản thân' : 'Tạo công việc mới'}
+          </DialogTitle>
           <DialogDescription>
-            Thêm công việc mới cho nhóm hoặc phòng kinh doanh
+            {currentUser?.role === 'employee' 
+              ? 'Thêm công việc mới cho bản thân' 
+              : 'Thêm công việc mới cho nhóm hoặc phòng kinh doanh'}
           </DialogDescription>
         </DialogHeader>
 
@@ -232,6 +266,36 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
               />
             </div>
 
+            {canAssignToOthers && filteredUsers.length > 0 && (
+              <FormField
+                control={form.control}
+                name="assignedTo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Người thực hiện</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || currentUser?.id}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn người thực hiện" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredUsers.map(user => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} {user.id === currentUser?.id ? '(Bản thân)' : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <div className="mt-2 p-3 bg-muted rounded-md">
               <p className="text-sm mb-1">Thông tin người tạo:</p>
               <p className="text-xs">Người tạo: <strong>{currentUser?.name}</strong></p>
@@ -247,7 +311,9 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
               >
                 Hủy
               </Button>
-              <Button type="submit">Tạo công việc</Button>
+              <Button type="submit">
+                {currentUser?.role === 'employee' ? 'Tạo công việc cho bản thân' : 'Tạo công việc'}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

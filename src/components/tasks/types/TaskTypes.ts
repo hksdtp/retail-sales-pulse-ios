@@ -11,6 +11,7 @@ export interface Task {
   location: 'hanoi' | 'hcm';
   teamId: string;
   assignedTo: string;
+  user_id?: string; // Thêm ID người tạo công việc
 }
 
 export interface TaskListProps {
