@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -84,8 +85,8 @@ const Login = () => {
   
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-ios-gray to-white overflow-auto">
-      <div className="w-full max-w-md mx-auto px-4 py-6">
-        <Card className="shadow-lg border-0 rounded-xl overflow-hidden backdrop-blur-md bg-white/90">
+      <div className="w-full max-w-md mx-auto px-4 py-6 min-h-[600px] flex items-center">
+        <Card className="w-full shadow-lg border-0 rounded-xl overflow-hidden backdrop-blur-md bg-white/90">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl md:text-3xl font-bold">Đăng nhập</CardTitle>
             <p className="text-sm md:text-base text-gray-500 mt-2">
