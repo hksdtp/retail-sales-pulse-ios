@@ -207,7 +207,7 @@ const MOCK_USERS: User[] = [
 ];
 
 // Lưu trữ mật khẩu (trong thực tế sẽ được hash và lưu trong database)
-const DEFAULT_PASSWORD = 'password123';
+const DEFAULT_PASSWORD = '123';
 const MOCK_CREDENTIALS: Record<string, string> = {};
 
 // Tạo mật khẩu mặc định cho tất cả người dùng

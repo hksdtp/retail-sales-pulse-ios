@@ -13,10 +13,10 @@ interface PasswordFieldProps {
 const PasswordField: React.FC<PasswordFieldProps> = ({ password, onPasswordChange }) => {
   const [showPassword, setShowPassword] = useState(false);
   
-  // Thiết lập mật khẩu mặc định là "password123" khi component được tạo
+  // Thiết lập mật khẩu mặc định là "123" khi component được tạo
   useEffect(() => {
     if (!password) {
-      onPasswordChange("password123");
+      onPasswordChange("123");
     }
   }, []);
 
