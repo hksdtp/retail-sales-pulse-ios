@@ -47,9 +47,9 @@ const ChangePasswordForm: React.FC = () => {
   
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <Card className="w-full max-w-md shadow-xl animate-in fade-in-50 duration-300 bg-white">
-        <CardHeader className="space-y-1 pb-3">
-          <CardTitle className="text-2xl font-bold text-center">Đổi mật khẩu</CardTitle>
+      <Card className="w-full max-w-md mx-auto shadow-lg animate-in fade-in-50 duration-300 bg-white">
+        <CardHeader className="space-y-1 pb-4 text-center">
+          <CardTitle className="text-2xl font-bold">Đổi mật khẩu</CardTitle>
           <CardDescription className="text-center">
             Đây là lần đầu tiên bạn đăng nhập. Vui lòng đổi mật khẩu để tiếp tục.
           </CardDescription>
