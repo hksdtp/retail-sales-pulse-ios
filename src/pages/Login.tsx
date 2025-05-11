@@ -116,7 +116,7 @@ const Login = () => {
                           {locationNames[selectedLocation]}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md">
+                      <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md z-50 shadow-xl" position="popper" sideOffset={5}>
                         <SelectItem value="all" className="py-2 md:py-3">
                           <div className="flex items-center">
                             <div className="h-5 w-5 md:h-6 md:w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
@@ -165,7 +165,7 @@ const Login = () => {
                             {selectedTeam?.name || 'Chọn nhóm'}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md">
+                        <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md z-50 shadow-xl" position="popper" sideOffset={5}>
                           {filteredTeams.map(team => (
                             <SelectItem key={team.id} value={team.id} className="py-2 md:py-3">
                               <div className="flex items-center">
@@ -215,7 +215,7 @@ const Login = () => {
                             ) : 'Chọn người dùng'}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md">
+                        <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md z-50 shadow-xl" position="popper" sideOffset={5}>
                           {filteredUsers.map(user => (
                             <SelectItem key={user.id} value={user.id} className="py-2 md:py-3">
                               <div className="flex items-center">
