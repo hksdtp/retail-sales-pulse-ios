@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface PageHeaderProps {
   title: string;
@@ -12,14 +11,9 @@ interface PageHeaderProps {
 const PageHeader = ({ title, subtitle, actions }: PageHeaderProps) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between py-6 px-4 md:px-6 border-b border-gray-200">
-      <div className="flex items-center gap-3">
-        <div className="md:hidden">
-          <SidebarTrigger className="bg-ios-blue text-white hover:bg-ios-blue/90 h-8 w-8" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
-          {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
-        </div>
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
       </div>
       {actions && <div className="mt-4 md:mt-0 flex items-center space-x-3">{actions}</div>}
     </div>
