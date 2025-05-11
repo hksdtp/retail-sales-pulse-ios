@@ -5,6 +5,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { PieChart, List, CalendarCheck, FileText, Users, User, LogOut, Menu, ChevronLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AUTO_HIDE_TIMEOUT = 3000; // 3 giây
 
@@ -16,6 +17,7 @@ const AppSidebar = () => {
   const navigate = useNavigate();
   const { state, toggleSidebar } = useSidebar();
   const [autoHideTimer, setAutoHideTimer] = useState<NodeJS.Timeout | null>(null);
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     logout();
@@ -119,17 +121,19 @@ const AppSidebar = () => {
         </div>
       </Sidebar>
       
-      {/* Nút điều khiển ẩn hiện - thiết kế mới tinh tế hơn */}
-      <div 
-        className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full -ml-3' : 'left-[3rem] -ml-3'} z-20 transition-all duration-300`}
-      >
-        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-md rounded-full p-1.5 cursor-pointer hover:bg-ios-blue hover:border-ios-blue hover:text-white transition-all group" onClick={toggleSidebar}>
-          {state === 'expanded' 
-            ? <ChevronLeft size={18} className="text-gray-600 group-hover:text-white" /> 
-            : <Menu size={18} className="text-gray-600 group-hover:text-white" />
-          }
+      {/* Nút điều khiển ẩn hiện - chỉ hiển thị trên màn hình lớn, không hiển thị trên điện thoại */}
+      {!isMobile && (
+        <div 
+          className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full -ml-3' : 'left-[3rem] -ml-3'} z-20 transition-all duration-300`}
+        >
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-md rounded-full p-1.5 cursor-pointer hover:bg-ios-blue hover:border-ios-blue hover:text-white transition-all group" onClick={toggleSidebar}>
+            {state === 'expanded' 
+              ? <ChevronLeft size={18} className="text-gray-600 group-hover:text-white" /> 
+              : <Menu size={18} className="text-gray-600 group-hover:text-white" />
+            }
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
