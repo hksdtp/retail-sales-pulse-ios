@@ -46,11 +46,11 @@ const ChangePasswordForm: React.FC = () => {
   };
   
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-ios-gray to-white px-4 py-6">
+    <div className="flex min-h-screen items-center justify-center bg-ios-gray p-4">
       <Card className="w-full max-w-md shadow-lg animate-in fade-in-50 duration-300">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Đổi mật khẩu</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-bold">Đổi mật khẩu</CardTitle>
+          <CardDescription>
             Đây là lần đầu tiên bạn đăng nhập. Vui lòng đổi mật khẩu để tiếp tục.
           </CardDescription>
         </CardHeader>
@@ -75,7 +75,7 @@ const ChangePasswordForm: React.FC = () => {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-0 top-0 h-10 w-10 px-0"
+                        className="absolute right-0 top-0"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -106,7 +106,7 @@ const ChangePasswordForm: React.FC = () => {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-0 top-0 h-10 w-10 px-0"
+                        className="absolute right-0 top-0"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -116,7 +116,7 @@ const ChangePasswordForm: React.FC = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full mt-6 bg-ios-blue hover:bg-ios-blue/90">
+              <Button type="submit" className="w-full mt-4">
                 Đổi mật khẩu
               </Button>
             </form>
