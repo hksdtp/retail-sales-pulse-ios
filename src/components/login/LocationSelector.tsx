@@ -40,7 +40,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             {locationNames[selectedLocation]}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper" sideOffset={5} className="bg-white/95 backdrop-blur-md z-[100] shadow-xl border border-gray-200">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
