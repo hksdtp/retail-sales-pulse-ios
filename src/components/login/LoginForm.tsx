@@ -103,7 +103,11 @@ const LoginForm = () => {
                   {locationNames[selectedLocation]}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md z-50 shadow-xl" position="popper" sideOffset={5}>
+              <SelectContent 
+                position="popper" 
+                sideOffset={5} 
+                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200" 
+              >
                 <SelectItem value="all" className="py-2 md:py-3">
                   <div className="flex items-center">
                     <div className="h-5 w-5 md:h-6 md:w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
@@ -152,7 +156,11 @@ const LoginForm = () => {
                     {selectedTeam?.name || 'Chọn nhóm'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md z-50 shadow-xl" position="popper" sideOffset={5}>
+                <SelectContent 
+                  position="popper" 
+                  sideOffset={5}
+                  className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
+                >
                   {filteredTeams.map(team => (
                     <SelectItem key={team.id} value={team.id} className="py-2 md:py-3">
                       <div className="flex items-center">
@@ -202,7 +210,11 @@ const LoginForm = () => {
                     ) : 'Chọn người dùng'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="max-h-60 bg-white/90 backdrop-blur-md z-50 shadow-xl" position="popper" sideOffset={5}>
+                <SelectContent 
+                  position="popper" 
+                  sideOffset={5}
+                  className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
+                >
                   {filteredUsers.map(user => (
                     <SelectItem key={user.id} value={user.id} className="py-2 md:py-3">
                       <div className="flex items-center">
