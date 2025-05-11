@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -10,12 +9,13 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Users, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
+import PasswordField from './PasswordField';
 
 const LoginForm = () => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('123'); // Đặt mật khẩu mặc định là "123"
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     login,
@@ -243,17 +243,10 @@ const LoginForm = () => {
             <label htmlFor="password" className="text-sm md:text-base font-medium">
               Mật khẩu
             </label>
-            <div className="relative">
-              <Input 
-                id="password" 
-                type="password" 
-                value={password} 
-                onChange={e => setPassword(e.target.value)} 
-                className="w-full h-10 md:h-12 bg-white/70 backdrop-blur-sm border border-gray-200" 
-                placeholder="Nhập mật khẩu" 
-                disabled={!selectedUser} 
-              />
-            </div>
+            <PasswordField 
+              password={password} 
+              onPasswordChange={setPassword} 
+            />
           </div>
 
           {/* Nút đăng nhập */}
