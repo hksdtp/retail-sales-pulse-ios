@@ -119,12 +119,15 @@ const AppSidebar = () => {
         </div>
       </Sidebar>
       
-      {/* Nút điều khiển ẩn hiện - hiển thị rõ ràng ở cả desktop và mobile */}
+      {/* Nút điều khiển ẩn hiện - thiết kế mới tinh tế hơn */}
       <div 
-        className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full' : 'left-[3rem]'} z-20`}
+        className={`absolute top-1/2 -translate-y-1/2 ${state === 'expanded' ? 'left-full -ml-3' : 'left-[3rem] -ml-3'} z-20 transition-all duration-300`}
       >
-        <div className="bg-ios-blue text-white p-2 rounded-r-lg shadow-md cursor-pointer hover:bg-blue-600 transition-colors" onClick={toggleSidebar}>
-          {state === 'expanded' ? <ChevronLeft size={20} /> : <Menu size={20} />}
+        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-md rounded-full p-1.5 cursor-pointer hover:bg-ios-blue hover:border-ios-blue hover:text-white transition-all group" onClick={toggleSidebar}>
+          {state === 'expanded' 
+            ? <ChevronLeft size={18} className="text-gray-600 group-hover:text-white" /> 
+            : <Menu size={18} className="text-gray-600 group-hover:text-white" />
+          }
         </div>
       </div>
     </div>
