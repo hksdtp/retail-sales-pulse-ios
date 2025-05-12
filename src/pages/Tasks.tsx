@@ -6,9 +6,13 @@ import TaskTabs from '@/components/tasks/TaskTabs';
 import { Button } from '@/components/ui/button';
 import TaskFormDialog from '@/components/tasks/TaskFormDialog';
 import { useAuth } from '@/context/AuthContext';
+import GoogleSheetsConfig from '@/components/settings/GoogleSheetsConfig';
+import { googleSheetsService } from '@/services/GoogleSheetsService';
+import { Settings } from 'lucide-react';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isGoogleSheetsConfigOpen, setIsGoogleSheetsConfigOpen] = useState(false);
   const { currentUser, teams } = useAuth();
   
   // Xác định vị trí và tiêu đề phù hợp với vai trò
@@ -36,10 +40,16 @@ const Tasks = () => {
         title={headerTitle} 
         subtitle={subtitle}
         actions={
-          canCreateTask && 
-          <Button onClick={() => setIsFormOpen(true)}>
-            {currentUser?.role === 'employee' ? 'Tạo công việc mới cho bản thân' : 'Tạo công việc mới'}
-          </Button>
+          <div className="flex space-x-2">
+            <Button variant="outline" size="icon" onClick={() => setIsGoogleSheetsConfigOpen(true)} title="Cấu hình Google Sheets">
+              <Settings className="h-4 w-4" />
+            </Button>
+            {canCreateTask && 
+              <Button onClick={() => setIsFormOpen(true)}>
+                {currentUser?.role === 'employee' ? 'Tạo công việc mới cho bản thân' : 'Tạo công việc mới'}
+              </Button>
+            }
+          </div>
         }
       />
       
@@ -66,6 +76,10 @@ const Tasks = () => {
       </div>
 
       <TaskFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} />
+      <GoogleSheetsConfig 
+        open={isGoogleSheetsConfigOpen} 
+        onOpenChange={setIsGoogleSheetsConfigOpen} 
+      />
     </AppLayout>
   );
 };

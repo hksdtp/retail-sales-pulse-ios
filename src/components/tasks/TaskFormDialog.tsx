@@ -32,6 +32,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Briefcase, Users, FileText, FilePen, Plus } from 'lucide-react';
+import { googleSheetsService } from '@/services/GoogleSheetsService';
 
 // Schema xác thực form
 const formSchema = z.object({
@@ -66,10 +67,15 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
   const { currentUser, teams, users } = useAuth();
   const { toast } = useToast();
   const [canAssignToOthers, setCanAssignToOthers] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] = useState(false);
   
   useEffect(() => {
     // Chỉ giám đốc và trưởng nhóm mới có thể giao việc cho người khác
     setCanAssignToOthers(currentUser?.role === 'director' || currentUser?.role === 'team_leader');
+    
+    // Kiểm tra xem Google Sheets đã được cấu hình chưa
+    setIsGoogleSheetsConfigured(googleSheetsService.isConfigured());
   }, [currentUser]);
   
   const form = useForm<FormValues>({
@@ -104,33 +110,56 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
 
   const filteredUsers = getFilteredUsers();
 
-  const onSubmit = (data: FormValues) => {
-    // Đảm bảo có người được giao công việc
-    const assignee = data.assignedTo || currentUser?.id;
+  const onSubmit = async (data: FormValues) => {
+    if (!isGoogleSheetsConfigured) {
+      toast({
+        title: "Cảnh báo",
+        description: "Google Sheets chưa được cấu hình. Vui lòng cấu hình để lưu dữ liệu.",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // Thêm thông tin người dùng vào dữ liệu công việc
-    const taskWithUserInfo = {
-      ...data,
-      user_id: currentUser?.id, // Người tạo
-      user_name: currentUser?.name,
-      team_id: currentUser?.team_id,
-      location: currentUser?.location,
-      assignedTo: assignee, // Người được giao việc
-      created_at: new Date().toISOString()
-    };
+    setIsSubmitting(true);
     
-    console.log("Dữ liệu công việc mới:", taskWithUserInfo);
-    // Ở đây sẽ thêm logic lưu dữ liệu
-    // Trong thực tế, ta sẽ kết nối API hoặc cơ sở dữ liệu
+    try {
+      // Đảm bảo có người được giao công việc
+      const assignee = data.assignedTo || currentUser?.id;
+      
+      // Thêm thông tin người dùng vào dữ liệu công việc
+      const taskWithUserInfo = {
+        ...data,
+        user_id: currentUser?.id, // Người tạo
+        user_name: currentUser?.name,
+        team_id: currentUser?.team_id,
+        location: currentUser?.location,
+        assignedTo: assignee, // Người được giao việc
+        created_at: new Date().toISOString()
+      };
+      
+      console.log("Dữ liệu công việc mới:", taskWithUserInfo);
+      
+      // Lưu dữ liệu vào Google Sheets
+      await googleSheetsService.saveTask(taskWithUserInfo);
 
-    toast({
-      title: "Thành công!",
-      description: "Công việc đã được tạo thành công."
-    });
+      toast({
+        title: "Thành công!",
+        description: "Công việc đã được tạo và lưu vào Google Sheets."
+      });
 
-    // Đóng form sau khi submit
-    onOpenChange(false);
-    form.reset();
+      // Đóng form sau khi submit thành công
+      onOpenChange(false);
+      form.reset();
+    } catch (error) {
+      console.error("Lỗi khi tạo công việc:", error);
+      toast({
+        title: "Lỗi",
+        description: error instanceof Error ? error.message : "Không thể tạo công việc",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Hàm lấy biểu tượng cho loại công việc
@@ -155,6 +184,13 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
               : 'Thêm công việc mới cho nhóm hoặc phòng kinh doanh'}
           </DialogDescription>
         </DialogHeader>
+
+        {!isGoogleSheetsConfigured && (
+          <div className="bg-yellow-50 text-yellow-800 px-4 py-2 rounded-md mb-4 text-sm">
+            <p className="font-medium">Cảnh báo:</p>
+            <p>Google Sheets chưa được cấu hình. Vui lòng thiết lập cấu hình để lưu dữ liệu công việc.</p>
+          </div>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -371,8 +407,11 @@ const TaskFormDialog = ({ open, onOpenChange }: TaskFormDialogProps) => {
               >
                 Hủy
               </Button>
-              <Button type="submit">
-                {currentUser?.role === 'employee' ? 'Tạo công việc cho bản thân' : 'Tạo công việc'}
+              <Button 
+                type="submit"
+                disabled={isSubmitting || !isGoogleSheetsConfigured}
+              >
+                {isSubmitting ? 'Đang lưu...' : currentUser?.role === 'employee' ? 'Tạo công việc cho bản thân' : 'Tạo công việc'}
               </Button>
             </DialogFooter>
           </form>
