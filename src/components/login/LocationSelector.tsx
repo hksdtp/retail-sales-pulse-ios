@@ -40,30 +40,32 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           className="bg-white z-[200] shadow-xl border border-gray-200 w-full min-w-[300px]"
           align="start"
         >
-          <SelectItem value="all" className="text-base py-3 px-3">
-            <div className="flex items-center w-full">
-              <div className="h-7 w-7 rounded-full bg-ios-blue flex items-center justify-center mr-3">
-                <Briefcase className="h-3 w-3 text-white" />
+          <div className="p-1">
+            <SelectItem value="all" className="text-base py-3 px-4 rounded-md">
+              <div className="flex items-center w-full gap-3">
+                <div className="h-7 w-7 flex-shrink-0 rounded-full bg-ios-blue flex items-center justify-center">
+                  <Briefcase className="h-3 w-3 text-white" />
+                </div>
+                <span className="flex-1 truncate">Toàn quốc</span>
               </div>
-              <span className="flex-1">Toàn quốc</span>
-            </div>
-          </SelectItem>
-          <SelectItem value="hanoi" className="text-base py-3 px-3">
-            <div className="flex items-center w-full">
-              <div className="h-7 w-7 rounded-full bg-green-500 flex items-center justify-center mr-3">
-                <MapPin className="h-3 w-3 text-white" />
+            </SelectItem>
+            <SelectItem value="hanoi" className="text-base py-3 px-4 rounded-md">
+              <div className="flex items-center w-full gap-3">
+                <div className="h-7 w-7 flex-shrink-0 rounded-full bg-green-500 flex items-center justify-center">
+                  <MapPin className="h-3 w-3 text-white" />
+                </div>
+                <span className="flex-1 truncate">Hà Nội</span>
               </div>
-              <span className="flex-1">Hà Nội</span>
-            </div>
-          </SelectItem>
-          <SelectItem value="hcm" className="text-base py-3 px-3">
-            <div className="flex items-center w-full">
-              <div className="h-7 w-7 rounded-full bg-orange-500 flex items-center justify-center mr-3">
-                <MapPin className="h-3 w-3 text-white" />
+            </SelectItem>
+            <SelectItem value="hcm" className="text-base py-3 px-4 rounded-md">
+              <div className="flex items-center w-full gap-3">
+                <div className="h-7 w-7 flex-shrink-0 rounded-full bg-orange-500 flex items-center justify-center">
+                  <MapPin className="h-3 w-3 text-white" />
+                </div>
+                <span className="flex-1 truncate">Hồ Chí Minh</span>
               </div>
-              <span className="flex-1">Hồ Chí Minh</span>
-            </div>
-          </SelectItem>
+            </SelectItem>
+          </div>
         </SelectContent>
       </Select>
     </div>
