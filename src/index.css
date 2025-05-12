@@ -160,3 +160,40 @@
     @apply backdrop-blur-xl bg-white/70 dark:bg-black/70;
   }
 }
+
+/* Animation for background gradient */
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-animation {
+  animation: gradient-animation 15s ease infinite;
+}
+
+/* Pattern background */
+.bg-pattern {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.1) 20%, transparent 20%);
+  background-size: 30px 30px;
+}
+
+/* Float animation */
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-50px, 50px); }
+  100% { transform: translate(0, 0); }
+}
+
+.animate-float {
+  animation: float 20s linear infinite;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}

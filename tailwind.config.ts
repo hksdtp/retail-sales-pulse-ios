@@ -1,11 +1,11 @@
 
-import type { Config } from "tailwindcss";
+import { type Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
-import animatePlugin from "tailwindcss-animate";
 
-const config = {
+const tailwindConfig = {
   darkMode: ["class"],
   content: [
+    './index.html',
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
@@ -27,9 +27,6 @@ const config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        "ios-blue": "#007AFF",
-        "ios-gray": "#F2F2F7",
-        "ios-dark": "#1C1C1E",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -58,7 +55,7 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        "sidebar": {
+        sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
           primary: "hsl(var(--sidebar-primary))",
@@ -68,6 +65,10 @@ const config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom iOS-like colors
+        "ios-blue": "#007AFF",
+        "ios-dark": "#1D1D1F",
+        "ios-gray": "#F5F5F7",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -75,8 +76,7 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-        "sf-pro": ["SF Pro Display", "SF Pro Text", "system-ui", "sans-serif"],
+        'sf-pro': ['"SF Pro Display"', '"SF Pro Text"', ...fontFamily.sans],
       },
       keyframes: {
         "accordion-down": {
@@ -87,14 +87,18 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        shimmer: "shimmer 1.5s infinite",
       },
     },
   },
-  plugins: [animatePlugin],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 
-export default config;
+export default tailwindConfig;
