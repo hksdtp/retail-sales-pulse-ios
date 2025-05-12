@@ -54,22 +54,22 @@ const UserSelector: React.FC<UserSelectorProps> = ({
             className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => onUserSelect(user)}
           >
-            <Avatar className="h-12 w-12">
+            <Avatar className="h-12 w-12 flex-shrink-0">
               <AvatarFallback className={`text-white ${user.role === 'team_leader' ? 'bg-ios-blue' : user.role === 'director' ? 'bg-purple-500' : 'bg-gray-500'}`}>
                 {getAvatarText(user.name)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span className="font-medium">{user.name}</span>
-              <div className="flex items-center mt-1">
-                <Badge className={`mr-1 h-5 text-xs ${
+            <div className="flex flex-col min-w-0">
+              <span className="font-medium truncate">{user.name}</span>
+              <div className="flex items-center mt-1 flex-wrap gap-1">
+                <Badge className={`h-5 text-xs flex-shrink-0 ${
                   user.role === 'director' ? 'bg-purple-500' : 
                   user.role === 'team_leader' ? 'bg-ios-blue' : 
                   'bg-gray-500'
                 }`}>
                   {positionLabels[user.role]}
                 </Badge>
-                <span className="text-xs text-gray-500">{user.email}</span>
+                <span className="text-xs text-gray-500 truncate block">{user.email}</span>
               </div>
             </div>
           </div>

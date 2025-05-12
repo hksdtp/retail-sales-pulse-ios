@@ -59,11 +59,11 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
               onClick={() => onTeamSelect(team)}
             >
               <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="font-medium text-lg">{team.name}</h3>
-                  <p className="text-sm text-gray-500">{team.description}</p>
+                <div className="min-w-0 pr-2">
+                  <h3 className="font-medium text-lg truncate">{team.name}</h3>
+                  <p className="text-sm text-gray-500 truncate">{team.description}</p>
                 </div>
-                <Badge variant="outline" className="flex items-center">
+                <Badge variant="outline" className="flex-shrink-0 flex items-center">
                   <Users className="h-3 w-3 mr-1" />
                   {teamMembers.length}
                 </Badge>
@@ -71,13 +71,13 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
               
               {leader && (
                 <div className="flex items-center mt-3">
-                  <Avatar className="h-8 w-8 mr-2">
+                  <Avatar className="h-8 w-8 mr-2 flex-shrink-0">
                     <AvatarFallback className="bg-ios-blue text-white">
                       {getAvatarText(leader.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <span className="text-sm font-medium">{leader.name}</span>
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium block truncate">{leader.name}</span>
                     <div className="flex items-center">
                       <Badge className="mr-1 h-5 bg-ios-blue text-xs">Trưởng nhóm</Badge>
                     </div>
