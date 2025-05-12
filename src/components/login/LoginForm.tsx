@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -105,7 +104,7 @@ const LoginForm = () => {
             <SelectContent 
               position="popper" 
               sideOffset={5} 
-              className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200" 
+              className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200 w-[calc(100%-10px)] min-w-[240px]" 
             >
               <SelectItem value="all" className="py-2 md:py-3">
                 <div className="flex items-center">
@@ -161,7 +160,7 @@ const LoginForm = () => {
               <SelectContent 
                 position="popper" 
                 sideOffset={5}
-                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
+                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200 w-[calc(100%-10px)] min-w-[240px]"
               >
                 {filteredTeams.map(team => (
                   <SelectItem key={team.id} value={team.id} className="py-2 md:py-3">
@@ -203,7 +202,7 @@ const LoginForm = () => {
               <SelectContent 
                 position="popper" 
                 sideOffset={5}
-                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
+                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200 w-[calc(100%-10px)] min-w-[240px]"
               >
                 {filteredUsers.map(user => (
                   <SelectItem key={user.id} value={user.id} className="py-2 md:py-3">

@@ -34,7 +34,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             {locationNames[selectedLocation]}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent position="popper" sideOffset={5} className="bg-white z-[100] shadow-xl border border-gray-200">
+        <SelectContent position="popper" sideOffset={5} className="bg-white z-[100] shadow-xl border border-gray-200 w-[calc(100%-10px)] min-w-[240px]">
           <SelectItem value="all" className="text-base py-3 flex items-center">
             <div className="flex items-center">
               <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
