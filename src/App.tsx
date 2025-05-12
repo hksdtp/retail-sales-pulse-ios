@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
-import Kpi from "./pages/Kpi";
 import Reports from "./pages/Reports";
 import Employees from "./pages/Employees";
 import NotFound from "./pages/NotFound";
@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+
 const queryClient = new QueryClient();
 const App = () => <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -32,9 +33,6 @@ const App = () => <QueryClientProvider client={queryClient}>
                 </ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute>
                   <Calendar />
-                </ProtectedRoute>} />
-              <Route path="/kpi" element={<ProtectedRoute>
-                  <Kpi />
                 </ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute>
                   <Reports />
