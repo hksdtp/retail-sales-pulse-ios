@@ -21,7 +21,7 @@ const Login = () => {
       >
         <motion.div
           className="bg-white/95 backdrop-blur-lg p-8 md:p-10 rounded-[20px] border border-white/30 shadow-xl"
-          whileHover={{ translateY: -5, rotate: 1, transition: { duration: 0.4 } }}
+          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
         >
           <div className="text-center mb-8">
             <h1 className="text-[#2d3436] font-bold text-2xl md:text-3xl mb-2 uppercase tracking-wide">
