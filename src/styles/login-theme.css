@@ -1,0 +1,181 @@
+/* Login Theme - Đồng bộ phong cách với trang Login */
+
+/* Biến màu sắc */
+:root {
+  --login-gradient-start: #ff6b6b;
+  --login-gradient-middle: #4ecdc4;
+  --login-gradient-end: #6c5ce7;
+  --login-text-primary: #2d3436;
+  --login-text-secondary: #636e72;
+  --login-border: rgba(255, 255, 255, 0.3);
+  --login-shadow: 0 10px 25px rgba(108, 92, 231, 0.1);
+  --login-hover-shadow: 0 15px 35px rgba(108, 92, 231, 0.15);
+}
+
+/* Card styles */
+.login-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid var(--login-border);
+  box-shadow: var(--login-shadow);
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--login-hover-shadow);
+}
+
+/* Button styles */
+.login-button {
+  background: linear-gradient(to right, var(--login-gradient-end), #a66efa);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(108, 92, 231, 0.2);
+}
+
+.login-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(108, 92, 231, 0.1);
+}
+
+.login-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 1.5s ease;
+}
+
+.login-button:hover::before {
+  left: 100%;
+}
+
+/* Input styles */
+.login-input {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(200, 200, 200, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.login-input:focus {
+  border-color: var(--login-gradient-end);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Dashboard card styles */
+.dashboard-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid var(--login-border);
+  box-shadow: var(--login-shadow);
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--login-hover-shadow);
+}
+
+/* Background gradient */
+.login-gradient-bg {
+  background: linear-gradient(
+    to bottom right,
+    var(--login-gradient-start),
+    var(--login-gradient-middle),
+    var(--login-gradient-end)
+  );
+  background-size: 400% 400%;
+  animation: gradient-animation 15s ease infinite;
+}
+
+/* Text styles */
+.login-title {
+  color: var(--login-text-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.login-subtitle {
+  color: var(--login-text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Animation */
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glass effect */
+.login-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+}
+
+/* Shimmer effect */
+.login-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.login-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

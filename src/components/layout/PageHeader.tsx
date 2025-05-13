@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 interface PageHeaderProps {
   title: string;
@@ -10,13 +11,43 @@ interface PageHeaderProps {
 
 const PageHeader = ({ title, subtitle, actions }: PageHeaderProps) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between py-6 px-4 md:px-6 border-b border-gray-200">
+    <motion.div 
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col md:flex-row md:items-center justify-between py-6 px-6 md:px-8 border-b border-white/20 backdrop-blur-lg bg-white/30 rounded-[20px] mb-6 shadow-sm"
+    >
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
-        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+        <motion.h1 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="text-2xl md:text-3xl font-bold text-[#2d3436] tracking-wide"
+        >
+          {title}
+        </motion.h1>
+        {subtitle && (
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="text-sm text-[#636e72] mt-2 font-medium"
+          >
+            {subtitle}
+          </motion.p>
+        )}
       </div>
-      {actions && <div className="mt-4 md:mt-0 flex items-center space-x-3">{actions}</div>}
-    </div>
+      {actions && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.3 }}
+          className="mt-4 md:mt-0 flex items-center space-x-3"
+        >
+          {actions}
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
 

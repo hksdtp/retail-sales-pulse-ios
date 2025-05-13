@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Plus, Users, UserRound } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/layout/PageHeader';
 import TaskTabs from '@/components/tasks/TaskTabs';
@@ -13,6 +14,7 @@ import { Settings } from 'lucide-react';
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isGoogleSheetsConfigOpen, setIsGoogleSheetsConfigOpen] = useState(false);
+  const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const { currentUser, teams } = useAuth();
   
   // Xác định vị trí và tiêu đề phù hợp với vai trò
@@ -44,11 +46,48 @@ const Tasks = () => {
             <Button variant="outline" size="icon" onClick={() => setIsGoogleSheetsConfigOpen(true)} title="Cấu hình Google Sheets">
               <Settings className="h-4 w-4" />
             </Button>
-            {canCreateTask && 
-              <Button onClick={() => setIsFormOpen(true)}>
-                {currentUser?.role === 'employee' ? 'Tạo công việc mới cho bản thân' : 'Tạo công việc mới'}
+            
+            {/* Tất cả vai trò đều có nút này */}
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1.5 bg-white/80 hover:bg-white/90 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 shadow-sm"
+              onClick={() => {
+                setTaskFormType('self');
+                setIsFormOpen(true);
+              }}
+            >
+              <UserRound className="h-4 w-4" />
+              <span>Tạo công việc cho bản thân</span>
+            </Button>
+
+            {/* Nếu là Khổng Đức Mạnh hoặc vai trò Director */}
+            {(currentUser?.name === 'Khổng Đức Mạnh' || currentUser?.role === 'director') && (
+              <Button 
+                className="flex items-center gap-1.5 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
+                onClick={() => {
+                  setTaskFormType('team');
+                  setIsFormOpen(true);
+                }}
+              >
+                <Users className="h-4 w-4" />
+                <span>Giao việc cho Nhóm/Cá nhân</span>
               </Button>
-            }
+            )}
+
+            {/* Nếu là Trưởng nhóm và không phải Khổng Đức Mạnh */}
+            {currentUser?.role === 'team_leader' && currentUser?.name !== 'Khổng Đức Mạnh' && (
+              <Button 
+                className="flex items-center gap-1.5 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
+                onClick={() => {
+                  setTaskFormType('individual');
+                  setIsFormOpen(true);
+                }}
+              >
+                <Users className="h-4 w-4" />
+                <span>Giao việc cho thành viên</span>
+              </Button>
+            )}
+            
           </div>
         }
       />
@@ -75,7 +114,11 @@ const Tasks = () => {
         <TaskTabs />
       </div>
 
-      <TaskFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} />
+      <TaskFormDialog 
+        open={isFormOpen} 
+        onOpenChange={setIsFormOpen} 
+        formType={taskFormType}
+      />
       <GoogleSheetsConfig 
         open={isGoogleSheetsConfigOpen} 
         onOpenChange={setIsGoogleSheetsConfigOpen} 

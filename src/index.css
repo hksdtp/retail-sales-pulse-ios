@@ -92,6 +92,9 @@
 
   body {
     @apply bg-background text-foreground font-sf-pro;
+    font-feature-settings: "ss01", "ss02", "ss03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -138,26 +141,46 @@
   font-style: normal;
 }
 
-/* iOS-style utility classes */
+/* macOS-style utility classes */
 @layer components {
-  .ios-card {
-    @apply bg-white rounded-xl shadow-sm border-0 overflow-hidden;
+  .macos-card {
+    @apply bg-white/90 backdrop-blur-xl rounded-xl shadow-md border border-white/10 overflow-hidden;
   }
   
-  .ios-button {
-    @apply bg-ios-blue text-white font-medium rounded-lg px-4 py-2 transition-opacity hover:opacity-90;
+  .macos-button {
+    @apply bg-ios-blue text-white font-medium rounded-lg px-4 py-2 transition-all hover:bg-ios-blue/90 active:scale-[0.98] shadow-sm;
   }
   
-  .ios-button-secondary {
-    @apply bg-ios-gray text-ios-dark font-medium rounded-lg px-4 py-2 transition-opacity hover:opacity-90;
+  .macos-button-secondary {
+    @apply bg-white/80 text-ios-dark font-medium rounded-lg border border-gray-200/50 px-4 py-2 transition-all hover:bg-white/100 active:scale-[0.98] shadow-sm;
   }
   
-  .ios-input {
-    @apply bg-ios-gray border-0 rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-ios-blue focus:outline-none;
+  .macos-input {
+    @apply bg-white/80 border border-gray-200/50 rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-ios-blue focus:outline-none transition-all;
+  }
+  
+  .macos-select {
+    @apply bg-white/80 border border-gray-200/50 rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-ios-blue focus:outline-none transition-all;
   }
   
   .blur-background {
-    @apply backdrop-blur-xl bg-white/70 dark:bg-black/70;
+    @apply backdrop-blur-xl bg-white/80 dark:bg-[#1c1c1e]/80 border border-white/10 dark:border-white/5;
+  }
+  
+  .ios-card {
+    @apply bg-white/90 backdrop-blur-xl rounded-xl shadow-md border border-white/10 overflow-hidden;
+  }
+  
+  .ios-button {
+    @apply bg-ios-blue text-white font-medium rounded-lg px-4 py-2 transition-all hover:bg-ios-blue/90 active:scale-[0.98] shadow-sm;
+  }
+  
+  .ios-button-secondary {
+    @apply bg-white/80 text-ios-dark font-medium rounded-lg border border-gray-200/50 px-4 py-2 transition-all hover:bg-white/100 active:scale-[0.98] shadow-sm;
+  }
+  
+  .ios-input {
+    @apply bg-white/80 border border-gray-200/50 rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-ios-blue focus:outline-none transition-all;
   }
 }
 

@@ -7,6 +7,7 @@ import RegionDistribution from '@/components/dashboard/RegionDistribution';
 import ConversionRates from '@/components/dashboard/ConversionRates';
 import { KpiItem } from '@/utils/kpiUtils';
 import { User } from '@/types/user';
+import { motion } from 'framer-motion';
 
 interface KpiDashboardProps {
   kpiData: KpiItem[];
@@ -19,39 +20,80 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => 
   return (
     <div className="p-4 md:p-6 space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {kpiData.map((kpi, index) => (
-          <KpiCard
+          <motion.div
             key={index}
-            title={kpi.title}
-            value={kpi.value}
-            oldValue={kpi.oldValue}
-            change={kpi.change}
-            data={kpi.data}
-          />
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+            whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+            className="overflow-hidden"
+          >
+            <KpiCard
+              title={kpi.title}
+              value={kpi.value}
+              oldValue={kpi.oldValue}
+              change={kpi.change}
+              data={kpi.data}
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
       
       {/* Charts - Chỉ hiển thị RevenueChart cho tất cả người dùng */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <RevenueChart />
-        </div>
-        <div className="lg:col-span-1">
-          {/* TopPerformers chỉ hiển thị cho giám đốc */}
-          <TopPerformers />
-        </div>
-      </div>
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <motion.div 
+          className="lg:col-span-2"
+          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+        >
+          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <RevenueChart />
+          </div>
+        </motion.div>
+        <motion.div 
+          className="lg:col-span-1"
+          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+        >
+          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <TopPerformers />
+          </div>
+        </motion.div>
+      </motion.div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          {/* RegionDistribution chỉ hiển thị cho giám đốc */}
-          <RegionDistribution />
-        </div>
-        <div className="lg:col-span-2">
-          <ConversionRates visible={isDirector} />
-        </div>
-      </div>
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <motion.div 
+          className="lg:col-span-1"
+          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+        >
+          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <RegionDistribution />
+          </div>
+        </motion.div>
+        <motion.div 
+          className="lg:col-span-2"
+          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+        >
+          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <ConversionRates visible={isDirector} />
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
