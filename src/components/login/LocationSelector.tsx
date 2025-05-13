@@ -44,7 +44,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             <SelectItem value="all" className="text-base py-3 px-4 rounded-md">
               <div className="flex items-center w-full gap-3">
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-ios-blue flex items-center justify-center">
-                  <Briefcase className="h-3 w-3 text-white" />
+                  <Briefcase color="white" size={16} />
                 </div>
                 <span className="flex-1 truncate">Toàn quốc</span>
               </div>
@@ -52,7 +52,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             <SelectItem value="hanoi" className="text-base py-3 px-4 rounded-md">
               <div className="flex items-center w-full gap-3">
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-green-500 flex items-center justify-center">
-                  <MapPin className="h-3 w-3 text-white" />
+                  <MapPin color="white" size={16} />
                 </div>
                 <span className="flex-1 truncate">Hà Nội</span>
               </div>
@@ -60,7 +60,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             <SelectItem value="hcm" className="text-base py-3 px-4 rounded-md">
               <div className="flex items-center w-full gap-3">
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-orange-500 flex items-center justify-center">
-                  <MapPin className="h-3 w-3 text-white" />
+                  <MapPin color="white" size={16} />
                 </div>
                 <span className="flex-1 truncate">Hồ Chí Minh</span>
               </div>
