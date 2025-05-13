@@ -105,31 +105,30 @@ const LoginForm = () => {
             <SelectContent 
               position="popper" 
               sideOffset={5} 
-              className="max-h-80 overflow-auto bg-white z-[100] shadow-xl border border-gray-200 w-full min-w-[300px]" 
-              align="start"
+              className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200" 
             >
-              <SelectItem value="all" className="py-3 px-3">
-                <div className="flex items-center w-full">
-                  <div className="h-7 w-7 rounded-full bg-ios-blue flex items-center justify-center mr-3">
+              <SelectItem value="all" className="py-2 md:py-3">
+                <div className="flex items-center">
+                  <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
                     <MapPin className="h-3 w-3 text-white" />
                   </div>
-                  <span className="flex-1">Toàn quốc</span>
+                  Toàn quốc
                 </div>
               </SelectItem>
-              <SelectItem value="hanoi" className="py-3 px-3">
-                <div className="flex items-center w-full">
-                  <div className="h-7 w-7 rounded-full bg-green-500 flex items-center justify-center mr-3">
+              <SelectItem value="hanoi" className="py-2 md:py-3">
+                <div className="flex items-center">
+                  <div className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center mr-2">
                     <MapPin className="h-3 w-3 text-white" />
                   </div>
-                  <span className="flex-1">Hà Nội</span>
+                  Hà Nội
                 </div>
               </SelectItem>
-              <SelectItem value="hcm" className="py-3 px-3">
-                <div className="flex items-center w-full">
-                  <div className="h-7 w-7 rounded-full bg-orange-500 flex items-center justify-center mr-3">
+              <SelectItem value="hcm" className="py-2 md:py-3">
+                <div className="flex items-center">
+                  <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center mr-2">
                     <MapPin className="h-3 w-3 text-white" />
                   </div>
-                  <span className="flex-1">Hồ Chí Minh</span>
+                  Hồ Chí Minh
                 </div>
               </SelectItem>
             </SelectContent>
@@ -162,16 +161,15 @@ const LoginForm = () => {
               <SelectContent 
                 position="popper" 
                 sideOffset={5}
-                className="max-h-80 overflow-auto bg-white z-[100] shadow-xl border border-gray-200 w-full min-w-[300px]"
-                align="start"
+                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
               >
                 {filteredTeams.map(team => (
-                  <SelectItem key={team.id} value={team.id} className="py-3 px-3">
-                    <div className="flex items-center w-full">
-                      <div className="h-7 w-7 rounded-full bg-ios-blue flex items-center justify-center mr-3">
+                  <SelectItem key={team.id} value={team.id} className="py-2 md:py-3">
+                    <div className="flex items-center">
+                      <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
                         <Users className="h-3 w-3 text-white" />
                       </div>
-                      <span className="flex-1">{team.name}</span>
+                      {team.name}
                     </div>
                   </SelectItem>
                 ))}
@@ -205,13 +203,12 @@ const LoginForm = () => {
               <SelectContent 
                 position="popper" 
                 sideOffset={5}
-                className="max-h-80 overflow-auto bg-white z-[100] shadow-xl border border-gray-200 w-full min-w-[300px]"
-                align="start"
+                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
               >
                 {filteredUsers.map(user => (
-                  <SelectItem key={user.id} value={user.id} className="py-3 px-3">
-                    <div className="flex items-center w-full">
-                      <Avatar className="h-7 w-7 mr-3">
+                  <SelectItem key={user.id} value={user.id} className="py-2 md:py-3">
+                    <div className="flex items-center">
+                      <Avatar className="h-6 w-6 mr-2">
                         <AvatarFallback className={`text-white ${
                           user.role === 'director' 
                             ? 'bg-purple-500' 
@@ -222,7 +219,7 @@ const LoginForm = () => {
                           {getAvatarText(user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="flex-1">{user.name}</span>
+                      {user.name}
                     </div>
                   </SelectItem>
                 ))}

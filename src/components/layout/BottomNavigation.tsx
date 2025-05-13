@@ -43,6 +43,10 @@ const BottomNavigation = () => {
     icon: CalendarCheck,
     url: "/calendar"
   }, {
+    title: "KPI",
+    icon: PieChart,
+    url: "/kpi"
+  }, {
     title: "Báo cáo",
     icon: FileText,
     url: "/reports"
@@ -59,7 +63,7 @@ const BottomNavigation = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg backdrop-blur-md bg-opacity-90">
       <div className="flex justify-between items-center px-2 py-1">
-        {menuItems.map((item) => (
+        {menuItems.slice(0, 5).map((item) => (
           <Link
             key={item.title}
             to={item.url}
