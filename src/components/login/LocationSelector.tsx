@@ -37,30 +37,30 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         <SelectContent 
           position="popper" 
           sideOffset={5} 
-          className="bg-white z-[200] shadow-xl border border-gray-200 w-full min-w-[300px]"
+          className="bg-white shadow-xl border border-gray-200 w-[300px] z-50"
           align="start"
         >
           <div className="p-1">
-            <SelectItem value="all" className="text-base py-3 px-4 rounded-md">
+            <SelectItem value="all" className="text-base py-3 px-4 rounded-md cursor-pointer">
               <div className="flex items-center w-full gap-3">
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-ios-blue flex items-center justify-center">
-                  <Briefcase color="white" size={16} />
+                  <Briefcase size={16} stroke="white" strokeWidth={2} />
                 </div>
                 <span className="flex-1 truncate">Toàn quốc</span>
               </div>
             </SelectItem>
-            <SelectItem value="hanoi" className="text-base py-3 px-4 rounded-md">
+            <SelectItem value="hanoi" className="text-base py-3 px-4 rounded-md cursor-pointer">
               <div className="flex items-center w-full gap-3">
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-green-500 flex items-center justify-center">
-                  <MapPin color="white" size={16} />
+                  <MapPin size={16} stroke="white" strokeWidth={2} />
                 </div>
                 <span className="flex-1 truncate">Hà Nội</span>
               </div>
             </SelectItem>
-            <SelectItem value="hcm" className="text-base py-3 px-4 rounded-md">
+            <SelectItem value="hcm" className="text-base py-3 px-4 rounded-md cursor-pointer">
               <div className="flex items-center w-full gap-3">
                 <div className="h-7 w-7 flex-shrink-0 rounded-full bg-orange-500 flex items-center justify-center">
-                  <MapPin color="white" size={16} />
+                  <MapPin size={16} stroke="white" strokeWidth={2} />
                 </div>
                 <span className="flex-1 truncate">Hồ Chí Minh</span>
               </div>

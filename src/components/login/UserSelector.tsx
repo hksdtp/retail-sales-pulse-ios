@@ -48,7 +48,7 @@ const UserSelector: React.FC<UserSelectorProps> = ({
       </div>
 
       <div className="max-h-72 overflow-y-auto space-y-3 pr-1">
-        {filteredUsers.map((user, index) => (
+        {filteredUsers.map((user) => (
           <div 
             key={user.id}
             className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
