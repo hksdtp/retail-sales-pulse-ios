@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -38,6 +37,7 @@ import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { Calendar, Clock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Schema xác thực form
 const formSchema = z.object({
@@ -120,7 +120,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self' }: TaskFormDialo
     if (!isGoogleSheetsConfigured) {
       toast({
         title: "Cảnh báo",
-        description: "Google Sheets chưa được cấu hình. Vui lòng cấu hình để lưu dữ liệu.",
+        description: "Google Sheets chưa được cấu hình. Vui lòng cấu hình Service Account để lưu dữ liệu.",
         variant: "destructive"
       });
       return;
@@ -193,7 +193,14 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self' }: TaskFormDialo
           </DialogDescription>
         </DialogHeader>
 
-        {/* Ẩn phần cảnh báo Google Sheets */}
+        {!isGoogleSheetsConfigured && (
+          <Alert className="bg-amber-50 border-amber-300 text-amber-800 mb-4">
+            <AlertDescription>
+              Bạn cần cấu hình Google Sheets Service Account trước khi có thể tạo công việc mới.
+              Vui lòng nhấn vào biểu tượng Cài đặt ở góc trên bên phải.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-2">

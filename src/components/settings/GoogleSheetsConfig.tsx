@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,8 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 interface GoogleSheetsConfigProps {
   open: boolean;
@@ -23,7 +26,7 @@ interface GoogleSheetsConfigProps {
 const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsConfigProps) => {
   const { toast } = useToast();
   const [sheetId, setSheetId] = useState('');
-  const [apiKey, setApiKey] = useState('');
+  const [serviceAccountJSON, setServiceAccountJSON] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
 
   // Lấy cấu hình hiện tại khi mở dialog
@@ -31,7 +34,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
     if (open) {
       const config = googleSheetsService.getConfig();
       setSheetId(config.sheetId || '');
-      setApiKey(config.apiKey || '');
+      setServiceAccountJSON(config.serviceAccountJson || '');
       setIsConfigured(googleSheetsService.isConfigured());
     }
   }, [open]);
@@ -48,16 +51,28 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
         return;
       }
 
-      if (!apiKey.trim()) {
+      if (!serviceAccountJSON.trim()) {
         toast({
           title: "Lỗi",
-          description: "API Key không được để trống",
+          description: "Thông tin Service Account JSON không được để trống",
           variant: "destructive",
         });
         return;
       }
 
-      googleSheetsService.setConfig(sheetId.trim(), apiKey.trim());
+      // Kiểm tra định dạng JSON của Service Account
+      try {
+        JSON.parse(serviceAccountJSON.trim());
+      } catch (e) {
+        toast({
+          title: "Lỗi",
+          description: "Service Account JSON không hợp lệ",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      googleSheetsService.setConfig(sheetId.trim(), serviceAccountJSON.trim());
       toast({
         title: "Thành công",
         description: "Cấu hình Google Sheets đã được lưu",
@@ -80,7 +95,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[475px]">
+      <DialogContent className="sm:max-w-[475px] md:max-w-[650px]">
         <DialogHeader>
           <DialogTitle>Cấu hình Google Sheets</DialogTitle>
           <DialogDescription>
@@ -89,6 +104,14 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Google Sheets API yêu cầu xác thực bằng Service Account thay vì API Key đơn giản. 
+              Bạn cần tạo Service Account và chia sẻ quyền biên tập Google Sheet cho email của Service Account đó.
+            </AlertDescription>
+          </Alert>
+
           <div className="grid gap-2">
             <Label htmlFor="sheetId">Google Sheet ID</Label>
             <Input
@@ -103,16 +126,25 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="apiKey">Google API Key</Label>
-            <Input
-              id="apiKey"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Nhập Google API Key"
-              type="password"
+            <Label htmlFor="serviceAccountJSON">Service Account JSON</Label>
+            <Textarea
+              id="serviceAccountJSON"
+              value={serviceAccountJSON}
+              onChange={(e) => setServiceAccountJSON(e.target.value)}
+              placeholder='{
+  "type": "service_account",
+  "project_id": "your-project-id",
+  "private_key_id": "key-id",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+  "client_email": "your-service-account@your-project-id.iam.gserviceaccount.com",
+  "client_id": "client-id",
+  ...
+}'
+              className="font-mono text-sm min-h-[200px]"
             />
             <p className="text-xs text-muted-foreground">
-              API Key từ Google Cloud Console với quyền truy cập Google Sheets API
+              Dán toàn bộ nội dung file JSON của Service Account từ Google Cloud Console.
+              Đảm bảo đã chia sẻ quyền chỉnh sửa Google Sheet cho email của Service Account.
             </p>
           </div>
         </div>

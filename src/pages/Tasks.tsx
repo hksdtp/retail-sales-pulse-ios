@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Users, UserRound } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/layout/PageHeader';
@@ -10,12 +9,27 @@ import { useAuth } from '@/context/AuthContext';
 import GoogleSheetsConfig from '@/components/settings/GoogleSheetsConfig';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { Settings } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isGoogleSheetsConfigOpen, setIsGoogleSheetsConfigOpen] = useState(false);
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const { currentUser, teams } = useAuth();
+  const { toast } = useToast();
+  
+  // Kiểm tra cấu hình Google Sheets khi trang được tải
+  useEffect(() => {
+    const isConfigured = googleSheetsService.isConfigured();
+    if (!isConfigured) {
+      toast({
+        title: "Cần cấu hình",
+        description: "Vui lòng cấu hình Google Sheets Service Account để lưu dữ liệu công việc",
+        variant: "destructive",
+        duration: 6000
+      });
+    }
+  }, [toast]);
   
   // Xác định vị trí và tiêu đề phù hợp với vai trò
   const locationName = currentUser?.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
@@ -43,7 +57,13 @@ const Tasks = () => {
         subtitle={subtitle}
         actions={
           <div className="flex space-x-2">
-            <Button variant="outline" size="icon" onClick={() => setIsGoogleSheetsConfigOpen(true)} title="Cấu hình Google Sheets">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => setIsGoogleSheetsConfigOpen(true)} 
+              title="Cấu hình Google Sheets"
+              className={!googleSheetsService.isConfigured() ? "animate-pulse border-amber-300 bg-amber-50 text-amber-800" : ""}
+            >
               <Settings className="h-4 w-4" />
             </Button>
             
@@ -122,6 +142,12 @@ const Tasks = () => {
       <GoogleSheetsConfig 
         open={isGoogleSheetsConfigOpen} 
         onOpenChange={setIsGoogleSheetsConfigOpen} 
+        onConfigSaved={() => {
+          toast({
+            title: "Cấu hình thành công",
+            description: "Đã lưu cấu hình Google Sheets Service Account"
+          });
+        }}
       />
     </AppLayout>
   );

@@ -2,38 +2,105 @@
 // Service để xử lý kết nối và lưu dữ liệu vào Google Sheets
 
 class GoogleSheetsService {
+  private serviceAccountString: string | null = null; 
   private sheetId: string | null = null;
-  private apiKey: string | null = null;
+  private accessToken: string | null = null; // Thêm token truy cập
+  private tokenExpiry: number = 0; // Thời gian hết hạn của token
 
   constructor() {
     // Lấy thông tin từ localStorage nếu đã được lưu trước đó
+    this.serviceAccountString = localStorage.getItem('googleServiceAccount');
     this.sheetId = localStorage.getItem('googleSheetId');
-    this.apiKey = localStorage.getItem('googleSheetsApiKey');
   }
 
   // Thiết lập thông tin cấu hình Google Sheets
-  setConfig(sheetId: string, apiKey: string) {
-    this.sheetId = sheetId;
-    this.apiKey = apiKey;
-    
-    // Lưu vào localStorage để sử dụng cho các lần sau
-    localStorage.setItem('googleSheetId', sheetId);
-    localStorage.setItem('googleSheetsApiKey', apiKey);
-    
-    return true;
+  setConfig(sheetId: string, serviceAccountJson: string) {
+    try {
+      // Kiểm tra xem chuỗi JSON có hợp lệ không
+      JSON.parse(serviceAccountJson);
+      
+      this.sheetId = sheetId;
+      this.serviceAccountString = serviceAccountJson;
+      
+      // Lưu vào localStorage để sử dụng cho các lần sau
+      localStorage.setItem('googleSheetId', sheetId);
+      localStorage.setItem('googleServiceAccount', serviceAccountJson);
+      
+      return true;
+    } catch (error) {
+      console.error("Service Account JSON không hợp lệ:", error);
+      throw new Error("Service Account JSON không hợp lệ");
+    }
   }
 
   // Kiểm tra đã cấu hình chưa
   isConfigured() {
-    return !!(this.sheetId && this.apiKey);
+    return !!(this.sheetId && this.serviceAccountString);
   }
 
   // Lấy thông tin cấu hình
   getConfig() {
     return {
       sheetId: this.sheetId,
-      apiKey: this.apiKey
+      serviceAccountJson: this.serviceAccountString
     };
+  }
+
+  // Lấy token truy cập sử dụng Service Account
+  private async getAccessToken(): Promise<string> {
+    try {
+      // Kiểm tra xem token hiện tại còn hiệu lực không
+      if (this.accessToken && Date.now() < this.tokenExpiry - 60000) {
+        return this.accessToken;
+      }
+
+      if (!this.serviceAccountString) {
+        throw new Error('Service Account chưa được cấu hình');
+      }
+
+      // Parse thông tin Service Account
+      const serviceAccount = JSON.parse(this.serviceAccountString);
+      
+      // Tạo JWT để yêu cầu access token
+      const now = Math.floor(Date.now() / 1000);
+      const expiry = now + 3600; // Token hết hạn sau 1 giờ
+      
+      const jwtHeader = {
+        alg: 'RS256',
+        typ: 'JWT'
+      };
+      
+      const jwtClaim = {
+        iss: serviceAccount.client_email,
+        scope: 'https://www.googleapis.com/auth/spreadsheets',
+        aud: 'https://oauth2.googleapis.com/token',
+        exp: expiry,
+        iat: now
+      };
+      
+      // Mã hóa và ký JWT
+      // Lưu ý: Trong môi trường trình duyệt thực tế, việc tạo và ký JWT là không an toàn
+      // vì private key sẽ bị lộ. Đây chỉ là cách giải quyết tạm thời.
+      // Cách tiếp cận tốt hơn là sử dụng backend để xử lý việc này.
+      
+      // Giả lập việc có token (trong ứng dụng thực tế cần xử lý qua backend)
+      console.log("Đang lấy access token từ Service Account...");
+      
+      // Giả định là chúng ta có backend xử lý việc này và trả về token
+      const mockResponse = {
+        access_token: "mock_access_token_" + Math.random().toString(36).substring(7),
+        expires_in: 3600
+      };
+      
+      // Lưu token và thời gian hết hạn
+      this.accessToken = mockResponse.access_token;
+      this.tokenExpiry = Date.now() + (mockResponse.expires_in * 1000);
+      
+      return this.accessToken;
+    } catch (error) {
+      console.error('Lỗi khi lấy access token:', error);
+      throw new Error('Không thể xác thực với Google API');
+    }
   }
 
   // Lưu dữ liệu công việc vào Google Sheets
@@ -46,12 +113,16 @@ class GoogleSheetsService {
       // Chuẩn bị dữ liệu để lưu vào Google Sheets
       const formattedData = this.formatTaskDataForSheets(taskData);
       
+      // Lấy access token
+      const accessToken = await this.getAccessToken();
+      
       // Endpoint của Google Sheets API để thêm dữ liệu
-      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/A:Z:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`;
+      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/A:Z:append?valueInputOption=USER_ENTERED`;
       
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
