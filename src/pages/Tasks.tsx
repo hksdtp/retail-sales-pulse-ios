@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import GoogleSheetsConfig from '@/components/settings/GoogleSheetsConfig';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { Settings } from 'lucide-react';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
