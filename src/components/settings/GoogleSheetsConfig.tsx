@@ -15,7 +15,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import { Info, ExternalLink } from 'lucide-react';
 
 interface GoogleSheetsConfigProps {
   open: boolean;
@@ -106,9 +106,20 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
         <div className="grid gap-4 py-4">
           <Alert className="bg-blue-50 border-blue-200 text-blue-800">
             <Info className="h-4 w-4" />
-            <AlertDescription>
-              Google Sheets API yêu cầu xác thực bằng Service Account thay vì API Key đơn giản. 
-              Bạn cần tạo Service Account và chia sẻ quyền biên tập Google Sheet cho email của Service Account đó.
+            <AlertDescription className="space-y-2">
+              <p>
+                <strong>Cập nhật quan trọng:</strong> Để đơn giản hóa quy trình, bạn có thể sử dụng phương pháp sau:
+              </p>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>Tạo một Google Sheet mới</li>
+                <li>Nhấp vào nút Chia sẻ ở góc trên bên phải</li>
+                <li>Chọn "Bất kỳ ai có liên kết" và đặt quyền là "Biên tập viên"</li>
+                <li>Sao chép ID của Google Sheet (phần giữa /d/ và /edit trong URL)</li>
+                <li>Dán ID đó vào trường bên dưới</li>
+              </ol>
+              <p className="text-sm italic">
+                Lưu ý: Phương pháp này chỉ phù hợp cho môi trường thử nghiệm nội bộ. Đối với môi trường sản xuất, nên sử dụng backend an toàn để xử lý xác thực.
+              </p>
             </AlertDescription>
           </Alert>
 
@@ -123,6 +134,12 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
             <p className="text-xs text-muted-foreground">
               ID của Google Sheet nằm trong URL: https://docs.google.com/spreadsheets/d/<span className="font-medium">ID_SHEET</span>/edit
             </p>
+            <div className="flex items-center text-xs text-blue-600">
+              <ExternalLink className="h-3 w-3 mr-1" />
+              <a href="https://docs.google.com/spreadsheets" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                Mở Google Sheets
+              </a>
+            </div>
           </div>
 
           <div className="grid gap-2">

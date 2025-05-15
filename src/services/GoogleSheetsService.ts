@@ -49,57 +49,39 @@ class GoogleSheetsService {
   // Lấy token truy cập sử dụng Service Account
   private async getAccessToken(): Promise<string> {
     try {
-      // Kiểm tra xem token hiện tại còn hiệu lực không
-      if (this.accessToken && Date.now() < this.tokenExpiry - 60000) {
-        return this.accessToken;
-      }
-
-      if (!this.serviceAccountString) {
+      // Nếu chưa có cấu hình Service Account
+      if (!this.serviceAccountString || !this.sheetId) {
         throw new Error('Service Account chưa được cấu hình');
       }
 
-      // Parse thông tin Service Account
-      const serviceAccount = JSON.parse(this.serviceAccountString);
+      console.log("Bắt đầu lấy token xác thực...");
       
-      // Tạo JWT để yêu cầu access token
-      const now = Math.floor(Date.now() / 1000);
-      const expiry = now + 3600; // Token hết hạn sau 1 giờ
+      // Trong thực tế, việc xác thực bằng service account cần một backend an toàn
+      // Đối với ứng dụng frontend, chúng ta sẽ sử dụng Google Identity Platform 
+      // hoặc một proxy server để xử lý xác thực
       
-      const jwtHeader = {
-        alg: 'RS256',
-        typ: 'JWT'
-      };
+      // Đây là một giải pháp tạm thời - sử dụng API gateway hoặc proxy server
+      const proxyUrl = 'https://sheets-proxy.onrender.com/auth'; // Giả định URL proxy server
       
-      const jwtClaim = {
-        iss: serviceAccount.client_email,
-        scope: 'https://www.googleapis.com/auth/spreadsheets',
-        aud: 'https://oauth2.googleapis.com/token',
-        exp: expiry,
-        iat: now
-      };
-      
-      // Mã hóa và ký JWT
-      // Lưu ý: Trong môi trường trình duyệt thực tế, việc tạo và ký JWT là không an toàn
-      // vì private key sẽ bị lộ. Đây chỉ là cách giải quyết tạm thời.
-      // Cách tiếp cận tốt hơn là sử dụng backend để xử lý việc này.
-      
-      // Giả lập việc có token (trong ứng dụng thực tế cần xử lý qua backend)
-      console.log("Đang lấy access token từ Service Account...");
-      
-      // Giả định là chúng ta có backend xử lý việc này và trả về token
-      const mockResponse = {
-        access_token: "mock_access_token_" + Math.random().toString(36).substring(7),
-        expires_in: 3600
-      };
-      
-      // Lưu token và thời gian hết hạn
-      this.accessToken = mockResponse.access_token;
-      this.tokenExpiry = Date.now() + (mockResponse.expires_in * 1000);
-      
-      return this.accessToken;
+      // Gửi yêu cầu đến proxy server để lấy token
+      try {
+        console.log("Đang gửi yêu cầu xác thực...");
+        
+        // Trong thực tế, hàm này sẽ gọi đến một proxy server
+        // Ở đây, vì chưa có proxy server thực tế, chúng ta sẽ yêu cầu người dùng
+        // chia sẻ Google Sheet để "Bất kỳ ai có liên kết" có thể chỉnh sửa
+        console.log("Đảm bảo Google Sheet đã được chia sẻ cho mọi người có liên kết và có quyền chỉnh sửa");
+        
+        // Sử dụng API key thay vì Service Account (giới hạn nhưng đơn giản hơn)
+        // Google Sheets API cho phép một số hoạt động cơ bản với API key nếu sheet được chia sẻ công khai
+        return "SHEET_IS_PUBLIC"; // Token giả để tiếp tục quy trình
+      } catch (authError) {
+        console.error('Lỗi xác thực qua proxy:', authError);
+        throw new Error('Không thể xác thực với Google API. Vui lòng đảm bảo Google Sheet đã được chia sẻ công khai.');
+      }
     } catch (error) {
       console.error('Lỗi khi lấy access token:', error);
-      throw new Error('Không thể xác thực với Google API');
+      throw error;
     }
   }
 
@@ -110,19 +92,26 @@ class GoogleSheetsService {
     }
 
     try {
+      console.log("Bắt đầu lưu dữ liệu công việc...");
+      
       // Chuẩn bị dữ liệu để lưu vào Google Sheets
       const formattedData = this.formatTaskDataForSheets(taskData);
       
-      // Lấy access token
-      const accessToken = await this.getAccessToken();
+      // Lấy access token hoặc xác nhận sheet được chia sẻ công khai
+      await this.getAccessToken();
       
-      // Endpoint của Google Sheets API để thêm dữ liệu
-      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/A:Z:append?valueInputOption=USER_ENTERED`;
+      if (!this.sheetId) {
+        throw new Error('Thiếu ID Google Sheet');
+      }
+      
+      console.log("Đang gửi dữ liệu đến Google Sheets...");
+      
+      // Sử dụng Google Sheets API với sheet công khai
+      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/A:Z:append?valueInputOption=USER_ENTERED&key=AIzaSyDgcj4iNj0MtmM0HF2Utew9UoN5BlDH5f4`;
       
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -133,7 +122,18 @@ class GoogleSheetsService {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Lỗi khi lưu dữ liệu vào Google Sheets:', errorData);
-        throw new Error(`Lỗi khi lưu dữ liệu: ${errorData.error?.message || 'Không thể kết nối với Google Sheets'}`);
+        
+        // Hiển thị thông báo chi tiết hơn
+        let errorMessage = 'Không thể kết nối với Google Sheets. ';
+        if (errorData.error && errorData.error.message) {
+          errorMessage += errorData.error.message;
+        }
+        
+        if (errorData.error && errorData.error.message && errorData.error.message.includes('invalid authentication credentials')) {
+          errorMessage += ' Vui lòng đảm bảo Google Sheet đã được chia sẻ công khai với quyền chỉnh sửa.';
+        }
+        
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
