@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -69,10 +68,12 @@ const LoginForm = () => {
         title: 'Đăng nhập thành công',
         description: 'Chào mừng bạn quay trở lại!'
       });
-      navigate('/');
+      // Sử dụng setTimeout để đảm bảo state đã được cập nhật trước khi chuyển hướng
+      setTimeout(() => {
+        navigate('/');
+      }, 100);
     } catch (error) {
       // Lỗi đã được xử lý trong hàm login
-    } finally {
       setIsSubmitting(false);
     }
   };

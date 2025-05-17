@@ -1,10 +1,22 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import LoginForm from '@/components/login/LoginForm';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Kiểm tra nếu người dùng đã xác thực, chuyển hướng đến trang chủ
+    if (!isLoading && isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+  
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
       <div 

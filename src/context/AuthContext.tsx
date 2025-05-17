@@ -225,9 +225,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     // Kiểm tra người dùng đã đăng nhập từ localStorage
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
-      const user = JSON.parse(storedUser);
-      setCurrentUser(user);
-      setIsFirstLogin(!user.password_changed);
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        setIsFirstLogin(!user.password_changed);
+      } catch (error) {
+        console.error("Lỗi khi parse dữ liệu người dùng:", error);
+        localStorage.removeItem('currentUser');
+      }
     }
     setIsLoading(false);
   }, []);
