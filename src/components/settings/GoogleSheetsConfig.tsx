@@ -225,7 +225,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
                     <li>Đã bật Google Sheets API trong dự án Google Cloud</li>
                     <li>Đã chia sẻ Google Sheet với đúng email của Service Account</li>
                     <li>Service Account có quyền Editor trên Google Sheet</li>
-                    <li>Tệp JSON đã được sao chép đầy đủ (kiểm tra dấu ngoặc {...})</li>
+                    <li>Tệp JSON đã được sao chép đầy đủ (kiểm tra dấu ngoặc {"{...}"})</li>
                   </ul>
                 </AlertDescription>
               </Alert>
