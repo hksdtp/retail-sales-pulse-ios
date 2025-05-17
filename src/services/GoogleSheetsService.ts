@@ -54,35 +54,160 @@ class GoogleSheetsService {
         throw new Error('Service Account chưa được cấu hình');
       }
 
+      // Nếu đã có token và còn hiệu lực, trả về token đó
+      if (this.accessToken && this.tokenExpiry > Date.now()) {
+        return this.accessToken;
+      }
+      
       console.log("Bắt đầu lấy token xác thực...");
       
-      // Trong thực tế, việc xác thực bằng service account cần một backend an toàn
-      // Đối với ứng dụng frontend, chúng ta sẽ sử dụng Google Identity Platform 
-      // hoặc một proxy server để xử lý xác thực
-      
-      // Đây là một giải pháp tạm thời - sử dụng API gateway hoặc proxy server
-      const proxyUrl = 'https://sheets-proxy.onrender.com/auth'; // Giả định URL proxy server
-      
-      // Gửi yêu cầu đến proxy server để lấy token
       try {
-        console.log("Đang gửi yêu cầu xác thực...");
+        // Gửi yêu cầu xác thực
+        const serviceAccountInfo = JSON.parse(this.serviceAccountString);
         
-        // Trong thực tế, hàm này sẽ gọi đến một proxy server
-        // Ở đây, vì chưa có proxy server thực tế, chúng ta sẽ yêu cầu người dùng
-        // chia sẻ Google Sheet để "Bất kỳ ai có liên kết" có thể chỉnh sửa
-        console.log("Đảm bảo Google Sheet đã được chia sẻ cho mọi người có liên kết và có quyền chỉnh sửa");
+        // Tạo JWT assertion
+        const iat = Math.floor(Date.now() / 1000);
+        const exp = iat + 3600; // Hết hạn sau 1 giờ
         
-        // Sử dụng API key thay vì Service Account (giới hạn nhưng đơn giản hơn)
-        // Google Sheets API cho phép một số hoạt động cơ bản với API key nếu sheet được chia sẻ công khai
-        return "SHEET_IS_PUBLIC"; // Token giả để tiếp tục quy trình
-      } catch (authError) {
-        console.error('Lỗi xác thực qua proxy:', authError);
-        throw new Error('Không thể xác thực với Google API. Vui lòng đảm bảo Google Sheet đã được chia sẻ công khai.');
+        const jwtHeader = {
+          alg: 'RS256',
+          typ: 'JWT'
+        };
+        
+        const jwtClaim = {
+          iss: serviceAccountInfo.client_email,
+          scope: 'https://www.googleapis.com/auth/spreadsheets',
+          aud: 'https://oauth2.googleapis.com/token',
+          exp: exp,
+          iat: iat
+        };
+        
+        // Base64Url encode header and claim
+        const base64Header = btoa(JSON.stringify(jwtHeader))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+          
+        const base64Claim = btoa(JSON.stringify(jwtClaim))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+        
+        // Tạo nội dung cần ký
+        const signContent = `${base64Header}.${base64Claim}`;
+        
+        // Dùng Web Crypto API để ký JWT
+        const privateKey = this.pemToArrayBuffer(serviceAccountInfo.private_key);
+        const keyImport = await window.crypto.subtle.importKey(
+          'pkcs8',
+          privateKey,
+          {
+            name: 'RSASSA-PKCS1-v1_5',
+            hash: {name: 'SHA-256'}
+          },
+          false,
+          ['sign']
+        );
+        
+        const encoder = new TextEncoder();
+        const signatureBuffer = await window.crypto.subtle.sign(
+          {name: 'RSASSA-PKCS1-v1_5'},
+          keyImport,
+          encoder.encode(signContent)
+        );
+        
+        // Chuyển signature thành base64url
+        const signatureBytes = new Uint8Array(signatureBuffer);
+        let binaryString = '';
+        signatureBytes.forEach(byte => {
+          binaryString += String.fromCharCode(byte);
+        });
+        
+        const base64Signature = btoa(binaryString)
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+        
+        // Tạo JWT hoàn chỉnh
+        const jwt = `${signContent}.${base64Signature}`;
+        
+        // Gửi yêu cầu lấy token
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            assertion: jwt
+          })
+        });
+        
+        const tokenData = await tokenResponse.json();
+        
+        if (!tokenResponse.ok || !tokenData.access_token) {
+          console.error('Lỗi lấy token:', tokenData);
+          throw new Error(`Không thể lấy access token: ${tokenData.error || 'Lỗi không xác định'}`);
+        }
+        
+        // Lưu token và thời gian hết hạn
+        this.accessToken = tokenData.access_token;
+        this.tokenExpiry = Date.now() + (tokenData.expires_in * 1000);
+        
+        return this.accessToken;
+        
+      } catch (error) {
+        console.error('Lỗi xác thực:', error);
+        
+        // Thử phương pháp thay thế nếu gặp lỗi với JWT
+        try {
+          console.log("Đang thử phương pháp xác thực thay thế...");
+          
+          // Gửi yêu cầu đến proxy server (nếu có)
+          const response = await fetch('https://cors-anywhere.herokuapp.com/https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              serviceAccount: this.serviceAccountString
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Không thể xác thực qua proxy server');
+          }
+          
+          const data = await response.json();
+          return data.access_token;
+        } catch (proxyError) {
+          console.error('Lỗi khi sử dụng proxy:', proxyError);
+          throw new Error('Không thể xác thực với Google API. Vui lòng đảm bảo Service Account đã được thiết lập đúng cách.');
+        }
       }
     } catch (error) {
       console.error('Lỗi khi lấy access token:', error);
       throw error;
     }
+  }
+  
+  // Chuyển định dạng PEM key sang ArrayBuffer
+  private pemToArrayBuffer(pem: string): ArrayBuffer {
+    // Xóa header, footer và các dòng mới
+    const pemContent = pem
+      .replace(/-----BEGIN PRIVATE KEY-----/, '')
+      .replace(/-----END PRIVATE KEY-----/, '')
+      .replace(/\n/g, '');
+    
+    // Decode base64
+    const binaryString = atob(pemContent);
+    const bytes = new Uint8Array(binaryString.length);
+    
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    return bytes.buffer;
   }
 
   // Lưu dữ liệu công việc vào Google Sheets
@@ -97,21 +222,22 @@ class GoogleSheetsService {
       // Chuẩn bị dữ liệu để lưu vào Google Sheets
       const formattedData = this.formatTaskDataForSheets(taskData);
       
-      // Lấy access token hoặc xác nhận sheet được chia sẻ công khai
-      await this.getAccessToken();
-      
       if (!this.sheetId) {
         throw new Error('Thiếu ID Google Sheet');
       }
       
+      // Lấy access token
+      const accessToken = await this.getAccessToken();
+      
       console.log("Đang gửi dữ liệu đến Google Sheets...");
       
-      // Sử dụng Google Sheets API với sheet công khai
-      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/A:Z:append?valueInputOption=USER_ENTERED&key=AIzaSyDgcj4iNj0MtmM0HF2Utew9UoN5BlDH5f4`;
+      // Sử dụng Google Sheets API với access token
+      const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/A:Z:append?valueInputOption=USER_ENTERED`;
       
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -127,10 +253,6 @@ class GoogleSheetsService {
         let errorMessage = 'Không thể kết nối với Google Sheets. ';
         if (errorData.error && errorData.error.message) {
           errorMessage += errorData.error.message;
-        }
-        
-        if (errorData.error && errorData.error.message && errorData.error.message.includes('invalid authentication credentials')) {
-          errorMessage += ' Vui lòng đảm bảo Google Sheet đã được chia sẻ công khai với quyền chỉnh sửa.';
         }
         
         throw new Error(errorMessage);
