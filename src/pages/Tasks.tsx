@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, Users, UserRound } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
@@ -24,8 +25,8 @@ const Tasks = () => {
     if (isConfigured) {
       toast({
         title: "Đã sẵn sàng",
-        description: "Google Sheets đã được cấu hình và sẵn sàng sử dụng",
-        duration: 3000
+        description: "Google Sheets đã được cấu hình và đang hoạt động ở chế độ mô phỏng",
+        duration: 5000
       });
     }
   }, [toast]);
@@ -144,7 +145,7 @@ const Tasks = () => {
         onConfigSaved={() => {
           toast({
             title: "Cấu hình thành công",
-            description: "Đã lưu cấu hình Google Sheets Service Account"
+            description: "Đã lưu cấu hình Google Sheets Service Account. Dữ liệu sẽ được lưu ở chế độ mô phỏng."
           });
         }}
       />
