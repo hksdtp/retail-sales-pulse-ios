@@ -1,4 +1,3 @@
-
 // Service để xử lý kết nối và lưu dữ liệu vào Google Sheets
 
 class GoogleSheetsService {
@@ -11,6 +10,33 @@ class GoogleSheetsService {
     // Lấy thông tin từ localStorage nếu đã được lưu trước đó
     this.serviceAccountString = localStorage.getItem('googleServiceAccount');
     this.sheetId = localStorage.getItem('googleSheetId');
+    
+    // Tự động cấu hình nếu chưa được thiết lập
+    if (!this.isConfigured()) {
+      this.applyDefaultConfig();
+    }
+  }
+  
+  // Hàm tự động áp dụng cấu hình mặc định
+  private applyDefaultConfig() {
+    const defaultSheetId = "1EdU2yxddERUV0QBCApGpsyobxnC4N4J4l-5sH4chUZQ";
+    const defaultServiceAccount = JSON.stringify({
+      "type": "service_account",
+      "project_id": "qlct-anh",
+      "private_key_id": "63a25b14c1ee491a40a3e902b24bbe6c2f087195",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC536hqxOxUoocW\n216U4Lda8FLlE0cV8qtpGX8B/a+BTGm1QXimeFWVioVKDCH5/MDomyCn2Z0A9O+J\nXr/qq2CqmG2uggBNZXcMFeYXmo0ELHogcYcAo44JCMaKmNFC4Ek9Sq2miUPuNGwm\ntS9SjOk5d21e4NTy/e01OOv9qGEJnXYS2mji4C+6p1wvAhseI9NTpU4bMxXeubVL\nnzJlalGQisEHlFF8cpxcDbqjqy3w7lzvhFaky4/6jPBAHQwjdjoN09Q0KsFhr7gH\nH1ekXCKCKV7BvP/jT0KnZrjcfyuwqgsftn79uXP40buMGGa8IyqNSSZvBEMwu9ro\nCMMjzaSPAgMBAAECggEADOvGUMqPRZoZJ/abjl/jGLhCGvIj6+h3QywZjyR43qHw\nOA05rnpvZwc+ssh0u2SqbsELgrLDxLBCNcHXarnIU4Bn7eY6afO9IQlYrTItZ8MS\nJ+hpPE5Vh/BxoZ4NiS3/b8cdzfwWzWiDG1tXBp1zDQkHTYqPL+eE/0EnIcMvU7RD\nnfw03nTNCGUnVcQcbNM//K+wRyQGms2tn3PaJNzobfUW1g4lFD7daB+hXPv8sw+P\nN+BWbWLXYtKD+Ti4gmue8gj0s07e9sfv+GbPkbbwqczvKfQbU6MYg+HlXPGC8mXs\nN8oIAfh58ZQRsGkdy35F3FF9rCXZZj5GaH9BJoKQKQKBgQD9o6HdiqhAjWXUG4AX\nNhcN+bIApVHKanXzMbUpcUZliGAS7HrwoK7LXRt9hu+XLfT6x8ZTjM0UQdLaYyc5\nPQEscPzMf8TWmBpe6M7NKxmVEs4DJ3+59WRQFIVTB93sleoIPMlnrbirLY/fSAVf\nvhSJ8ataFmtAsn8DfgtekukAGwKBgQC7mo4N7njmCkhkEqPSKFRWI7iEM4AHfmiH\nYmXWbjWJ5PM4BuHdPu+WTFq6ix6Mu/gki1EvQ9ewmEO+vDTJDCTBrsgy8k/rZDIm\nORjJ6zM/Ousk6VH1ZeL7cS0B37TuX2yTioWefPaYjjtfPsfdTB2LGRiZ2YSdbpnQ\nZD5TZUr8nQKBgQCL09uTWK41z247YIVH65VIiuFJb9U6QKaKWfXLiGNRPxtlJAQO0oziulBZf72qaaO/\nITPGhctqrWK49DBntSxkS/CdwGt+6DRUtvPZ8/tDYpfG8DyNKn6uqKFCJ0oE7YzQ\nv0tuYHewJzrrd7CiKcxPU8o5SZ4FdV0hrMWjhPkKJQKBgHsmdEAVRbcyKc0Svo/x\n+c5NyGcLTv1UQ+AJq0+fOAhBGBGQ+O8M96VWx6oqJYrBKenVdgkyPM/XkS7J4Yrw\nEw5rH3KMDOOdhnc2q7kHjRHGtavKS8bvMhjXW1ON92nkR6I4GlmHu2xKhU5JbyJs\n4qohFC09b3hwOTesRvQ3MBYY\n-----END PRIVATE KEY-----\n",
+      "client_email": "qlphongsale@qlct-anh.iam.gserviceaccount.com",
+      "client_id": "106723385830446641620",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/qlphongsale%40qlct-anh.iam.gserviceaccount.com",
+      "universe_domain": "googleapis.com"
+    });
+    
+    // Lưu vào localStorage và biến cục bộ
+    this.setConfig(defaultSheetId, defaultServiceAccount);
+    console.log("Đã áp dụng cấu hình Google Sheets mặc định");
   }
 
   // Thiết lập thông tin cấu hình Google Sheets

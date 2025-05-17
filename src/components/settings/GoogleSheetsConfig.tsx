@@ -15,7 +15,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, ExternalLink, AlertCircle } from 'lucide-react';
+import { Info, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GoogleSheetsConfigProps {
@@ -112,12 +112,14 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
           </TabsList>
           
           <TabsContent value="general" className="space-y-4 mt-4">
-            <Alert className="bg-amber-50 border-amber-200 text-amber-800">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Google Sheets API yêu cầu xác thực bằng Service Account để ghi dữ liệu. API key không được hỗ trợ.
-              </AlertDescription>
-            </Alert>
+            {isConfigured && (
+              <Alert className="bg-green-50 border-green-200 text-green-800">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="flex items-center">
+                  Google Sheets đã được cấu hình và sẵn sàng sử dụng!
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="grid gap-2">
               <Label htmlFor="sheetId">Google Sheet ID</Label>

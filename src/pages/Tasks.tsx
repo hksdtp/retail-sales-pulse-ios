@@ -21,12 +21,11 @@ const Tasks = () => {
   // Kiểm tra cấu hình Google Sheets khi trang được tải
   useEffect(() => {
     const isConfigured = googleSheetsService.isConfigured();
-    if (!isConfigured) {
+    if (isConfigured) {
       toast({
-        title: "Cần cấu hình",
-        description: "Vui lòng cấu hình Google Sheets Service Account để lưu dữ liệu công việc",
-        variant: "destructive",
-        duration: 6000
+        title: "Đã sẵn sàng",
+        description: "Google Sheets đã được cấu hình và sẵn sàng sử dụng",
+        duration: 3000
       });
     }
   }, [toast]);
@@ -62,7 +61,7 @@ const Tasks = () => {
               size="icon" 
               onClick={() => setIsGoogleSheetsConfigOpen(true)} 
               title="Cấu hình Google Sheets"
-              className={!googleSheetsService.isConfigured() ? "animate-pulse border-amber-300 bg-amber-50 text-amber-800" : ""}
+              className="text-green-600 border-green-200 bg-green-50"
             >
               <Settings className="h-4 w-4" />
             </Button>
