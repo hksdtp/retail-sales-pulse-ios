@@ -46,7 +46,7 @@ const Login = () => {
           {/* Phòng Dự án - Phân vùng trái */}
           <motion.div 
             id="left-section"
-            className={`w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300 ${hoveredDepartment && hoveredDepartment !== 'project' ? 'opacity-30 grayscale' : ''}`}
+            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300"
             initial={{ opacity: 0.9 }}
             whileHover={{ 
               backgroundColor: 'rgba(0,0,0,0.15)',
@@ -78,7 +78,7 @@ const Login = () => {
           {/* Phòng Bán lẻ - Phân vùng phải */}
           <motion.div 
             id="right-section"
-            className={`w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300 ${hoveredDepartment && hoveredDepartment !== 'retail' ? 'opacity-30 grayscale' : ''}`}
+            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300"
             initial={{ opacity: 0.9 }}
             whileHover={{ 
               backgroundColor: 'rgba(0,0,0,0.15)',
