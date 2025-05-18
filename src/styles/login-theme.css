@@ -146,11 +146,18 @@
 
 /* Glass effect */
 .login-glass {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.login-glass:hover {
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
 }
 
 /* Shimmer effect */
@@ -208,4 +215,15 @@
 
 .animate-gradient-animation {
   animation: gradient-animation 15s ease infinite;
+}
+
+/* Tăng cường bóng đổ cho text */
+.drop-shadow-strong {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Các lớp opacity transition mượt mà */
+.opacity-60 {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
 }

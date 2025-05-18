@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import LoginForm from '@/components/login/LoginForm';
@@ -45,13 +44,11 @@ const Login = () => {
           {/* Phòng Dự án - Phân vùng trái */}
           <motion.div 
             id="left-section"
-            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-500"
+            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer"
             initial={{ opacity: 0.9 }}
             whileHover={{ 
-              opacity: 1, 
-              flex: 1.2,
               backgroundColor: 'rgba(0,0,0,0.15)',
-              boxShadow: '0px 0px 30px rgba(0,0,0,0.2)'
+              transition: { duration: 0.3 }
             }}
             onHoverStart={() => {
               document.getElementById('right-section')?.classList.add('opacity-60');
@@ -63,8 +60,8 @@ const Login = () => {
           >
             <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 hover:bg-black/30 group">
               <Building size={80} className="text-white mx-auto mb-6 group-hover:text-white" />
-              <h2 className="text-3xl font-bold text-white mb-3 group-hover:text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]">Phòng Dự Án</h2>
-              <p className="text-white/80 group-hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Quản lý và theo dõi toàn bộ dự án của công ty</p>
+              <h2 className="text-3xl font-bold text-white mb-3 group-hover:text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">Phòng Dự Án</h2>
+              <p className="text-white/80 group-hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Quản lý và theo dõi toàn bộ dự án của công ty</p>
               
               <motion.button
                 className="login-button mt-8 w-full"
@@ -79,13 +76,11 @@ const Login = () => {
           {/* Phòng Bán lẻ - Phân vùng phải */}
           <motion.div 
             id="right-section"
-            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-500"
+            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer"
             initial={{ opacity: 0.9 }}
             whileHover={{ 
-              opacity: 1, 
-              flex: 1.2,
               backgroundColor: 'rgba(0,0,0,0.15)',
-              boxShadow: '0px 0px 30px rgba(0,0,0,0.2)'
+              transition: { duration: 0.3 }
             }}
             onHoverStart={() => {
               document.getElementById('left-section')?.classList.add('opacity-60');
@@ -97,8 +92,8 @@ const Login = () => {
           >
             <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 hover:bg-black/30 group">
               <Store size={80} className="text-white mx-auto mb-6 group-hover:text-white" />
-              <h2 className="text-3xl font-bold text-white mb-3 group-hover:text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]">Phòng Bán Lẻ</h2>
-              <p className="text-white/80 group-hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Quản lý và theo dõi hoạt động kinh doanh bán lẻ</p>
+              <h2 className="text-3xl font-bold text-white mb-3 group-hover:text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">Phòng Bán Lẻ</h2>
+              <p className="text-white/80 group-hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Quản lý và theo dõi hoạt động kinh doanh bán lẻ</p>
               
               <motion.button
                 className="login-button mt-8 w-full"
