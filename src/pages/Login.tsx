@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Building, Store } from 'lucide-react';
-import { Separator } from "@/components/ui/separator";
 import '../styles/login-theme.css';
 
 const Login = () => {
@@ -69,16 +68,6 @@ const Login = () => {
             </div>
           </motion.div>
           
-          {/* Đường phân cách giữa 2 phòng ban */}
-          <div className="hidden md:flex items-center justify-center">
-            <div className="relative h-4/5 flex items-center">
-              <Separator orientation="vertical" className="h-full w-0.5 bg-white/30" />
-              <div className="absolute top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-3 shadow-lg">
-                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#ff6b6b] to-[#6c5ce7]"></div>
-              </div>
-            </div>
-          </div>
-          
           {/* Phòng Bán lẻ - Phân vùng phải */}
           <motion.div 
             id="right-section"
@@ -113,7 +102,7 @@ const Login = () => {
           transition={{ duration: 0.5 }}
         >
           <motion.div
-            className="bg-white/95 p-8 md:p-10 rounded-[20px] border border-white/30 shadow-[0_10px_25px_rgba(108,92,231,0.5)] dark:shadow-[0_10px_25px_rgba(108,92,231,0.3)]"
+            className="bg-white/95 backdrop-blur-lg p-8 md:p-10 rounded-[20px] border border-white/30 shadow-[0_10px_25px_rgba(108,92,231,0.5)] dark:shadow-[0_10px_25px_rgba(108,92,231,0.3)]"
             whileHover={{ translateY: -5, boxShadow: '0 15px 35px rgba(108, 92, 231, 0.6)', transition: { duration: 0.4 } }}
           >
             <div className="flex justify-between items-center mb-6">
