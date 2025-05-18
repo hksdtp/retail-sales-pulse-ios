@@ -2,6 +2,7 @@
 import React from 'react';
 import { UserLocation } from '@/types/user';
 import { motion } from 'framer-motion';
+import { MapPin } from 'lucide-react';
 
 interface LocationSelectorProps {
   selectedLocation: UserLocation | 'all';
@@ -45,46 +46,46 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-4"
     >
-      <div className="text-lg font-medium mb-3">Chọn khu vực</div>
+      <div className="text-lg font-medium mb-1">Chọn khu vực</div>
       
-      <div className="space-y-3">
-        {Object.entries(locationNames).map(([value, label]) => (
-          <div key={value} className="relative flex items-center">
-            <input 
-              type="radio" 
-              id={`location-${value}`} 
-              name="location"
-              checked={selectedLocation === value}
-              onChange={() => onLocationChange(value as UserLocation | 'all')}
-              className="absolute opacity-0 cursor-pointer h-0 w-0"
-            />
-            <div className={`
-              h-5 w-5 rounded-full border-2 flex-shrink-0
-              ${selectedLocation === value 
-                ? 'border-[#6c5ce7] bg-[#6c5ce7] shadow-[0_0_0_3px_rgba(108,92,231,0.2)]' 
-                : 'border-[#dfe6e9] bg-white'}
-            `}>
-              {selectedLocation === value && (
-                <div className="h-[10px] w-[10px] bg-white rounded-full absolute top-[5px] left-[5px]"></div>
-              )}
-            </div>
-            <label 
-              htmlFor={`location-${value}`} 
-              className="ml-3 text-[#2d3436] cursor-pointer select-none block w-full"
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(locationNames).map(([value, label]) => {
+          const isSelected = selectedLocation === value;
+          const isSpecial = value === 'all';
+          
+          return (
+            <motion.div 
+              key={value}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onLocationChange(value as UserLocation | 'all')}
+              className={`
+                relative flex items-center px-4 py-3 rounded-xl cursor-pointer
+                transition-all duration-300 flex-grow md:flex-grow-0
+                ${isSelected 
+                  ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/25' 
+                  : 'border border-gray-200 bg-white/80 hover:border-[#6c5ce7]/40 hover:bg-white/100 hover:shadow-md'}
+                ${isSpecial ? 'md:min-w-[200px]' : 'md:min-w-[120px]'}
+              `}
             >
-              {label}
-              {value === 'all' && (
-                <div className="text-xs text-gray-500 mt-0.5">
-                  {departmentType === 'project' 
-                    ? 'Trưởng Phòng Kinh Doanh Dự Án'
-                    : departmentType === 'retail'
-                      ? 'Giám đốc Kinh Doanh'
-                      : ''}
+              <div className="flex items-center justify-center w-full">
+                <MapPin className={`h-4 w-4 mr-2 ${isSelected ? 'text-white' : 'text-gray-500'}`} />
+                <div className="flex flex-col items-start">
+                  <span className="font-medium">{label}</span>
+                  {value === 'all' && (
+                    <span className="text-xs mt-0.5 opacity-80">
+                      {departmentType === 'project' 
+                        ? 'Trưởng Phòng Kinh Doanh Dự Án'
+                        : departmentType === 'retail'
+                          ? 'Giám đốc Kinh Doanh'
+                          : ''}
+                    </span>
+                  )}
                 </div>
-              )}
-            </label>
-          </div>
-        ))}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
