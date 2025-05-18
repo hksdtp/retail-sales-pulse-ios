@@ -6,18 +6,38 @@ import { motion } from 'framer-motion';
 interface LocationSelectorProps {
   selectedLocation: UserLocation | 'all';
   onLocationChange: (location: UserLocation | 'all') => void;
+  departmentType: string | null;
 }
 
-const locationNames = {
-  all: 'Toàn quốc',
-  hanoi: 'Hà Nội',
-  hcm: 'Hồ Chí Minh'
+const getLocationNames = (departmentType: string | null) => {
+  if (departmentType === 'project') {
+    return {
+      all: 'Hà Xuân Trường',
+      hanoi: 'Hà Nội',
+      hcm: 'Hồ Chí Minh'
+    };
+  } else if (departmentType === 'retail') {
+    return {
+      all: 'Khổng Đức Mạnh',
+      hanoi: 'Hà Nội',
+      hcm: 'Hồ Chí Minh'
+    };
+  } else {
+    return {
+      all: 'Toàn quốc',
+      hanoi: 'Hà Nội',
+      hcm: 'Hồ Chí Minh'
+    };
+  }
 };
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({ 
   selectedLocation, 
-  onLocationChange 
+  onLocationChange,
+  departmentType
 }) => {
+  const locationNames = getLocationNames(departmentType);
+  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -53,6 +73,15 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               className="ml-3 text-[#2d3436] cursor-pointer select-none block w-full"
             >
               {label}
+              {value === 'all' && (
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {departmentType === 'project' 
+                    ? 'Trưởng Phòng Kinh Doanh Dự Án'
+                    : departmentType === 'retail'
+                      ? 'Giám đốc Kinh Doanh'
+                      : ''}
+                </div>
+              )}
             </label>
           </div>
         ))}

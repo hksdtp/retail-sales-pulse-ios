@@ -90,7 +90,20 @@ const MOCK_USERS: User[] = [
     role: 'director',
     team_id: '0',
     location: 'hanoi',
+    department: 'retail',
     position: 'Giám đốc Kinh doanh',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '12',
+    name: 'Hà Xuân Trường',
+    email: 'truong@example.com',
+    role: 'director',
+    team_id: '0',
+    location: 'hanoi',
+    department: 'project',
+    position: 'Trưởng Phòng Kinh Doanh Dự Án',
     status: 'active',
     password_changed: true
   },

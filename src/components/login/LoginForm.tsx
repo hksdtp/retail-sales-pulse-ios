@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MapPin, Users, User, Lock } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
+import { getAvatarText } from '@/components/login/LoginUtils';
 import { motion } from 'framer-motion';
+import LocationSelector from './LocationSelector';
 
 interface LoginFormProps {
   departmentType?: string | null;
@@ -44,8 +45,13 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       }
     }
     
-    // Nếu chọn "Toàn Quốc", chỉ hiển thị người dùng có vai trò "director"
+    // Nếu chọn "Toàn Quốc" (hoặc các tên mới), chỉ hiển thị người dùng có vai trò đặc biệt
     if (selectedLocation === 'all') {
+      if (departmentType === 'project') {
+        return user.name === 'Hà Xuân Trường';
+      } else if (departmentType === 'retail') {
+        return user.name === 'Khổng Đức Mạnh';
+      }
       return user.role === 'director';
     }
 
@@ -59,7 +65,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   // Lọc teams dựa trên location
   const filteredTeams = teams.filter(team => {
     if (selectedLocation === 'all') {
-      // Không hiển thị teams khi chọn "Toàn Quốc" vì người dùng sẽ chọn trực tiếp Giám đốc
+      // Không hiển thị teams khi chọn "Hà Xuân Trường" hoặc "Khổng Đức Mạnh"
       return false;
     }
     return team.location === selectedLocation;
@@ -97,58 +103,19 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
   // Xác định xem có hiển thị mục chọn người dùng không
   const showUserSelector = selectedLocation === 'all' || selectedTeam;
+
+  // Xác định xem có hiển thị người dùng đặc biệt không (Hà Xuân Trường hoặc Khổng Đức Mạnh)
+  const isSpecialRole = selectedLocation === 'all';
   
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
       <div className="space-y-5">
         {/* Khu vực */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#636e72]">
-            <MapPin className="h-5 w-5" />
-          </div>
-          <Select 
-            value={selectedLocation} 
-            onValueChange={(value: UserLocation | 'all') => {
-              setSelectedLocation(value);
-              setSelectedTeam(null);
-              setSelectedUser(null);
-            }}
-          >
-            <SelectTrigger className="w-full h-12 bg-white/90 pl-12 rounded-xl border-2 border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-4 focus:ring-[#6c5ce7]/20 focus:scale-[1.02]">
-              <SelectValue placeholder="Chọn khu vực" />
-            </SelectTrigger>
-            <SelectContent 
-              position="popper" 
-              sideOffset={5} 
-              className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200" 
-            >
-              <SelectItem value="all" className="py-2 md:py-3">
-                <div className="flex items-center">
-                  <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
-                    <MapPin className="h-3 w-3 text-white" />
-                  </div>
-                  Toàn quốc
-                </div>
-              </SelectItem>
-              <SelectItem value="hanoi" className="py-2 md:py-3">
-                <div className="flex items-center">
-                  <div className="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center mr-2">
-                    <MapPin className="h-3 w-3 text-white" />
-                  </div>
-                  Hà Nội
-                </div>
-              </SelectItem>
-              <SelectItem value="hcm" className="py-2 md:py-3">
-                <div className="flex items-center">
-                  <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center mr-2">
-                    <MapPin className="h-3 w-3 text-white" />
-                  </div>
-                  Hồ Chí Minh
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <LocationSelector 
+          selectedLocation={selectedLocation}
+          onLocationChange={setSelectedLocation}
+          departmentType={departmentType || null}
+        />
 
         {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
         {showTeamSelector && (
@@ -193,8 +160,8 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           </motion.div>
         )}
 
-        {/* Người dùng */}
-        {showUserSelector && (
+        {/* Người dùng - Đối với người dùng đặc biệt, tự động chọn người dùng */}
+        {showUserSelector && !isSpecialRole && (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -242,6 +209,39 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             </Select>
           </motion.div>
         )}
+
+        {/* Tự động chọn người dùng đặc biệt khi chọn "Toàn quốc" */}
+        {isSpecialRole && filteredUsers.length > 0 && (() => {
+          // Tự động chọn người dùng đặc biệt
+          if (filteredUsers.length > 0 && !selectedUser) {
+            setTimeout(() => {
+              setSelectedUser(filteredUsers[0]);
+            }, 0);
+          }
+          
+          return (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="p-3 rounded-lg border bg-white/80 flex items-center gap-3"
+            >
+              {filteredUsers[0] && (
+                <>
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-purple-500 text-white">
+                      {getAvatarText(filteredUsers[0].name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{filteredUsers[0].name}</div>
+                    <div className="text-xs text-gray-500">{filteredUsers[0].email}</div>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          );
+        })()}
 
         {/* Mật khẩu */}
         <div className="relative">
