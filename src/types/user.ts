@@ -1,14 +1,14 @@
-
 export type UserRole = 'employee' | 'team_leader' | 'director';
 export type UserLocation = 'hanoi' | 'hcm';
 
 export interface User {
   id: string;
-  name: string;
   email: string;
+  name: string;
   role: UserRole;
-  team_id: string;
   location: UserLocation;
+  team_id?: string;
+  department?: 'project' | 'retail';
   avatar?: string;
   phone?: string;
   position?: string;

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -9,10 +10,13 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Users, User, Lock } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { locationNames, getAvatarText } from '@/components/login/LoginUtils';
-import PasswordField from './PasswordField';
 import { motion } from 'framer-motion';
 
-const LoginForm = () => {
+interface LoginFormProps {
+  departmentType?: string | null;
+}
+
+const LoginForm = ({ departmentType }: LoginFormProps) => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
@@ -28,8 +32,18 @@ const LoginForm = () => {
     toast
   } = useToast();
 
-  // Lọc người dùng theo vai trò và vị trí
+  // Lọc người dùng theo vai trò, vị trí và phòng ban (nếu được chọn)
   const filteredUsers = users.filter(user => {
+    // Nếu đã chọn phòng ban, lọc theo phòng ban
+    if (departmentType) {
+      if (departmentType === 'project' && user.department !== 'project') {
+        return false;
+      }
+      if (departmentType === 'retail' && user.department !== 'retail') {
+        return false;
+      }
+    }
+    
     // Nếu chọn "Toàn Quốc", chỉ hiển thị người dùng có vai trò "director"
     if (selectedLocation === 'all') {
       return user.role === 'director';
