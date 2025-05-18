@@ -48,19 +48,10 @@ const Login = () => {
             id="left-section"
             className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300"
             initial={{ opacity: 0.9 }}
-            whileHover={{ 
-              backgroundColor: 'rgba(0,0,0,0.15)',
-              transition: { duration: 0.3 }
-            }}
-            onHoverStart={() => {
-              setHoveredDepartment('project');
-            }}
-            onHoverEnd={() => {
-              setHoveredDepartment(null);
-            }}
+            whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
             onClick={() => handleDepartmentSelection('project')}
           >
-            <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 hover:bg-black/30 group">
+            <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 group">
               <Building size={80} className="text-white mx-auto mb-6 group-hover:text-white" />
               <h2 className="text-3xl font-bold text-white mb-3 group-hover:text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">Phòng Dự Án</h2>
               <p className="text-white/80 group-hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Quản lý và theo dõi toàn bộ dự án của công ty</p>
@@ -80,19 +71,10 @@ const Login = () => {
             id="right-section"
             className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300"
             initial={{ opacity: 0.9 }}
-            whileHover={{ 
-              backgroundColor: 'rgba(0,0,0,0.15)',
-              transition: { duration: 0.3 }
-            }}
-            onHoverStart={() => {
-              setHoveredDepartment('retail');
-            }}
-            onHoverEnd={() => {
-              setHoveredDepartment(null);
-            }}
+            whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
             onClick={() => handleDepartmentSelection('retail')}
           >
-            <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 hover:bg-black/30 group">
+            <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 group">
               <Store size={80} className="text-white mx-auto mb-6 group-hover:text-white" />
               <h2 className="text-3xl font-bold text-white mb-3 group-hover:text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)]">Phòng Bán Lẻ</h2>
               <p className="text-white/80 group-hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Quản lý và theo dõi hoạt động kinh doanh bán lẻ</p>
