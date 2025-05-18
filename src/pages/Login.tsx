@@ -102,7 +102,7 @@ const Login = () => {
           transition={{ duration: 0.5 }}
         >
           <motion.div
-            className="bg-white p-8 md:p-10 rounded-[20px] border border-white/30 shadow-[0_10px_25px_rgba(108,92,231,0.5)] dark:shadow-[0_10px_25px_rgba(108,92,231,0.3)]"
+            className="bg-white/95 backdrop-blur-lg p-8 md:p-10 rounded-[20px] border border-white/30 shadow-[0_10px_25px_rgba(108,92,231,0.5)] dark:shadow-[0_10px_25px_rgba(108,92,231,0.3)]"
             whileHover={{ translateY: -5, boxShadow: '0 15px 35px rgba(108, 92, 231, 0.6)', transition: { duration: 0.4 } }}
           >
             <div className="flex justify-between items-center mb-6">
