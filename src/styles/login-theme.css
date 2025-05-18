@@ -231,3 +231,10 @@
   opacity: 0.6;
   transition: all 0.3s ease;
 }
+
+/* Hiệu ứng cho phòng ban không được chọn */
+.department-dimmed {
+  opacity: 0.5;
+  filter: grayscale(80%) brightness(0.7);
+  transition: all 0.5s ease;
+}

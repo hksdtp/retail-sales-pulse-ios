@@ -46,9 +46,11 @@ const Login = () => {
           {/* Phòng Dự án - Phân vùng trái */}
           <motion.div 
             id="left-section"
-            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300"
+            className={`w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-500 ${hoveredDepartment === 'retail' ? 'department-dimmed' : ''}`}
             initial={{ opacity: 0.9 }}
             whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
+            onHoverStart={() => setHoveredDepartment('project')}
+            onHoverEnd={() => setHoveredDepartment(null)}
             onClick={() => handleDepartmentSelection('project')}
           >
             <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 group">
@@ -69,9 +71,11 @@ const Login = () => {
           {/* Phòng Bán lẻ - Phân vùng phải */}
           <motion.div 
             id="right-section"
-            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300"
+            className={`w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-500 ${hoveredDepartment === 'project' ? 'department-dimmed' : ''}`}
             initial={{ opacity: 0.9 }}
             whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
+            onHoverStart={() => setHoveredDepartment('retail')}
+            onHoverEnd={() => setHoveredDepartment(null)}
             onClick={() => handleDepartmentSelection('retail')}
           >
             <div className="login-glass p-10 text-center max-w-md mx-auto transition-all duration-300 group">
