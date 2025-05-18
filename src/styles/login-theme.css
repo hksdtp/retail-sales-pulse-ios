@@ -222,8 +222,19 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* Các lớp opacity transition mượt mà */
+/* Hiệu ứng chuyển đổi mượt mà */
+.opacity-30 {
+  opacity: 0.3;
+  transition: all 0.4s ease;
+}
+
 .opacity-60 {
   opacity: 0.6;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng grayscale */
+.grayscale {
+  filter: grayscale(100%);
+  transition: all 0.4s ease;
 }

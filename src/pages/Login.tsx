@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import LoginForm from '@/components/login/LoginForm';
@@ -12,6 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [showLoginForm, setShowLoginForm] = useState(false);
+  const [hoveredDepartment, setHoveredDepartment] = useState<string | null>(null);
   
   useEffect(() => {
     // Kiểm tra nếu người dùng đã xác thực, chuyển hướng đến trang chủ
@@ -44,17 +46,17 @@ const Login = () => {
           {/* Phòng Dự án - Phân vùng trái */}
           <motion.div 
             id="left-section"
-            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer"
+            className={`w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300 ${hoveredDepartment === 'retail' ? 'opacity-30 grayscale' : ''}`}
             initial={{ opacity: 0.9 }}
             whileHover={{ 
               backgroundColor: 'rgba(0,0,0,0.15)',
               transition: { duration: 0.3 }
             }}
             onHoverStart={() => {
-              document.getElementById('right-section')?.classList.add('opacity-60');
+              setHoveredDepartment('project');
             }}
             onHoverEnd={() => {
-              document.getElementById('right-section')?.classList.remove('opacity-60');
+              setHoveredDepartment(null);
             }}
             onClick={() => handleDepartmentSelection('project')}
           >
@@ -76,17 +78,17 @@ const Login = () => {
           {/* Phòng Bán lẻ - Phân vùng phải */}
           <motion.div 
             id="right-section"
-            className="w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer"
+            className={`w-full md:w-1/2 h-full flex items-center justify-center p-5 cursor-pointer transition-all duration-300 ${hoveredDepartment === 'project' ? 'opacity-30 grayscale' : ''}`}
             initial={{ opacity: 0.9 }}
             whileHover={{ 
               backgroundColor: 'rgba(0,0,0,0.15)',
               transition: { duration: 0.3 }
             }}
             onHoverStart={() => {
-              document.getElementById('left-section')?.classList.add('opacity-60');
+              setHoveredDepartment('retail');
             }}
             onHoverEnd={() => {
-              document.getElementById('left-section')?.classList.remove('opacity-60');
+              setHoveredDepartment(null);
             }}
             onClick={() => handleDepartmentSelection('retail')}
           >
