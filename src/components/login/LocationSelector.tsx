@@ -46,9 +46,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       transition={{ duration: 0.3 }}
       className="space-y-4"
     >
-      <div className="text-lg font-medium mb-1">Chọn khu vực</div>
+      <div className="text-lg font-medium mb-3">Chọn khu vực</div>
       
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {Object.entries(locationNames).map(([value, label]) => {
           const isSelected = selectedLocation === value;
           const isSpecial = value === 'all';
@@ -60,12 +60,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={() => onLocationChange(value as UserLocation | 'all')}
               className={`
-                relative flex items-center px-4 py-3 rounded-xl cursor-pointer
-                transition-all duration-300 flex-grow md:flex-grow-0
+                relative flex items-center justify-center px-4 py-3 rounded-xl cursor-pointer
+                transition-all duration-300
                 ${isSelected 
                   ? 'bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/25' 
                   : 'border border-gray-200 bg-white/80 hover:border-[#6c5ce7]/40 hover:bg-white/100 hover:shadow-md'}
-                ${isSpecial ? 'md:min-w-[200px]' : 'md:min-w-[120px]'}
+                ${isSpecial ? 'md:col-span-1' : 'md:col-span-1'}
               `}
             >
               <div className="flex items-center justify-center w-full">
