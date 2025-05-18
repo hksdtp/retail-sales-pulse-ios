@@ -162,13 +162,7 @@ const Login = () => {
               </a>
             </div>
             
-            <div className="text-center mt-8 text-[#636e72] text-sm md:text-base">
-              Chưa có tài khoản? 
-              <a href="#" className="text-[#6c5ce7] font-bold ml-1 relative group">
-                Đăng ký ngay
-                <span className="absolute left-0 bottom-0 h-0.5 w-0 bg-[#6c5ce7] group-hover:w-full transition-all duration-300"></span>
-              </a>
-            </div>
+            {/* Đã xóa phần đăng ký tài khoản theo yêu cầu */}
           </motion.div>
         </motion.div>
       )}

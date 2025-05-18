@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -107,14 +107,21 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   // Xác định xem có hiển thị người dùng đặc biệt không (Hà Xuân Trường hoặc Khổng Đức Mạnh)
   const isSpecialRole = selectedLocation === 'all';
   
+  // Tự động chọn người dùng đặc biệt khi chọn "Toàn quốc"
+  useEffect(() => {
+    if (isSpecialRole && filteredUsers.length > 0 && !selectedUser) {
+      setSelectedUser(filteredUsers[0]);
+    }
+  }, [isSpecialRole, filteredUsers, selectedUser]);
+  
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
-      <div className="space-y-5">
-        {/* Khu vực */}
-        <LocationSelector 
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-4">
+        {/* Chọn khu vực */}
+        <LocationSelector
           selectedLocation={selectedLocation}
           onLocationChange={setSelectedLocation}
-          departmentType={departmentType || null}
+          departmentType={departmentType}
         />
 
         {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
@@ -123,36 +130,32 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="relative"
+            className="space-y-2"
           >
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#636e72]">
-              <Users className="h-5 w-5" />
+            <div className="text-sm font-medium flex items-center text-[#636e72] mb-1">
+              <Users className="h-3.5 w-3.5 mr-1.5" />
+              <span>Nhóm làm việc</span>
             </div>
+            
             <Select 
-              value={selectedTeam?.id || ''} 
-              onValueChange={teamId => {
-                const team = teams.find(t => t.id === teamId);
+              value={selectedTeam?.id || ''}
+              onValueChange={(value) => {
+                const team = teams.find(t => t.id === value);
                 setSelectedTeam(team || null);
                 setSelectedUser(null);
-              }} 
-              disabled={filteredTeams.length === 0}
+              }}
             >
-              <SelectTrigger className="w-full h-12 bg-white/90 pl-12 rounded-xl border-2 border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-4 focus:ring-[#6c5ce7]/20 focus:scale-[1.02]">
-                <SelectValue placeholder="Chọn nhóm" />
-              </SelectTrigger>
-              <SelectContent 
-                position="popper" 
-                sideOffset={5}
-                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
+              <SelectTrigger 
+                className="h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm"
               >
+                <div className="flex items-center">
+                  <SelectValue placeholder="Chọn nhóm làm việc" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-white/95 rounded-lg p-1 border-[#dfe6e9]">
                 {filteredTeams.map(team => (
-                  <SelectItem key={team.id} value={team.id} className="py-2 md:py-3">
-                    <div className="flex items-center">
-                      <div className="h-6 w-6 rounded-full bg-ios-blue flex items-center justify-center mr-2">
-                        <Users className="h-3 w-3 text-white" />
-                      </div>
-                      {team.name}
-                    </div>
+                  <SelectItem key={team.id} value={team.id} className="py-1.5 text-sm">
+                    {team.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -166,32 +169,33 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="relative"
+            className="space-y-2"
           >
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#636e72]">
-              <User className="h-5 w-5" />
+            <div className="text-sm font-medium flex items-center text-[#636e72] mb-1">
+              <User className="h-3.5 w-3.5 mr-1.5" />
+              <span>Người dùng</span>
             </div>
+            
             <Select 
-              value={selectedUser?.id || ''} 
-              onValueChange={userId => {
-                const user = users.find(u => u.id === userId);
+              value={selectedUser?.id || ''}
+              onValueChange={(value) => {
+                const user = users.find(u => u.id === value);
                 setSelectedUser(user || null);
-              }} 
-              disabled={filteredUsers.length === 0}
+              }}
             >
-              <SelectTrigger className="w-full h-12 bg-white/90 pl-12 rounded-xl border-2 border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-4 focus:ring-[#6c5ce7]/20 focus:scale-[1.02]">
-                <SelectValue placeholder="Chọn người dùng" />
-              </SelectTrigger>
-              <SelectContent 
-                position="popper" 
-                sideOffset={5}
-                className="max-h-60 bg-white z-[100] shadow-xl border border-gray-200"
+              <SelectTrigger 
+                className="h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm"
               >
+                <div className="flex items-center">
+                  <SelectValue placeholder="Chọn người dùng" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-white/95 rounded-lg p-1 border-[#dfe6e9]">
                 {filteredUsers.map(user => (
-                  <SelectItem key={user.id} value={user.id} className="py-2 md:py-3">
+                  <SelectItem key={user.id} value={user.id} className="py-1.5 text-sm">
                     <div className="flex items-center">
-                      <Avatar className="h-6 w-6 mr-2">
-                        <AvatarFallback className={`text-white ${
+                      <Avatar className="h-5 w-5 mr-2">
+                        <AvatarFallback className={`text-white text-xs ${
                           user.role === 'director' 
                             ? 'bg-purple-500' 
                             : user.role === 'team_leader' 
@@ -210,43 +214,13 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           </motion.div>
         )}
 
-        {/* Tự động chọn người dùng đặc biệt khi chọn "Toàn quốc" */}
-        {isSpecialRole && filteredUsers.length > 0 && (() => {
-          // Tự động chọn người dùng đặc biệt
-          if (filteredUsers.length > 0 && !selectedUser) {
-            setTimeout(() => {
-              setSelectedUser(filteredUsers[0]);
-            }, 0);
-          }
-          
-          return (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="p-3 rounded-lg border bg-white/80 flex items-center gap-3"
-            >
-              {filteredUsers[0] && (
-                <>
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-purple-500 text-white">
-                      {getAvatarText(filteredUsers[0].name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{filteredUsers[0].name}</div>
-                    <div className="text-xs text-gray-500">{filteredUsers[0].email}</div>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          );
-        })()}
+        {/* Không hiển thị danh sách trùng lặp cho người dùng đặc biệt */}
 
         {/* Mật khẩu */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#636e72]">
-            <Lock className="h-5 w-5" />
+        <div className="relative mt-1">
+          <div className="text-sm font-medium flex items-center text-[#636e72] mb-1.5">
+            <Lock className="h-3.5 w-3.5 mr-1.5" />
+            <span>Mật khẩu</span>
           </div>
           <Input
             id="password"
@@ -254,7 +228,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full h-12 pl-12 bg-white/90 rounded-xl border-2 border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-4 focus:ring-[#6c5ce7]/20 focus:scale-[1.02]"
+            className="w-full h-10 bg-white/90 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm"
             placeholder="Nhập mật khẩu"
             autoFocus
           />
@@ -264,14 +238,14 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       {/* Nút đăng nhập */}
       <motion.button
         type="submit"
-        className="w-full py-4 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-base rounded-xl relative overflow-hidden hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#6c5ce7]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full py-3 mt-2 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
         disabled={isSubmitting || !selectedUser || !password}
         whileHover={{ scale: isSubmitting || !selectedUser || !password ? 1 : 1.02 }}
         whileTap={{ scale: isSubmitting || !selectedUser || !password ? 1 : 0.98 }}
       >
         {isSubmitting ? (
           <>
-            <span className="inline-block w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
+            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
             Đang đăng nhập...
           </>
         ) : (

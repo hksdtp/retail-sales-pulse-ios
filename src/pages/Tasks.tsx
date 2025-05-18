@@ -80,8 +80,10 @@ const Tasks = () => {
               <span>Tạo công việc cho bản thân</span>
             </Button>
 
-            {/* Nếu là Khổng Đức Mạnh hoặc vai trò Director */}
-            {(currentUser?.name === 'Khổng Đức Mạnh' || currentUser?.role === 'director') && (
+            {/* Nếu là Khổng Đức Mạnh, Hà Xuân Trường hoặc vai trò Director */}
+            {(currentUser?.name === 'Khổng Đức Mạnh' || 
+              currentUser?.name === 'Hà Xuân Trường' || 
+              currentUser?.role === 'director') && (
               <Button 
                 className="flex items-center gap-1.5 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
                 onClick={() => {
@@ -121,7 +123,8 @@ const Tasks = () => {
             </div>
             <div>
               <span className="font-medium">Vai trò:</span> {
-                currentUser?.role === 'director' ? 'Giám đốc Kinh doanh' :
+                currentUser?.name === 'Khổng Đức Mạnh' ? 'Trưởng Phòng Kinh doanh bán lẻ' :
+                currentUser?.name === 'Hà Xuân Trường' ? 'Trưởng Phòng Kinh Doanh Dự Án' :
                 currentUser?.role === 'team_leader' ? 'Trưởng nhóm' : 'Nhân viên'
               }
             </div>

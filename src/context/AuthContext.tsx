@@ -91,7 +91,7 @@ const MOCK_USERS: User[] = [
     team_id: '0',
     location: 'hanoi',
     department: 'retail',
-    position: 'Giám đốc Kinh doanh',
+    position: 'Trưởng Phòng Kinh doanh bán lẻ',
     status: 'active',
     password_changed: true
   },
