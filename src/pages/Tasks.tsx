@@ -36,7 +36,7 @@ const Tasks = () => {
     if (isConfigured) {
       toast({
         title: "Đã sẵn sàng",
-        description: "Google Sheets đã được cấu hình và đang hoạt động ở chế độ mô phỏng",
+        description: "Google Sheets đã được cấu hình và đang hoạt động ở chế độ thực tế",
         duration: 5000
       });
     }
@@ -161,7 +161,7 @@ const Tasks = () => {
         onConfigSaved={() => {
           toast({
             title: "Cấu hình thành công",
-            description: "Đã lưu cấu hình Google Sheets Service Account. Dữ liệu sẽ được lưu ở chế độ mô phỏng."
+            description: "Đã lưu cấu hình Google Sheets Service Account. Dữ liệu sẽ được lưu ở chế độ thực tế."
           });
         }}
       />
