@@ -1,13 +1,14 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { AlertCircle, Check, CloudOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
-import { MapPin, User, Users } from 'lucide-react';
+import { MapPin, User, Users, RefreshCw } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Task } from './types/TaskTypes';
 import { getTypeColor, getTypeName, getLocationName } from './task-utils/TaskFormatters';
-import { tasks } from './data/TasksData';
+import { useTaskData } from '@/hooks/use-task-data';
+import { Button } from '@/components/ui/button';
 
 interface Column {
   id: string;
@@ -20,31 +21,58 @@ interface TaskKanbanProps {
   teamId?: string;
 }
 
-const columns: Column[] = [
-  {
-    id: 'todo',
-    title: 'Chưa bắt đầu',
-    tasks: tasks.filter(t => t.status === 'todo')
-  },
-  {
-    id: 'in-progress',
-    title: 'Đang thực hiện',
-    tasks: tasks.filter(t => t.status === 'in-progress')
-  },
-  {
-    id: 'on-hold',
-    title: 'Đang chờ',
-    tasks: tasks.filter(t => t.status === 'on-hold')
-  },
-  {
-    id: 'completed',
-    title: 'Hoàn thành',
-    tasks: tasks.filter(t => t.status === 'completed')
-  },
-];
-
 const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
   const { teams, users, currentUser } = useAuth();
+  const { tasks, isLoading, refreshTasks } = useTaskData();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Xác định xem dữ liệu đang được sử dụng là mẫu hay thực
+  const isUsingMockData = tasks.some(task => 
+    task.id?.includes('task_1') || 
+    task.id?.includes('task_2') || 
+    task.id?.includes('task_3')
+  );
+
+  // Thực hiện làm mới dữ liệu
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshTasks();
+      console.log('Làm mới dữ liệu thành công');
+    } catch (error) {
+      console.error('Lỗi khi làm mới dữ liệu:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log('Tổng số công việc được tải:', tasks.length);
+  }, [tasks]);
+
+  // Tạo các cột với dữ liệu từ useTaskData
+  const columns: Column[] = [
+    {
+      id: 'todo',
+      title: 'Chưa bắt đầu',
+      tasks: tasks.filter(t => t.status === 'todo')
+    },
+    {
+      id: 'in-progress',
+      title: 'Đang thực hiện',
+      tasks: tasks.filter(t => t.status === 'in-progress')
+    },
+    {
+      id: 'on-hold',
+      title: 'Đang chờ',
+      tasks: tasks.filter(t => t.status === 'on-hold')
+    },
+    {
+      id: 'completed',
+      title: 'Hoàn thành',
+      tasks: tasks.filter(t => t.status === 'completed')
+    },
+  ];
 
   // Lọc dữ liệu theo khu vực, nhóm và vai trò người dùng
   const filteredColumns = columns.map(column => {
@@ -56,7 +84,7 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
       let hasPermissionToView = false;
       
       if (currentUser) {
-        if (currentUser.role === 'director') {
+        if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
           // Giám đốc xem tất cả công việc
           hasPermissionToView = true;
         } else if (currentUser.role === 'team_leader') {
@@ -95,10 +123,49 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
   // Kiểm tra nếu không có công việc nào thỏa mãn điều kiện lọc
   const hasAnyTasks = filteredColumns.some(column => column.tasks.length > 0);
 
+  if (isLoading) {
+    return (
+      <Card className="border border-dashed shadow-none">
+        <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4"></div>
+          <p className="text-muted-foreground">Đang tải dữ liệu công việc...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   if (!hasAnyTasks) {
     return (
       <Card className="border border-dashed shadow-none">
         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+          <div className="mb-4 flex items-center justify-between gap-2 w-full">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+                <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Làm mới dữ liệu
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {isUsingMockData ? (
+                <div className="flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-md">
+                  <CloudOff className="h-3 w-3" />
+                  <span>Dữ liệu ngoại tuyến</span>
+                  <div className="group relative">
+                    <AlertCircle className="h-3 w-3 cursor-help" />
+                    <div className="hidden group-hover:block absolute right-0 top-0 translate-x-full translate-y-[-100%] bg-black text-white text-xs rounded p-1 w-48">
+                      Đang sử dụng dữ liệu mẫu vì không kết nối được với Google Sheets
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-md">
+                  <Check className="h-3 w-3" />
+                  <span>Đã đồng bộ</span>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-muted-foreground">Không có công việc nào phù hợp với điều kiện lọc</p>
         </CardContent>
       </Card>

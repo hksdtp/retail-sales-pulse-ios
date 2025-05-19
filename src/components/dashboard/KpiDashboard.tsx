@@ -15,7 +15,7 @@ interface KpiDashboardProps {
 }
 
 const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => {
-  const isDirector = currentUser?.role === 'director';
+  const isDirector = currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
   
   return (
     <div className="p-4 md:p-6 space-y-6">

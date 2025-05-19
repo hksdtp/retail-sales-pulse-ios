@@ -67,9 +67,10 @@ interface TaskFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   formType?: 'self' | 'team' | 'individual';
+  onTaskCreated?: () => void; // Thêm sự kiện khi tạo công việc thành công
 }
 
-const TaskFormDialog = ({ open, onOpenChange, formType = 'self' }: TaskFormDialogProps) => {
+const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }: TaskFormDialogProps) => {
   const { currentUser, teams, users } = useAuth();
   const { toast } = useToast();
   const [canAssignToOthers, setCanAssignToOthers] = useState(false);
@@ -77,8 +78,12 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self' }: TaskFormDialo
   const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] = useState(false);
   
   useEffect(() => {
-    // Chỉ giám đốc và trưởng nhóm mới có thể giao việc cho người khác
-    setCanAssignToOthers(currentUser?.role === 'director' || currentUser?.role === 'team_leader');
+    // Chỉ giám đốc (retail_director, project_director) và trưởng nhóm mới có thể giao việc cho người khác
+    setCanAssignToOthers(
+      currentUser?.role === 'retail_director' || 
+      currentUser?.role === 'project_director' || 
+      currentUser?.role === 'team_leader'
+    );
     
     // Kiểm tra xem Google Sheets đã được cấu hình chưa
     setIsGoogleSheetsConfigured(googleSheetsService.isConfigured());
@@ -102,7 +107,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self' }: TaskFormDialo
   const getFilteredUsers = () => {
     if (!currentUser || !users) return [];
     
-    if (currentUser.role === 'director') {
+    if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
       // Giám đốc có thể giao việc cho bất kỳ ai
       return users;
     } else if (currentUser.role === 'team_leader') {
@@ -152,6 +157,11 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self' }: TaskFormDialo
         title: "Thành công!",
         description: "Công việc đã được tạo và lưu vào Google Sheets."
       });
+
+      // Gọi callback khi tạo công việc thành công
+      if (onTaskCreated) {
+        onTaskCreated();
+      }
 
       // Đóng form sau khi submit thành công
       onOpenChange(false);

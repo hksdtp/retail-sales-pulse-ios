@@ -1,0 +1,191 @@
+// Google Apps Script - Phiên bản 3 (Sửa lỗi nhận dữ liệu)
+
+// Hàm doGet để kiểm tra và khởi tạo
+function doGet() {
+  return ContentService.createTextOutput(
+    JSON.stringify({
+      success: true,
+      message: 'Google Sheets API đang hoạt động!'
+    })
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Hàm doPost để nhận dữ liệu từ ứng dụng web
+function doPost(e) {
+  try {
+    // Log toàn bộ request
+    Logger.log('Request nhận được:');
+    Logger.log(JSON.stringify(e || {}));
+    
+    let data;
+    
+    // Kiểm tra nếu e là null hoặc undefined
+    if (!e) {
+      return ContentService.createTextOutput(
+        JSON.stringify({
+          success: false,
+          message: 'Không nhận được dữ liệu'
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Xử lý các trường hợp khác nhau của dữ liệu
+    if (e.parameter && e.parameter.data) {
+      // Dữ liệu từ form submit hoặc JSONP
+      try {
+        data = JSON.parse(e.parameter.data);
+        Logger.log('Dữ liệu từ form/JSONP parameter: ' + e.parameter.data);
+      } catch (error) {
+        Logger.log('Lỗi parse JSON từ parameter: ' + error);
+        data = e.parameter.data;
+      }
+    } else if (e.postData && e.postData.contents) {
+      // Dữ liệu từ POST API
+      try {
+        data = JSON.parse(e.postData.contents);
+        Logger.log('Dữ liệu từ postData.contents: ' + e.postData.contents);
+      } catch (error) {
+        Logger.log('Lỗi parse JSON từ postData: ' + error);
+        data = e.postData.contents;
+      }
+    } else if (e.parameter) {
+      // Dữ liệu form trực tiếp không qua JSON
+      Logger.log('Dữ liệu form trực tiếp: ' + JSON.stringify(e.parameter));
+      data = e.parameter;
+    } else {
+      // Không tìm thấy dữ liệu
+      Logger.log('Không tìm thấy dữ liệu trong request');
+      return buildResponse({
+        success: false,
+        message: 'Không tìm thấy dữ liệu'
+      }, e);
+    }
+    
+    // Lấy sheet hoặc tạo mới nếu cần
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName('Công việc');
+    
+    if (!sheet) {
+      sheet = setupTaskSheet();
+    }
+    
+    // Chuẩn bị dữ liệu
+    const newRow = prepareTaskData(data);
+    
+    // Thêm dữ liệu vào sheet
+    sheet.appendRow(newRow);
+    Logger.log('Đã thêm dữ liệu thành công: ' + JSON.stringify(newRow));
+    
+    // Trả về kết quả
+    return buildResponse({
+      success: true,
+      message: 'Dữ liệu đã được thêm thành công',
+      data: newRow
+    }, e);
+    
+  } catch (error) {
+    // Log lỗi
+    Logger.log('Lỗi: ' + error.toString() + '\n' + error.stack);
+    
+    // Trả về lỗi
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: false,
+        message: 'Lỗi: ' + error.toString()
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Chuẩn bị dữ liệu task để thêm vào sheet
+function prepareTaskData(data) {
+  // Log dữ liệu gốc
+  Logger.log('Dữ liệu gốc nhận được: ' + JSON.stringify(data));
+  
+  // Chuẩn bị hàng mới
+  return [
+    getValue(data, 'title'),
+    getValue(data, 'description'),
+    getValue(data, 'type'),
+    getValue(data, 'status'),
+    getValue(data, 'date'),
+    getValue(data, 'time'),
+    getValue(data, 'user_name'),
+    getValue(data, 'assignedTo'),
+    getValue(data, 'team_id'),
+    getValue(data, 'location'),
+    getValue(data, 'created_at', new Date().toISOString())
+  ];
+}
+
+// Lấy giá trị an toàn từ đối tượng
+function getValue(obj, key, defaultValue = '') {
+  return obj && (typeof obj[key] !== 'undefined' && obj[key] !== null) 
+    ? obj[key] 
+    : defaultValue;
+}
+
+// Tạo response với định dạng phù hợp (hỗ trợ JSONP và REST API)
+function buildResponse(data, e) {
+  const jsonOutput = JSON.stringify(data);
+  
+  // Kiểm tra xem có callback không
+  if (e && e.parameter && e.parameter.callback) {
+    // JSONP
+    return ContentService.createTextOutput(e.parameter.callback + '(' + jsonOutput + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  } else {
+    // JSON thông thường
+    return ContentService.createTextOutput(jsonOutput)
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Thiết lập Sheet công việc
+function setupTaskSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.insertSheet('Công việc');
+  
+  // Thêm headers
+  const headers = [
+    'Tiêu đề', 
+    'Mô tả', 
+    'Loại công việc', 
+    'Trạng thái', 
+    'Ngày', 
+    'Thời gian', 
+    'Người tạo', 
+    'Người được giao', 
+    'Đội nhóm', 
+    'Khu vực', 
+    'Ngày tạo'
+  ];
+  
+  // Đặt giá trị cho hàng headers
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  // Định dạng header
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#4ecdc4');
+  headerRange.setFontColor('#ffffff');
+  headerRange.setFontWeight('bold');
+  
+  // Tạo bộ lọc
+  headerRange.createFilter();
+  
+  // Đặt độ rộng cột
+  sheet.setColumnWidth(1, 200); // Tiêu đề
+  sheet.setColumnWidth(2, 300); // Mô tả
+  sheet.setColumnWidth(3, 150); // Loại công việc
+  sheet.setColumnWidth(4, 150); // Trạng thái
+  sheet.setColumnWidth(5, 100); // Ngày
+  sheet.setColumnWidth(6, 100); // Thời gian
+  sheet.setColumnWidth(7, 150); // Người tạo
+  sheet.setColumnWidth(8, 150); // Người được giao
+  sheet.setColumnWidth(9, 150); // Đội nhóm
+  sheet.setColumnWidth(10, 120); // Khu vực
+  sheet.setColumnWidth(11, 180); // Ngày tạo
+  
+  Logger.log('Đã tạo sheet Công việc thành công');
+  return sheet;
+}

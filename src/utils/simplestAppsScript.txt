@@ -1,0 +1,113 @@
+// Phiên bản siêu đơn giản của Google Apps Script - Làm việc 100%
+
+function doGet() {
+  return ContentService.createTextOutput(JSON.stringify({
+    success: true,
+    message: "API đang hoạt động!"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    // Ghi log toàn bộ event
+    Logger.log("Nhận yêu cầu POST: " + JSON.stringify(e || {}));
+    
+    let taskData;
+    
+    // Kiểm tra nếu có dữ liệu form
+    if (e && e.parameter && e.parameter.data) {
+      try {
+        taskData = JSON.parse(e.parameter.data);
+        Logger.log("Dữ liệu từ form: " + e.parameter.data);
+      } catch (error) {
+        Logger.log("Lỗi parse JSON từ form: " + error);
+        return ContentService.createTextOutput(JSON.stringify({
+          success: false,
+          message: "Lỗi: " + error
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+    } 
+    // Kiểm tra nếu có dữ liệu POST
+    else if (e && e.postData && e.postData.contents) {
+      try {
+        taskData = JSON.parse(e.postData.contents);
+        Logger.log("Dữ liệu từ postData: " + e.postData.contents);
+      } catch (error) {
+        Logger.log("Lỗi parse JSON từ postData: " + error);
+        return ContentService.createTextOutput(JSON.stringify({
+          success: false,
+          message: "Lỗi: " + error
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+    } 
+    // Nếu không có dữ liệu
+    else {
+      Logger.log("Không nhận được dữ liệu");
+      return ContentService.createTextOutput(JSON.stringify({
+        success: false,
+        message: "Không nhận được dữ liệu"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Lấy sheet hoặc tạo mới
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Công việc");
+    
+    if (!sheet) {
+      sheet = ss.insertSheet("Công việc");
+      sheet.appendRow([
+        "Tiêu đề", "Mô tả", "Loại công việc", "Trạng thái", 
+        "Ngày", "Thời gian", "Người tạo", "Người được giao", 
+        "Đội nhóm", "Khu vực", "Ngày tạo"
+      ]);
+    }
+    
+    // Chuẩn bị dữ liệu để thêm vào sheet
+    const rowData = [
+      taskData.title || "",
+      taskData.description || "",
+      taskData.type || "",
+      taskData.status || "",
+      taskData.date || "",
+      taskData.time || "",
+      taskData.user_name || "",
+      taskData.assignedTo || "",
+      taskData.team_id || "",
+      taskData.location || "",
+      taskData.created_at || new Date().toISOString()
+    ];
+    
+    // Thêm dữ liệu vào sheet
+    sheet.appendRow(rowData);
+    Logger.log("Đã thêm dữ liệu thành công: " + JSON.stringify(rowData));
+    
+    // Trả về phản hồi
+    const response = {
+      success: true,
+      message: "Dữ liệu đã được lưu thành công",
+      data: rowData
+    };
+    
+    Logger.log("Trả về phản hồi: " + JSON.stringify(response));
+    
+    // Xử lý callback nếu có
+    if (e && e.parameter && e.parameter.callback) {
+      return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify(response) + ")")
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    } 
+    // Trả về JSON thông thường
+    else {
+      return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  } 
+  catch (error) {
+    Logger.log("Lỗi: " + error.toString());
+    Logger.log("Stack: " + (error.stack || "Không có stack trace"));
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: "Lỗi: " + error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}

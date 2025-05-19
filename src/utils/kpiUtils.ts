@@ -47,7 +47,7 @@ export const getKpiDataForUser = (currentUser: User | null): KpiItem[] => {
   else if (currentUser?.id === '2') {
     // Dữ liệu cá nhân của Việt Anh
     const isTeamLeader = currentUser?.role === 'team_leader';
-    const isDirector = currentUser?.role === 'director';
+    const isDirector = currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
     const canViewTeamData = isDirector || isTeamLeader;
     
     if (!canViewTeamData) {
@@ -185,11 +185,14 @@ export const getKpiDataForUser = (currentUser: User | null): KpiItem[] => {
 
 // Xây dựng tiêu đề phụ (subtitle) dựa trên loại người dùng
 export const getDashboardSubtitle = (currentUser: User | null): string => {
-  const isDirector = currentUser?.role === 'director';
+  const isDirector = currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
   const isTeamLeader = currentUser?.role === 'team_leader';
   
   if (isDirector) {
-    return "Tổng quan về hiệu suất kinh doanh toàn bộ phòng/ban";
+    const departmentType = currentUser?.department_type === 'retail' 
+      ? 'Kinh doanh bán lẻ' 
+      : 'Kinh doanh dự án';
+    return `Tổng quan về hiệu suất kinh doanh phòng ${departmentType}`;
   } else if (isTeamLeader) {
     return "Tổng quan về hiệu suất kinh doanh của nhóm của bạn";
   } else {

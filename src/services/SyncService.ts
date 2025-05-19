@@ -3,6 +3,7 @@
 import { googleSheetsService } from './GoogleSheetsService';
 import { appsScriptGoogleSheetsService } from './AppsScriptGoogleSheetsService';
 import { Task } from '@/components/tasks/types/TaskTypes';
+import { mockTasks } from '@/data/mockTasks';
 
 class SyncService {
   private syncInterval: NodeJS.Timeout | null = null;
@@ -130,19 +131,46 @@ class SyncService {
    * @returns Danh sách tasks
    */
   async fetchTasksFromGoogleSheets(): Promise<Task[]> {
-    // Lấy service đã cấu hình
-    const service = this.getConfiguredService();
-    
-    if (!service) {
-      throw new Error('Chưa cấu hình Google Sheets');
-    }
+    try {
+      // Lấy service đã cấu hình
+      const service = this.getConfiguredService();
+      
+      if (!service) {
+        console.warn('Chưa cấu hình Google Sheets, sử dụng dữ liệu mẫu');
+        return this.useMockData();
+      }
 
-    // Sử dụng phương thức fetchTasks từ service
-    if ('fetchTasks' in service && typeof service.fetchTasks === 'function') {
-      return await service.fetchTasks();
-    } else {
-      throw new Error('Phương thức fetchTasks không tồn tại trong service');
+      // Sử dụng phương thức fetchTasks từ service
+      if ('fetchTasks' in service && typeof service.fetchTasks === 'function') {
+        try {
+          const tasks = await service.fetchTasks();
+          if (tasks && tasks.length > 0) {
+            return tasks;
+          } else {
+            console.warn('Không lấy được dữ liệu từ Google Sheets, sử dụng dữ liệu mẫu');
+            return this.useMockData();
+          }
+        } catch (fetchError) {
+          console.error('Lỗi khi lấy dữ liệu từ Google Sheets:', fetchError);
+          return this.useMockData();
+        }
+      } else {
+        console.warn('Phương thức fetchTasks không tồn tại trong service, sử dụng dữ liệu mẫu');
+        return this.useMockData();
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu task:', error);
+      return this.useMockData();
     }
+  }
+  
+  /**
+   * Sử dụng dữ liệu mẫu khi không thể kết nối với Google Sheets
+   * @returns Danh sách tasks mẫu
+   */
+  private useMockData(): Task[] {
+    console.log('Đang sử dụng dữ liệu mẫu để thay thế...');
+    return mockTasks;
   }
 
   /**

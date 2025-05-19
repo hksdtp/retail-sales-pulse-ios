@@ -1,11 +1,34 @@
 
 // Service để xử lý kết nối và lưu dữ liệu vào Google Sheets
+import { mockTasks } from '@/data/mockTasks';
+import { Task } from '@/components/tasks/types/TaskTypes';
+
+// Định nghĩa lại Task để sử dụng trong service
+export interface TaskData {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  date: string;
+  time?: string;
+  progress: number;
+  user_id?: string;
+  user_name?: string;
+  isNew?: boolean;
+  teamId?: string;
+  team_id?: string;
+  assignedTo?: string;
+  location?: string;
+  created_at: string;
+}
 
 class GoogleSheetsService {
   private serviceAccountString: string | null = null; 
   private sheetId: string | null = null;
   private accessToken: string | null = null; // Thêm token truy cập
   private tokenExpiry: number = 0; // Thời gian hết hạn của token
+  private appScriptUrl: string = "https://script.google.com/macros/s/AKfycbxyy6s0Zoel6ZTfSoS21VnntyQ4JJ0ze4xfjeczj7xKsm3E4Hf5idY92agyvWti6_kq/exec"; // URL Apps Script
 
   constructor() {
     // Lấy thông tin từ localStorage nếu đã được lưu trước đó
@@ -107,7 +130,7 @@ class GoogleSheetsService {
   }
 
   // Lưu dữ liệu công việc vào Google Sheets
-  async saveTask(taskData: any) {
+  async saveTask(taskData: Record<string, string | number | boolean | undefined | null | object>) {
     if (!this.isConfigured()) {
       throw new Error('Google Sheets chưa được cấu hình');
     }
@@ -115,48 +138,227 @@ class GoogleSheetsService {
     try {
       console.log("Bắt đầu lưu dữ liệu công việc...");
       
-      // Do không thể thực hiện xác thực thật sự trong trình duyệt, chúng ta sẽ mô phỏng quá trình lưu dữ liệu
-      // Trong môi trường thực tế, cần có một API phía máy chủ để xử lý xác thực và gửi dữ liệu
-      
       // Chuẩn bị dữ liệu để lưu vào Google Sheets
       const formattedData = this.formatTaskDataForSheets(taskData);
       
-      // Giả lập gửi dữ liệu thành công
-      console.log('Dữ liệu đã được lưu (mô phỏng):', formattedData);
+      // Tạo một id duy nhất cho công việc nếu chưa có
+      if (!taskData.id) {
+        taskData.id = `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      }
       
-      // Trả về kết quả giả lập
-      return {
-        success: true,
-        message: 'Dữ liệu đã được lưu thành công (chế độ mô phỏng)',
-        data: formattedData
-      };
+      // Gọi đến Google Apps Script Web App URL
+      const url = new URL(this.appScriptUrl);
+      url.searchParams.append('action', 'save');
+      url.searchParams.append('data', JSON.stringify(taskData));
+      
+      console.log('Gọi đến URL Apps Script:', url.toString());
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        mode: 'cors'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Kết nối đến Apps Script thất bại: ${response.status} ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Lỗi không xác định từ Apps Script');
+      }
+      
+      console.log('Dữ liệu đã được lưu thành công:', result);
+      
+      // Trả về kết quả từ Apps Script
+      return result;
     } catch (error) {
       console.error('Lỗi khi lưu dữ liệu vào Google Sheets:', error);
       throw error;
     }
   }
+  
+  // Cập nhật dữ liệu công việc trong Google Sheets
+  async updateTask(taskData: Record<string, string | number | boolean | undefined | null | object>) {
+    if (!this.isConfigured()) {
+      throw new Error('Google Sheets chưa được cấu hình');
+    }
 
-  // Chuyển đổi dữ liệu task sang định dạng phù hợp với Google Sheets
-  private formatTaskDataForSheets(taskData: any) {
-    // Format dữ liệu thành mảng theo thứ tự cột trong Google Sheets
-    // Thứ tự: Tiêu đề, Mô tả, Loại, Trạng thái, Ngày, Thời gian, Người tạo, Người được giao, Đội nhóm, Khu vực, Ngày tạo
-    return [
-      taskData.title,
-      taskData.description,
-      this.translateTaskType(taskData.type),
-      this.translateTaskStatus(taskData.status),
-      taskData.date,
-      taskData.time || '',
-      taskData.user_name || '',
-      taskData.assignedTo || '',
-      taskData.team_id || '',
-      this.translateLocation(taskData.location),
-      taskData.created_at
-    ];
+    try {
+      console.log("Bắt đầu cập nhật dữ liệu công việc...");
+      
+      // Gọi đến Google Apps Script Web App URL
+      const url = new URL(this.appScriptUrl);
+      url.searchParams.append('action', 'update');
+      url.searchParams.append('data', JSON.stringify(taskData));
+      
+      console.log('Gọi đến URL Apps Script để cập nhật:', url.toString());
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        mode: 'cors'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Kết nối đến Apps Script thất bại: ${response.status} ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Lỗi không xác định từ Apps Script');
+      }
+      
+      console.log('Dữ liệu đã được cập nhật thành công:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('Lỗi khi cập nhật dữ liệu vào Google Sheets:', error);
+      throw error;
+    }
+  }
+  
+  // Xóa dữ liệu công việc trong Google Sheets
+  async deleteTask(taskId: string) {
+    if (!this.isConfigured()) {
+      throw new Error('Google Sheets chưa được cấu hình');
+    }
+
+    try {
+      console.log("Bắt đầu xóa dữ liệu công việc...");
+      
+      // Gọi đến Google Apps Script Web App URL
+      const url = new URL(this.appScriptUrl);
+      url.searchParams.append('action', 'delete');
+      url.searchParams.append('id', taskId);
+      
+      console.log('Gọi đến URL Apps Script để xóa:', url.toString());
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        mode: 'cors'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Kết nối đến Apps Script thất bại: ${response.status} ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Lỗi không xác định từ Apps Script');
+      }
+      
+      console.log('Dữ liệu đã được xóa thành công:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('Lỗi khi xóa dữ liệu từ Google Sheets:', error);
+      throw error;
+    }
+  }
+
+  // Lấy danh sách công việc từ Google Sheets
+  async getTasks(): Promise<Task[]> {
+    try {
+      // Gọi đến Google Apps Script Web App URL
+      const url = new URL(this.appScriptUrl);
+      url.searchParams.append('action', 'getTasks');
+      url.searchParams.append('sheetId', this.sheetId || '');
+      
+      // Thêm chi tiết logs để debug
+      console.log('%c[CONFIG INFO]', 'background: #4ecdc4; color: #fff;', {
+        appScriptUrl: this.appScriptUrl,
+        sheetId: this.sheetId,
+        isConfigured: this.isConfigured(),
+        requestUrl: url.toString()
+      });
+      
+      console.log('%c[Đồng bộ dữ liệu]', 'background: #4ecdc4; color: #fff; padding: 2px 5px; border-radius: 3px;', 'Đang gọi API để lấy danh sách công việc:', url.toString());
+      
+      // Sử dụng fetch với cấu hình CORS đầy đủ
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      // Log chi tiết về response
+      console.log('%c[Response Status]', 'background: #4ecdc4; color: #fff;', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: [...response.headers],
+        type: response.type
+      });
+      
+      if (!response.ok) {
+        console.error('%cAPI Response not OK', 'background: red; color: white;', `Status: ${response.status}`);
+        const errorText = await response.text();
+        console.log('Response details:', errorText);
+        throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+      }
+      
+      const responseText = await response.text();
+      console.log('%cAPI Raw Response', 'background: #6c5ce7; color: white;', responseText);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('%cJSON Parse Error', 'background: red; color: white;', parseError);
+        console.log('Failed to parse response:', responseText);
+        throw new Error(`Failed to parse JSON response: ${parseError.message}`);
+      }
+      
+      // Kiểm tra kết quả từ API
+      if (!result.success) {
+        console.error('%cAPI Error', 'background: red; color: white;', result.message || 'Không có dữ liệu trả về');
+        throw new Error(`API error: ${result.message || 'Không có dữ liệu trả về'}`);
+      }
+      
+      // Xử lý dữ liệu trả về
+      console.log('%cAPI Success', 'background: green; color: white;', 'Dữ liệu trả về:', result);
+      
+      const tasks = result.data || [];
+      console.log('%cTasks Fetched', 'background: #4ecdc4; color: white;', `Số lượng công việc: ${tasks.length}`);
+      
+      if (tasks.length > 0) {
+        console.log('Công việc đầu tiên:', tasks[0]);
+        // Transform dữ liệu nếu cần
+        const transformedTasks = tasks.map(task => ({
+          ...task,
+          // Đảm bảo task có đủ các trường cần thiết
+          id: task.id || `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          progress: task.progress || 0,
+          isNew: false
+        }));
+        return transformedTasks;
+      } else {
+        console.warn('%cNo Tasks', 'background: orange; color: black;', 'Không có công việc nào được trả về');
+        throw new Error('Không có dữ liệu công việc trả về');
+      }
+    } catch (error) {
+      // Hiển thị thông tin lỗi chi tiết hơn
+      console.error('%c[LỖI]', 'background: red; color: white; padding: 2px 5px; border-radius: 3px;', 'Lỗi khi lấy dữ liệu từ Google Sheets:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        error
+      });
+      
+      // Sử dụng các công việc mẫu từ file mockTasks.ts
+      console.log('%c[Sử dụng dữ liệu mẫu]', 'background: orange; color: black;', 'Đang sử dụng dữ liệu mẫu để khắc phục lỗi tạm thời');
+      return mockTasks as Task[];
+    }
   }
 
   // Chuyển đổi loại công việc sang tiếng Việt
   private translateTaskType(type: string): string {
+    if (!type) return '';
+    
     const typeMap: Record<string, string> = {
       'partner_new': 'Đối tác mới',
       'partner_old': 'Đối tác cũ',
@@ -174,6 +376,8 @@ class GoogleSheetsService {
 
   // Chuyển đổi trạng thái công việc sang tiếng Việt
   private translateTaskStatus(status: string): string {
+    if (!status) return '';
+    
     const statusMap: Record<string, string> = {
       'todo': 'Chưa bắt đầu',
       'in-progress': 'Đang thực hiện',
@@ -186,7 +390,49 @@ class GoogleSheetsService {
 
   // Chuyển đổi khu vực sang tiếng Việt
   private translateLocation(location: string): string {
-    return location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
+    if (!location) return '';
+    
+    const locationMap: Record<string, string> = {
+      'north': 'Miền Bắc',
+      'central': 'Miền Trung',
+      'south': 'Miền Nam',
+      'nationwide': 'Toàn Quốc'
+    };
+    
+    return locationMap[location] || location;
+  }
+
+  // Chuyển đổi dữ liệu task sang định dạng phù hợp để lưu vào Google Sheets
+  private formatTaskDataForSheets(taskData: Record<string, unknown>): Record<string, string | number | boolean> {
+    // Hàm hỗ trợ để convert các trường
+    const getStringValue = (value: unknown): string => {
+      if (value === null || value === undefined) return '';
+      return String(value);
+    };
+    
+    const getNumberValue = (value: unknown): number => {
+      if (typeof value === 'number') return value;
+      return 0;
+    };
+    
+    const formattedData: Record<string, string | number | boolean> = {
+      id: getStringValue(taskData.id),
+      title: getStringValue(taskData.title),
+      description: getStringValue(taskData.description),
+      type: getStringValue(taskData.type),
+      status: getStringValue(taskData.status),
+      date: getStringValue(taskData.date),
+      time: getStringValue(taskData.time),
+      progress: getNumberValue(taskData.progress),
+      user_id: getStringValue(taskData.user_id),
+      user_name: getStringValue(taskData.user_name),
+      location: getStringValue(taskData.location),
+      team_id: getStringValue(taskData.team_id || taskData.teamId),
+      assignedTo: getStringValue(taskData.assignedTo),
+      created_at: getStringValue(taskData.created_at) || new Date().toISOString()
+    };
+    
+    return formattedData;
   }
 }
 

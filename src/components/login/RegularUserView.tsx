@@ -11,7 +11,8 @@ interface RegularUserViewProps {
 }
 
 const RegularUserView: React.FC<RegularUserViewProps> = ({ user }) => {
-  if (!user || user.role === 'director') return null;
+  // Ẩn view này nếu là giám đốc (retail_director hoặc project_director)
+  if (!user || user.role === 'retail_director' || user.role === 'project_director') return null;
   
   return (
     <motion.div 

@@ -8,10 +8,15 @@ export interface Task {
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
   progress: number;
   isNew: boolean;
-  location: 'hanoi' | 'hcm';
+  location: string;
   teamId: string;
   assignedTo: string;
-  user_id?: string; // ID người tạo công việc
+  user_id: string;
+  user_name?: string;
+  team_id?: string;
+  created_at: string;
+  time?: string;
+  [key: string]: string | number | boolean | undefined | null;
 }
 
 export interface TaskListProps {

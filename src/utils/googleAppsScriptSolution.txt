@@ -1,0 +1,135 @@
+HƯỚNG DẪN SỬ DỤNG GOOGLE APPS SCRIPT LÀM API TRUNG GIAN
+
+1. Mở Google Sheet của bạn (ID: 18suuPRMUScXDWPmvIzmbZpLOTlEViis5olm7G1TqV1A)
+2. Click vào Extensions > Apps Script
+3. Xóa mã mặc định và dán mã sau:
+
+// Hàm doPost để nhận dữ liệu từ ứng dụng web
+function doPost(e) {
+  try {
+    // Phân tích dữ liệu JSON từ request
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Công việc');
+    
+    // Nếu chưa có sheet, tạo mới
+    if (!sheet) {
+      setupTaskSheet();
+    }
+    
+    // Thêm dữ liệu mới vào sheet
+    const newRow = [
+      data.title,
+      data.description,
+      data.type,
+      data.status,
+      data.date,
+      data.time || '',
+      data.user_name || '',
+      data.assignedTo || '',
+      data.team_id || '',
+      data.location,
+      data.created_at
+    ];
+    
+    sheet.appendRow(newRow);
+    
+    // Trả về response
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      message: 'Dữ liệu đã được thêm thành công'
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    // Trả về lỗi
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Thiết lập Sheet công việc
+function setupTaskSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.insertSheet('Công việc');
+  
+  // Thêm headers
+  const headers = [
+    'Tiêu đề', 
+    'Mô tả', 
+    'Loại công việc', 
+    'Trạng thái', 
+    'Ngày', 
+    'Thời gian', 
+    'Người tạo', 
+    'Người được giao', 
+    'Đội nhóm', 
+    'Khu vực', 
+    'Ngày tạo'
+  ];
+  
+  // Đặt giá trị cho hàng headers
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  // Định dạng header
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#4ecdc4');
+  headerRange.setFontColor('#ffffff');
+  headerRange.setFontWeight('bold');
+  
+  // Tạo bộ lọc
+  headerRange.createFilter();
+  
+  // Đặt độ rộng cột
+  sheet.setColumnWidth(1, 200); // Tiêu đề
+  sheet.setColumnWidth(2, 300); // Mô tả
+  sheet.setColumnWidth(3, 150); // Loại công việc
+  sheet.setColumnWidth(4, 150); // Trạng thái
+  sheet.setColumnWidth(5, 100); // Ngày
+  sheet.setColumnWidth(6, 100); // Thời gian
+  sheet.setColumnWidth(7, 150); // Người tạo
+  sheet.setColumnWidth(8, 150); // Người được giao
+  sheet.setColumnWidth(9, 150); // Đội nhóm
+  sheet.setColumnWidth(10, 120); // Khu vực
+  sheet.setColumnWidth(11, 180); // Ngày tạo
+}
+
+// Hàm doGet để kiểm tra API
+function doGet() {
+  return ContentService.createTextOutput(JSON.stringify({
+    success: true,
+    message: 'Google Sheets API đang hoạt động!'
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+4. Nhấn Save (biểu tượng đĩa mềm)
+5. Nhấn Deploy > New deployment
+6. Chọn Type là "Web app"
+7. Điền Description: "Retail Sales Pulse API"
+8. Execute as: "Me" (email của bạn)
+9. Who has access: "Anyone" hoặc "Anyone with Google account"
+10. Nhấn Deploy
+11. Sao chép URL Web App được cung cấp và sử dụng nó trong ứng dụng của bạn
+
+CÁCH SỬ DỤNG TRONG ỨNG DỤNG:
+
+1. Thay thế endpoint Google Sheets API thông thường bằng URL Web App bạn vừa tạo
+2. Gửi dữ liệu công việc dưới dạng JSON tới URL này thông qua HTTP POST
+3. Không cần API key hay xác thực phức tạp
+
+Ví dụ:
+fetch('https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(taskData)
+})
+.then(response => response.json())
+.then(data => console.log('Success:', data))
+.catch(error => console.error('Error:', error));
+
+LƯU Ý QUAN TRỌNG:
+- Google Apps Script có giới hạn cho số lượng yêu cầu mỗi ngày
+- Có thể có độ trễ nhỏ khi thực hiện các yêu cầu
+- Cần đảm bảo dữ liệu được gửi đúng định dạng JSON

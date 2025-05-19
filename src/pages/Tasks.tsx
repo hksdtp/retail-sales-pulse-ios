@@ -16,8 +16,19 @@ const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isGoogleSheetsConfigOpen, setIsGoogleSheetsConfigOpen] = useState(false);
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
+  const [taskUpdateTrigger, setTaskUpdateTrigger] = useState(0); // Trigger để kích hoạt làm mới danh sách công việc
   const { currentUser, teams } = useAuth();
   const { toast } = useToast();
+  
+  // Hàm để kích hoạt làm mới danh sách công việc
+  const handleTaskCreated = () => {
+    // Tăng giá trị trigger để kích hoạt useEffect trong TaskList
+    setTaskUpdateTrigger(prev => prev + 1);
+    toast({
+      title: "Đã làm mới dữ liệu",
+      description: "Danh sách công việc đã được cập nhật với công việc mới"
+    });
+  };
   
   // Kiểm tra cấu hình Google Sheets khi trang được tải
   useEffect(() => {
@@ -37,8 +48,10 @@ const Tasks = () => {
   let subtitle = '';
   let headerTitle = 'Quản lý công việc';
   
-  if (currentUser?.role === 'director') {
-    subtitle = `Theo dõi và quản lý tất cả công việc của phòng kinh doanh`;
+  if (currentUser?.role === 'retail_director') {
+    subtitle = 'Theo dõi và quản lý tất cả công việc của phòng kinh doanh bán lẻ';
+  } else if (currentUser?.role === 'project_director') {
+    subtitle = 'Theo dõi và quản lý tất cả công việc của phòng kinh doanh dự án';
   } else if (currentUser?.role === 'team_leader') {
     const userTeam = teams.find(team => team.leader_id === currentUser.id);
     subtitle = `Theo dõi và quản lý công việc của ${userTeam?.name || 'nhóm'} - ${locationName}`;
@@ -80,10 +93,8 @@ const Tasks = () => {
               <span>Tạo công việc cho bản thân</span>
             </Button>
 
-            {/* Nếu là Khổng Đức Mạnh, Hà Xuân Trường hoặc vai trò Director */}
-            {(currentUser?.name === 'Khổng Đức Mạnh' || 
-              currentUser?.name === 'Hà Xuân Trường' || 
-              currentUser?.role === 'director') && (
+            {/* Nếu là Retail Director hoặc Project Director */}
+            {(currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') && (
               <Button 
                 className="flex items-center gap-1.5 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
                 onClick={() => {
@@ -123,8 +134,8 @@ const Tasks = () => {
             </div>
             <div>
               <span className="font-medium">Vai trò:</span> {
-                currentUser?.name === 'Khổng Đức Mạnh' ? 'Trưởng Phòng Kinh doanh bán lẻ' :
-                currentUser?.name === 'Hà Xuân Trường' ? 'Trưởng Phòng Kinh Doanh Dự Án' :
+                currentUser?.role === 'retail_director' ? 'Trưởng Phòng Kinh doanh bán lẻ' :
+                currentUser?.role === 'project_director' ? 'Trưởng Phòng Kinh Doanh Dự Án' :
                 currentUser?.role === 'team_leader' ? 'Trưởng nhóm' : 'Nhân viên'
               }
             </div>
@@ -134,13 +145,15 @@ const Tasks = () => {
           </div>
         </div>
         
-        <TaskTabs />
+        {/* Truyền trigger xuống TaskTabs để kích hoạt làm mới */}
+        <TaskTabs key={`task-tabs-${taskUpdateTrigger}`} />
       </div>
 
       <TaskFormDialog 
         open={isFormOpen} 
         onOpenChange={setIsFormOpen} 
         formType={taskFormType}
+        onTaskCreated={handleTaskCreated}
       />
       <GoogleSheetsConfig 
         open={isGoogleSheetsConfigOpen} 

@@ -56,7 +56,7 @@ export const getTaskTypeColor = (type: string): string => {
 // Hàm tính toán mục tiêu theo loại công việc
 const getTargetByType = (type: string, role: string): number => {
   // Mục tiêu khác nhau tùy theo vai trò và loại công việc
-  if (role === 'director') {
+  if (role === 'retail_director' || role === 'project_director') {
     switch (type) {
       case 'partner_new': return 30;
       case 'partner_old': return 50;
@@ -122,19 +122,25 @@ export const calculateTaskKpi = (allTasks: Task[], currentUser: User | null): Ta
   
   // Tính KPI cho từng loại công việc
   const items: TaskKpiItem[] = taskTypes.map(type => {
-    const tasksOfType = userTasks.filter(task => task.type === type);
-    const completedTasks = tasksOfType.filter(task => task.status === 'completed');
-    const total = tasksOfType.length;
-    const completed = completedTasks.length;
+    const userTasks = allTasks.filter(task => task.type === type);
+    const total = userTasks.length;
+    const completed = userTasks.filter(task => task.status === 'completed').length;
     const completionRate = total > 0 ? (completed / total) * 100 : 0;
-    
     const targetCount = getTargetByType(type, currentUser?.role || 'employee');
     const progressPercent = targetCount > 0 ? (completed / targetCount) * 100 : 0;
     const trend = calculateTrend(completed, targetCount);
     
+    // Định nghĩa kiểu cho category
+    const validCategories = ['partner_new', 'partner_old', 'architect_new', 'architect_old', 'client_new', 'client_old', 'quote_new', 'quote_old', 'other'] as const;
+    type CategoryType = typeof validCategories[number];
+    
+    const category: CategoryType = validCategories.includes(type as CategoryType) 
+      ? type as CategoryType 
+      : 'other';
+    
     return {
       type: getTaskTypeName(type),
-      category: type as any,
+      category,
       total,
       completed,
       completionRate,
@@ -170,7 +176,7 @@ export const calculateTaskKpi = (allTasks: Task[], currentUser: User | null): Ta
 function filterTasksByUser(tasks: Task[], currentUser: User | null): Task[] {
   if (!currentUser) return [];
   
-  if (currentUser.role === 'director') {
+  if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
     // Giám đốc xem tất cả công việc
     return tasks;
   } else if (currentUser.role === 'team_leader') {
