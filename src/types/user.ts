@@ -1,4 +1,5 @@
-export type UserRole = 'employee' | 'team_leader' | 'director';
+export type DepartmentType = 'project' | 'retail';
+export type UserRole = 'employee' | 'team_leader' | 'retail_director' | 'project_director' | 'project_supervisor' | 'project_admin' | 'project_staff';
 export type UserLocation = 'hanoi' | 'hcm';
 
 export interface User {
@@ -8,7 +9,8 @@ export interface User {
   role: UserRole;
   location: UserLocation;
   team_id?: string;
-  department?: 'project' | 'retail';
+  department?: DepartmentType;
+  department_type?: DepartmentType;
   avatar?: string;
   phone?: string;
   position?: string;
@@ -23,6 +25,8 @@ export interface Team {
   location: UserLocation;
   description?: string;
   created_at: string;
+  department?: DepartmentType;
+  department_type?: DepartmentType;
 }
 
 export interface UserCredentials {

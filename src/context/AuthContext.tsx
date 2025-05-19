@@ -31,13 +31,16 @@ export const useAuth = () => useContext(AuthContext);
 
 // Dữ liệu mẫu các nhóm
 const MOCK_TEAMS: Team[] = [
+  // Nhóm phòng Bán lẻ
   {
     id: '1',
     name: 'NHÓM 1 - VIỆT ANH',
     leader_id: '2',
     location: 'hanoi',
     description: 'Nhóm kinh doanh 1 Hà Nội',
-    created_at: '2023-01-01'
+    created_at: '2023-01-01',
+    department: 'retail',
+    department_type: 'retail'
   },
   {
     id: '2',
@@ -45,7 +48,9 @@ const MOCK_TEAMS: Team[] = [
     leader_id: '4',
     location: 'hanoi',
     description: 'Nhóm kinh doanh 2 Hà Nội',
-    created_at: '2023-01-01'
+    created_at: '2023-01-01',
+    department: 'retail',
+    department_type: 'retail'
   },
   {
     id: '3',
@@ -53,7 +58,9 @@ const MOCK_TEAMS: Team[] = [
     leader_id: '6',
     location: 'hanoi',
     description: 'Nhóm kinh doanh 3 Hà Nội',
-    created_at: '2023-01-15'
+    created_at: '2023-01-15',
+    department: 'retail',
+    department_type: 'retail'
   },
   {
     id: '4',
@@ -61,7 +68,9 @@ const MOCK_TEAMS: Team[] = [
     leader_id: '7',
     location: 'hanoi',
     description: 'Nhóm kinh doanh 4 Hà Nội',
-    created_at: '2023-02-01'
+    created_at: '2023-02-01',
+    department: 'retail',
+    department_type: 'retail'
   },
   {
     id: '5',
@@ -69,7 +78,9 @@ const MOCK_TEAMS: Team[] = [
     leader_id: '8',
     location: 'hcm',
     description: 'Nhóm kinh doanh 1 Hồ Chí Minh',
-    created_at: '2023-01-01'
+    created_at: '2023-01-01',
+    department: 'retail',
+    department_type: 'retail'
   },
   {
     id: '6',
@@ -77,7 +88,71 @@ const MOCK_TEAMS: Team[] = [
     leader_id: '10',
     location: 'hcm',
     description: 'Nhóm kinh doanh 2 Hồ Chí Minh',
-    created_at: '2023-01-15'
+    created_at: '2023-01-15',
+    department: 'retail',
+    department_type: 'retail'
+  },
+  
+  // Nhóm phòng Dự án
+  {
+    id: '7',
+    name: 'NHÓM KỸ THUẬT DỰ ÁN',
+    leader_id: '13',
+    location: 'hanoi',
+    description: 'Nhóm kỹ thuật dự án Hà Nội',
+    created_at: '2023-01-01',
+    department: 'project',
+    department_type: 'project'
+  },
+  {
+    id: '8',
+    name: 'NHÓM SALES ADMIN',
+    leader_id: '14',
+    location: 'hanoi',
+    description: 'Nhóm sales admin dự án Hà Nội',
+    created_at: '2023-01-01',
+    department: 'project',
+    department_type: 'project'
+  },
+  {
+    id: '9',
+    name: 'NHÓM KINH DOANH DỰ ÁN',
+    leader_id: '16',
+    location: 'hanoi',
+    description: 'Nhóm kinh doanh dự án Hà Nội',
+    created_at: '2023-01-15',
+    department: 'project',
+    department_type: 'project'
+  },
+  {
+    id: '10',
+    name: 'NHÓM GIÁM SÁT',
+    leader_id: '18',
+    location: 'hcm',
+    description: 'Nhóm giám sát dự án HCM',
+    created_at: '2023-02-01',
+    department: 'project',
+    department_type: 'project'
+  },
+  {
+    id: '11',
+    name: 'NHÓM KINH DOANH',
+    leader_id: '17',
+    location: 'hcm',
+    description: 'Nhóm kinh doanh dự án HCM',
+    created_at: '2023-01-01',
+    department: 'project',
+    department_type: 'project'
+  },
+  {
+    id: '12',
+    name: 'NHÓM SALES ADMIN',
+    leader_id: '20',
+    location: 'hcm',
+    description: 'Nhóm sales admin dự án HCM',
+    created_at: '2023-01-15',
+    department: 'project',
+    department_type: 'project'
   }
 ];
 
@@ -86,24 +161,13 @@ const MOCK_USERS: User[] = [
   {
     id: '1',
     name: 'Khổng Đức Mạnh',
-    email: 'director@example.com',
-    role: 'director',
+    email: 'manh.khong@example.com',
+    role: 'retail_director',
     team_id: '0',
     location: 'hanoi',
     department: 'retail',
-    position: 'Trưởng Phòng Kinh doanh bán lẻ',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '12',
-    name: 'Hà Xuân Trường',
-    email: 'truong@example.com',
-    role: 'director',
-    team_id: '0',
-    location: 'hanoi',
-    department: 'project',
-    position: 'Trưởng Phòng Kinh Doanh Dự Án',
+    department_type: 'retail',
+    position: 'Trưởng phòng kinh doanh bán lẻ',
     status: 'active',
     password_changed: true
   },
@@ -114,9 +178,11 @@ const MOCK_USERS: User[] = [
     role: 'team_leader',
     team_id: '1',
     location: 'hanoi',
-    position: 'Trưởng nhóm 1 - Hà Nội',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '3',
@@ -125,20 +191,24 @@ const MOCK_USERS: User[] = [
     role: 'employee',
     team_id: '1',
     location: 'hanoi',
-    position: 'Nhân viên Sale',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Nhân viên',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '4',
     name: 'Nguyễn Thị Thảo',
-    email: 'thao@example.com',
+    email: 'thao.nguyen@example.com',
     role: 'team_leader',
     team_id: '2',
     location: 'hanoi',
-    position: 'Trưởng nhóm 2 - Hà Nội',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '5',
@@ -147,64 +217,76 @@ const MOCK_USERS: User[] = [
     role: 'employee',
     team_id: '2',
     location: 'hanoi',
-    position: 'Nhân viên Sale',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Nhân viên',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '6',
     name: 'Trịnh Thị Bốn',
-    email: 'bon@example.com',
+    email: 'bon.trinh@example.com',
     role: 'team_leader',
     team_id: '3',
     location: 'hanoi',
-    position: 'Trưởng nhóm 3 - Hà Nội',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '7',
     name: 'Phạm Thị Hương',
-    email: 'huong@example.com',
+    email: 'huong.pham@example.com',
     role: 'team_leader',
     team_id: '4',
     location: 'hanoi',
-    position: 'Trưởng nhóm 4 - Hà Nội',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '8',
     name: 'Nguyễn Thị Nga',
-    email: 'nga@example.com',
+    email: 'nga.nguyen@example.com',
     role: 'team_leader',
     team_id: '5',
     location: 'hcm',
-    position: 'Trưởng nhóm 1 - HCM',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '9',
     name: 'Hà Nguyễn Thanh Tuyền',
-    email: 'tuyen@example.com',
+    email: 'tuyen.ha@example.com',
     role: 'employee',
     team_id: '5',
     location: 'hcm',
-    position: 'Nhân viên Sale',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Nhân viên',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '10',
     name: 'Nguyễn Ngọc Việt Khanh',
-    email: 'khanh@example.com',
+    email: 'vietkhanh@example.com',
     role: 'team_leader',
     team_id: '6',
     location: 'hcm',
-    position: 'Trưởng nhóm 2 - HCM',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: false
+    password_changed: true
   },
   {
     id: '11',
@@ -213,9 +295,130 @@ const MOCK_USERS: User[] = [
     role: 'employee',
     team_id: '6',
     location: 'hcm',
-    position: 'Nhân viên Sale',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Nhân viên',
     status: 'active',
-    password_changed: false
+    password_changed: true
+  },
+  // Phòng Kinh doanh Dự án - Hà Nội
+  {
+    id: '12',
+    name: 'Hà Xuân Trường',
+    email: 'truong.ha@example.com',
+    role: 'project_director',
+    team_id: '0',
+    location: 'hanoi',
+    department: 'project',
+    department_type: 'project',
+    position: 'Trưởng phòng Kinh doanh Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '13',
+    name: 'Trần Hồng Công',
+    email: 'cong.tran@example.com',
+    role: 'project_supervisor',
+    team_id: '7',
+    location: 'hanoi',
+    department: 'project',
+    department_type: 'project',
+    position: 'Giám sát kỹ thuật Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '14',
+    name: 'Trần Thị Hải Anh',
+    email: 'haianh.tran@example.com',
+    role: 'project_admin',
+    team_id: '8',
+    location: 'hanoi',
+    department: 'project',
+    department_type: 'project',
+    position: 'Sales Admin Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '15',
+    name: 'Ngô Thị Trang',
+    email: 'trang.ngo@example.com',
+    role: 'project_admin',
+    team_id: '8',
+    location: 'hanoi',
+    department: 'project',
+    department_type: 'project',
+    position: 'Sales Admin Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '16',
+    name: 'Phạm Thị Dung',
+    email: 'dung.pham@example.com',
+    role: 'project_staff',
+    team_id: '9',
+    location: 'hanoi',
+    department: 'project',
+    department_type: 'project',
+    position: 'Nhân viên Kinh doanh Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  // Phòng Kinh doanh Dự án - Hồ Chí Minh
+  {
+    id: '17',
+    name: 'Nguyễn Thị Diễm Hương',
+    email: 'diemhuong.nguyen@example.com',
+    role: 'project_staff',
+    team_id: '11',
+    location: 'hcm',
+    department: 'project',
+    department_type: 'project',
+    position: 'Nhân viên Kinh doanh Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '18',
+    name: 'Huỳnh Bá Hiếu',
+    email: 'hieu.huynh@example.com',
+    role: 'project_supervisor',
+    team_id: '10',
+    location: 'hcm',
+    department: 'project',
+    department_type: 'project',
+    position: 'Giám sát Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '19',
+    name: 'Hoàng Dương Hà Nhi',
+    email: 'hahanh.hoang@example.com',
+    role: 'project_staff',
+    team_id: '11',
+    location: 'hcm',
+    department: 'project',
+    department_type: 'project',
+    position: 'Nhân viên Kinh doanh Dự án',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '20',
+    name: 'Lâm Mỹ Phụng',
+    email: 'myphung.lam@example.com',
+    role: 'project_admin',
+    team_id: '12',
+    location: 'hcm',
+    department: 'project',
+    department_type: 'project',
+    position: 'Sales Admin Dự án',
+    status: 'active',
+    password_changed: true
   }
 ];
 
@@ -225,7 +428,9 @@ const MOCK_CREDENTIALS: Record<string, string> = {};
 
 // Tạo mật khẩu mặc định cho tất cả người dùng
 MOCK_USERS.forEach(user => {
-  MOCK_CREDENTIALS[user.email] = DEFAULT_PASSWORD;
+  if (user.email) {
+    MOCK_CREDENTIALS[user.email] = DEFAULT_PASSWORD;
+  }
 });
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
@@ -279,13 +484,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       setIsFirstLogin(!user.password_changed);
       
       return Promise.resolve();
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
       toast({
         title: "Đăng nhập thất bại",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
-      return Promise.reject(error);
+      return Promise.reject(error instanceof Error ? error : new Error(errorMessage));
     } finally {
       setIsLoading(false);
     }

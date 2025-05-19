@@ -13,7 +13,8 @@ interface UserSelectorProps {
 }
 
 const positionLabels: Record<string, string> = {
-  director: 'Giám đốc Kinh doanh',
+  retail_director: 'Trưởng Phòng Kinh doanh bán lẻ',
+  project_director: 'Trưởng Phòng Kinh doanh dự án',
   team_leader: 'Trưởng nhóm',
   employee: 'Nhân viên'
 };
@@ -55,7 +56,11 @@ const UserSelector: React.FC<UserSelectorProps> = ({
             onClick={() => onUserSelect(user)}
           >
             <Avatar className="h-12 w-12">
-              <AvatarFallback className={`text-white ${user.role === 'team_leader' ? 'bg-ios-blue' : user.role === 'director' ? 'bg-purple-500' : 'bg-gray-500'}`}>
+              <AvatarFallback className={`text-white ${
+                user.role === 'team_leader' ? 'bg-ios-blue' : 
+                user.role === 'retail_director' || user.role === 'project_director' ? 'bg-purple-500' : 
+                'bg-gray-500'
+              }`}>
                 {getAvatarText(user.name)}
               </AvatarFallback>
             </Avatar>
@@ -63,7 +68,7 @@ const UserSelector: React.FC<UserSelectorProps> = ({
               <span className="font-medium">{user.name}</span>
               <div className="flex items-center mt-1">
                 <Badge className={`mr-1 h-5 text-xs ${
-                  user.role === 'director' ? 'bg-purple-500' : 
+                  user.role === 'retail_director' || user.role === 'project_director' ? 'bg-purple-500' : 
                   user.role === 'team_leader' ? 'bg-ios-blue' : 
                   'bg-gray-500'
                 }`}>

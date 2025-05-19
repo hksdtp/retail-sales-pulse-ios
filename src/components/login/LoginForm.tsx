@@ -33,41 +33,53 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     toast
   } = useToast();
 
-  // Lọc người dùng theo vai trò, vị trí và phòng ban (nếu được chọn)
+  // Lọc người dùng theo phòng ban, vị trí và nhóm
   const filteredUsers = users.filter(user => {
-    // Nếu đã chọn phòng ban, lọc theo phòng ban
-    if (departmentType) {
-      if (departmentType === 'project' && user.department !== 'project') {
-        return false;
-      }
-      if (departmentType === 'retail' && user.department !== 'retail') {
-        return false;
-      }
-    }
-    
-    // Nếu chọn "Toàn Quốc" (hoặc các tên mới), chỉ hiển thị người dùng có vai trò đặc biệt
-    if (selectedLocation === 'all') {
-      if (departmentType === 'project') {
-        return user.name === 'Hà Xuân Trường';
-      } else if (departmentType === 'retail') {
-        return user.name === 'Khổng Đức Mạnh';
-      }
-      return user.role === 'director';
-    }
-
-    // Nếu chọn khu vực cụ thể, hiển thị tất cả người dùng thuộc khu vực đó
-    if (selectedTeam) {
-      return user.team_id === selectedTeam.id;
-    }
-    return user.location === selectedLocation;
-  });
-
-  // Lọc teams dựa trên location
-  const filteredTeams = teams.filter(team => {
-    if (selectedLocation === 'all') {
-      // Không hiển thị teams khi chọn "Hà Xuân Trường" hoặc "Khổng Đức Mạnh"
+    // ĐẢM BẢO TRƯỚC TIÊN LỌC THEO PHÒNG BAN
+    // Chỉ hiển thị người dùng của phòng được chọn
+    if (departmentType === 'project' && user.department_type !== 'project') {
       return false;
     }
+    if (departmentType === 'retail' && user.department_type !== 'retail') {
+      return false;
+    }
+    
+    // Khi chọn "Toàn Quốc" (hoặc "Khổng Đức Mạnh" hoặc "Hà Xuân Trường")
+    if (selectedLocation === 'all') {
+      if (departmentType === 'project') {
+        // Chỉ hiển thị Trưởng phòng Dự án
+        return user.role === 'project_director';
+      } else if (departmentType === 'retail') {
+        // Chỉ hiển thị Trưởng phòng Bán lẻ
+        return user.role === 'retail_director';
+      }
+      // Nếu không chọn phòng ban, hiển thị cả hai trưởng phòng
+      return user.role === 'retail_director' || user.role === 'project_director';
+    }
+
+    // Khi chọn nhóm cụ thể
+    if (selectedTeam) {
+      // Chỉ hiển thị người dùng thuộc nhóm được chọn
+      return user.team_id === selectedTeam.id;
+    }
+    
+    // Lọc theo khu vực
+    return user.location === selectedLocation && user.department_type === departmentType;
+  });
+
+  // Lọc teams dựa trên location và phòng ban
+  const filteredTeams = teams.filter(team => {
+    // Lọc theo phòng ban
+    if (departmentType && team.department_type !== departmentType) {
+      return false;
+    }
+    
+    // Không hiển thị teams khi chọn "Hà Xuân Trường" hoặc "Khổng Đức Mạnh"
+    if (selectedLocation === 'all') {
+      return false;
+    }
+    
+    // Lọc theo khu vực
     return team.location === selectedLocation;
   });
   
@@ -196,7 +208,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                     <div className="flex items-center">
                       <Avatar className="h-5 w-5 mr-2">
                         <AvatarFallback className={`text-white text-xs ${
-                          user.role === 'director' 
+                          user.role === 'retail_director' || user.role === 'project_director'
                             ? 'bg-purple-500' 
                             : user.role === 'team_leader' 
                               ? 'bg-ios-blue' 

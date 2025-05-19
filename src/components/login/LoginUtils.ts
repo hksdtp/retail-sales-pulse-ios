@@ -8,9 +8,16 @@ export const locationNames: Record<UserLocation | 'all', string> = {
 };
 
 export const positionLabels: Record<string, string> = {
-  director: 'Giám đốc Kinh doanh',
+  // Vai trò phòng Bán lẻ
+  retail_director: 'Trưởng phòng Kinh doanh bán lẻ',
   team_leader: 'Trưởng nhóm',
-  employee: 'Nhân viên'
+  employee: 'Nhân viên',
+  
+  // Vai trò phòng Dự án
+  project_director: 'Trưởng phòng Kinh doanh Dự án',
+  project_supervisor: 'Giám sát Dự án',
+  project_admin: 'Sales Admin Dự án',
+  project_staff: 'Nhân viên Kinh doanh Dự án'
 };
 
 export const getAvatarText = (name: string) => {
