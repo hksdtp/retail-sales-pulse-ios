@@ -1,3 +1,4 @@
+
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 
 // Hàm cấu hình tự động Google Sheets với Service Account
@@ -25,11 +26,11 @@ export const setupGoogleSheetsConfig = () => {
 
   try {
     // Cấu hình ServiceAccount
-    const success = googleSheetsService.setServiceAccountConfig(sheetId, serviceAccountJson);
+    const success = googleSheetsService.setConfig(sheetId, serviceAccountJson);
     
     // Dự phòng: nếu cấu hình service account thất bại, cấu hình với API key
     if (!success) {
-      googleSheetsService.setConfig(sheetId, apiKey);
+      googleSheetsService.setConfig(sheetId, serviceAccountJson);
     }
     
     return {

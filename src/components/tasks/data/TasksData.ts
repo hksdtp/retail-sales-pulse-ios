@@ -14,7 +14,9 @@ export const tasks: Task[] = [
     isNew: true,
     location: 'hanoi',
     teamId: 'team-1',
-    assignedTo: 'user-1'
+    assignedTo: 'user-1',
+    user_id: 'user-1',
+    created_at: '2025-05-28T08:00:00Z'
   },
   {
     id: '3',
@@ -27,7 +29,9 @@ export const tasks: Task[] = [
     isNew: false,
     location: 'hcm',
     teamId: 'team-2',
-    assignedTo: 'user-2'
+    assignedTo: 'user-2',
+    user_id: 'user-2',
+    created_at: '2025-05-28T09:00:00Z'
   },
   {
     id: '4',
@@ -40,7 +44,9 @@ export const tasks: Task[] = [
     isNew: true,
     location: 'hanoi',
     teamId: 'team-1',
-    assignedTo: 'user-3'
+    assignedTo: 'user-3',
+    user_id: 'user-3',
+    created_at: '2025-05-28T10:00:00Z'
   },
   {
     id: '2',
@@ -53,7 +59,9 @@ export const tasks: Task[] = [
     isNew: true,
     location: 'hcm',
     teamId: 'team-3',
-    assignedTo: 'user-4'
+    assignedTo: 'user-4',
+    user_id: 'user-4',
+    created_at: '2025-05-28T11:00:00Z'
   },
   {
     id: '5',
@@ -66,7 +74,9 @@ export const tasks: Task[] = [
     isNew: false,
     location: 'hanoi',
     teamId: 'team-2',
-    assignedTo: 'user-5'
+    assignedTo: 'user-5',
+    user_id: 'user-5',
+    created_at: '2025-05-28T12:00:00Z'
   },
   {
     id: '6',
@@ -79,6 +89,8 @@ export const tasks: Task[] = [
     isNew: false,
     location: 'hcm',
     teamId: 'team-1',
-    assignedTo: 'user-6'
+    assignedTo: 'user-6',
+    user_id: 'user-6',
+    created_at: '2025-05-28T13:00:00Z'
   },
 ];

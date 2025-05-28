@@ -13,7 +13,7 @@ interface DirectorViewProps {
 }
 
 const DirectorView: React.FC<DirectorViewProps> = ({ user, teams }) => {
-  if (user.role !== 'director') return null;
+  if (user.role !== 'retail_director' && user.role !== 'project_director') return null;
   
   return (
     <motion.div 

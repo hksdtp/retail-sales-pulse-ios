@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { Task } from '@/components/tasks/types/TaskTypes';
-import { googleSheetsService, Task as GoogleSheetsTask } from '@/services/GoogleSheetsService';
+import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskFilters } from './TaskContext';
@@ -24,7 +24,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
   
   // Hàm chuyển đổi dữ liệu từ GoogleSheetsTask sang Task
-  const convertGoogleSheetsTasks = (googleTasks: GoogleSheetsTask[]): Task[] => {
+  const convertGoogleSheetsTasks = (googleTasks: Task[]): Task[] => {
     return googleTasks.map(task => {
       // Đảm bảo trường type phù hợp với định nghĩa trong TaskTypes
       const validType = isValidTaskType(task.type) ? task.type : 'other';

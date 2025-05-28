@@ -17,8 +17,8 @@ const COLORS = ['#007AFF', '#FF9500', '#4CD964'];
 const RegionDistribution = () => {
   const { currentUser } = useAuth();
   
-  // Chỉ hiển thị nếu người dùng có vai trò là director
-  if (currentUser?.role !== 'director') {
+  // Chỉ hiển thị nếu người dùng có vai trò là retail_director hoặc project_director
+  if (currentUser?.role !== 'retail_director' && currentUser?.role !== 'project_director') {
     return null;
   }
   
