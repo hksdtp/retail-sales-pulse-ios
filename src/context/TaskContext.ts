@@ -1,26 +1,15 @@
+
 import { createContext } from 'react';
-import { Task } from '@/components/tasks/types/TaskTypes';
 
-// Định nghĩa kiểu cho context
 export interface TaskDataContextType {
-  tasks: Task[];
+  tasks: any[];
   isLoading: boolean;
-  addTask: (task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>) => Promise<Task>;
-  updateTask: (id: string, updates: Partial<Task>) => Promise<Task>;
+  addTask: (task: any) => Promise<any>;
+  updateTask: (id: string, updates: any) => Promise<any>;
   deleteTask: (id: string) => Promise<boolean>;
-  updateTaskStatus: (id: string, status: 'todo' | 'in-progress' | 'on-hold' | 'completed') => Promise<Task>;
+  updateTaskStatus: (id: string, status: string) => Promise<any>;
   refreshTasks: () => Promise<void>;
-  filterTasks: (filters: TaskFilters) => Task[];
+  currentUser: any;
 }
 
-// Định nghĩa kiểu cho bộ lọc
-export interface TaskFilters {
-  dateRange?: 'today' | 'week' | 'month' | 'all' | 'custom';
-  status?: string;
-  progress?: number | null;
-  startDate?: string | null;
-  endDate?: string | null;
-}
-
-// Tạo context
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
