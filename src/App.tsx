@@ -12,16 +12,17 @@ import Reports from "./pages/Reports";
 import Employees from "./pages/Employees";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import FirebaseSetup from "./pages/FirebaseSetup";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthProvider } from "@/context/AuthContext";
-import { TaskDataProvider } from "@/context/TaskDataProvider";
+import { FirebaseTaskDataProvider } from "@/context/FirebaseTaskDataProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TaskDataProvider>
+      <FirebaseTaskDataProvider>
         <TooltipProvider>
           <SidebarProvider className="mx-[120px] my-0 px-0 py-0 bg-slate-50 rounded-full">
             <Toaster />
@@ -29,6 +30,7 @@ const App = () => <QueryClientProvider client={queryClient}>
             <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/firebase-setup" element={<FirebaseSetup />} />
               <Route path="/" element={<ProtectedRoute>
                   <Index />
                 </ProtectedRoute>} />
@@ -52,7 +54,7 @@ const App = () => <QueryClientProvider client={queryClient}>
           </BrowserRouter>
           </SidebarProvider>
         </TooltipProvider>
-      </TaskDataProvider>
+      </FirebaseTaskDataProvider>
     </AuthProvider>
   </QueryClientProvider>;
 

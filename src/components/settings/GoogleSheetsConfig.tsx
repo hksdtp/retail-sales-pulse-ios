@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,8 +34,20 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
   useEffect(() => {
     if (open) {
       const config = googleSheetsService.getConfig();
-      setSheetId(config.sheetId || '');
-      setServiceAccountJSON(config.serviceAccountJson || '');
+      let displaySheetId = config.sheetId || '';
+      const serviceAccount = config.serviceAccountJson || '';
+
+      // Nếu service account chưa được cấu hình qua dialog (còn rỗng),
+      // thử đọc lại sheetId trực tiếp từ localStorage để ưu tiên giá trị từ setup-sheets.js
+      if (!serviceAccount) {
+        const sheetIdFromLocalStorage = localStorage.getItem('googleSheetId');
+        if (sheetIdFromLocalStorage) {
+          displaySheetId = sheetIdFromLocalStorage;
+        }
+      }
+
+      setSheetId(displaySheetId);
+      setServiceAccountJSON(serviceAccount);
       setIsConfigured(googleSheetsService.isConfigured());
     }
   }, [open]);

@@ -3,18 +3,18 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Users, UserRound } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/layout/PageHeader';
-import TaskTabs from '@/components/tasks/TaskTabs';
 import { Button } from '@/components/ui/button';
 import TaskFormDialog from '@/components/tasks/TaskFormDialog';
 import { useAuth } from '@/context/AuthContext';
-import GoogleSheetsConfig from '@/components/settings/GoogleSheetsConfig';
-import { googleSheetsService } from '@/services/GoogleSheetsService';
+import FirebaseConfig from '@/components/settings/FirebaseConfig';
+import { firebaseService } from '@/services/FirebaseService';
 import { Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import TaskList from '@/pages/TaskList';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isGoogleSheetsConfigOpen, setIsGoogleSheetsConfigOpen] = useState(false);
+  const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState(false);
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const [taskUpdateTrigger, setTaskUpdateTrigger] = useState(0); // Trigger để kích hoạt làm mới danh sách công việc
   const { currentUser, teams } = useAuth();
@@ -30,13 +30,13 @@ const Tasks = () => {
     });
   };
   
-  // Kiểm tra cấu hình Google Sheets khi trang được tải
+  // Kiểm tra cấu hình Firebase khi trang được tải
   useEffect(() => {
-    const isConfigured = googleSheetsService.isConfigured();
+    const isConfigured = firebaseService.isConfigured();
     if (isConfigured) {
       toast({
         title: "Đã sẵn sàng",
-        description: "Google Sheets đã được cấu hình và đang hoạt động ở chế độ thực tế",
+        description: "Firebase đã được cấu hình và đang hoạt động",
         duration: 5000
       });
     }
@@ -73,8 +73,8 @@ const Tasks = () => {
             <Button 
               variant="outline" 
               size="icon" 
-              onClick={() => setIsGoogleSheetsConfigOpen(true)} 
-              title="Cấu hình Google Sheets"
+              onClick={() => setIsFirebaseConfigOpen(true)} 
+              title="Cấu hình Firebase"
               className="text-green-600 border-green-200 bg-green-50"
             >
               <Settings className="h-4 w-4" />
@@ -125,8 +125,8 @@ const Tasks = () => {
         }
       />
       
-      <div className="p-4 md:p-6">
-        <div className="mb-4 bg-white rounded-lg p-4 shadow-sm">
+      <div>
+        <div className="mb-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg rounded-xl p-4 shadow-sm">
           <h2 className="text-lg font-medium mb-2">Thông tin người dùng</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
@@ -145,8 +145,8 @@ const Tasks = () => {
           </div>
         </div>
         
-        {/* Truyền trigger xuống TaskTabs để kích hoạt làm mới */}
-        <TaskTabs key={`task-tabs-${taskUpdateTrigger}`} />
+        {/* Sử dụng TaskList mới */}
+        <TaskList key={`task-list-${taskUpdateTrigger}`} />
       </div>
 
       <TaskFormDialog 
@@ -155,13 +155,13 @@ const Tasks = () => {
         formType={taskFormType}
         onTaskCreated={handleTaskCreated}
       />
-      <GoogleSheetsConfig 
-        open={isGoogleSheetsConfigOpen} 
-        onOpenChange={setIsGoogleSheetsConfigOpen} 
+      <FirebaseConfig 
+        open={isFirebaseConfigOpen} 
+        onOpenChange={setIsFirebaseConfigOpen} 
         onConfigSaved={() => {
           toast({
             title: "Cấu hình thành công",
-            description: "Đã lưu cấu hình Google Sheets Service Account. Dữ liệu sẽ được lưu ở chế độ thực tế."
+            description: "Firebase đã được cấu hình thành công. Dữ liệu sẽ được lưu trữ an toàn trên Cloud Firestore."
           });
         }}
       />

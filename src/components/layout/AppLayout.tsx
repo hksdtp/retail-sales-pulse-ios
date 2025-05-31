@@ -3,6 +3,7 @@ import React from 'react';
 import BottomNavigation from './BottomNavigation';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import TaskList from '@/pages/TaskList';
 
 interface AppLayoutProps {
   children: React.ReactNode;
