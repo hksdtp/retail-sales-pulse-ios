@@ -1,14 +1,4 @@
-<<<<<<< HEAD
-
-import React, { useState, useEffect } from 'react';
-import { firebaseService } from '@/services/FirebaseService';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from './AuthContext';
-import { TaskDataContext } from './TaskContext';
-=======
 import React, { useState, useEffect, ReactNode } from 'react';
-
-import { isAdmin, isDirector, isTeamLeader, LogLevel, permissionLog } from '@/config/permissions';
 import { Task } from '@/components/tasks/types/TaskTypes';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { firebaseService } from '@/services/FirebaseService';
@@ -16,77 +6,25 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskFilters } from './TaskContext';
 import { mockTasks, saveMockTasksToLocalStorage } from '@/utils/mockData';
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
 
 // Provider component
-export const TaskDataProvider = ({ children }: { children: React.ReactNode }) => {
-  const [tasks, setTasks] = useState<any[]>([]);
+export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { currentUser, users, teams } = useAuth();
 
-<<<<<<< HEAD
   // Hàm lấy dữ liệu từ local storage
-  const getLocalTasks = () => {
+  const getLocalTasks = (): Task[] => {
     const storedTasks = localStorage.getItem('tasks');
     return storedTasks ? JSON.parse(storedTasks) : [];
   };
 
   // Hàm lưu dữ liệu vào local storage
-  const saveLocalTasks = (tasksData: any[]) => {
+  const saveLocalTasks = (tasksData: Task[]) => {
     localStorage.setItem('tasks', JSON.stringify(tasksData));
   };
-=======
-  // === LOCAL STORAGE HELPERS ===
-  // Lưu dữ liệu gốc (chưa lọc phân quyền)
-  const saveRawTasks = (data: Task[]) => {
-    localStorage.setItem('rawTasks', JSON.stringify(data));
-  };
-
-  // Lấy dữ liệu gốc từ local storage
-  const getRawTasks = (): Task[] => {
-    try {
-      const storedTasks = localStorage.getItem('rawTasks');
-      return storedTasks ? JSON.parse(storedTasks) : [];
-    } catch (error) {
-      console.error('Lỗi khi đọc dữ liệu gốc từ localStorage:', error);
-      return [];
-    }
-  };
-
-  // Lưu dữ liệu đã lọc phân quyền
-  const saveFilteredTasks = (data: Task[]) => {
-    localStorage.setItem('filteredTasks', JSON.stringify(data));
-  };
-
-  // Lấy dữ liệu đã lọc phân quyền
-  const getFilteredTasks = (): Task[] => {
-    try {
-      const storedTasks = localStorage.getItem('filteredTasks');
-      return storedTasks ? JSON.parse(storedTasks) : [];
-    } catch (error) {
-      console.error('Lỗi khi đọc dữ liệu đã lọc từ localStorage:', error);
-      return [];
-    }
-  };
-
-  // Chuyển đổi dữ liệu cũ sang format mới khi cần
-  const migrateOldData = () => {
-    try {
-      // Kiểm tra xem có dữ liệu cũ không
-      const oldData = localStorage.getItem('tasks');
-      if (oldData && !localStorage.getItem('rawTasks')) {
-        permissionLog('Đang chuyển đổi dữ liệu cũ sang dạng mới...', LogLevel.BASIC);
-        // Lưu dữ liệu cũ vào dạng dữ liệu gốc
-        localStorage.setItem('rawTasks', oldData);
-        // Xóa dữ liệu cũ
-        localStorage.removeItem('tasks');
-      }
-    } catch (error) {
-      console.error('Lỗi khi chuyển đổi dữ liệu cũ:', error);
-    }
-  };
-
+  
   // Hàm chuyển đổi dữ liệu từ GoogleSheetsTask sang Task
   const convertGoogleSheetsTasks = (googleTasks: Task[]): Task[] => {
     return googleTasks.map(task => {
@@ -110,11 +48,10 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
       } as Task;
     });
   };
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
 
   // Hàm chuyển đổi dữ liệu từ Firebase sang định dạng Task
-  const convertFirebaseTasks = (fbTasks: any[]) => {
-    return fbTasks.map((task) => {
+  const convertFirebaseTasks = (fbTasks: Record<string, unknown>[]): Task[] => {
+    return fbTasks.map(task => {
       // Đảm bảo trường type phù hợp với định nghĩa trong TaskTypes
       const taskType = task.type ? String(task.type) : 'other';
       const validType = isValidTaskType(taskType) ? taskType : 'other';
@@ -123,52 +60,29 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
       const taskStatus = task.status ? String(task.status) : 'todo';
       const validStatus = isValidTaskStatus(taskStatus) ? taskStatus : 'todo';
       
-      // Đảm bảo tất cả các trường bắt buộc có mặt trong đối tượng Task
+      // Chuyển đổi sang Task đúng định dạng
       return {
-        id: String(task.id || ''),
-        title: String(task.title || ''),
-        description: String(task.description || ''),
-        date: String(task.date || new Date().toISOString()),
+        ...task,
         type: validType,
         status: validStatus,
         progress: typeof task.progress === 'number' ? task.progress : 0,
-<<<<<<< HEAD
         isNew: task.isNew === true,
         teamId: task.teamId || task.team_id || '',
         assignedTo: task.assignedTo || ''
-=======
-        isNew: Boolean(task.isNew),
-        isShared: Boolean(task.isShared),
-        isSharedWithTeam: Boolean(task.isSharedWithTeam),
-        user_id: String(task.user_id || ''),
-        // Các trường bắt buộc theo interface Task
-        location: String(task.location || ''),
-        created_at: String(task.created_at || new Date().toISOString()),
-        // Xử lý các trường đặc biệt
-        // Xử lý trường extraAssignees để tránh lỗi với index signature
-        // Vì extraAssignees là một mảng, chúng ta chỉ lưu chuỗi JSON để tuân thủ yêu cầu kiểu
-        extraAssignees: Array.isArray(task.extraAssignees) 
-            ? JSON.stringify(task.extraAssignees) 
-            : '',
-        teamId: String(task.teamId || task.team_id || ''),
-        assignedTo: String(task.assignedTo || '')
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
-      };
+      } as Task;
     });
   };
-
+  
   // Kiểm tra nếu type hợp lệ
-<<<<<<< HEAD
-  const isValidTaskType = (type: string) => {
-    return ['partner_new', 'partner_old', 'architect_new', 'architect_old', 'client_new', 'client_old', 'quote_new', 'quote_old', 'other'].includes(type);
-=======
   const isValidTaskType = (type: string): type is Task['type'] => {
-    return ['meeting', 'call', 'task', 'report', 'other'].includes(type);
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+    return [
+      'partner_new', 'partner_old', 'architect_new', 'architect_old',
+      'client_new', 'client_old', 'quote_new', 'quote_old', 'other'
+    ].includes(type);
   };
-
+  
   // Kiểm tra nếu status hợp lệ
-  const isValidTaskStatus = (status: string) => {
+  const isValidTaskStatus = (status: string): status is Task['status'] => {
     return ['todo', 'in-progress', 'on-hold', 'completed'].includes(status);
   };
 
@@ -176,29 +90,21 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     const initialize = async () => {
       setIsLoading(true);
+      
       try {
-<<<<<<< HEAD
-        let tasksData = [];
-=======
-        // Chuyển đổi dữ liệu cũ sang định dạng mới nếu cần
-        migrateOldData();
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+        let tasksData: Task[] = [];
         
-        let rawTasksData: Task[] = [];
-        
-        // Kiểm tra xem có dữ liệu thô trong localStorage không
-        const localRawTasks = getRawTasks();
+        // Kiểm tra xem có dữ liệu trong localStorage không
+        const localTasks = getLocalTasks();
         
         // Nếu không có dữ liệu, sử dụng dữ liệu mẫu
-        if (localRawTasks.length === 0) {
-          console.log('Không tìm thấy dữ liệu gốc trong localStorage, sử dụng dữ liệu mẫu...');
+        if (localTasks.length === 0) {
+          console.log('Không tìm thấy dữ liệu trong localStorage, sử dụng dữ liệu mẫu...');
           saveMockTasksToLocalStorage();
-          rawTasksData = [...mockTasks];
-          // Lưu dữ liệu gốc vào localStorage
-          saveRawTasks(rawTasksData);
+          tasksData = [...mockTasks];
         } else {
-          console.log('Đã tìm thấy dữ liệu gốc trong localStorage:', localRawTasks.length, 'công việc');
-          rawTasksData = localRawTasks;
+          console.log('Đã tìm thấy dữ liệu trong localStorage:', localTasks.length, 'công việc');
+          tasksData = localTasks;
         }
         
         // Ưu tiên lấy dữ liệu mới nhất từ Firebase nếu được cấu hình
@@ -209,13 +115,8 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
             if (Array.isArray(firestoreData) && firestoreData.length > 0) {
               console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
               const convertedTasks = convertFirebaseTasks(firestoreData);
-<<<<<<< HEAD
               tasksData = convertedTasks;
-=======
-              rawTasksData = convertedTasks;
-              // Lưu dữ liệu gốc từ Firebase
-              saveRawTasks(rawTasksData);
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+              // saveLocalTasks(convertedTasks); // Sẽ lưu sau khi lọc
             } else {
               console.log('Không có dữ liệu từ Firebase');
             }
@@ -223,12 +124,11 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
             console.error('Lỗi khi lấy dữ liệu từ Firebase:', error);
           }
         }
-<<<<<<< HEAD
         
-        // Nếu không lấy được dữ liệu từ Firebase, thử lấy từ local storage
+        // Nếu không lấy được dữ liệu từ Google Sheets, thử lấy từ local storage
         if (tasksData.length === 0) {
           console.log('Đang tải dữ liệu từ localStorage...');
-          const localTasks = getLocalTasks();
+          const localTasks = getLocalTasks(); // Lấy task thô từ local storage
           if (localTasks.length > 0) {
             console.log(`Đã tải ${localTasks.length} công việc từ localStorage`);
             tasksData = localTasks;
@@ -237,178 +137,50 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
           }
         }
 
-        // Logic lọc phân quyền
-        let filteredTasksForRole = [];
-        if (currentUser && users && teams) {
+        // === START: LOGIC LỌC PHÂN QUYỀN ===
+        let filteredTasksForRole: Task[] = [];
+        if (currentUser && users && teams) { 
           const userRole = currentUser.role;
           const userId = currentUser.id;
-          
+
           if (userRole === 'employee') {
             filteredTasksForRole = tasksData.filter(task => task.assignedTo === userId);
           } else if (userRole === 'team_leader') {
             const managedTeams = teams.filter(team => team.leader_id === userId);
             const managedTeamIds = managedTeams.map(team => team.id);
-            const teamMemberIds = users.filter(user => user.team_id && managedTeamIds.includes(user.team_id)).map(user => user.id);
+            const teamMemberIds = users
+              .filter(user => user.team_id && managedTeamIds.includes(user.team_id))
+              .map(user => user.id);
             const allVisibleUserIds = [...new Set([userId, ...teamMemberIds])];
-            
-            filteredTasksForRole = tasksData.filter(task => 
+            filteredTasksForRole = tasksData.filter(task =>
               (task.assignedTo && allVisibleUserIds.includes(task.assignedTo)) ||
               (task.teamId && managedTeamIds.includes(task.teamId))
             );
           } else if (userRole === 'retail_director' || userRole === 'project_director') {
             const directorDepartment = currentUser.department;
             filteredTasksForRole = tasksData.filter(task => {
-              if (task.assignedTo) {
+              if (task.assignedTo) { 
                 const assignedUser = users.find(u => u.id === task.assignedTo);
                 return assignedUser && assignedUser.department === directorDepartment;
               }
-              if (task.teamId) {
+              if (task.teamId) { 
                 const taskTeam = teams.find(t => t.id === task.teamId);
                 return taskTeam && taskTeam.department === directorDepartment;
-=======
-
-        // === START: LOGIC LỌC PHÂN QUYỀN MỚI SỬ DỤNG CONFIG ===
-        let filteredTasksForRole: Task[] = [];
-        if (currentUser && users && teams) {
-          permissionLog(`Đang làm mới danh sách công việc cho người dùng: ${currentUser.name} (${currentUser.id}) - Vai trò: ${currentUser.role}`, LogLevel.BASIC);
-          const userRole = currentUser.role;
-          const userId = currentUser.id;
-
-          // Nếu là quản trị viên hoặc giám đốc - xem được tất cả công việc trong phòng ban
-          if (isAdmin(userId) || isDirector(userRole)) {
-            permissionLog(`Người dùng ${currentUser.name} là Admin/Director - xem tất cả công việc`, LogLevel.BASIC);
-            
-            if (isAdmin(userId)) {
-              // Admin xem tất cả công việc
-              filteredTasksForRole = rawTasksData;
-            } else {
-              // Giám đốc chỉ xem công việc trong phòng ban của mình
-              const directorDepartment = currentUser.department;
-              filteredTasksForRole = rawTasksData.filter(task => {
-                if (task.assignedTo) {
-                  const assignedUser = users.find(u => u.id === task.assignedTo);
-                  return assignedUser && assignedUser.department === directorDepartment;
-                }
-                if (task.teamId) {
-                  const taskTeam = teams.find(t => t.id === task.teamId);
-                  return taskTeam && taskTeam.department === directorDepartment;
-                }
-                return false;
-              });
-            }
-          } 
-          // Nếu là Trưởng nhóm
-          else if (isTeamLeader(userRole)) {
-            permissionLog(`Người dùng ${currentUser.name} là Trưởng nhóm - xem công việc của nhóm`, LogLevel.BASIC);
-            
-            // Tìm các nhóm do người này quản lý
-            const managedTeams = teams.filter(team => team.leader_id === userId);
-            const managedTeamIds = managedTeams.map(team => team.id);
-            
-            // Tìm các thành viên trong nhóm
-            const teamMemberIds = users
-              .filter(user => user.team_id && managedTeamIds.includes(user.team_id))
-              .map(user => user.id);
-            
-            permissionLog(`Trưởng nhóm quản lý ${managedTeamIds.length} nhóm với ${teamMemberIds.length} thành viên`, LogLevel.DETAILED);
-            
-            // Lọc công việc theo tiêu chí:
-            filteredTasksForRole = rawTasksData.filter(task => {
-              // 1. Công việc của bản thân
-              if (task.assignedTo === userId || task.user_id === userId) {
-                permissionLog(`Task ${task.id}: Được phân công cho trưởng nhóm`, LogLevel.DETAILED);
-                return true;
               }
-              
-              // 2. Công việc của nhóm mình
-              if (task.teamId && managedTeamIds.includes(task.teamId)) {
-                permissionLog(`Task ${task.id}: Thuộc nhóm của trưởng nhóm`, LogLevel.DETAILED);
-                return true;
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
-              }
-              
-              // 3. Công việc được admin giao
-              const creator = users.find(u => u.id === task.user_id);
-              if (creator && isAdmin(creator.id) && task.assignedTo === userId) {
-                permissionLog(`Task ${task.id}: Được giao bởi Admin`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 4. Người dùng được thêm làm người thực hiện cùng
-              const extraAssignees = task.extraAssignees || [];
-              if (Array.isArray(extraAssignees) && extraAssignees.includes(userId)) {
-                permissionLog(`Task ${task.id}: Trưởng nhóm là người thực hiện cùng`, LogLevel.DETAILED);
-                return true;
-              }
-              
               return false;
             });
-          } 
-          // Nếu là nhân viên thường
-          else {
-            permissionLog(`Người dùng ${currentUser.name} là nhân viên - xem công việc liên quan`, LogLevel.BASIC);
-            
-            // Tìm thông tin nhóm của nhân viên
-            const userTeamId = currentUser.team_id;
-            
-            // Lọc công việc theo tiêu chí:
-            filteredTasksForRole = rawTasksData.filter(task => {
-              // 1. Công việc của bản thân
-              if (task.assignedTo === userId || task.user_id === userId) {
-                permissionLog(`Task ${task.id}: Được phân công cho nhân viên`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 2. Công việc chung được chia sẻ bởi admin
-              const creator = users.find(u => u.id === task.user_id);
-              if (creator && isAdmin(creator.id) && task.isShared) {
-                permissionLog(`Task ${task.id}: Công việc chung được chia sẻ bởi Admin`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 3. Công việc trong nhóm (khi được chỉ định)
-              if (task.teamId === userTeamId && (
-                task.isSharedWithTeam || // Nếu công việc được chia sẻ với cả nhóm
-                task.assignedTo === userId || // Hoặc được giao trực tiếp
-                (task.extraAssignees && Array.isArray(task.extraAssignees) && task.extraAssignees.includes(userId)) // Hoặc được thêm làm người thực hiện
-              )) {
-                permissionLog(`Task ${task.id}: Công việc nhóm có liên quan đến nhân viên`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 4. Người dùng được thêm làm người thực hiện cùng
-              const extraAssignees = task.extraAssignees || [];
-              if (Array.isArray(extraAssignees) && extraAssignees.includes(userId)) {
-                permissionLog(`Task ${task.id}: Nhân viên là người thực hiện cùng`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              return false;
-            });
+          } else {
+            filteredTasksForRole = tasksData.filter(task => task.assignedTo === userId);
           }
-          
-<<<<<<< HEAD
-          tasksData = filteredTasksForRole;
-=======
-          permissionLog(`Tìm thấy ${filteredTasksForRole.length}/${rawTasksData.length} công việc phù hợp với quyền của người dùng`, LogLevel.BASIC);
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+          tasksData = filteredTasksForRole; 
         } else if (!currentUser) {
-          permissionLog(`Không có người dùng đăng nhập - không hiển thị công việc nào`, LogLevel.BASIC);
-          filteredTasksForRole = [];
+          tasksData = [];
         }
-<<<<<<< HEAD
-=======
-        // === END: LOGIC LỌC PHÂN QUYỀN MỚI ===
+        // === END: LOGIC LỌC PHÂN QUYỀN ===
 
-        // Lưu dữ liệu đã lọc phân quyền vào localStorage
-        saveFilteredTasks(filteredTasksForRole);
-        
-        // Cập nhật state với dữ liệu đã lọc
-        setTasks(filteredTasksForRole);
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+        setTasks(tasksData); // Cập nhật state với dữ liệu đã lọc
+        saveLocalTasks(tasksData); // Lưu dữ liệu đã lọc vào local storage
 
-        setTasks(tasksData);
-        saveLocalTasks(tasksData);
       } catch (error) {
         console.error('Lỗi khi khởi tạo dữ liệu công việc:', error);
         toast({
@@ -420,39 +192,24 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
         setIsLoading(false);
       }
     };
-
+    
     initialize();
-
+    
     // Thiết lập đồng bộ định kỳ mỗi 30 giây
     const syncInterval = setInterval(() => {
       if (firebaseService.isConfigured() && !isLoading) {
         refreshTasks();
       }
-    }, 30000);
-
+    }, 30000); // 30 giây
+    
     return () => clearInterval(syncInterval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toast, currentUser, users, teams]);
+  }, [toast]);
 
   // Thêm công việc mới
-<<<<<<< HEAD
-  const addTask = async (task: any) => {
-    const newTask = {
-=======
   const addTask = async (task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>): Promise<Task> => {
-    // Kiểm tra quyền trước khi thêm công việc mới
-    if (!currentUser) {
-      throw new Error("Bạn cần đăng nhập để thêm công việc mới");
-    }
-    
-    // Tạo ID duy nhất cho công việc mới
-    const uniqueId = `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    
-    // Xây dựng đối tượng công việc đầy đủ thông tin
     const newTask: Task = {
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
       ...task,
-      id: uniqueId,
+      id: `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       title: task.title,
       description: task.description,
       type: task.type,
@@ -460,619 +217,461 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
       status: task.status,
       progress: typeof task.progress === 'number' ? task.progress : 0,
       isNew: true,
-<<<<<<< HEAD
-      location: task.location || currentUser?.location || '',
-      teamId: task.teamId || currentUser?.team_id || '',
+      location: task.location || (currentUser?.location || ''),
+      teamId: task.teamId || (currentUser?.team_id || ''),
       assignedTo: task.assignedTo || currentUser?.id || '',
       user_id: currentUser?.id || '',
       user_name: currentUser?.name || '',
-=======
-      location: task.location || (currentUser?.location || ''),
-      teamId: task.teamId || (currentUser?.team_id || ''),
-      assignedTo: task.assignedTo || currentUser.id,
-      user_id: currentUser.id,
-      user_name: currentUser.name || '',
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
       created_at: new Date().toISOString(),
-      time: task.time || '',
-      // Mặc định không chia sẻ công việc trừ khi có chỉ định
-      isShared: task.isShared || false,
-      isSharedWithTeam: task.isSharedWithTeam || false,
-      // Xử lý trường extraAssignees để tránh lỗi kiểu dữ liệu
-      extraAssignees: task.extraAssignees ? JSON.stringify(task.extraAssignees) : ''
+      time: task.time || ''
     };
-<<<<<<< HEAD
-
+    
     console.log('Thêm công việc mới:', newTask);
+    
     const updatedTasks = [...tasks, newTask];
     setTasks(updatedTasks);
     saveLocalTasks(updatedTasks);
-
+    
     // Lưu vào Firebase nếu đã cấu hình
     if (firebaseService.isConfigured()) {
       try {
         console.log('Bắt đầu lưu công việc vào Firebase...');
         await firebaseService.saveTask(newTask);
         console.log('Lưu công việc vào Firebase thành công');
+        
+        // Tự động làm mới dữ liệu sau khi thêm công việc mới thành công
+        console.log('Bắt đầu làm mới dữ liệu từ Firebase...');
+        setTimeout(async () => {
+          try {
+            const firestoreData = await firebaseService.getTasks();
+            if (Array.isArray(firestoreData) && firestoreData.length > 0) {
+              // Kiểm tra xem dữ liệu có phải là dữ liệu mẫu không
+              const isMockData = firestoreData.some(task => 
+                String(task.id)?.includes('task_1') || 
+                String(task.id)?.includes('task_2') || 
+                String(task.id)?.includes('task_3')
+              );
+              
+              // Chỉ cập nhật khi không phải là dữ liệu mẫu
+              if (!isMockData) {
+                console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
+                const convertedTasks = convertFirebaseTasks(firestoreData);
+                
+                // Đảm bảo công việc mới vẫn còn trong danh sách
+                if (!convertedTasks.some(t => t.id === newTask.id)) {
+                  convertedTasks.push(newTask);
+                }
+                
+                setTasks(convertedTasks);
+                saveLocalTasks(convertedTasks);
+                toast({
+                  title: "Đã thêm công việc mới",
+                  description: "Công việc đã được thêm và đồng bộ thành công với Firebase"
+                });
+              } else {
+                console.log('Đang sử dụng dữ liệu mẫu, giữ nguyên công việc mới đã thêm');
+                toast({
+                  title: "Đã thêm công việc mới",
+                  description: "Công việc đã được thêm nhưng đang ở chế độ ngoại tuyến"
+                });
+              }
+            } else {
+              console.warn('Không lấy được dữ liệu mới từ Firebase sau khi thêm');
+            }
+          } catch (refreshError) {
+            console.error('Lỗi khi làm mới dữ liệu sau khi thêm:', refreshError);
+            // Khi có lỗi, giữ nguyên công việc đã thêm
+            toast({
+              title: "Lưu ý",
+              description: "Công việc đã được thêm nhưng chưa đồng bộ được với Firebase"
+            });
+          }
+        }, 2000); // Chờ 2 giây để Google Sheets có thời gian xử lý
       } catch (error) {
         console.error('Lỗi khi lưu công việc vào Firebase:', error);
         toast({
           title: "Cảnh báo",
-          description: "Công việc đã được lưu cục bộ nhưng chưa đồng bộ với Firebase.",
+          description: "Công việc đã được lưu cục bộ nhưng chưa đồng bộ với Google Sheets.",
           variant: "warning"
         });
-=======
-    
-    permissionLog(`Người dùng ${currentUser.name} (${currentUser.id}) đang thêm công việc mới ID: ${uniqueId}`, LogLevel.DETAILED);
-    console.log('Thêm công việc mới:', newTask);
-    
-    try {
-      // Cập nhật trạng thái và lưu trữ
-      const updatedTasks = [...tasks, newTask];
-      setTasks(updatedTasks);
-      
-      // Lưu vào bộ nhớ gốc
-      saveRawTasks(updatedTasks);
-      // Lưu vào bộ nhớ đã lọc
-      saveFilteredTasks(updatedTasks);
-      
-      // Lưu vào Firebase nếu đã cấu hình
-      if (firebaseService.isConfigured()) {
-        try {
-          console.log('Bắt đầu lưu công việc vào Firebase...');
-          await firebaseService.saveTask(newTask);
-          console.log('Lưu công việc vào Firebase thành công');
-          
-          // Tự động làm mới dữ liệu sau khi thêm công việc mới thành công
-          console.log('Bắt đầu làm mới dữ liệu từ Firebase...');
-          setTimeout(async () => {
-            try {
-              const firestoreData = await firebaseService.getTasks();
-              if (Array.isArray(firestoreData) && firestoreData.length > 0) {
-                // Kiểm tra xem dữ liệu có phải là dữ liệu mẫu không
-                const isMockData = firestoreData.some(task => 
-                  String(task.id)?.includes('task_1') || 
-                  String(task.id)?.includes('task_2') || 
-                  String(task.id)?.includes('task_3')
-                );
-                
-                // Chỉ cập nhật khi không phải là dữ liệu mẫu
-                if (!isMockData) {
-                  console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
-                  const convertedTasks = convertFirebaseTasks(firestoreData);
-                  
-                  // Đảm bảo công việc mới vẫn còn trong danh sách
-                  if (!convertedTasks.some(t => t.id === newTask.id)) {
-                    convertedTasks.push(newTask);
-                  }
-                  
-                  setTasks(convertedTasks);
-                  // Lưu vào bộ nhớ gốc
-                  saveRawTasks(convertedTasks);
-                  // Lưu vào bộ nhớ đã lọc
-                  saveFilteredTasks(convertedTasks);
-                  toast({
-                    title: "Đã thêm công việc mới",
-                    description: "Công việc đã được thêm và đồng bộ thành công với Firebase"
-                  });
-                } else {
-                  console.log('Đang sử dụng dữ liệu mẫu, giữ nguyên công việc mới đã thêm');
-                  toast({
-                    title: "Đã thêm công việc mới",
-                    description: "Công việc đã được thêm nhưng đang ở chế độ ngoại tuyến"
-                  });
-                }
-              } else {
-                console.warn('Không lấy được dữ liệu mới từ Firebase sau khi thêm');
-              }
-            } catch (refreshError) {
-              console.error('Lỗi khi làm mới dữ liệu sau khi thêm:', refreshError);
-              // Khi có lỗi, giữ nguyên công việc đã thêm
-              toast({
-                title: "Lưu ý",
-                description: "Công việc đã được thêm nhưng chưa đồng bộ được với Firebase"
-              });
-            }
-          }, 2000); // Chờ 2 giây để Google Sheets có thời gian xử lý
-        } catch (error) {
-          console.error('Lỗi khi lưu công việc vào Firebase:', error);
-          toast({
-            title: "Cảnh báo",
-            description: "Công việc đã được lưu cục bộ nhưng chưa đồng bộ với Google Sheets.",
-            variant: "warning"
-          });
-        }
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
       }
-      
-      // Hiển thị thông báo thành công
-      toast({
-        title: "Đã thêm công việc mới",
-        description: "Công việc đã được thêm thành công"
-      });
-      
-      return newTask;
-    } catch (error) {
-      console.error('Lỗi khi thêm công việc mới:', error);
-      toast({
-        title: "Lỗi",
-        description: `Không thể thêm công việc mới: ${error.message || 'Lỗi không xác định'}`,
-        variant: "destructive"
-      });
-      throw error;
     }
-
+    
     return newTask;
   };
 
-  // Cập nhật công việc
-<<<<<<< HEAD
-  const updateTask = async (id: string, updates: any) => {
-    const taskIndex = tasks.findIndex((task) => task.id === id);
-    if (taskIndex === -1) {
-      throw new Error("Không tìm thấy công việc để cập nhật");
-    }
-
-    const updatedTask = {
-      ...tasks[taskIndex],
-      ...updates
-    };
-
-    const updatedTasks = [...tasks];
-    updatedTasks[taskIndex] = updatedTask;
-    setTasks(updatedTasks);
-    saveLocalTasks(updatedTasks);
-
-    // Cập nhật vào Firebase nếu đã cấu hình
-    if (firebaseService.isConfigured()) {
-      try {
-        await firebaseService.updateTask(updatedTask);
-      } catch (error) {
-        console.error('Lỗi khi cập nhật công việc vào Firebase:', error);
-        toast({
-          title: "Cảnh báo",
-          description: "Công việc đã được cập nhật cục bộ nhưng chưa đồng bộ với Firebase.",
-          variant: "warning"
-        });
-      }
-    }
-
-    return updatedTask;
-  };
-
-  // Xóa công việc
-  const deleteTask = async (id: string) => {
-    const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
-    saveLocalTasks(updatedTasks);
-
-    // Xóa từ Firebase nếu đã cấu hình
-    if (firebaseService.isConfigured()) {
-      try {
-        await firebaseService.deleteTask(id);
-      } catch (error) {
-        console.error('Lỗi khi xóa công việc từ Firebase:', error);
-        toast({
-          title: "Cảnh báo",
-          description: "Công việc đã được xóa cục bộ nhưng chưa đồng bộ với Firebase.",
-          variant: "warning"
-        });
-      }
-    }
-
-    return true;
-=======
-  const updateTask = async (id: string, updates: Partial<Task>): Promise<Task> => {
-    // Kiểm tra quyền trước khi cập nhật công việc
-    if (!currentUser) {
-      throw new Error("Bạn cần đăng nhập để cập nhật công việc");
+  // Kiểm tra quyền cập nhật công việc
+  const canUpdateTask = (task: Task): boolean => {
+    if (!currentUser || !users || !teams) return false;
+    
+    const userRole = currentUser.role;
+    const userId = currentUser.id;
+    const userName = currentUser.name;
+    
+    // Khổng Đức Mạnh có thể cập nhật tất cả công việc
+    if (userName === 'Khổng Đức Mạnh' || userRole === 'retail_director') {
+      return true;
     }
     
-    // Tìm công việc cần cập nhật
+    // Người dùng là người tạo công việc
+    if (task.user_id === userId) {
+      return true;
+    }
+    
+    // Người dùng là người được giao công việc
+    if (task.assignedTo === userId) {
+      return true;
+    }
+    
+    // Người dùng là team leader của nhóm công việc
+    if (userRole === 'team_leader') {
+      // Tìm các nhóm do người này quản lý
+      const managedTeams = teams.filter(team => team.leader_id === userId);
+      const managedTeamIds = managedTeams.map(team => team.id);
+      
+      // Công việc thuộc nhóm của leader
+      if (task.teamId && managedTeamIds.includes(task.teamId)) {
+        return true;
+      }
+    }
+    
+    // Người dùng là người thực hiện thêm trong danh sách
+    const extraAssignees = task.extraAssignees || [];
+    if (extraAssignees.includes(userId)) {
+      return true;
+    }
+    
+    return false;
+  };
+
+  // Cập nhật công việc
+  const updateTask = async (id: string, updates: Partial<Task>): Promise<Task> => {
     const taskIndex = tasks.findIndex(task => task.id === id);
     if (taskIndex === -1) {
       throw new Error("Không tìm thấy công việc để cập nhật");
     }
     
-    const taskToUpdate = tasks[taskIndex];
-    
-    // Kiểm tra quyền cập nhật công việc
-    const userRole = currentUser.role;
-    const userId = currentUser.id;
-    
-    // Kiểm tra xem người dùng có quyền cập nhật không
-    const isOwner = taskToUpdate.user_id === userId || taskToUpdate.assignedTo === userId;
-    const isTeamLead = isTeamLeader(userRole) && taskToUpdate.teamId === currentUser.team_id;
-    const isDirectorOrAdmin = isDirector(userRole) || isAdmin(userId);
-    
-    if (!isOwner && !isTeamLead && !isDirectorOrAdmin) {
-      permissionLog(`Người dùng ${currentUser.name} (${userId}) không có quyền cập nhật công việc ID: ${id}`, LogLevel.DETAILED);
-      throw new Error("Bạn không có quyền cập nhật công việc này");
-    }
-    
-    permissionLog(`Người dùng ${currentUser.name} (${userId}) đang cập nhật công việc ID: ${id}`, LogLevel.DETAILED);
-    
-    try {
-      // Xử lý extraAssignees nếu có trong cập nhật
-      if (updates.extraAssignees && Array.isArray(updates.extraAssignees)) {
-        updates.extraAssignees = JSON.stringify(updates.extraAssignees);
-      }
-      
-      // Tạo bản sao cập nhật
-      const updatedTask = { ...taskToUpdate, ...updates };
-      const updatedTasks = [...tasks];
-      updatedTasks[taskIndex] = updatedTask;
-      
-      // Cập nhật trạng thái và lưu trữ
-      setTasks(updatedTasks);
-      // Lưu vào bộ nhớ gốc
-      saveRawTasks(updatedTasks);
-      // Lưu vào bộ nhớ đã lọc
-      saveFilteredTasks(updatedTasks);
-      
-      // Cập nhật vào Firebase nếu đã cấu hình
-      if (firebaseService.isConfigured()) {
-        try {
-          await firebaseService.updateTask(updatedTask);
-          toast({
-            title: "Đã cập nhật công việc",
-            description: "Công việc đã được cập nhật và đồng bộ thành công"
-          });
-        } catch (error) {
-          console.error('Lỗi khi cập nhật công việc vào Firebase:', error);
-          toast({
-            title: "Cảnh báo",
-            description: "Công việc đã được cập nhật cục bộ nhưng chưa đồng bộ với Firebase.",
-            variant: "warning"
-          });
-        }
-      } else {
-        toast({
-          title: "Đã cập nhật công việc",
-          description: "Công việc đã được cập nhật thành công"
-        });
-      }
-      
-      return updatedTask;
-    } catch (error) {
-      console.error('Lỗi khi cập nhật công việc:', error);
+    // Kiểm tra quyền cập nhật
+    if (!canUpdateTask(tasks[taskIndex])) {
       toast({
-        title: "Lỗi",
-        description: `Không thể cập nhật công việc: ${error.message || 'Lỗi không xác định'}`,
+        title: "Không có quyền",
+        description: "Bạn không có quyền cập nhật công việc này.",
         variant: "destructive"
       });
-      throw error;
+      throw new Error("Không có quyền cập nhật công việc này");
     }
+    
+    const updatedTask = { ...tasks[taskIndex], ...updates };
+    const updatedTasks = [...tasks];
+    updatedTasks[taskIndex] = updatedTask;
+    
+    setTasks(updatedTasks);
+    saveLocalTasks(updatedTasks);
+    
+    // Cập nhật vào Google Sheets nếu đã cấu hình
+    if (firebaseService.isConfigured()) {
+      try {
+        await firebaseService.updateTask(updatedTask);
+      } catch (error) {
+        console.error('Lỗi khi cập nhật công việc vào Google Sheets:', error);
+        toast({
+          title: "Cảnh báo",
+          description: "Công việc đã được cập nhật cục bộ nhưng chưa đồng bộ với Google Sheets.",
+          variant: "warning"
+        });
+      }
+    }
+    
+    return updatedTask;
   };
 
   // Xóa công việc
   const deleteTask = async (id: string): Promise<boolean> => {
-    // Kiểm tra quyền trước khi xóa công việc
-    if (!currentUser) {
-      throw new Error("Bạn cần đăng nhập để xóa công việc");
-    }
-    
-    // Tìm công việc cần xóa
-    const taskToDelete = tasks.find(task => task.id === id);
-    
-    if (!taskToDelete) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) {
       throw new Error("Không tìm thấy công việc để xóa");
     }
     
-    // Kiểm tra quyền xóa công việc
-    const userRole = currentUser.role;
-    const userId = currentUser.id;
-    
-    // Chỉ người tạo, trưởng nhóm, giám đốc hoặc admin mới có quyền xóa
-    const isOwner = taskToDelete.user_id === userId;
-    const isTeamLead = isTeamLeader(userRole) && taskToDelete.teamId === currentUser.team_id;
-    const isDirectorOrAdmin = isDirector(userRole) || isAdmin(userId);
-    
-    if (!isOwner && !isTeamLead && !isDirectorOrAdmin) {
-      permissionLog(`Người dùng ${currentUser.name} (${userId}) không có quyền xóa công việc ID: ${id}`, LogLevel.DETAILED);
-      throw new Error("Bạn không có quyền xóa công việc này");
-    }
-    
-    permissionLog(`Người dùng ${currentUser.name} (${userId}) đang xóa công việc ID: ${id}`, LogLevel.DETAILED);
-    
-    try {
-      // Lọc công việc khỏi danh sách
-      const updatedTasks = tasks.filter(task => task.id !== id);
-      
-      // Cập nhật trạng thái và lưu trữ
-      setTasks(updatedTasks);
-      // Lưu vào bộ nhớ gốc
-      saveRawTasks(updatedTasks);
-      // Lưu vào bộ nhớ đã lọc
-      saveFilteredTasks(updatedTasks);
-      
-      // Xóa từ Firebase nếu đã cấu hình
-      if (firebaseService.isConfigured()) {
-        try {
-          await firebaseService.deleteTask(id);
-          toast({
-            title: "Đã xóa công việc",
-            description: "Công việc đã được xóa và đồng bộ thành công"
-          });
-        } catch (error) {
-          console.error('Lỗi khi xóa công việc từ Firebase:', error);
-          toast({
-            title: "Cảnh báo",
-            description: "Công việc đã được xóa cục bộ nhưng chưa đồng bộ với Firebase.",
-            variant: "warning"
-          });
-        }
-      } else {
-        toast({
-          title: "Đã xóa công việc",
-          description: "Công việc đã được xóa thành công"
-        });
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Lỗi khi xóa công việc:', error);
+    // Kiểm tra quyền xóa (chỉ người tạo hoặc admin mới được xóa)
+    if (!canUpdateTask(task)) {
       toast({
-        title: "Lỗi",
-        description: `Không thể xóa công việc: ${error.message || 'Lỗi không xác định'}`,
+        title: "Không có quyền",
+        description: "Bạn không có quyền xóa công việc này.",
         variant: "destructive"
       });
-      return false;
+      throw new Error("Không có quyền xóa công việc này");
     }
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+    
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    saveLocalTasks(updatedTasks);
+    
+    // Xóa từ Google Sheets nếu đã cấu hình
+    if (firebaseService.isConfigured()) {
+      try {
+        await firebaseService.deleteTask(id);
+      } catch (error) {
+        console.error('Lỗi khi xóa công việc từ Google Sheets:', error);
+        toast({
+          title: "Cảnh báo",
+          description: "Công việc đã được xóa cục bộ nhưng chưa đồng bộ với Google Sheets.",
+          variant: "warning"
+        });
+      }
+    }
+    
+    return true;
   };
 
   // Cập nhật trạng thái công việc
-  const updateTaskStatus = async (id: string, status: string) => {
+  const updateTaskStatus = async (id: string, status: 'todo' | 'in-progress' | 'on-hold' | 'completed'): Promise<Task> => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) {
+      throw new Error("Không tìm thấy công việc để cập nhật trạng thái");
+    }
+    
+    // Kiểm tra quyền cập nhật
+    if (!canUpdateTask(task)) {
+      toast({
+        title: "Không có quyền",
+        description: "Bạn không có quyền thay đổi trạng thái công việc này.",
+        variant: "destructive"
+      });
+      throw new Error("Không có quyền thay đổi trạng thái công việc này");
+    }
+    
     return await updateTask(id, { status });
   };
 
   // Làm mới danh sách công việc
-  const refreshTasks = async () => {
+  const refreshTasks = async (): Promise<void> => {
     setIsLoading(true);
+    
     try {
-<<<<<<< HEAD
-      let tasksData = [];
-      
+      let tasksData: Task[] = []; // Khởi tạo tasksData
       if (firebaseService.isConfigured()) {
         const firestoreData = await firebaseService.getTasks();
         if (Array.isArray(firestoreData) && firestoreData.length > 0) {
           const convertedTasks = convertFirebaseTasks(firestoreData);
-          tasksData = convertedTasks;
-=======
-      // Lấy dữ liệu gốc từ Firebase hoặc local storage
-      let rawTasksData: Task[] = [];
-      
-      // Ưu tiên lấy dữ liệu từ Firebase nếu được cấu hình
-      if (firebaseService.isConfigured()) {
-        try {
-          console.log('Đang làm mới dữ liệu từ Firebase...');
-          const firestoreData = await firebaseService.getTasks();
-          if (Array.isArray(firestoreData) && firestoreData.length > 0) {
-            console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
-            const convertedTasks = convertFirebaseTasks(firestoreData);
-            rawTasksData = convertedTasks;
-            // Lưu dữ liệu gốc mới từ Firebase
-            saveRawTasks(rawTasksData);
-          } else {
-            console.log('Không có dữ liệu từ Firebase, sử dụng dữ liệu local');
-            // Lấy từ local storage nếu không có từ Firebase
-            rawTasksData = getRawTasks();
-          }
-        } catch (error) {
-          console.error('Lỗi khi làm mới dữ liệu từ Firebase:', error);
-          // Lấy từ local storage nếu có lỗi
-          rawTasksData = getRawTasks();
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+          // setTasks(convertedTasks);
+          // saveLocalTasks(convertedTasks);
+          tasksData = convertedTasks; // Gán dữ liệu thô vào tasksData
+          // toast({
+          //   title: "Làm mới thành công",
+          //   description: "Dữ liệu công việc đã được cập nhật từ Google Sheets"
+          // });
+          // return;
+        } else {
+          // Nếu không có data từ sheet, vẫn có thể có từ local
         }
-      } else {
-        // Nếu không có cấu hình Firebase, lấy từ local storage
-        rawTasksData = getRawTasks();
       }
-<<<<<<< HEAD
-
+      
+      // Nếu không lấy được từ Google Sheets hoặc sheets không có data, lấy từ local storage
       if (tasksData.length === 0) {
         const localTasks = getLocalTasks();
-        tasksData = localTasks;
+        tasksData = localTasks; // Gán dữ liệu thô từ local
       }
 
-      // Áp dụng logic lọc phân quyền tương tự như initialize
-      let filteredTasksForRole = [];
-      if (currentUser && users && teams) {
-        const userRole = currentUser.role;
-        const userId = currentUser.id;
-        
-        if (userRole === 'employee') {
-          filteredTasksForRole = tasksData.filter(task => task.assignedTo === userId);
-        } else if (userRole === 'team_leader') {
-          const managedTeams = teams.filter(team => team.leader_id === userId);
-          const managedTeamIds = managedTeams.map(team => team.id);
-          const teamMemberIds = users.filter(user => user.team_id && managedTeamIds.includes(user.team_id)).map(user => user.id);
-          const allVisibleUserIds = [...new Set([userId, ...teamMemberIds])];
-          
-          filteredTasksForRole = tasksData.filter(task => 
-            (task.assignedTo && allVisibleUserIds.includes(task.assignedTo)) ||
-            (task.teamId && managedTeamIds.includes(task.teamId))
-          );
-        } else if (userRole === 'retail_director' || userRole === 'project_director') {
-          const directorDepartment = currentUser.department;
-          filteredTasksForRole = tasksData.filter(task => {
-            if (task.assignedTo) {
-              const assignedUser = users.find(u => u.id === task.assignedTo);
-              return assignedUser && assignedUser.department === directorDepartment;
-            }
-            if (task.teamId) {
-              const taskTeam = teams.find(t => t.id === task.teamId);
-              return taskTeam && taskTeam.department === directorDepartment;
-=======
-      
-      // === LỌC PHÂN QUYỀN ===
-      let filteredTasksForRole: Task[] = [];
-      
-      if (currentUser && users && teams) {
-        permissionLog(`Đang lọc phân quyền cho người dùng: ${currentUser.name} (${currentUser.id}) - Vai trò: ${currentUser.role}`, LogLevel.BASIC);
-        const userRole = currentUser.role;
-        const userId = currentUser.id;
-        const userLocation = currentUser.location;
+      // === START: LOGIC LỌC PHÂN QUYỀN MỚI ===
+    let filteredTasksForRole: Task[] = [];
+    if (currentUser && users && teams) {
+      const userRole = currentUser.role;
+      const userId = currentUser.id;
+      const userName = currentUser.name;
 
-        // 1. Retail Director (xem tất cả công việc của công ty)
-        if (userRole === 'retail_director' || isAdmin(userId)) {
-          permissionLog(`Người dùng ${currentUser.name} là Retail Director hoặc Admin - xem tất cả công việc`, LogLevel.BASIC);
-          // Admin hoặc Retail Director xem tất cả công việc
-          filteredTasksForRole = rawTasksData;
-        }
-        // 2. Trưởng nhóm (Team Leader)
-        else if (userRole === 'team_leader') {
-          permissionLog(`Người dùng ${currentUser.name} là Trưởng nhóm - xem công việc của nhóm`, LogLevel.BASIC);
-          
-          // Tìm nhóm do người này quản lý
-          const teamLedByUser = teams.find(team => team.leader_id === userId);
-          if (teamLedByUser) {
-            // Lấy ID của nhóm do người này quản lý
-            const teamId = teamLedByUser.id;
-            
-            // Lấy danh sách thành viên trong nhóm (từ danh sách users với team_id phù hợp)
-            const teamMemberIds = users
-              .filter(user => user.team_id === teamId)
-              .map(user => user.id);
-            
-            permissionLog(`Trưởng nhóm quản lý nhóm ${teamLedByUser.name} với ${teamMemberIds.length} thành viên`, LogLevel.DETAILED);
-            
-            // Lọc công việc theo tiêu chí:
-            filteredTasksForRole = rawTasksData.filter(task => {
-              // 1. Công việc của bản thân
-              if (task.assignedTo === userId || task.user_id === userId) {
-                permissionLog(`Task ${task.id}: Được phân công cho trưởng nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 2. Công việc của nhóm mình
-              if (task.teamId === teamId) {
-                permissionLog(`Task ${task.id}: Thuộc nhóm của trưởng nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 3. Công việc của thành viên trong nhóm
-              if (task.user_id && teamMemberIds.includes(task.user_id)) {
-                permissionLog(`Task ${task.id}: Tạo bởi thành viên trong nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              if (task.assignedTo && teamMemberIds.includes(task.assignedTo)) {
-                permissionLog(`Task ${task.id}: Giao cho thành viên trong nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 4. Công việc được Retail Director giao
-              const creator = users.find(u => u.id === task.user_id);
-              if (creator && (creator.role === 'retail_director' || isAdmin(creator.id)) && task.assignedTo === userId) {
-                permissionLog(`Task ${task.id}: Được giao bởi Retail Director hoặc Admin`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              return false;
-            });
-          } else {
-            permissionLog(`Không tìm thấy nhóm do người dùng ${currentUser.name} quản lý`, LogLevel.BASIC);
+      // Nếu là Khổng Đức Mạnh - xem được tất cả công việc
+      if (userName === 'Khổng Đức Mạnh') {
+        filteredTasksForRole = tasksData;
+      } 
+      // Nếu là Trưởng nhóm
+      else if (userRole === 'team_leader') {
+        // Tìm các nhóm do người này quản lý
+        const managedTeams = teams.filter(team => team.leader_id === userId);
+        const managedTeamIds = managedTeams.map(team => team.id);
+        
+        // Tìm các thành viên trong nhóm
+        const teamMemberIds = users
+          .filter(user => user.team_id && managedTeamIds.includes(user.team_id))
+          .map(user => user.id);
+        
+        // Lọc công việc theo tiêu chí:
+        filteredTasksForRole = tasksData.filter(task => {
+          // 1. Công việc của bản thân
+          if (task.assignedTo === userId || task.user_id === userId) {
+            return true;
           }
-        } 
-        // 3. Nhân viên (Employee)
-        else if (userRole === 'employee') {
-          permissionLog(`Người dùng ${currentUser.name} là nhân viên - xem công việc liên quan`, LogLevel.BASIC);
           
-          // Tìm thông tin nhóm của nhân viên
-          const userTeam = teams.find(team => {
-            // Tìm các user thuộc team này
-            const teamMembers = users.filter(user => user.team_id === team.id);
-            // Kiểm tra xem user hiện tại có trong team không
-            return teamMembers.some(member => member.id === userId);
-          });
-          const userTeamId = userTeam?.id || '';
-          const teamLeaderId = userTeam?.leader_id || '';
+          // 2. Công việc của nhóm mình
+          if (task.teamId && managedTeamIds.includes(task.teamId)) {
+            return true;
+          }
           
-          permissionLog(`Nhân viên thuộc nhóm: ${userTeam?.name || 'Không có nhóm'}`, LogLevel.DETAILED);
+          // 3. Công việc được Khổng Đức Mạnh giao
+          const creator = users.find(u => u.id === task.user_id);
+          if (creator && creator.name === 'Khổng Đức Mạnh' && task.assignedTo === userId) {
+            return true;
+          }
           
-          // Lọc công việc theo tiêu chí:
-          filteredTasksForRole = rawTasksData.filter(task => {
-            permissionLog(`Đang kiểm tra quyền xem Task ${task.id}...`, LogLevel.DETAILED);
-            
-            // 1. Công việc được giao cho nhân viên
-            if (task.assignedTo === userId) {
-              permissionLog(`Task ${task.id}: Được phân công cho nhân viên`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            // 2. Công việc do nhân viên tạo
-            if (task.user_id === userId) {
-              permissionLog(`Task ${task.id}: Được tạo bởi nhân viên`, LogLevel.DETAILED);
-              return true;
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
-            }
-            
-            // 3. Công việc được Retail Director giao (và có đánh dấu chia sẻ)
-            const creator = users.find(u => u.id === task.user_id);
-            if (creator && creator.role === 'retail_director' && task.isShared === true) {
-              permissionLog(`Task ${task.id}: Công việc chung được chia sẻ bởi Retail Director`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            // 4. Công việc được Trưởng nhóm của mình giao
-            if (teamLeaderId && task.user_id === teamLeaderId && task.assignedTo === userId) {
-              permissionLog(`Task ${task.id}: Được giao bởi Trưởng nhóm`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            // 5. Công việc được chia sẻ với nhóm (chỉ khi nhân viên thuộc nhóm đó và có đánh dấu chia sẻ)
-            if (userTeamId && task.teamId === userTeamId && task.isSharedWithTeam === true) {
-              permissionLog(`Task ${task.id}: Công việc được chia sẻ với nhóm của nhân viên`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            permissionLog(`Task ${task.id}: Không đủ quyền xem`, LogLevel.DETAILED);
-            return false;
-          });
-        }
-<<<<<<< HEAD
+          // 4. Người dùng được thêm làm người thực hiện cùng
+          const extraAssignees = task.extraAssignees || [];
+          if (extraAssignees.includes(userId)) {
+            return true;
+          }
+          
+          return false;
+        });
+      } 
+      // Nếu là nhân viên
+      else if (userRole === 'employee') {
+        // Tìm thông tin nhóm của nhân viên
+        const userTeamId = currentUser.team_id;
+        const teamMembers = userTeamId ? users.filter(u => u.team_id === userTeamId).map(u => u.id) : [];
         
-        tasksData = filteredTasksForRole;
-=======
-        // Vai trò khác
-        else {
-          permissionLog(`Người dùng ${currentUser.name} có vai trò không xác định: ${userRole} - chỉ xem công việc cá nhân`, LogLevel.BASIC);
+        // Lọc công việc theo tiêu chí:
+        filteredTasksForRole = tasksData.filter(task => {
+          // 1. Công việc của bản thân
+          if (task.assignedTo === userId || task.user_id === userId) {
+            return true;
+          }
           
-          // Chỉ xem công việc cá nhân
-          filteredTasksForRole = rawTasksData.filter(task => 
-            task.assignedTo === userId || task.user_id === userId
-          );
-        }
-        
-        permissionLog(`Tìm thấy ${filteredTasksForRole.length}/${rawTasksData.length} công việc phù hợp với quyền của người dùng`, LogLevel.BASIC);
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
-      } else if (!currentUser) {
-        permissionLog(`Không có người dùng đăng nhập - không hiển thị công việc nào`, LogLevel.BASIC);
-        filteredTasksForRole = [];
+          // 2. Công việc chung được Khổng Đức Mạnh chọn
+          const creator = users.find(u => u.id === task.user_id);
+          if (creator && creator.name === 'Khổng Đức Mạnh' && task.isShared) {
+            return true;
+          }
+          
+          // 3. Công việc trong nhóm (khi được chỉ định)
+          if (task.teamId === userTeamId && (
+            task.isSharedWithTeam || // Nếu công việc được chia sẻ với cả nhóm
+            task.assignedTo === userId || // Hoặc được giao trực tiếp
+            (task.extraAssignees && Array.isArray(task.extraAssignees) && task.extraAssignees.includes(userId)) // Hoặc được thêm làm người thực hiện
+          )) {
+            return true;
+          }
+          
+          // 4. Người dùng được thêm làm người thực hiện cùng
+          const extraAssignees = task.extraAssignees || [];
+          if (extraAssignees.includes(userId)) {
+            return true;
+          }
+          
+          return false;
+        });
+      } 
+      // Các vai trò director vẫn giữ nguyên
+      else if (userRole === 'retail_director' || userRole === 'project_director') {
+        const directorDepartment = currentUser.department;
+        filteredTasksForRole = tasksData.filter(task => {
+          if (task.assignedTo) {
+            const assignedUser = users.find(u => u.id === task.assignedTo);
+            return assignedUser && assignedUser.department === directorDepartment;
+          }
+          if (task.teamId) {
+            const taskTeam = teams.find(t => t.id === task.teamId);
+            return taskTeam && taskTeam.department === directorDepartment;
+          }
+          return false;
+        });
+      } 
+      // Các vai trò khác (nếu có)
+      else {
+        // Chỉ hiển thị công việc của bản thân
+        filteredTasksForRole = tasksData.filter(task => 
+          task.assignedTo === userId || 
+          task.user_id === userId ||
+          (task.extraAssignees && Array.isArray(task.extraAssignees) && task.extraAssignees.includes(userId))
+        );
       }
-<<<<<<< HEAD
+      tasksData = filteredTasksForRole; 
+    } else {
+      // Nếu không có người dùng, vẫn hiển thị dữ liệu mẫu để demo
+      console.log('Không có thông tin người dùng, hiển thị dữ liệu mẫu cho demo');
+      tasksData = mockTasks;
+    }
+    // === END: LOGIC LỌC PHÂN QUYỀN MỚI ===
 
-      setTasks(tasksData);
-      saveLocalTasks(tasksData);
-=======
-      
-      // Lưu dữ liệu đã lọc phân quyền
-      saveFilteredTasks(filteredTasksForRole);
-      
-      // Cập nhật state
-      setTasks(filteredTasksForRole);
-      
->>>>>>> 7f510f7 (Cải thiện tính năng chia sẻ và hiển thị công việc: Thêm chức năng lọc công việc theo chế độ chia sẻ, hiển thị biểu tượng chia sẻ, và sửa logic kiểm soát quyền xem công việc)
+      setTasks(tasksData); // Cập nhật state với dữ liệu đã lọc
+      saveLocalTasks(tasksData); // Lưu dữ liệu đã lọc
+
+      toast({
+        title: "Làm mới thành công",
+        description: "Dữ liệu công việc đã được cập nhật và lọc theo quyền của bạn."
+      });
+
     } catch (error) {
-      console.error('Lỗi khi làm mới dữ liệu:', error);
+      console.error('Lỗi khi làm mới dữ liệu công việc:', error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể làm mới dữ liệu công việc. Vui lòng thử lại sau.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const contextValue = {
+  // Lọc công việc theo các tiêu chí
+  const filterTasks = (filters: TaskFilters): Task[] => {
+    return tasks.filter(task => {
+      // Lọc theo trạng thái
+      if (filters.status && task.status !== filters.status) {
+        return false;
+      }
+      
+      // Lọc theo tiến độ
+      if (filters.progress !== null && filters.progress !== undefined && task.progress < filters.progress) {
+        return false;
+      }
+      
+      // Lọc theo khoảng ngày cụ thể
+      if (filters.startDate && filters.endDate) {
+        const taskDate = new Date(task.date);
+        const start = new Date(filters.startDate);
+        const end = new Date(filters.endDate);
+        
+        if (taskDate < start || taskDate > end) {
+          return false;
+        }
+      }
+      // Lọc theo phạm vi thời gian
+      else if (filters.dateRange) {
+        const taskDate = new Date(task.date);
+        const today = new Date();
+        
+        switch (filters.dateRange) {
+          case 'today':
+            if (taskDate.toDateString() !== today.toDateString()) {
+              return false;
+            }
+            break;
+          case 'week': {
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            
+            if (taskDate < weekStart || taskDate > weekEnd) {
+              return false;
+            }
+            break;
+          }
+          case 'month':
+            if (
+              taskDate.getMonth() !== today.getMonth() ||
+              taskDate.getFullYear() !== today.getFullYear()
+            ) {
+              return false;
+            }
+            break;
+        }
+      }
+      
+      return true;
+    });
+  };
+
+  const value = {
     tasks,
     isLoading,
     addTask,
@@ -1080,11 +679,11 @@ export const TaskDataProvider = ({ children }: { children: React.ReactNode }) =>
     deleteTask,
     updateTaskStatus,
     refreshTasks,
-    currentUser
+    filterTasks
   };
 
   return (
-    <TaskDataContext.Provider value={contextValue}>
+    <TaskDataContext.Provider value={value}>
       {children}
     </TaskDataContext.Provider>
   );
