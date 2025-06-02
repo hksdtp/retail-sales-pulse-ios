@@ -925,7 +925,7 @@ const TaskList: React.FC = () => {
                   {selectedTask.assignedTo && (
                     <div>
                       <h4 className="text-sm font-medium text-gray-600 mb-1">Người thực hiện</h4>
-                      <p className="text-gray-900">{selectedTask.assignedTo}</p>
+                      <p className="text-gray-900">{selectedTask.user_name || selectedTask.assignedTo}</p>
                     </div>
                   )}
                   
