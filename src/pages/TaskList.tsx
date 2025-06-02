@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { format, subDays, isWithinInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { 
@@ -50,6 +51,7 @@ const TaskList: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortButtonRef = useRef<HTMLButtonElement>(null);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -282,12 +284,17 @@ const TaskList: React.FC = () => {
 
   const handleStatusChange = async (taskId: string, newStatus: Task['status']) => {
     try {
+      // Gọi API cập nhật trạng thái - TaskDataProvider sẽ tự cập nhật state tasks
       await updateTaskStatus(taskId, newStatus);
+      
+      // Hiển thị thông báo thành công
       toast({
         title: "Đã cập nhật trạng thái",
         description: `Trạng thái đã được thay đổi thành ${getStatusText(newStatus)}`,
       });
     } catch (error) {
+      // Nếu gặp lỗi, làm mới lại danh sách task
+      refreshTasks();
       toast({
         title: "Lỗi",
         description: "Không thể cập nhật trạng thái",
@@ -470,6 +477,7 @@ const TaskList: React.FC = () => {
 
             <div className="relative">
               <button
+                ref={sortButtonRef}
                 onClick={() => setShowSortMenu(!showSortMenu)}
                 className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl flex items-center gap-2 hover:border-gray-300 transition-all duration-200"
               >
@@ -478,27 +486,43 @@ const TaskList: React.FC = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showSortMenu ? 'rotate-180' : ''}`} />
               </button>
               
-              {showSortMenu && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute top-full mt-2 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-200/50 py-1 z-50"
+              {showSortMenu && createPortal(
+                <div 
+                  className="fixed inset-0 z-[9999]" 
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setShowSortMenu(false);
+                    }
+                  }}
                 >
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setSelectedSort(option.value);
-                        setShowSortMenu(false);
-                      }}
-                      className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${
-                        selectedSort === option.value ? 'text-blue-500 font-medium bg-blue-50' : 'text-gray-700'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </motion.div>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute w-48 bg-white rounded-xl shadow-lg border border-gray-200/50 py-1"
+                    style={{
+                      top: sortButtonRef.current ? sortButtonRef.current.getBoundingClientRect().bottom + 5 : 0,
+                      left: sortButtonRef.current ? sortButtonRef.current.getBoundingClientRect().left : 0,
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSelectedSort(option.value);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${
+                          selectedSort === option.value ? 'text-blue-500 font-medium bg-blue-50' : 'text-gray-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                </div>,
+                document.body
               )}
             </div>
 
@@ -718,10 +742,6 @@ const TaskList: React.FC = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Làm mới
             </Button>
-            <Button onClick={() => navigate('/tasks/new')} size="sm" className="bg-blue-500 hover:bg-blue-600 shadow-md">
-              <Plus className="w-4 h-4 mr-2" />
-              Thêm công việc
-            </Button>
           </div>
         </div>
 
@@ -770,7 +790,7 @@ const TaskList: React.FC = () => {
                             setStatusDropdownOpen(null);
                           }
                         }}>
-                          <DropdownMenuTrigger asChild onClick={(e) => {
+                          <DropdownMenuTrigger onClick={(e) => {
                             e.stopPropagation();
                             setStatusDropdownOpen(task.id);
                           }}>
@@ -816,7 +836,7 @@ const TaskList: React.FC = () => {
                         {task.assignedTo && (
                           <span className="text-gray-500 flex items-center gap-1 text-xs">
                             <User className="w-3 h-3" />
-                            {task.assignedTo}
+                            {task.user_name || task.assignedTo}
                           </span>
                         )}
                         <span className="text-gray-400 text-xs">
@@ -964,7 +984,7 @@ const TaskList: React.FC = () => {
                           id="status"
                           value={editFormData.status || ''}
                           onChange={(e) => setEditFormData({...editFormData, status: e.target.value as Task['status']})}
-                          className={"w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
+                          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
                           {statusOptions.map(option => (
                             <option key={option.value} value={option.value}>{option.label}</option>
@@ -978,7 +998,7 @@ const TaskList: React.FC = () => {
                           id="priority"
                           value={editFormData.priority || 'medium'}
                           onChange={(e) => setEditFormData({...editFormData, priority: e.target.value as 'high' | 'medium' | 'low' | undefined})}
-                          className={"w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
+                          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
                           {priorityOptions.map(option => (
                             <option key={option.value} value={option.value}>{option.label}</option>
@@ -994,7 +1014,7 @@ const TaskList: React.FC = () => {
                           id="type"
                           value={editFormData.type || ''}
                           onChange={(e) => setEditFormData({...editFormData, type: e.target.value as Task['type']})}
-                          className={"w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
+                          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
                           {typeOptions.map(option => (
                             <option key={option.value} value={option.value}>{option.label}</option>
@@ -1008,7 +1028,7 @@ const TaskList: React.FC = () => {
                           id="assignedTo"
                           value={editFormData.assignedTo || currentUser?.name || ''}
                           onChange={(e) => setEditFormData({...editFormData, assignedTo: e.target.value})}
-                          className={"w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"}
+                          className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
                           placeholder="Người tạo"
                           readOnly
                         />
