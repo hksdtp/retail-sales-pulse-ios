@@ -70,15 +70,7 @@ const Tasks = () => {
         subtitle={subtitle}
         actions={
           <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => setIsFirebaseConfigOpen(true)} 
-              title="Cấu hình Firebase"
-              className="text-green-600 border-green-200 bg-green-50"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
+            {/* Nút cấu hình Firebase đã được ẩn vì Firebase đã được cấu hình tự động */}
             
             {/* Tất cả vai trò đều có nút này */}
             <Button 
