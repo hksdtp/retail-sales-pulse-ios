@@ -33,11 +33,11 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Briefcase, Users, FileText, FilePen, Plus } from 'lucide-react';
-import { googleSheetsService } from '@/services/GoogleSheetsService';
 import { Calendar, Clock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTaskData } from '@/hooks/use-task-data';
 
 // Schema xác thực form
 const formSchema = z.object({
@@ -58,7 +58,9 @@ const formSchema = z.object({
   }),
   time: z.string().optional(),
   team_id: z.string().optional(),
-  assignedTo: z.string().optional() // Thêm trường để chỉ định người được giao công việc
+  assignedTo: z.string().optional(), // Thêm trường để chỉ định người được giao công việc
+  isShared: z.boolean().optional(),
+  isSharedWithTeam: z.boolean().optional()
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -73,9 +75,9 @@ interface TaskFormDialogProps {
 const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }: TaskFormDialogProps) => {
   const { currentUser, teams, users } = useAuth();
   const { toast } = useToast();
+  const { addTask } = useTaskData();
   const [canAssignToOthers, setCanAssignToOthers] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] = useState(false);
   
   useEffect(() => {
     // Chỉ giám đốc (retail_director, project_director) và trưởng nhóm mới có thể giao việc cho người khác
@@ -84,9 +86,6 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       currentUser?.role === 'project_director' || 
       currentUser?.role === 'team_leader'
     );
-    
-    // Kiểm tra xem Google Sheets đã được cấu hình chưa
-    setIsGoogleSheetsConfigured(googleSheetsService.isConfigured());
   }, [currentUser]);
   
   const form = useForm<FormValues>({
@@ -99,7 +98,9 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       date: new Date().toISOString().split('T')[0], // Ngày hiện tại
       time: '',
       team_id: currentUser?.team_id,
-      assignedTo: currentUser?.id // Mặc định gán cho người dùng hiện tại
+      assignedTo: currentUser?.id, // Mặc định gán cho người dùng hiện tại
+      isShared: false, // Mặc định không chia sẻ
+      isSharedWithTeam: false // Mặc định không chia sẻ với nhóm
     }
   });
 
@@ -122,41 +123,41 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
   const filteredUsers = getFilteredUsers();
 
   const onSubmit = async (data: FormValues) => {
-    if (!isGoogleSheetsConfigured) {
-      toast({
-        title: "Cảnh báo",
-        description: "Google Sheets chưa được cấu hình. Vui lòng cấu hình Service Account để lưu dữ liệu.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
     setIsSubmitting(true);
     
     try {
       // Đảm bảo có người được giao công việc
       const assignee = data.assignedTo || currentUser?.id;
       
-      // Thêm thông tin người dùng vào dữ liệu công việc
-      const taskWithUserInfo = {
-        ...data,
-        user_id: currentUser?.id, // Người tạo
-        user_name: currentUser?.name,
-        team_id: currentUser?.team_id,
-        location: currentUser?.location,
-        assignedTo: assignee, // Người được giao việc
-        created_at: new Date().toISOString()
+      // Đảm bảo các trường bắt buộc được cung cấp
+      const newTask = {
+        title: data.title,
+        description: data.description,
+        type: data.type,
+        status: data.status,
+        date: data.date,
+        time: data.time || '',
+        user_id: currentUser?.id || '',
+        user_name: currentUser?.name || '',
+        team_id: data.team_id || currentUser?.team_id || '',
+        location: currentUser?.location || '',
+        assignedTo: assignee || '',
+        isShared: data.isShared || false,
+        isSharedWithTeam: data.isSharedWithTeam || false
       };
       
-      console.log("Dữ liệu công việc mới:", taskWithUserInfo);
+      console.log("Dữ liệu công việc mới:", newTask);
       
-      // Lưu dữ liệu vào Google Sheets
-      await googleSheetsService.saveTask(taskWithUserInfo);
+      // Sử dụng hàm addTask từ TaskDataProvider
+      await addTask(newTask);
 
       toast({
         title: "Thành công!",
-        description: "Công việc đã được tạo và lưu vào Google Sheets."
+        description: "Công việc đã được tạo và lưu thành công."
       });
+      
+      // Làm mới danh sách công việc
+      // onTaskCreated sẽ gọi refreshTasks() trong TaskList.tsx
 
       // Gọi callback khi tạo công việc thành công
       if (onTaskCreated) {
@@ -203,14 +204,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
           </DialogDescription>
         </DialogHeader>
 
-        {!isGoogleSheetsConfigured && (
-          <Alert className="bg-amber-50 border-amber-300 text-amber-800 mb-4">
-            <AlertDescription>
-              Bạn cần cấu hình Google Sheets Service Account trước khi có thể tạo công việc mới.
-              Vui lòng nhấn vào biểu tượng Cài đặt ở góc trên bên phải.
-            </AlertDescription>
-          </Alert>
-        )}
+
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-2">
@@ -551,6 +545,59 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
               />
             )}
 
+            {/* Tùy chọn chia sẻ công việc */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <FormField
+                control={form.control}
+                name="isShared"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value || false}
+                        onChange={field.onChange}
+                        className="h-5 w-5 rounded border-gray-300 text-[#6c5ce7] focus:ring-[#6c5ce7]"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm font-medium cursor-pointer">
+                        Chia sẻ với tất cả nhân viên
+                      </FormLabel>
+                      <p className="text-xs text-gray-500">
+                        Tất cả nhân viên sẽ nhìn thấy công việc này
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isSharedWithTeam"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value || false}
+                        onChange={field.onChange}
+                        className="h-5 w-5 rounded border-gray-300 text-[#6c5ce7] focus:ring-[#6c5ce7]"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm font-medium cursor-pointer">
+                        Chia sẻ với nhóm của tôi
+                      </FormLabel>
+                      <p className="text-xs text-gray-500">
+                        Chỉ nhân viên trong nhóm sẽ nhìn thấy công việc này
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            
             {/* Phần thông tin người tạo đã được ẩn theo yêu cầu */}
 
             {/* Phần hướng dẫn đã được xóa theo yêu cầu */}
@@ -566,7 +613,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
               </Button>
               <Button 
                 type="submit"
-                disabled={isSubmitting || !isGoogleSheetsConfigured}
+                disabled={isSubmitting}
                 className="h-11 px-5 rounded-xl bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] hover:opacity-90 hover:translate-y-[-1px] transition-all"
               >
                 {isSubmitting ? 'Đang lưu...' : (

@@ -16,6 +16,8 @@ export interface Task {
   team_id?: string;
   created_at: string;
   time?: string;
+  isShared?: boolean; // Đánh dấu công việc được chia sẻ bởi Giám đốc
+  isSharedWithTeam?: boolean; // Đánh dấu công việc được chia sẻ với cả nhóm
   [key: string]: string | number | boolean | undefined | null;
 }
 
