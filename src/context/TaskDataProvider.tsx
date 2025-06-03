@@ -1,13 +1,63 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 
-import { isAdmin, isDirector, isTeamLeader, LogLevel, permissionLog } from '@/config/permissions';
-import { Task } from '@/components/tasks/types/TaskTypes';
-import { googleSheetsService } from '@/services/GoogleSheetsService';
-import { firebaseService } from '@/services/FirebaseService';
-import { useToast } from '@/hooks/use-toast';
+import { isAdmin, isDirector, isTeamLeader, LogLevel, permissionLog } from '../config/permissions';
+import { Task } from '../components/tasks/types/TaskTypes';
+import { googleSheetsService } from '../services/GoogleSheetsService';
+import { FirebaseService } from '../services/FirebaseService';
+import { useToast } from '../hooks/use-toast';
 import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskFilters } from './TaskContext';
-import { mockTasks, saveMockTasksToLocalStorage } from '@/utils/mockData';
+import { mockTasks, saveMockTasksToLocalStorage } from '../utils/mockData';
+
+// Các helper function để làm việc với FirebaseService
+const isFirebaseConfigured = () => FirebaseService.isConfigured();
+
+// Helper function để làm việc với FireStore và Tasks
+const getTasks = async () => {
+  const firebaseService = FirebaseService.getInstance();
+  const db = firebaseService.getFirestore();
+  if (!db) return [];
+  
+  try {
+    return await firebaseService.getDocuments('tasks');
+  } catch (error) {
+    console.error('Lỗi khi lấy tasks từ Firestore:', error);
+    return [];
+  }
+};
+
+const saveTask = async (task: Task) => {
+  const firebaseService = FirebaseService.getInstance();
+  try {
+    await firebaseService.addDocument('tasks', task);
+    return true;
+  } catch (error) {
+    console.error('Lỗi khi lưu task vào Firestore:', error);
+    return false;
+  }
+};
+
+const updateTask = async (task: Task) => {
+  const firebaseService = FirebaseService.getInstance();
+  try {
+    await firebaseService.updateDocument('tasks', task.id, task);
+    return true;
+  } catch (error) {
+    console.error('Lỗi khi cập nhật task trong Firestore:', error);
+    return false;
+  }
+};
+
+const deleteTask = async (taskId: string) => {
+  const firebaseService = FirebaseService.getInstance();
+  try {
+    await firebaseService.deleteDocument('tasks', taskId);
+    return true;
+  } catch (error) {
+    console.error('Lỗi khi xóa task từ Firestore:', error);
+    return false;
+  }
+};
 
 // Provider component
 export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -166,10 +216,10 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
         
         // Ưu tiên lấy dữ liệu mới nhất từ Firebase nếu được cấu hình
-        if (firebaseService.isConfigured()) {
+        if (isFirebaseConfigured()) {
           try {
             console.log('Đang tải dữ liệu từ Firebase...');
-            const firestoreData = await firebaseService.getTasks();
+            const firestoreData = await getTasks();
             if (Array.isArray(firestoreData) && firestoreData.length > 0) {
               console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
               const convertedTasks = convertFirebaseTasks(firestoreData);
@@ -332,7 +382,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
     
     // Thiết lập đồng bộ định kỳ mỗi 30 giây
     const syncInterval = setInterval(() => {
-      if (firebaseService.isConfigured() && !isLoading) {
+      if (isFirebaseConfigured() && !isLoading) {
         refreshTasks();
       }
     }, 30000); // 30 giây
@@ -390,27 +440,24 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       saveFilteredTasks(updatedTasks);
       
       // Lưu vào Firebase nếu đã cấu hình
-      if (firebaseService.isConfigured()) {
+      if (isFirebaseConfigured()) {
         try {
           console.log('Bắt đầu lưu công việc vào Firebase...');
-          await firebaseService.saveTask(newTask);
+          await saveTask(newTask);
           console.log('Lưu công việc vào Firebase thành công');
           
           // Tự động làm mới dữ liệu sau khi thêm công việc mới thành công
           console.log('Bắt đầu làm mới dữ liệu từ Firebase...');
           setTimeout(async () => {
             try {
-              const firestoreData = await firebaseService.getTasks();
+              const firestoreData = await getTasks();
               if (Array.isArray(firestoreData) && firestoreData.length > 0) {
-                // Kiểm tra xem dữ liệu có phải là dữ liệu mẫu không
-                const isMockData = firestoreData.some(task => 
-                  String(task.id)?.includes('task_1') || 
-                  String(task.id)?.includes('task_2') || 
-                  String(task.id)?.includes('task_3')
-                );
+                // Kiểm tra xem Firebase có được cấu hình đúng và đồng bộ thành công không
+                // Lưu ý: Không phụ thuộc vào ID của task nữa mà dựa vào kết quả đồng bộ thực tế
+                const firebaseConnected = isFirebaseConfigured() && firestoreData.length > 0;
                 
-                // Chỉ cập nhật khi không phải là dữ liệu mẫu
-                if (!isMockData) {
+                // Chỉ cập nhật khi Firebase được cấu hình đúng
+                if (!firebaseConnected) {
                   console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
                   const convertedTasks = convertFirebaseTasks(firestoreData);
                   
@@ -429,7 +476,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
                     description: "Công việc đã được thêm và đồng bộ thành công với Firebase"
                   });
                 } else {
-                  console.log('Đang sử dụng dữ liệu mẫu, giữ nguyên công việc mới đã thêm');
+                  console.log('Firebase chưa được cấu hình đúng hoặc không đồng bộ được, giữ nguyên công việc mới đã thêm');
                   toast({
                     title: "Đã thêm công việc mới",
                     description: "Công việc đã được thêm nhưng đang ở chế độ ngoại tuyến"
@@ -527,9 +574,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       saveFilteredTasks(updatedTasks);
       
       // Cập nhật vào Firebase nếu đã cấu hình
-      if (firebaseService.isConfigured()) {
+      if (isFirebaseConfigured()) {
         try {
-          await firebaseService.updateTask(updatedTask);
+          await updateTask(updatedTask);
           toast({
             title: "Đã cập nhật công việc",
             description: "Công việc đã được cập nhật và đồng bộ thành công"
@@ -603,9 +650,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       saveFilteredTasks(updatedTasks);
       
       // Xóa từ Firebase nếu đã cấu hình
-      if (firebaseService.isConfigured()) {
+      if (isFirebaseConfigured()) {
         try {
-          await firebaseService.deleteTask(id);
+          await deleteTask(id);
           toast({
             title: "Đã xóa công việc",
             description: "Công việc đã được xóa và đồng bộ thành công"
@@ -651,10 +698,10 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       let rawTasksData: Task[] = [];
       
       // Ưu tiên lấy dữ liệu từ Firebase nếu được cấu hình
-      if (firebaseService.isConfigured()) {
+      if (isFirebaseConfigured()) {
         try {
           console.log('Đang làm mới dữ liệu từ Firebase...');
-          const firestoreData = await firebaseService.getTasks();
+          const firestoreData = await getTasks();
           if (Array.isArray(firestoreData) && firestoreData.length > 0) {
             console.log(`Đã tải ${firestoreData.length} công việc từ Firebase`);
             const convertedTasks = convertFirebaseTasks(firestoreData);

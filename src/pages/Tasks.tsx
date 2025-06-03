@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Users, UserRound } from 'lucide-react';
-import AppLayout from '@/components/layout/AppLayout';
-import PageHeader from '@/components/layout/PageHeader';
-import { Button } from '@/components/ui/button';
-import TaskFormDialog from '@/components/tasks/TaskFormDialog';
-import { useAuth } from '@/context/AuthContext';
-import FirebaseConfig from '@/components/settings/FirebaseConfig';
-import { firebaseService } from '@/services/FirebaseService';
+import AppLayout from '../components/layout/AppLayout';
+import PageHeader from '../components/layout/PageHeader';
+import { Button } from '../components/ui/button';
+import TaskFormDialog from '../components/tasks/TaskFormDialog';
+import { useAuth } from '../context/AuthContext';
+import FirebaseConfig from '../components/settings/FirebaseConfig';
+import { FirebaseService } from '../services/FirebaseService';
 import { Settings } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import TaskList from '@/pages/TaskList';
+import { useToast } from '../hooks/use-toast';
+import TaskList from './TaskList';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -32,7 +32,7 @@ const Tasks = () => {
   
   // Kiểm tra cấu hình Firebase khi trang được tải
   useEffect(() => {
-    const isConfigured = firebaseService.isConfigured();
+    const isConfigured = FirebaseService.isConfigured();
     if (isConfigured) {
       toast({
         title: "Đã sẵn sàng",

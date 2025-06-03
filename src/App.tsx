@@ -1,7 +1,7 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "./components/ui/toaster";
+import { Toaster as Sonner } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
@@ -13,10 +13,10 @@ import Employees from "./pages/Employees";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import FirebaseSetup from "./pages/FirebaseSetup";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AuthProvider } from "@/context/AuthContext";
-import { FirebaseTaskDataProvider } from "@/context/FirebaseTaskDataProvider";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { SidebarProvider } from "./components/ui/sidebar";
+import { AuthProvider } from "./context/AuthContext";
+import { FirebaseTaskDataProvider } from "./context/FirebaseTaskDataProvider";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
