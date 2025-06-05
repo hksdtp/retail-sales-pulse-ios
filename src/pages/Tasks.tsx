@@ -59,7 +59,39 @@ const Tasks = () => {
 
       console.log('Deleting tasks for user:', currentUser.id);
 
-      // Khởi tạo Firebase nếu chưa có
+      // Thử xóa qua API trước
+      try {
+        const apiUrl = getApiUrl();
+        console.log('Trying API delete:', `${apiUrl}/tasks/delete-all`);
+
+        const response = await fetch(`${apiUrl}/tasks/delete-all`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: currentUser.id
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            toast({
+              title: "Thành công!",
+              description: `Đã xóa ${result.deletedCount || 0} công việc qua API.`
+            });
+            setTaskUpdateTrigger(prev => prev + 1);
+            return;
+          }
+        }
+
+        console.log('API delete failed, trying Firebase direct...');
+      } catch (apiError) {
+        console.log('API delete error:', apiError);
+      }
+
+      // Fallback: Xóa trực tiếp qua Firebase
       let firebaseService = FirebaseService.getInstance();
       let db = firebaseService.getFirestore();
 
@@ -83,7 +115,7 @@ const Tasks = () => {
       const q = query(tasksRef, where('assignedTo', '==', currentUser.id));
       const querySnapshot = await getDocs(q);
 
-      console.log(`Found ${querySnapshot.size} tasks to delete`);
+      console.log(`Found ${querySnapshot.size} tasks to delete via Firebase`);
 
       if (querySnapshot.size === 0) {
         toast({
@@ -102,7 +134,7 @@ const Tasks = () => {
 
       toast({
         title: "Thành công!",
-        description: `Đã xóa ${querySnapshot.size} công việc.`
+        description: `Đã xóa ${querySnapshot.size} công việc qua Firebase.`
       });
 
       // Trigger refresh
