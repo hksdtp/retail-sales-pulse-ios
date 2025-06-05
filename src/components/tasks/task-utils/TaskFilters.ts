@@ -19,13 +19,12 @@ export const filterTasksByUserRole = (
     let hasPermissionToView = false;
     
     if (currentUser) {
-      if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
-        // Giám đốc xem tất cả công việc
-        hasPermissionToView = true;
+      if (currentUser.role === 'retail_director') {
+        // Retail Director chỉ xem công việc của phòng bán lẻ
+        hasPermissionToView = true; // Sẽ được lọc ở TaskDataProvider
       } else if (currentUser.role === 'team_leader') {
-        // Trưởng nhóm chỉ xem công việc của nhóm mình
-        const userTeam = teams.find(team => team.leader_id === currentUser.id);
-        hasPermissionToView = userTeam ? task.teamId === userTeam.id : false;
+        // Trưởng nhóm chỉ xem công việc được giao cho thành viên trong nhóm
+        hasPermissionToView = true; // Sẽ được lọc ở TaskDataProvider
       } else {
         // Nhân viên chỉ xem công việc được giao cho mình
         hasPermissionToView = task.assignedTo === currentUser.id;

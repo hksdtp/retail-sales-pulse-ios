@@ -733,10 +733,27 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         const userId = currentUser.id;
         const userLocation = currentUser.location;
 
-        // 1. Retail Director (xem tất cả công việc của công ty)
-        if (userRole === 'retail_director' || isAdmin(userId)) {
-          permissionLog(`Người dùng ${currentUser.name} là Retail Director hoặc Admin - xem tất cả công việc`, LogLevel.BASIC);
-          // Admin hoặc Retail Director xem tất cả công việc
+        // 1. Retail Director (chỉ xem công việc của phòng bán lẻ)
+        if (userRole === 'retail_director') {
+          permissionLog(`Người dùng ${currentUser.name} là Retail Director - xem tất cả công việc phòng bán lẻ`, LogLevel.BASIC);
+          // Retail Director chỉ xem công việc của phòng bán lẻ
+          filteredTasksForRole = rawTasksData.filter(task => {
+            // Kiểm tra người được giao có thuộc phòng bán lẻ không
+            if (task.assignedTo) {
+              const assignedUser = users.find(u => u.id === task.assignedTo);
+              return assignedUser && assignedUser.department_type === 'retail';
+            }
+            // Kiểm tra người tạo có thuộc phòng bán lẻ không
+            if (task.user_id) {
+              const creator = users.find(u => u.id === task.user_id);
+              return creator && creator.department_type === 'retail';
+            }
+            return false;
+          });
+        }
+        // Admin xem tất cả
+        else if (isAdmin(userId)) {
+          permissionLog(`Người dùng ${currentUser.name} là Admin - xem tất cả công việc`, LogLevel.BASIC);
           filteredTasksForRole = rawTasksData;
         }
         // 2. Trưởng nhóm (Team Leader)
@@ -756,38 +773,14 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
             
             permissionLog(`Trưởng nhóm quản lý nhóm ${teamLedByUser.name} với ${teamMemberIds.length} thành viên`, LogLevel.DETAILED);
             
-            // Lọc công việc theo tiêu chí:
+            // Lọc công việc: Trưởng nhóm chỉ xem công việc được giao cho thành viên trong nhóm (bao gồm cả mình)
             filteredTasksForRole = rawTasksData.filter(task => {
-              // 1. Công việc của bản thân
-              if (task.assignedTo === userId || task.user_id === userId) {
-                permissionLog(`Task ${task.id}: Được phân công cho trưởng nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 2. Công việc của nhóm mình
-              if (task.teamId === teamId) {
-                permissionLog(`Task ${task.id}: Thuộc nhóm của trưởng nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
-              // 3. Công việc của thành viên trong nhóm
-              if (task.user_id && teamMemberIds.includes(task.user_id)) {
-                permissionLog(`Task ${task.id}: Tạo bởi thành viên trong nhóm`, LogLevel.DETAILED);
-                return true;
-              }
-              
+              // Chỉ xem công việc được giao cho thành viên trong nhóm
               if (task.assignedTo && teamMemberIds.includes(task.assignedTo)) {
-                permissionLog(`Task ${task.id}: Giao cho thành viên trong nhóm`, LogLevel.DETAILED);
+                permissionLog(`Task ${task.id}: Được giao cho thành viên trong nhóm`, LogLevel.DETAILED);
                 return true;
               }
-              
-              // 4. Công việc được Retail Director giao
-              const creator = users.find(u => u.id === task.user_id);
-              if (creator && (creator.role === 'retail_director' || isAdmin(creator.id)) && task.assignedTo === userId) {
-                permissionLog(`Task ${task.id}: Được giao bởi Retail Director hoặc Admin`, LogLevel.DETAILED);
-                return true;
-              }
-              
+
               return false;
             });
           } else {
@@ -810,41 +803,16 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           
           permissionLog(`Nhân viên thuộc nhóm: ${userTeam?.name || 'Không có nhóm'}`, LogLevel.DETAILED);
           
-          // Lọc công việc theo tiêu chí:
+          // Lọc công việc: Nhân viên chỉ xem công việc được giao cho mình
           filteredTasksForRole = rawTasksData.filter(task => {
             permissionLog(`Đang kiểm tra quyền xem Task ${task.id}...`, LogLevel.DETAILED);
-            
-            // 1. Công việc được giao cho nhân viên
+
+            // Chỉ xem công việc được giao cho nhân viên
             if (task.assignedTo === userId) {
               permissionLog(`Task ${task.id}: Được phân công cho nhân viên`, LogLevel.DETAILED);
               return true;
             }
-            
-            // 2. Công việc do nhân viên tạo (chỉ cho phép xem nếu được giao cho chính họ)
-            if (task.user_id === userId && task.assignedTo === userId) {
-              permissionLog(`Task ${task.id}: Được tạo bởi nhân viên và giao cho chính họ`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            // 3. Công việc được Retail Director giao (và có đánh dấu chia sẻ)
-            const creator = users.find(u => u.id === task.user_id);
-            if (creator && creator.role === 'retail_director' && task.isShared === true) {
-              permissionLog(`Task ${task.id}: Công việc chung được chia sẻ bởi Retail Director`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            // 4. Công việc được Trưởng nhóm của mình giao
-            if (teamLeaderId && task.user_id === teamLeaderId && task.assignedTo === userId) {
-              permissionLog(`Task ${task.id}: Được giao bởi Trưởng nhóm`, LogLevel.DETAILED);
-              return true;
-            }
-            
-            // 5. Công việc được chia sẻ với nhóm (chỉ khi nhân viên thuộc nhóm đó và có đánh dấu chia sẻ)
-            if (userTeamId && task.teamId === userTeamId && task.isSharedWithTeam === true) {
-              permissionLog(`Task ${task.id}: Công việc được chia sẻ với nhóm của nhân viên`, LogLevel.DETAILED);
-              return true;
-            }
-            
+
             permissionLog(`Task ${task.id}: Không đủ quyền xem`, LogLevel.DETAILED);
             return false;
           });
