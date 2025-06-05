@@ -133,7 +133,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-4">
+      <div className="space-y-4 min-h-[280px] relative">
         {/* Chọn khu vực */}
         <LocationSelector
           selectedLocation={selectedLocation}
@@ -150,7 +150,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-2"
+            className="space-y-2 form-field-container"
           >
             <div className="text-sm font-medium flex items-center text-[#636e72] mb-1">
               <Users className="h-3.5 w-3.5 mr-1.5" />
@@ -188,7 +188,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="space-y-2"
+            className="space-y-2 form-field-container"
           >
             <div className="text-sm font-medium flex items-center text-[#636e72] mb-1">
               <User className="h-3.5 w-3.5 mr-1.5" />

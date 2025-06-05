@@ -379,3 +379,38 @@
     transform: translate(-1px, 1px);
   }
 }
+
+/* Fix dropdown layout shift */
+.login-form-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-form-content {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+/* Prevent layout shift when dropdown opens */
+[data-radix-select-content] {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* Smooth transitions for form elements */
+.form-field-container {
+  transition: all 0.3s ease;
+  will-change: transform;
+}
+
+/* Prevent form jumping */
+.login-form-wrapper {
+  contain: layout;
+  transform: translateZ(0);
+}

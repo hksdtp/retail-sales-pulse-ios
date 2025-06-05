@@ -39,20 +39,21 @@ const Login = () => {
       </div>
 
       {/* Form đăng nhập trực tiếp */}
-      <motion.div
-        className="w-full max-w-md mx-auto px-5 z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <div className="login-form-container">
         <motion.div
-          className="backdrop-blur-lg p-8 md:p-10 rounded-[20px] border bg-white/95 border-white/30 shadow-[0_10px_25px_rgba(108,92,231,0.5)]"
-          whileHover={{
-            translateY: -5,
-            boxShadow: '0 15px 35px rgba(108, 92, 231, 0.6)',
-            transition: { duration: 0.4 }
-          }}
+          className="login-form-content px-5 z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
+          <motion.div
+            className="login-form-wrapper backdrop-blur-lg p-8 md:p-10 rounded-[20px] border bg-white/95 border-white/30 shadow-[0_10px_25px_rgba(108,92,231,0.5)] w-full"
+            whileHover={{
+              translateY: -5,
+              boxShadow: '0 15px 35px rgba(108, 92, 231, 0.6)',
+              transition: { duration: 0.4 }
+            }}
+          >
           {/* Header với logo và title */}
           <div className="text-center mb-8">
             <motion.div
@@ -96,8 +97,9 @@ const Login = () => {
               Trợ giúp
             </a>
           </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </div>
     </div>
   );
 };

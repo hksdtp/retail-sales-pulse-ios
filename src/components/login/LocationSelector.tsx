@@ -63,7 +63,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             <SelectValue placeholder="Chọn khu vực" />
           </div>
         </SelectTrigger>
-        <SelectContent className="bg-white/95 rounded-lg p-1 border-[#dfe6e9]">
+        <SelectContent
+          className="bg-white/95 rounded-lg p-1 border-[#dfe6e9] z-50"
+          position="popper"
+          sideOffset={4}
+        >
           {Object.entries(locationNames).map(([value, label]) => {
             const isSpecial = value === 'all';
             
