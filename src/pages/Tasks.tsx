@@ -59,37 +59,8 @@ const Tasks = () => {
 
       console.log('Deleting tasks for user:', currentUser.id);
 
-      // Thử xóa qua API trước
-      try {
-        const apiUrl = getApiUrl();
-        console.log('Trying API delete:', `${apiUrl}/tasks/delete-all`);
-
-        const response = await fetch(`${apiUrl}/tasks/delete-all`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_id: currentUser.id
-          })
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success) {
-            toast({
-              title: "Thành công!",
-              description: `Đã xóa ${result.deletedCount || 0} công việc qua API.`
-            });
-            setTaskUpdateTrigger(prev => prev + 1);
-            return;
-          }
-        }
-
-        console.log('API delete failed, trying Firebase direct...');
-      } catch (apiError) {
-        console.log('API delete error:', apiError);
-      }
+      // TẠMTHỜI TẮT API - CHỈ DÙNG FIREBASE ĐỂ DEBUG
+      console.log('🔥 SKIPPING API - USING FIREBASE DIRECT FOR DEBUGGING');
 
       // Fallback: Xóa trực tiếp qua Firebase
       let firebaseService = FirebaseService.getInstance();
@@ -111,15 +82,24 @@ const Tasks = () => {
       // Debug: Xem cấu trúc tasks trong Firebase
       const { collection, query, where, getDocs, deleteDoc, doc, limit } = await import('firebase/firestore');
 
-      // Lấy vài tasks mẫu để xem cấu trúc
-      const sampleTasksRef = collection(db, 'tasks');
-      const sampleQuery = query(sampleTasksRef, limit(5));
-      const sampleSnapshot = await getDocs(sampleQuery);
+      // Lấy TẤT CẢ tasks để xem cấu trúc
+      const allTasksRef = collection(db, 'tasks');
+      const allTasksSnapshot = await getDocs(allTasksRef);
 
-      console.log('=== SAMPLE TASKS STRUCTURE ===');
-      sampleSnapshot.docs.forEach((taskDoc, index) => {
-        console.log(`Task ${index}:`, taskDoc.data());
+      console.log('=== ALL TASKS IN DATABASE ===');
+      console.log(`Total tasks in database: ${allTasksSnapshot.size}`);
+      allTasksSnapshot.docs.forEach((taskDoc, index) => {
+        const data = taskDoc.data();
+        console.log(`Task ${index} (ID: ${taskDoc.id}):`, data);
+        console.log(`  - assignedTo: ${data.assignedTo} (type: ${typeof data.assignedTo})`);
+        console.log(`  - user_id: ${data.user_id} (type: ${typeof data.user_id})`);
+        console.log(`  - userId: ${data.userId} (type: ${typeof data.userId})`);
+        console.log(`  - assigned_to: ${data.assigned_to} (type: ${typeof data.assigned_to})`);
       });
+
+      console.log(`=== CURRENT USER INFO ===`);
+      console.log(`Current user ID: ${currentUser.id} (type: ${typeof currentUser.id})`);
+      console.log(`Current user name: ${currentUser.name}`);
 
       // Thử nhiều field có thể chứa user ID
       const possibleFields = ['assignedTo', 'user_id', 'userId', 'assigned_to'];
