@@ -1,9 +1,19 @@
 
+// Interface cho các bộ lọc công việc
+export interface TaskFilters {
+  status?: string;
+  type?: string;
+  search?: string;
+  date?: Date | null;
+  teamId?: string;
+  assignedTo?: string;
+}
+
 export interface Task {
   id: string;
   title: string;
   description: string;
-  type: 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'other';
+  type: 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'report' | 'training' | 'meeting' | 'inventory' | 'other';
   date: string;
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
   progress: number;

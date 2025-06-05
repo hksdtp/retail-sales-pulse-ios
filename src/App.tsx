@@ -15,47 +15,49 @@ import Login from "./pages/Login";
 import FirebaseSetup from "./pages/FirebaseSetup";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { AuthProvider } from "./context/AuthContext";
-import { FirebaseTaskDataProvider } from "./context/FirebaseTaskDataProvider";
+import { ApiTaskDataProvider } from "./context/ApiTaskDataProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <FirebaseTaskDataProvider>
+      <ApiTaskDataProvider>
         <TooltipProvider>
           <SidebarProvider className="mx-[120px] my-0 px-0 py-0 bg-slate-50 rounded-full">
             <Toaster />
             <Sonner />
             <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/firebase-setup" element={<FirebaseSetup />} />
-              <Route path="/" element={<ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>} />
-              <Route path="/tasks" element={<ProtectedRoute>
-                  <Tasks />
-                </ProtectedRoute>} />
-              <Route path="/calendar" element={<ProtectedRoute>
-                  <Calendar />
-                </ProtectedRoute>} />
-              <Route path="/kpi" element={<ProtectedRoute>
-                  <Kpi />
-                </ProtectedRoute>} />
-              <Route path="/reports" element={<ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>} />
-              <Route path="/employees" element={<ProtectedRoute>
-                  <Employees />
-                </ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/firebase-setup" element={<FirebaseSetup />} />
+                <Route path="/" element={<ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>} />
+                <Route path="/tasks" element={<ProtectedRoute>
+                    <Tasks />
+                  </ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute>
+                    <Calendar />
+                  </ProtectedRoute>} />
+                <Route path="/kpi" element={<ProtectedRoute>
+                    <Kpi />
+                  </ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute>
+                    <Reports />
+                  </ProtectedRoute>} />
+                <Route path="/employees" element={<ProtectedRoute>
+                    <Employees />
+                  </ProtectedRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
           </SidebarProvider>
         </TooltipProvider>
-      </FirebaseTaskDataProvider>
+      </ApiTaskDataProvider>
     </AuthProvider>
-  </QueryClientProvider>;
+  </QueryClientProvider>
+);
 
 export default App;

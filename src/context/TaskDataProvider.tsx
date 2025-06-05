@@ -1,12 +1,12 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, useContext } from 'react';
 
-import { isAdmin, isDirector, isTeamLeader, LogLevel, permissionLog } from '../config/permissions';
+import { isAdmin, isDirector, isTeamLeader, LogLevel, permissionLog } from '@/config/permissions';
 import { Task } from '../components/tasks/types/TaskTypes';
 import { googleSheetsService } from '../services/GoogleSheetsService';
 import { FirebaseService } from '../services/FirebaseService';
 import { useToast } from '../hooks/use-toast';
 import { useAuth } from './AuthContext';
-import { TaskDataContext, TaskFilters } from './TaskContext';
+import { TaskDataContext, TaskFilters, TaskDataContextType } from './TaskContext';
 import { mockTasks, saveMockTasksToLocalStorage } from '../utils/mockData';
 
 // Các helper function để làm việc với FirebaseService
@@ -37,7 +37,7 @@ const saveTask = async (task: Task) => {
   }
 };
 
-const updateTask = async (task: Task) => {
+const updateTaskInFirebase = async (task: Task) => {
   const firebaseService = FirebaseService.getInstance();
   try {
     await firebaseService.updateDocument('tasks', task.id, task);
@@ -576,7 +576,8 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       // Cập nhật vào Firebase nếu đã cấu hình
       if (isFirebaseConfigured()) {
         try {
-          await updateTask(updatedTask);
+          // Gọi hàm updateTaskInFirebase helper với đúng một tham số là Task
+          await updateTaskInFirebase(updatedTask as Task);
           toast({
             title: "Đã cập nhật công việc",
             description: "Công việc đã được cập nhật và đồng bộ thành công"
@@ -883,8 +884,12 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   // Lọc công việc theo các tiêu chí
-  const filterTasks = (filters: TaskFilters): Task[] => {
-    return tasks.filter(task => {
+  const filterTasks = (filters: TaskFilters): void => {
+    // Cập nhật state filters
+    setFilters(filters);
+    
+    // Lọc các task và cập nhật state filteredTasks
+    const filtered = tasks.filter(task => {
       // Lọc theo trạng thái
       if (filters.status && task.status !== filters.status) {
         return false;
@@ -941,21 +946,40 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       
       return true;
     });
+    
+    // Cập nhật state filteredTasks với kết quả lọc
+    setFilteredTasks(filtered);
   };
 
-  const value = {
+  // Khởi tạo state cho filteredTasks và filters
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [filters, setFilters] = useState<TaskFilters>({});
+  
+  // Hàm lấy task theo ID
+  const getTaskById = (id: string) => {
+    return tasks.find(task => task.id === id);
+  };
+
+  // Hàm updateTaskStatus được định nghĩa ở trên nên bỏ phần này
+
+  // Cung cấp giá trị cho context
+  const contextValue: TaskDataContextType = {
     tasks,
-    isLoading,
+    filteredTasks,
+    setTasks,
     addTask,
     updateTask,
     deleteTask,
-    updateTaskStatus,
+    getTaskById,
+    filterTasks,
     refreshTasks,
-    filterTasks
+    updateTaskStatus,
+    isLoading,
+    filters
   };
 
   return (
-    <TaskDataContext.Provider value={value}>
+    <TaskDataContext.Provider value={contextValue}>
       {children}
     </TaskDataContext.Provider>
   );

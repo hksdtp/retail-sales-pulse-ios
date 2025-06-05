@@ -20,6 +20,7 @@ export interface TaskDataContextType {
   getTaskById: (id: string) => Task | undefined;
   filterTasks: (filters: TaskFilters) => void;
   refreshTasks: () => Promise<void>;
+  updateTaskStatus: (id: string, status: Task['status']) => void;
   isLoading: boolean;
   filters: TaskFilters;
 }

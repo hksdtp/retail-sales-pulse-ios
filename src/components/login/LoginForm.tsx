@@ -4,11 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { User as UserType, UserLocation, Team } from '@/types/user';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MapPin, Users, User, Lock } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { getAvatarText } from '@/components/login/LoginUtils';
 import { motion } from 'framer-motion';
 import LocationSelector from './LocationSelector';
@@ -62,8 +60,8 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       // Chỉ hiển thị người dùng thuộc nhóm được chọn
       return user.team_id === selectedTeam.id;
     }
-    
-    // Lọc theo khu vực
+
+    // Lọc theo khu vực (hiển thị tất cả người dùng trong khu vực khi không chọn nhóm cụ thể)
     return user.location === selectedLocation && user.department_type === departmentType;
   });
 
@@ -114,11 +112,18 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   const showTeamSelector = selectedLocation !== 'all';
 
   // Xác định xem có hiển thị mục chọn người dùng không
-  const showUserSelector = selectedLocation === 'all' || selectedTeam;
+  // Luôn hiển thị người dùng sau khi chọn khu vực
+  const showUserSelector = true;
 
   // Xác định xem có hiển thị người dùng đặc biệt không (Hà Xuân Trường hoặc Khổng Đức Mạnh)
   const isSpecialRole = selectedLocation === 'all';
   
+  // Reset team và user khi thay đổi khu vực
+  useEffect(() => {
+    setSelectedTeam(null);
+    setSelectedUser(null);
+  }, [selectedLocation]);
+
   // Tự động chọn người dùng đặc biệt khi chọn "Toàn quốc"
   useEffect(() => {
     if (isSpecialRole && filteredUsers.length > 0 && !selectedUser) {
@@ -132,13 +137,16 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         {/* Chọn khu vực */}
         <LocationSelector
           selectedLocation={selectedLocation}
-          onLocationChange={setSelectedLocation}
+          onLocationChange={(location) => {
+            setSelectedLocation(location);
+            // Reset sẽ được xử lý bởi useEffect
+          }}
           departmentType={departmentType}
         />
 
         {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
         {showTeamSelector && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -146,38 +154,37 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           >
             <div className="text-sm font-medium flex items-center text-[#636e72] mb-1">
               <Users className="h-3.5 w-3.5 mr-1.5" />
-              <span>Nhóm làm việc</span>
+              <span>Nhóm làm việc (tùy chọn)</span>
             </div>
-            
-            <Select 
+
+            <select
               value={selectedTeam?.id || ''}
-              onValueChange={(value) => {
-                const team = teams.find(t => t.id === value);
-                setSelectedTeam(team || null);
+              onChange={(e) => {
+                if (e.target.value === '') {
+                  setSelectedTeam(null);
+                } else {
+                  const team = teams.find(t => t.id === e.target.value);
+                  setSelectedTeam(team || null);
+                }
                 setSelectedUser(null);
               }}
+              className="w-full h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm px-3"
             >
-              <SelectTrigger 
-                className="h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm"
-              >
-                <div className="flex items-center">
-                  <SelectValue placeholder="Chọn nhóm làm việc" />
-                </div>
-              </SelectTrigger>
-              <SelectContent className="bg-white/95 rounded-lg p-1 border-[#dfe6e9]">
-                {filteredTeams.map(team => (
-                  <SelectItem key={team.id} value={team.id} className="py-1.5 text-sm">
-                    {team.name}
-                  </SelectItem>
+              <option value="">Tất cả nhóm</option>
+              {filteredTeams
+                .filter(team => team && team.id && team.name) // Lọc dữ liệu hợp lệ
+                .map(team => (
+                  <option key={team.id} value={team.id}>
+                    {team.name || 'Không có tên nhóm'}
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+            </select>
           </motion.div>
         )}
 
         {/* Người dùng - Đối với người dùng đặc biệt, tự động chọn người dùng */}
         {showUserSelector && !isSpecialRole && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -187,42 +194,24 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
               <User className="h-3.5 w-3.5 mr-1.5" />
               <span>Người dùng</span>
             </div>
-            
-            <Select 
+
+            <select
               value={selectedUser?.id || ''}
-              onValueChange={(value) => {
-                const user = users.find(u => u.id === value);
+              onChange={(e) => {
+                const user = users.find(u => u.id === e.target.value);
                 setSelectedUser(user || null);
               }}
+              className="w-full h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm px-3"
             >
-              <SelectTrigger 
-                className="h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm"
-              >
-                <div className="flex items-center">
-                  <SelectValue placeholder="Chọn người dùng" />
-                </div>
-              </SelectTrigger>
-              <SelectContent className="bg-white/95 rounded-lg p-1 border-[#dfe6e9]">
-                {filteredUsers.map(user => (
-                  <SelectItem key={user.id} value={user.id} className="py-1.5 text-sm">
-                    <div className="flex items-center">
-                      <Avatar className="h-5 w-5 mr-2">
-                        <AvatarFallback className={`text-white text-xs ${
-                          user.role === 'retail_director' || user.role === 'project_director'
-                            ? 'bg-purple-500' 
-                            : user.role === 'team_leader' 
-                              ? 'bg-ios-blue' 
-                              : 'bg-gray-500'
-                        }`}>
-                          {getAvatarText(user.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {user.name}
-                    </div>
-                  </SelectItem>
+              <option value="">Chọn người dùng</option>
+              {filteredUsers
+                .filter(user => user && user.id && user.name) // Lọc dữ liệu hợp lệ
+                .map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name || 'Không có tên'}
+                  </option>
                 ))}
-              </SelectContent>
-            </Select>
+            </select>
           </motion.div>
         )}
 

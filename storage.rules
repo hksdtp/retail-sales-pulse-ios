@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Rules for user avatars
+    match /avatars/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Rules for task attachments
+    match /attachments/{taskId}/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Rules for reports
+    match /reports/{reportId}/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Rules for exports
+    match /exports/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

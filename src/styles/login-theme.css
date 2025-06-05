@@ -131,13 +131,19 @@
   line-height: 1.4;
 }
 
-/* Animation */
+/* Animation - Chuyển động chậm và mượt mà */
 @keyframes gradient-animation {
   0% {
     background-position: 0% 50%;
   }
-  50% {
+  25% {
     background-position: 100% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
   }
   100% {
     background-position: 0% 50%;
@@ -195,21 +201,24 @@
 
 @keyframes float {
   0%, 100% {
-    transform: translateY(0) translateX(0);
+    transform: translateY(0) translateX(0) rotate(0deg);
   }
-  25% {
-    transform: translateY(-10px) translateX(10px);
+  20% {
+    transform: translateY(-8px) translateX(8px) rotate(1deg);
   }
-  50% {
-    transform: translateY(-5px) translateX(-5px);
+  40% {
+    transform: translateY(-3px) translateX(-3px) rotate(-0.5deg);
   }
-  75% {
-    transform: translateY(10px) translateX(5px);
+  60% {
+    transform: translateY(5px) translateX(3px) rotate(0.5deg);
+  }
+  80% {
+    transform: translateY(8px) translateX(-5px) rotate(-1deg);
   }
 }
 
 .animate-float {
-  animation: float 20s ease-in-out infinite;
+  animation: float 30s ease-in-out infinite;
 }
 
 .animate-gradient-animation {
@@ -237,4 +246,136 @@
   opacity: 0.5;
   filter: grayscale(80%) brightness(0.7);
   transition: all 0.5s ease;
+}
+
+/* Hiệu ứng cho phòng ban bị khóa */
+.department-locked {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  filter: grayscale(100%) contrast(1.2);
+  position: relative;
+}
+
+.department-locked::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255,255,255,0.1) 10px,
+    rgba(255,255,255,0.1) 20px
+  );
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Hiệu ứng scan line cho locked department */
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00ff00, transparent);
+  animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* Glitch effect cho locked text */
+.glitch {
+  position: relative;
+  animation: glitch 2s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  animation: glitch-1 0.5s infinite;
+  color: #ff0000;
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch-2 0.5s infinite;
+  color: #00ff00;
+  z-index: -2;
+}
+
+@keyframes glitch {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+}
+
+@keyframes glitch-1 {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-1px, 1px);
+  }
+  40% {
+    transform: translate(-1px, -1px);
+  }
+  60% {
+    transform: translate(1px, 1px);
+  }
+  80% {
+    transform: translate(1px, -1px);
+  }
+}
+
+@keyframes glitch-2 {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(1px, -1px);
+  }
+  40% {
+    transform: translate(1px, 1px);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+  }
+  80% {
+    transform: translate(-1px, 1px);
+  }
 }

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
-import { TaskDataContext } from '@/context/TaskContext';
-import { useAuth } from '@/context/AuthContext';
+import { TaskDataContext } from '../context/TaskContext';
+import { useAuth } from '../context/AuthContext';
 
 export const useTaskData = () => {
   const context = useContext(TaskDataContext);

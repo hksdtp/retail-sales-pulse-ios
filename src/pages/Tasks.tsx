@@ -1,10 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Users, UserRound } from 'lucide-react';
+import ErrorBoundary from '../components/ErrorBoundary';
+import { Plus, Users, UserRound, Download } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import PageHeader from '../components/layout/PageHeader';
 import { Button } from '../components/ui/button';
 import TaskFormDialog from '../components/tasks/TaskFormDialog';
+import { ExportDialog } from '../components/export/ExportDialog';
 import { useAuth } from '../context/AuthContext';
 import FirebaseConfig from '../components/settings/FirebaseConfig';
 import { FirebaseService } from '../services/FirebaseService';
@@ -70,10 +72,21 @@ const Tasks = () => {
         subtitle={subtitle}
         actions={
           <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => setIsFirebaseConfigOpen(true)} 
+            <ExportDialog>
+              <Button
+                variant="outline"
+                size="icon"
+                title="Xuất dữ liệu"
+                className="text-blue-600 border-blue-200 bg-blue-50"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </ExportDialog>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsFirebaseConfigOpen(true)}
               title="Cấu hình Firebase"
               className="text-green-600 border-green-200 bg-green-50"
             >
@@ -145,8 +158,10 @@ const Tasks = () => {
           </div>
         </div>
         
-        {/* Sử dụng TaskList mới */}
-        <TaskList key={`task-list-${taskUpdateTrigger}`} />
+        {/* Hiển thị danh sách công việc */}
+        <ErrorBoundary>
+          <TaskList key={taskUpdateTrigger} />
+        </ErrorBoundary>
       </div>
 
       <TaskFormDialog 
