@@ -51,34 +51,28 @@ const Tasks = () => {
   const handleDeleteAllTasks = async () => {
     setIsDeleting(true);
     try {
-      // Gọi API để xóa tất cả tasks của user hiện tại
-      const apiUrl = getApiUrl();
-      console.log('Deleting tasks for user:', currentUser?.id);
-      console.log('API URL:', `${apiUrl}/tasks/delete-all`);
-
-      const response = await fetch(`${apiUrl}/tasks/delete-all`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: currentUser?.id
-        })
-      });
-
-      // Fallback: Xóa trực tiếp qua Firebase
-      const firebaseService = FirebaseService.getInstance();
-      const db = firebaseService.getFirestore();
-
-      if (!db) {
-        throw new Error('Firebase chưa được khởi tạo');
-      }
-
       if (!currentUser?.id) {
         throw new Error('Không tìm thấy thông tin người dùng');
       }
 
       console.log('Deleting tasks for user:', currentUser.id);
+
+      // Khởi tạo Firebase nếu chưa có
+      let firebaseService = FirebaseService.getInstance();
+      let db = firebaseService.getFirestore();
+
+      if (!db) {
+        console.log('Firebase chưa được khởi tạo, đang khởi tạo từ localStorage...');
+        const initResult = FirebaseService.initializeFromLocalStorage();
+        if (initResult) {
+          firebaseService = initResult;
+          db = firebaseService.getFirestore();
+        }
+      }
+
+      if (!db) {
+        throw new Error('Firebase chưa được cấu hình. Vui lòng cấu hình Firebase trước khi sử dụng tính năng này.');
+      }
 
       // Lấy tất cả tasks được giao cho user hiện tại
       const { collection, query, where, getDocs, deleteDoc, doc } = await import('firebase/firestore');
@@ -88,6 +82,14 @@ const Tasks = () => {
       const querySnapshot = await getDocs(q);
 
       console.log(`Found ${querySnapshot.size} tasks to delete`);
+
+      if (querySnapshot.size === 0) {
+        toast({
+          title: "Thông báo",
+          description: "Không có công việc nào để xóa."
+        });
+        return;
+      }
 
       // Xóa từng task
       const deletePromises = querySnapshot.docs.map(taskDoc =>
@@ -116,13 +118,30 @@ const Tasks = () => {
     }
   };
   
-  // Kiểm tra cấu hình Firebase khi trang được tải
+  // Kiểm tra và khởi tạo Firebase khi trang được tải
   useEffect(() => {
-    const isConfigured = FirebaseService.isConfigured();
+    let isConfigured = FirebaseService.isConfigured();
+
+    if (!isConfigured) {
+      // Thử khởi tạo từ localStorage
+      const initResult = FirebaseService.initializeFromLocalStorage();
+      if (initResult) {
+        isConfigured = true;
+        console.log('Firebase đã được khởi tạo từ localStorage');
+      }
+    }
+
     if (isConfigured) {
       toast({
         title: "Đã sẵn sàng",
         description: "Firebase đã được cấu hình và đang hoạt động",
+        duration: 3000
+      });
+    } else {
+      toast({
+        title: "Cần cấu hình Firebase",
+        description: "Vui lòng cấu hình Firebase để sử dụng đầy đủ tính năng",
+        variant: "destructive",
         duration: 5000
       });
     }
