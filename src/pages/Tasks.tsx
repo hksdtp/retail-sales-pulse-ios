@@ -108,25 +108,74 @@ const Tasks = () => {
         throw new Error('Firebase chưa được cấu hình. Vui lòng cấu hình Firebase trước khi sử dụng tính năng này.');
       }
 
-      // Lấy tất cả tasks được giao cho user hiện tại
-      const { collection, query, where, getDocs, deleteDoc, doc } = await import('firebase/firestore');
+      // Debug: Xem cấu trúc tasks trong Firebase
+      const { collection, query, where, getDocs, deleteDoc, doc, limit } = await import('firebase/firestore');
 
-      const tasksRef = collection(db, 'tasks');
-      const q = query(tasksRef, where('assignedTo', '==', currentUser.id));
-      const querySnapshot = await getDocs(q);
+      // Lấy vài tasks mẫu để xem cấu trúc
+      const sampleTasksRef = collection(db, 'tasks');
+      const sampleQuery = query(sampleTasksRef, limit(5));
+      const sampleSnapshot = await getDocs(sampleQuery);
 
-      console.log(`Found ${querySnapshot.size} tasks to delete via Firebase`);
+      console.log('=== SAMPLE TASKS STRUCTURE ===');
+      sampleSnapshot.docs.forEach((taskDoc, index) => {
+        console.log(`Task ${index}:`, taskDoc.data());
+      });
 
-      if (querySnapshot.size === 0) {
+      // Thử nhiều field có thể chứa user ID
+      const possibleFields = ['assignedTo', 'user_id', 'userId', 'assigned_to'];
+      let tasksToDelete: any[] = [];
+      let foundField = '';
+
+      for (const field of possibleFields) {
+        try {
+          const tasksRef = collection(db, 'tasks');
+          const q = query(tasksRef, where(field, '==', currentUser.id));
+          const querySnapshot = await getDocs(q);
+
+          if (querySnapshot.size > 0) {
+            console.log(`Found ${querySnapshot.size} tasks with field "${field}"`);
+            tasksToDelete = querySnapshot.docs;
+            foundField = field;
+            break;
+          }
+        } catch (error) {
+          console.log(`Field "${field}" not found:`, error);
+        }
+      }
+
+      // Thử với string conversion
+      if (tasksToDelete.length === 0) {
+        const userIdStr = String(currentUser.id);
+        for (const field of possibleFields) {
+          try {
+            const tasksRef = collection(db, 'tasks');
+            const q = query(tasksRef, where(field, '==', userIdStr));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.size > 0) {
+              console.log(`Found ${querySnapshot.size} tasks with field "${field}" as string`);
+              tasksToDelete = querySnapshot.docs;
+              foundField = field;
+              break;
+            }
+          } catch (error) {
+            console.log(`Field "${field}" string search error:`, error);
+          }
+        }
+      }
+
+      console.log(`Final result: ${tasksToDelete.length} tasks to delete using field "${foundField}"`);
+
+      if (tasksToDelete.length === 0) {
         toast({
           title: "Thông báo",
-          description: "Không có công việc nào để xóa."
+          description: "Không có công việc nào để xóa. Kiểm tra console để xem cấu trúc tasks."
         });
         return;
       }
 
       // Xóa từng task
-      const deletePromises = querySnapshot.docs.map(taskDoc =>
+      const deletePromises = tasksToDelete.map(taskDoc =>
         deleteDoc(doc(db, 'tasks', taskDoc.id))
       );
 
@@ -134,7 +183,7 @@ const Tasks = () => {
 
       toast({
         title: "Thành công!",
-        description: `Đã xóa ${querySnapshot.size} công việc qua Firebase.`
+        description: `Đã xóa ${tasksToDelete.length} công việc qua Firebase (field: ${foundField}).`
       });
 
       // Trigger refresh

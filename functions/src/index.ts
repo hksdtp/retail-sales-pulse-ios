@@ -170,22 +170,76 @@ app.delete("/tasks/delete-all", async (req, res) => {
       });
     }
 
-    // Get all tasks assigned to this user
-    const tasksSnapshot = await admin.firestore()
+    logger.info(`Deleting tasks for user_id: ${user_id}`);
+
+    // First, let's check all tasks to see what fields exist
+    const allTasksSnapshot = await admin.firestore()
       .collection("tasks")
-      .where("assignedTo", "==", user_id)
+      .limit(5)
       .get();
 
-    // Delete all tasks in batch
+    logger.info("Sample tasks structure:");
+    allTasksSnapshot.docs.forEach((doc, index) => {
+      logger.info(`Task ${index}:`, doc.data());
+    });
+
+    // Try multiple field names that might contain user ID
+    const possibleFields = ["assignedTo", "user_id", "userId", "assigned_to"];
+    let tasksToDelete: any[] = [];
+
+    for (const field of possibleFields) {
+      try {
+        const snapshot = await admin.firestore()
+          .collection("tasks")
+          .where(field, "==", user_id)
+          .get();
+
+        if (!snapshot.empty) {
+          logger.info(`Found ${snapshot.size} tasks with field "${field}"`);
+          tasksToDelete = snapshot.docs;
+          break;
+        }
+      } catch (error) {
+        // Field might not exist, continue to next
+        logger.info(`Field "${field}" not found or error:`, error);
+      }
+    }
+
+    // If no tasks found with exact match, try string conversion
+    if (tasksToDelete.length === 0) {
+      const userIdStr = String(user_id);
+      for (const field of possibleFields) {
+        try {
+          const snapshot = await admin.firestore()
+            .collection("tasks")
+            .where(field, "==", userIdStr)
+            .get();
+
+          if (!snapshot.empty) {
+            logger.info(`Found ${snapshot.size} tasks with field "${field}" as string`);
+            tasksToDelete = snapshot.docs;
+            break;
+          }
+        } catch (error) {
+          logger.info(`Field "${field}" string search error:`, error);
+        }
+      }
+    }
+
+    // Delete all found tasks in batch
     const batch = admin.firestore().batch();
     let deletedCount = 0;
 
-    tasksSnapshot.docs.forEach((doc) => {
+    tasksToDelete.forEach((doc) => {
       batch.delete(doc.ref);
       deletedCount++;
     });
 
-    await batch.commit();
+    if (deletedCount > 0) {
+      await batch.commit();
+    }
+
+    logger.info(`Successfully deleted ${deletedCount} tasks for user ${user_id}`);
 
     return res.json({
       success: true,
