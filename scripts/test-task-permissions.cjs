@@ -67,9 +67,14 @@ async function createTestTask(creatorId, assignedToId, title) {
   }
 }
 
-async function getTasksForUser(userId) {
+async function getTasksForUser(userId, role, teamId) {
   try {
-    const response = await fetch(`${API_BASE}/tasks?user_id=${userId}`);
+    const params = new URLSearchParams();
+    params.append('user_id', userId);
+    if (role) params.append('role', role);
+    if (teamId) params.append('team_id', teamId);
+
+    const response = await fetch(`${API_BASE}/tasks?${params.toString()}`);
     const result = await response.json();
     return result.success ? result.data : [];
   } catch (error) {
@@ -104,10 +109,10 @@ async function testTaskPermissions() {
 
   for (const user of testUsers) {
     console.log(`👤 ${user.name} (${user.role}):`);
-    
-    const tasks = await getTasksForUser(user.id);
+
+    const tasks = await getTasksForUser(user.id, user.role, user.team_id);
     console.log(`   📊 Thấy được ${tasks.length} tasks:`);
-    
+
     tasks.forEach(task => {
       const creator = testUsers.find(u => u.id === task.user_id);
       const assignee = testUsers.find(u => u.id === task.assignedTo);
@@ -115,7 +120,7 @@ async function testTaskPermissions() {
       console.log(`        Tạo bởi: ${creator ? creator.name : 'Unknown'}`);
       console.log(`        Giao cho: ${assignee ? assignee.name : 'Unknown'}`);
     });
-    
+
     console.log('');
   }
 
@@ -123,22 +128,22 @@ async function testTaskPermissions() {
   console.log('3. ✅ Kiểm tra logic phân quyền...\n');
 
   // Test Khổng Đức Mạnh (Retail Director)
-  const directorTasks = await getTasksForUser('1');
+  const directorTasks = await getTasksForUser('1', 'retail_director', '0');
   console.log(`🏢 Khổng Đức Mạnh (Retail Director): ${directorTasks.length} tasks`);
   console.log(`   Expected: Tất cả tasks của phòng bán lẻ`);
 
   // Test Lương Việt Anh (Team Leader nhóm 1)
-  const leaderTasks = await getTasksForUser('2');
+  const leaderTasks = await getTasksForUser('2', 'team_leader', '1');
   console.log(`👥 Lương Việt Anh (Team Leader nhóm 1): ${leaderTasks.length} tasks`);
-  console.log(`   Expected: Tasks được giao cho thành viên nhóm 1 (Lê Khánh Duy)`);
+  console.log(`   Expected: Tasks được giao cho thành viên nhóm 1`);
 
   // Test Lê Khánh Duy (Employee nhóm 1)
-  const employee1Tasks = await getTasksForUser('3');
+  const employee1Tasks = await getTasksForUser('3', 'employee', '1');
   console.log(`👤 Lê Khánh Duy (Employee nhóm 1): ${employee1Tasks.length} tasks`);
   console.log(`   Expected: Chỉ tasks được giao cho mình`);
 
   // Test Nguyễn Mạnh Linh (Employee nhóm 2)
-  const employee2Tasks = await getTasksForUser('5');
+  const employee2Tasks = await getTasksForUser('5', 'employee', '2');
   console.log(`👤 Nguyễn Mạnh Linh (Employee nhóm 2): ${employee2Tasks.length} tasks`);
   console.log(`   Expected: Chỉ tasks được giao cho mình`);
 

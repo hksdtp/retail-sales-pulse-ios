@@ -10,6 +10,7 @@ import { MapPin, Users, User, Lock } from 'lucide-react';
 import { getAvatarText } from '@/components/login/LoginUtils';
 import { motion } from 'framer-motion';
 import LocationSelector from './LocationSelector';
+import GoogleLoginButton from './GoogleLoginButton';
 
 interface LoginFormProps {
   departmentType?: string | null;
@@ -255,6 +256,21 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full hover:animate-shimmer"></span>
       </motion.button>
     </form>
+
+    {/* Divider */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.4, duration: 0.3 }}
+      className="flex items-center my-6"
+    >
+      <div className="flex-1 border-t border-gray-200"></div>
+      <span className="px-4 text-sm text-gray-500 bg-white">hoặc</span>
+      <div className="flex-1 border-t border-gray-200"></div>
+    </motion.div>
+
+    {/* Google Login */}
+    <GoogleLoginButton disabled={isSubmitting} />
   );
 };
 
