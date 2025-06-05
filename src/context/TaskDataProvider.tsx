@@ -820,9 +820,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
               return true;
             }
             
-            // 2. Công việc do nhân viên tạo
-            if (task.user_id === userId) {
-              permissionLog(`Task ${task.id}: Được tạo bởi nhân viên`, LogLevel.DETAILED);
+            // 2. Công việc do nhân viên tạo (chỉ cho phép xem nếu được giao cho chính họ)
+            if (task.user_id === userId && task.assignedTo === userId) {
+              permissionLog(`Task ${task.id}: Được tạo bởi nhân viên và giao cho chính họ`, LogLevel.DETAILED);
               return true;
             }
             

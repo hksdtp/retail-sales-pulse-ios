@@ -27,9 +27,8 @@ export const filterTasksByUserRole = (
         const userTeam = teams.find(team => team.leader_id === currentUser.id);
         hasPermissionToView = userTeam ? task.teamId === userTeam.id : false;
       } else {
-        // Nhân viên xem công việc được giao cho mình hoặc do chính họ tạo
-        hasPermissionToView = task.assignedTo === currentUser.id || 
-                              (task.user_id === currentUser.id); // Thêm điều kiện cho phép xem công việc do mình tạo
+        // Nhân viên chỉ xem công việc được giao cho mình
+        hasPermissionToView = task.assignedTo === currentUser.id;
       }
     }
     

@@ -95,7 +95,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       description: '',
       type: 'partner_new',
       status: 'todo',
-      date: new Date().toISOString().split('T')[0], // Ngày hiện tại
+      date: new Date().toISOString().split('T')[0], // Ngày hiện tại theo thời gian thực
       time: '',
       team_id: currentUser?.team_id,
       assignedTo: currentUser?.id, // Mặc định gán cho người dùng hiện tại
@@ -103,6 +103,14 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       isSharedWithTeam: false // Mặc định không chia sẻ với nhóm
     }
   });
+
+  // Reset ngày về hôm nay khi mở dialog
+  useEffect(() => {
+    if (open) {
+      const today = new Date().toISOString().split('T')[0];
+      form.setValue('date', today);
+    }
+  }, [open, form]);
 
   // Lọc danh sách người dùng dựa trên vai trò và nhóm
   const getFilteredUsers = () => {
