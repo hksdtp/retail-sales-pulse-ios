@@ -15,6 +15,7 @@ import { useToast } from '../hooks/use-toast';
 import TaskList from './TaskList';
 import { useTaskData } from '../hooks/use-task-data';
 import { getApiUrl } from '@/config/api';
+import AutoFirebaseSetup from '../components/firebase/AutoFirebaseSetup';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ const Tasks = () => {
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const [taskUpdateTrigger, setTaskUpdateTrigger] = useState(0); // Trigger để kích hoạt làm mới danh sách công việc
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showFirebaseSetup, setShowFirebaseSetup] = useState(false);
   const { currentUser, teams } = useAuth();
   const { toast } = useToast();
   const { tasks } = useTaskData();
@@ -138,6 +140,7 @@ const Tasks = () => {
         duration: 3000
       });
     } else {
+      setShowFirebaseSetup(true);
       toast({
         title: "Cần cấu hình Firebase",
         description: "Vui lòng cấu hình Firebase để sử dụng đầy đủ tính năng",
@@ -168,10 +171,21 @@ const Tasks = () => {
   // Tất cả người dùng đều có thể tạo công việc mới, nhân viên chỉ có thể tạo công việc cho chính mình
   const canCreateTask = true; // Cho phép tất cả người dùng tạo công việc
 
+  // Hiển thị Firebase setup nếu cần
+  if (showFirebaseSetup) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <AutoFirebaseSetup />
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
-      <PageHeader 
-        title={headerTitle} 
+      <PageHeader
+        title={headerTitle}
         subtitle={subtitle}
         actions={
           <div className="flex space-x-2">
