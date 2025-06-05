@@ -1,8 +1,8 @@
 // API Configuration
 export const API_CONFIG = {
   // Production API URL
-  BASE_URL: 'https://us-central1-appqlgd.cloudfunctions.net/api',
-  
+  BASE_URL: 'https://api-adwc442mha-uc.a.run.app',
+
   // Local development API URL (for testing)
   LOCAL_URL: 'http://127.0.0.1:5001/appqlgd/us-central1/api',
   

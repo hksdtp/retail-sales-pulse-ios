@@ -14,6 +14,7 @@ import { Settings } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import TaskList from './TaskList';
 import { useTaskData } from '../hooks/use-task-data';
+import { getApiUrl } from '@/config/api';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,7 +52,10 @@ const Tasks = () => {
     setIsDeleting(true);
     try {
       // Gọi API để xóa tất cả tasks của user hiện tại
-      const apiUrl = 'https://us-central1-appqlgd.cloudfunctions.net/api';
+      const apiUrl = getApiUrl();
+      console.log('Deleting tasks for user:', currentUser?.id);
+      console.log('API URL:', `${apiUrl}/tasks/delete-all`);
+
       const response = await fetch(`${apiUrl}/tasks/delete-all`, {
         method: 'DELETE',
         headers: {
@@ -62,23 +66,49 @@ const Tasks = () => {
         })
       });
 
-      const result = await response.json();
+      // Fallback: Xóa trực tiếp qua Firebase
+      const firebaseService = FirebaseService.getInstance();
+      const db = firebaseService.getFirestore();
 
-      if (result.success) {
-        toast({
-          title: "Thành công!",
-          description: `Đã xóa ${result.deletedCount || 0} công việc.`
-        });
-        // Trigger refresh
-        setTaskUpdateTrigger(prev => prev + 1);
-      } else {
-        throw new Error(result.error || 'Không thể xóa công việc');
+      if (!db) {
+        throw new Error('Firebase chưa được khởi tạo');
       }
+
+      if (!currentUser?.id) {
+        throw new Error('Không tìm thấy thông tin người dùng');
+      }
+
+      console.log('Deleting tasks for user:', currentUser.id);
+
+      // Lấy tất cả tasks được giao cho user hiện tại
+      const { collection, query, where, getDocs, deleteDoc, doc } = await import('firebase/firestore');
+
+      const tasksRef = collection(db, 'tasks');
+      const q = query(tasksRef, where('assignedTo', '==', currentUser.id));
+      const querySnapshot = await getDocs(q);
+
+      console.log(`Found ${querySnapshot.size} tasks to delete`);
+
+      // Xóa từng task
+      const deletePromises = querySnapshot.docs.map(taskDoc =>
+        deleteDoc(doc(db, 'tasks', taskDoc.id))
+      );
+
+      await Promise.all(deletePromises);
+
+      toast({
+        title: "Thành công!",
+        description: `Đã xóa ${querySnapshot.size} công việc.`
+      });
+
+      // Trigger refresh
+      setTaskUpdateTrigger(prev => prev + 1);
+
     } catch (error) {
       console.error('Lỗi khi xóa toàn bộ công việc:', error);
       toast({
         title: "Lỗi",
-        description: "Không thể xóa toàn bộ công việc. Vui lòng thử lại.",
+        description: `Không thể xóa toàn bộ công việc: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     } finally {
