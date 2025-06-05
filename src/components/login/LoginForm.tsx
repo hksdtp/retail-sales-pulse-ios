@@ -133,17 +133,18 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   }, [isSpecialRole, filteredUsers, selectedUser]);
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-4 min-h-[280px] relative">
-        {/* Chọn khu vực */}
-        <LocationSelector
-          selectedLocation={selectedLocation}
-          onLocationChange={(location) => {
-            setSelectedLocation(location);
-            // Reset sẽ được xử lý bởi useEffect
-          }}
-          departmentType={departmentType}
-        />
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-4 min-h-[280px] relative">
+          {/* Chọn khu vực */}
+          <LocationSelector
+            selectedLocation={selectedLocation}
+            onLocationChange={(location) => {
+              setSelectedLocation(location);
+              // Reset sẽ được xử lý bởi useEffect
+            }}
+            departmentType={departmentType}
+          />
 
         {/* Team - Chỉ hiển thị khi chọn khu vực cụ thể */}
         {showTeamSelector && (
@@ -255,22 +256,23 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         )}
         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full hover:animate-shimmer"></span>
       </motion.button>
-    </form>
+      </form>
 
-    {/* Divider */}
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.4, duration: 0.3 }}
-      className="flex items-center my-6"
-    >
-      <div className="flex-1 border-t border-gray-200"></div>
-      <span className="px-4 text-sm text-gray-500 bg-white">hoặc</span>
-      <div className="flex-1 border-t border-gray-200"></div>
-    </motion.div>
+      {/* Divider */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.3 }}
+        className="flex items-center my-6"
+      >
+        <div className="flex-1 border-t border-gray-200"></div>
+        <span className="px-4 text-sm text-gray-500 bg-white">hoặc</span>
+        <div className="flex-1 border-t border-gray-200"></div>
+      </motion.div>
 
-    {/* Google Login */}
-    <GoogleLoginButton disabled={isSubmitting} />
+      {/* Google Login */}
+      <GoogleLoginButton disabled={isSubmitting} />
+    </div>
   );
 };
 
