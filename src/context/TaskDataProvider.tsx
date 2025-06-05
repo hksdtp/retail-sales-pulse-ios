@@ -14,16 +14,42 @@ import { getApiUrl } from '@/config/api';
 const isFirebaseConfigured = () => FirebaseService.isConfigured();
 
 // Helper function để làm việc với API và Tasks
-const getTasks = async (userId?: string) => {
+const getTasks = async (currentUser?: any, users?: any[]) => {
   try {
-    // Gọi API với user_id để lọc tasks
     const apiUrl = getApiUrl();
-    const url = userId ? `${apiUrl}/tasks?user_id=${userId}` : `${apiUrl}/tasks`;
+    let url = `${apiUrl}/tasks`;
+
+    if (currentUser) {
+      const params = new URLSearchParams();
+      params.append('user_id', currentUser.id);
+      params.append('role', currentUser.role);
+
+      if (currentUser.team_id) {
+        params.append('team_id', currentUser.team_id);
+      }
+
+      if (currentUser.department_type) {
+        params.append('department', currentUser.department_type);
+      }
+
+      url += `?${params.toString()}`;
+    }
 
     const response = await fetch(url);
     const result = await response.json();
 
     if (result.success && result.data) {
+      // Nếu là Retail Director, lọc thêm theo department ở frontend
+      if (currentUser?.role === 'retail_director' && users) {
+        return result.data.filter((task: any) => {
+          if (task.assignedTo) {
+            const assignedUser = users.find(u => u.id === task.assignedTo);
+            return assignedUser && assignedUser.department_type === 'retail';
+          }
+          return false;
+        });
+      }
+
       return result.data;
     } else {
       console.error('Lỗi khi lấy tasks từ API:', result.error);
@@ -228,7 +254,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         if (isFirebaseConfigured()) {
           try {
             console.log('Đang tải dữ liệu từ API...');
-            const apiData = await getTasks(currentUser?.id);
+            const apiData = await getTasks(currentUser, users);
             if (Array.isArray(apiData) && apiData.length > 0) {
               console.log(`Đã tải ${apiData.length} công việc từ API`);
               const convertedTasks = convertFirebaseTasks(apiData);
@@ -711,7 +737,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (isFirebaseConfigured()) {
         try {
           console.log('Đang làm mới dữ liệu từ API...');
-          const apiData = await getTasks(currentUser?.id);
+          const apiData = await getTasks(currentUser, users);
           if (Array.isArray(apiData) && apiData.length > 0) {
             console.log(`Đã tải ${apiData.length} công việc từ API`);
             const convertedTasks = convertFirebaseTasks(apiData);

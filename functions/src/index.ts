@@ -24,14 +24,39 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Get all tasks (with optional user filtering)
+// Get all tasks (with role-based filtering)
 app.get("/tasks", async (req, res) => {
   try {
-    const { user_id } = req.query;
+    const { user_id, role, team_id, department } = req.query;
 
     let tasksSnapshot;
-    if (user_id) {
-      // Lọc tasks theo user_id - chỉ trả về tasks được giao cho user đó
+
+    if (role === 'retail_director') {
+      // Retail Director: Xem tất cả tasks của phòng bán lẻ
+      // Lấy tất cả tasks và lọc theo department ở frontend
+      tasksSnapshot = await admin.firestore().collection("tasks").get();
+    } else if (role === 'team_leader' && team_id) {
+      // Team Leader: Xem tasks được giao cho thành viên trong nhóm
+      // Lấy tất cả users của team này từ collection users
+      const usersSnapshot = await admin.firestore()
+        .collection("users")
+        .where("team_id", "==", team_id)
+        .get();
+
+      const teamMemberIds = usersSnapshot.docs.map(doc => doc.id);
+
+      if (teamMemberIds.length > 0) {
+        // Lấy tasks được giao cho bất kỳ thành viên nào trong nhóm
+        tasksSnapshot = await admin.firestore()
+          .collection("tasks")
+          .where("assignedTo", "in", teamMemberIds)
+          .get();
+      } else {
+        // Nếu không có thành viên nào, trả về empty
+        tasksSnapshot = { docs: [] };
+      }
+    } else if (user_id) {
+      // Employee: Chỉ xem tasks được giao cho mình
       tasksSnapshot = await admin.firestore()
         .collection("tasks")
         .where("assignedTo", "==", user_id)
@@ -129,6 +154,49 @@ app.delete("/tasks/:id", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to delete task",
+    });
+  }
+});
+
+// Delete all tasks for a user
+app.delete("/tasks/delete-all", async (req, res) => {
+  try {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        error: "user_id is required",
+      });
+    }
+
+    // Get all tasks assigned to this user
+    const tasksSnapshot = await admin.firestore()
+      .collection("tasks")
+      .where("assignedTo", "==", user_id)
+      .get();
+
+    // Delete all tasks in batch
+    const batch = admin.firestore().batch();
+    let deletedCount = 0;
+
+    tasksSnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+      deletedCount++;
+    });
+
+    await batch.commit();
+
+    return res.json({
+      success: true,
+      message: `Deleted ${deletedCount} tasks successfully`,
+      deletedCount,
+    });
+  } catch (error) {
+    logger.error("Error deleting all tasks:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to delete all tasks",
     });
   }
 });

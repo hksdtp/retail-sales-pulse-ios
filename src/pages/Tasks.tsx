@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { Plus, Users, UserRound, Download } from 'lucide-react';
+import { Plus, Users, UserRound, Download, Trash2 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import PageHeader from '../components/layout/PageHeader';
 import { Button } from '../components/ui/button';
@@ -13,14 +13,28 @@ import { FirebaseService } from '../services/FirebaseService';
 import { Settings } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import TaskList from './TaskList';
+import { useTaskData } from '../hooks/use-task-data';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState(false);
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const [taskUpdateTrigger, setTaskUpdateTrigger] = useState(0); // Trigger để kích hoạt làm mới danh sách công việc
+  const [isDeleting, setIsDeleting] = useState(false);
   const { currentUser, teams } = useAuth();
   const { toast } = useToast();
+  const { tasks } = useTaskData();
   
   // Hàm để kích hoạt làm mới danh sách công việc
   const handleTaskCreated = () => {
@@ -30,6 +44,46 @@ const Tasks = () => {
       title: "Đã làm mới dữ liệu",
       description: "Danh sách công việc đã được cập nhật với công việc mới"
     });
+  };
+
+  // Hàm xóa toàn bộ công việc
+  const handleDeleteAllTasks = async () => {
+    setIsDeleting(true);
+    try {
+      // Gọi API để xóa tất cả tasks của user hiện tại
+      const apiUrl = 'https://us-central1-appqlgd.cloudfunctions.net/api';
+      const response = await fetch(`${apiUrl}/tasks/delete-all`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: currentUser?.id
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: "Thành công!",
+          description: `Đã xóa ${result.deletedCount || 0} công việc.`
+        });
+        // Trigger refresh
+        setTaskUpdateTrigger(prev => prev + 1);
+      } else {
+        throw new Error(result.error || 'Không thể xóa công việc');
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa toàn bộ công việc:', error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể xóa toàn bộ công việc. Vui lòng thử lại.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
   
   // Kiểm tra cấu hình Firebase khi trang được tải
@@ -92,6 +146,40 @@ const Tasks = () => {
             >
               <Settings className="h-4 w-4" />
             </Button>
+
+            {/* Nút xóa toàn bộ công việc */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  title="Xóa toàn bộ công việc"
+                  className="text-red-600 border-red-200 bg-red-50"
+                  disabled={tasks.length === 0}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Xóa toàn bộ công việc?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Bạn có chắc chắn muốn xóa toàn bộ {tasks.length} công việc của mình?
+                    Hành động này không thể hoàn tác.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAllTasks}
+                    disabled={isDeleting}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    {isDeleting ? "Đang xóa..." : "Xóa tất cả"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             
             {/* Tất cả vai trò đều có nút này */}
             <Button 
