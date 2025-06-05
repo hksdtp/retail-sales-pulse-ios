@@ -66,12 +66,9 @@ const Login = () => {
               <Store size={60} className="text-[#6c5ce7] mx-auto filter drop-shadow-lg" />
             </motion.div>
 
-            <h1 className="text-[#2d3436] font-bold text-2xl md:text-3xl mb-2 uppercase tracking-wide">
-              Retail Sales Pulse
+            <h1 className="text-[#2d3436] font-bold text-2xl md:text-3xl mb-4 uppercase tracking-wide">
+              Phòng Kinh Doanh Bán Lẻ
             </h1>
-            <h2 className="text-[#6c5ce7] font-semibold text-lg mb-2">
-              Hệ thống quản lý bán lẻ
-            </h2>
             <p className="text-[#636e72] text-sm md:text-base font-medium">
               Vui lòng đăng nhập để tiếp tục
             </p>
