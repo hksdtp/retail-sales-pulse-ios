@@ -48,10 +48,22 @@ app.get("/health", (req, res) => {
         service: "retail-sales-pulse-backend",
     });
 });
-// Get all tasks
+// Get all tasks (with optional user filtering)
 app.get("/tasks", async (req, res) => {
     try {
-        const tasksSnapshot = await admin.firestore().collection("tasks").get();
+        const { user_id } = req.query;
+        let tasksSnapshot;
+        if (user_id) {
+            // Lọc tasks theo user_id - chỉ trả về tasks được giao cho user đó
+            tasksSnapshot = await admin.firestore()
+                .collection("tasks")
+                .where("assignedTo", "==", user_id)
+                .get();
+        }
+        else {
+            // Trả về tất cả tasks (cho admin hoặc testing)
+            tasksSnapshot = await admin.firestore().collection("tasks").get();
+        }
         const tasks = tasksSnapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
         res.status(200).json({
             success: true,
