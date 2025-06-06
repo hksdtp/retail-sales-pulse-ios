@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, X, Eye, Clock, CheckCircle, AlertCircle, Plus, Edit } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -148,7 +149,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
           <>
             {/* Backdrop */}
             <div
-              className="fixed inset-0 z-40"
+              className="fixed inset-0 z-[9998]"
               onClick={() => setIsOpen(false)}
             />
 
@@ -157,7 +158,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-96 overflow-hidden"
+              className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"
+              data-notification="center"
             >
               {/* Header */}
               <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
