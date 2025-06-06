@@ -11,6 +11,7 @@ import { getAvatarText } from '@/components/login/LoginUtils';
 import { motion } from 'framer-motion';
 import LocationSelector from './LocationSelector';
 import GoogleLoginButton from './GoogleLoginButton';
+import ChangePasswordModal from './ChangePasswordModal';
 
 interface LoginFormProps {
   departmentType?: string | null;
@@ -20,12 +21,16 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-  const [password, setPassword] = useState('123'); // Đặt mật khẩu mặc định là "123"
+  const [password, setPassword] = useState('123456'); // Đặt mật khẩu mặc định là "123456"
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [pendingUser, setPendingUser] = useState<UserType | null>(null);
   const {
     login,
     users,
-    teams
+    teams,
+    isFirstLogin,
+    changePassword
   } = useAuth();
   const navigate = useNavigate();
   const {
@@ -42,7 +47,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     if (departmentType === 'retail' && user.department_type !== 'retail') {
       return false;
     }
-    
+
     // Khi chọn "Toàn Quốc" (hoặc "Khổng Đức Mạnh" hoặc "Hà Xuân Trường")
     if (selectedLocation === 'all') {
       if (departmentType === 'project') {
@@ -59,11 +64,21 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     // Khi chọn nhóm cụ thể
     if (selectedTeam) {
       // Chỉ hiển thị người dùng thuộc nhóm được chọn
-      return user.team_id === selectedTeam.id;
+      return user.team_id === selectedTeam.id && user.location === selectedLocation;
     }
 
     // Lọc theo khu vực (hiển thị tất cả người dùng trong khu vực khi không chọn nhóm cụ thể)
     return user.location === selectedLocation && user.department_type === departmentType;
+  });
+
+  // Debug logging
+  console.log('LoginForm Debug:', {
+    selectedLocation,
+    selectedTeam,
+    departmentType,
+    totalUsers: users.length,
+    filteredUsers: filteredUsers.length,
+    filteredUsersData: filteredUsers.map(u => ({ id: u.id, name: u.name, team_id: u.team_id, location: u.location }))
   });
 
   // Lọc teams dựa trên location và phòng ban
@@ -95,6 +110,15 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     setIsSubmitting(true);
     try {
       await login(selectedUser.email, password);
+
+      // Kiểm tra xem có phải lần đăng nhập đầu tiên không
+      if (isFirstLogin) {
+        setPendingUser(selectedUser);
+        setShowChangePassword(true);
+        setIsSubmitting(false);
+        return;
+      }
+
       toast({
         title: 'Đăng nhập thành công',
         description: 'Chào mừng bạn quay trở lại!'
@@ -118,12 +142,40 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
   // Xác định xem có hiển thị người dùng đặc biệt không (Hà Xuân Trường hoặc Khổng Đức Mạnh)
   const isSpecialRole = selectedLocation === 'all';
+
+  // Handlers cho modal đổi mật khẩu
+  const handlePasswordChange = (newPassword: string) => {
+    changePassword(newPassword);
+    setShowChangePassword(false);
+    setPendingUser(null);
+
+    toast({
+      title: 'Đăng nhập thành công',
+      description: 'Chào mừng bạn đến với hệ thống!'
+    });
+
+    setTimeout(() => {
+      navigate('/');
+    }, 100);
+  };
+
+  const handleCancelPasswordChange = () => {
+    setShowChangePassword(false);
+    setPendingUser(null);
+    // Logout user nếu họ hủy đổi mật khẩu
+    // logout();
+  };
   
   // Reset team và user khi thay đổi khu vực
   useEffect(() => {
     setSelectedTeam(null);
     setSelectedUser(null);
   }, [selectedLocation]);
+
+  // Reset user khi thay đổi team
+  useEffect(() => {
+    setSelectedUser(null);
+  }, [selectedTeam]);
 
   // Tự động chọn người dùng đặc biệt khi chọn "Toàn quốc"
   useEffect(() => {
@@ -134,8 +186,8 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-4 min-h-[280px] relative">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4 min-h-[240px] relative">
           {/* Chọn khu vực */}
           <LocationSelector
             selectedLocation={selectedLocation}
@@ -168,7 +220,6 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                   const team = teams.find(t => t.id === e.target.value);
                   setSelectedTeam(team || null);
                 }
-                setSelectedUser(null);
               }}
               className="w-full h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm px-3"
             >
@@ -220,7 +271,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         {/* Không hiển thị danh sách trùng lặp cho người dùng đặc biệt */}
 
         {/* Mật khẩu */}
-        <div className="relative mt-1">
+        <div className="relative">
           <div className="text-sm font-medium flex items-center text-[#636e72] mb-1.5">
             <Lock className="h-3.5 w-3.5 mr-1.5" />
             <span>Mật khẩu</span>
@@ -241,7 +292,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       {/* Nút đăng nhập */}
       <motion.button
         type="submit"
-        className="w-full py-3 mt-2 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
         disabled={isSubmitting || !selectedUser || !password}
         whileHover={{ scale: isSubmitting || !selectedUser || !password ? 1 : 1.02 }}
         whileTap={{ scale: isSubmitting || !selectedUser || !password ? 1 : 0.98 }}
@@ -258,7 +309,8 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       </motion.button>
       </form>
 
-      {/* Divider */}
+      {/* Tạm ẩn Google Login */}
+      {/*
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -270,8 +322,16 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         <div className="flex-1 border-t border-gray-200"></div>
       </motion.div>
 
-      {/* Google Login */}
       <GoogleLoginButton disabled={isSubmitting} />
+      */}
+
+      {/* Modal đổi mật khẩu lần đầu */}
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        userName={pendingUser?.name || ''}
+        onPasswordChange={handlePasswordChange}
+        onCancel={handleCancelPasswordChange}
+      />
     </div>
   );
 };

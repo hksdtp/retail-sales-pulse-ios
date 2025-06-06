@@ -106,9 +106,27 @@ class ApiClient {
     return this.request(API_ENDPOINTS.HEALTH);
   }
 
-  // Tasks API
-  async getTasks(): Promise<ApiResponse<Task[]>> {
-    return this.request<Task[]>(API_ENDPOINTS.TASKS);
+  // Tasks API với phân quyền
+  async getTasks(currentUser?: any): Promise<ApiResponse<Task[]>> {
+    let url = API_ENDPOINTS.TASKS;
+
+    if (currentUser) {
+      const params = new URLSearchParams();
+      params.append('user_id', currentUser.id);
+      params.append('role', currentUser.role);
+
+      if (currentUser.team_id) {
+        params.append('team_id', currentUser.team_id);
+      }
+
+      if (currentUser.department_type) {
+        params.append('department', currentUser.department_type);
+      }
+
+      url += `?${params.toString()}`;
+    }
+
+    return this.request<Task[]>(url);
   }
 
   async getTaskById(id: string): Promise<ApiResponse<Task>> {
@@ -196,7 +214,7 @@ export const apiClient = new ApiClient();
 
 // Export individual methods for convenience with proper binding
 export const healthCheck = () => apiClient.healthCheck();
-export const getTasks = () => apiClient.getTasks();
+export const getTasks = (currentUser?: any) => apiClient.getTasks(currentUser);
 export const getTaskById = (id: string) => apiClient.getTaskById(id);
 export const createTask = (task: Omit<Task, 'id'>) => apiClient.createTask(task);
 export const updateTask = (id: string, task: Partial<Task>) => apiClient.updateTask(id, task);

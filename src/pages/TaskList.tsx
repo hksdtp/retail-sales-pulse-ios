@@ -35,9 +35,13 @@ import { Progress } from '../components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import { Calendar as CalendarComponent } from "../components/ui/calendar";
 
-const TaskList: React.FC = () => {
+interface TaskListProps {
+  tasks?: Task[];
+}
+
+const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
   const navigate = useNavigate();
-  
+
   const [hasError, setHasError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [localFilteredTasks, setLocalFilteredTasks] = useState<Task[]>([]);
@@ -53,8 +57,9 @@ const TaskList: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const taskData = useTaskData();
-  
-  const tasks = useMemo(() => taskData?.tasks || [], [taskData?.tasks]);
+
+  // Sử dụng propTasks nếu có, nếu không thì dùng từ context
+  const tasks = useMemo(() => propTasks || taskData?.tasks || [], [propTasks, taskData?.tasks]);
   const isLoading = useMemo(() => taskData?.isLoading || false, [taskData?.isLoading]);
   const currentUser = useMemo(() => taskData?.currentUser, [taskData?.currentUser]);
   

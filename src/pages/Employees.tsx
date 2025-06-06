@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import TeamLeadersList from '@/components/teams/TeamLeadersList';
 import { 
   Table,
   TableBody,
@@ -114,7 +115,12 @@ const Employees = () => {
             </Table>
           </CardContent>
         </Card>
-        
+
+        {/* Danh sách trưởng nhóm */}
+        <div className="mb-6">
+          <TeamLeadersList />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teams
             .filter(team => selectedLocation === 'all' || team.location === selectedLocation)

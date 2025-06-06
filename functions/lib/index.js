@@ -244,6 +244,247 @@ app.delete("/tasks/delete-all", async (req, res) => {
         });
     }
 });
+// Manager view endpoint - for directors and team leaders
+app.get("/tasks/manager-view", async (req, res) => {
+    try {
+        const { user_id, role, view_level, team_id, department } = req.query;
+        if (!user_id || !role || !view_level) {
+            return res.status(400).json({
+                success: false,
+                error: "user_id, role, and view_level are required",
+            });
+        }
+        logger.info(`Manager view request: user_id=${user_id}, role=${role}, view_level=${view_level}, team_id=${team_id}`);
+        // Validation: Team leader chỉ có thể xem team của mình
+        if (role === 'team_leader' && team_id) {
+            // Kiểm tra xem user có phải team leader của team này không
+            const userDoc = await admin.firestore().collection("users").doc(String(user_id)).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                if ((userData === null || userData === void 0 ? void 0 : userData.team_id) !== String(team_id)) {
+                    logger.warn(`Team leader ${user_id} tried to access team ${team_id} but belongs to team ${userData === null || userData === void 0 ? void 0 : userData.team_id}`);
+                    return res.status(403).json({
+                        success: false,
+                        error: "Team leaders can only view their own team's tasks",
+                    });
+                }
+            }
+        }
+        let tasksQuery = admin.firestore().collection("tasks");
+        let tasksSnapshot;
+        switch (view_level) {
+            case 'personal':
+                // Chỉ tasks được giao cho chính user này
+                tasksSnapshot = await tasksQuery
+                    .where("assignedTo", "==", user_id)
+                    .get();
+                break;
+            case 'shared':
+                // Công việc chung của cả phòng - mọi người đều thấy
+                // Tasks có type = 'shared' hoặc isShared = true
+                tasksSnapshot = await tasksQuery
+                    .where("type", "==", "shared")
+                    .get();
+                // Nếu không có tasks với type shared, thử với field isShared
+                if (tasksSnapshot.empty) {
+                    tasksSnapshot = await tasksQuery
+                        .where("isShared", "==", true)
+                        .get();
+                }
+                break;
+            case 'team':
+                if (role === 'retail_director' || role === 'project_director') {
+                    // Director: xem tất cả tasks trong department
+                    if (department) {
+                        // Lấy tất cả users trong department
+                        const usersSnapshot = await admin.firestore()
+                            .collection("users")
+                            .where("department_type", "==", department)
+                            .get();
+                        const userIds = usersSnapshot.docs.map(doc => doc.id);
+                        if (userIds.length > 0) {
+                            tasksSnapshot = await tasksQuery
+                                .where("assignedTo", "in", userIds.slice(0, 10)) // Firestore limit 10 items in 'in' query
+                                .get();
+                        }
+                        else {
+                            tasksSnapshot = await tasksQuery.limit(0).get(); // Empty result
+                        }
+                    }
+                    else {
+                        tasksSnapshot = await tasksQuery.limit(0).get();
+                    }
+                }
+                else if (role === 'team_leader' && team_id) {
+                    // Team Leader: chỉ xem tasks của team members trong team của mình
+                    logger.info(`Team leader ${user_id} requesting team ${team_id} tasks`);
+                    // Lấy tất cả users thuộc team này (bao gồm cả team leader)
+                    const teamMembersSnapshot = await admin.firestore()
+                        .collection("users")
+                        .where("team_id", "==", String(team_id))
+                        .get();
+                    const memberIds = teamMembersSnapshot.docs.map(doc => doc.id);
+                    logger.info(`Found ${memberIds.length} members in team ${team_id}: ${memberIds.join(', ')}`);
+                    if (memberIds.length > 0) {
+                        // Chia nhỏ query vì Firestore giới hạn 10 items trong 'in' query
+                        const allTasks = [];
+                        for (let i = 0; i < memberIds.length; i += 10) {
+                            const batch = memberIds.slice(i, i + 10);
+                            const batchSnapshot = await tasksQuery
+                                .where("assignedTo", "in", batch)
+                                .get();
+                            allTasks.push(...batchSnapshot.docs);
+                        }
+                        tasksSnapshot = { docs: allTasks };
+                    }
+                    else {
+                        tasksSnapshot = await tasksQuery.limit(0).get();
+                    }
+                }
+                else {
+                    tasksSnapshot = await tasksQuery.limit(0).get();
+                }
+                break;
+            case 'department':
+                // Chỉ Director mới có quyền xem toàn phòng
+                if (role === 'retail_director' || role === 'project_director') {
+                    if (department) {
+                        // Lấy tất cả users trong department
+                        const usersSnapshot = await admin.firestore()
+                            .collection("users")
+                            .where("department_type", "==", department)
+                            .get();
+                        const userIds = usersSnapshot.docs.map(doc => doc.id);
+                        // Chia nhỏ query vì Firestore giới hạn 10 items trong 'in' query
+                        const allTasks = [];
+                        for (let i = 0; i < userIds.length; i += 10) {
+                            const batch = userIds.slice(i, i + 10);
+                            const batchSnapshot = await tasksQuery
+                                .where("assignedTo", "in", batch)
+                                .get();
+                            allTasks.push(...batchSnapshot.docs);
+                        }
+                        tasksSnapshot = { docs: allTasks };
+                    }
+                    else {
+                        tasksSnapshot = await tasksQuery.limit(0).get();
+                    }
+                }
+                else {
+                    return res.status(403).json({
+                        success: false,
+                        error: "Only directors can view department-level tasks",
+                    });
+                }
+                break;
+            case 'individual':
+                // Managers có thể xem tasks của individuals trong phạm vi quyền hạn
+                const member_id = req.query.member_id;
+                if (role === 'retail_director' || role === 'project_director') {
+                    // Director: tất cả trong department hoặc member cụ thể
+                    if (member_id) {
+                        // Xem tasks của member cụ thể
+                        tasksSnapshot = await tasksQuery
+                            .where("assignedTo", "==", member_id)
+                            .get();
+                    }
+                    else if (department) {
+                        // Xem tất cả trong department
+                        const usersSnapshot = await admin.firestore()
+                            .collection("users")
+                            .where("department_type", "==", department)
+                            .get();
+                        const userIds = usersSnapshot.docs.map(doc => doc.id);
+                        const allTasks = [];
+                        for (let i = 0; i < userIds.length; i += 10) {
+                            const batch = userIds.slice(i, i + 10);
+                            const batchSnapshot = await tasksQuery
+                                .where("assignedTo", "in", batch)
+                                .get();
+                            allTasks.push(...batchSnapshot.docs);
+                        }
+                        tasksSnapshot = { docs: allTasks };
+                    }
+                    else {
+                        tasksSnapshot = await tasksQuery.limit(0).get();
+                    }
+                }
+                else if (role === 'team_leader' && team_id) {
+                    // Team Leader: chỉ xem tasks của team members trong team của mình
+                    logger.info(`Team leader ${user_id} requesting individual view for team ${team_id}, member: ${member_id || 'all'}`);
+                    // Lấy tất cả users thuộc team này trước
+                    const teamMembersSnapshot = await admin.firestore()
+                        .collection("users")
+                        .where("team_id", "==", String(team_id))
+                        .get();
+                    const memberIds = teamMembersSnapshot.docs.map(doc => doc.id);
+                    logger.info(`Found ${memberIds.length} members in team ${team_id}: ${memberIds.join(', ')}`);
+                    if (member_id) {
+                        // Kiểm tra member có thuộc team này không
+                        if (memberIds.includes(member_id)) {
+                            logger.info(`Getting tasks for specific member: ${member_id}`);
+                            tasksSnapshot = await tasksQuery
+                                .where("assignedTo", "==", member_id)
+                                .get();
+                            logger.info(`Found ${tasksSnapshot.docs.length} tasks for member ${member_id}`);
+                        }
+                        else {
+                            logger.warn(`Team leader ${user_id} tried to access member ${member_id} not in their team`);
+                            tasksSnapshot = await tasksQuery.limit(0).get();
+                        }
+                    }
+                    else {
+                        // Lấy tất cả tasks của team members
+                        logger.info(`Getting tasks for all team members: ${memberIds.join(', ')}`);
+                        if (memberIds.length > 0) {
+                            // Chia nhỏ query vì Firestore giới hạn 10 items trong 'in' query
+                            const allTasks = [];
+                            for (let i = 0; i < memberIds.length; i += 10) {
+                                const batch = memberIds.slice(i, i + 10);
+                                logger.info(`Querying batch: ${batch.join(', ')}`);
+                                const batchSnapshot = await tasksQuery
+                                    .where("assignedTo", "in", batch)
+                                    .get();
+                                logger.info(`Batch returned ${batchSnapshot.docs.length} tasks`);
+                                allTasks.push(...batchSnapshot.docs);
+                            }
+                            tasksSnapshot = { docs: allTasks };
+                            logger.info(`Total tasks found for team: ${allTasks.length}`);
+                        }
+                        else {
+                            logger.warn(`No team members found for team ${team_id}`);
+                            tasksSnapshot = await tasksQuery.limit(0).get();
+                        }
+                    }
+                }
+                else {
+                    tasksSnapshot = await tasksQuery.limit(0).get();
+                }
+                break;
+            default:
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid view_level. Must be: personal, team, department, or individual",
+                });
+        }
+        const tasks = tasksSnapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
+        logger.info(`Returning ${tasks.length} tasks for ${view_level} view`);
+        return res.json({
+            success: true,
+            data: tasks,
+            count: tasks.length,
+            view_level,
+            user_role: role,
+        });
+    }
+    catch (error) {
+        logger.error("Error in manager view:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Failed to get manager view tasks",
+        });
+    }
+});
 // ============================================================================
 // USERS API
 // ============================================================================

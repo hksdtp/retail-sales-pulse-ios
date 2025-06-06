@@ -1,15 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  PieChart, 
-  List, 
-  CalendarCheck, 
-  FileText, 
-  Users, 
-  User, 
-  LogOut 
+import {
+  PieChart,
+  List,
+  CalendarCheck,
+  FileText,
+  Users,
+  User,
+  LogOut,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -19,11 +20,13 @@ import {
 } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import AccountSettings from '@/components/account/AccountSettings';
 
 const BottomNavigation = () => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -97,11 +100,21 @@ const BottomNavigation = () => {
                 
                 <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-gray-200/50 dark:via-white/10 to-transparent"></div>
                 
-                <div className="pt-1">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full flex items-center justify-center gap-2 macos-btn rounded-xl bg-white/80 hover:bg-white/90 dark:bg-black/40 dark:hover:bg-black/50 border border-gray-200/50 dark:border-white/10 shadow-sm transition-all h-10" 
+                <div className="pt-1 space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full flex items-center justify-center gap-2 macos-btn rounded-xl bg-white/80 hover:bg-white/90 dark:bg-black/40 dark:hover:bg-black/50 border border-gray-200/50 dark:border-white/10 shadow-sm transition-all h-10"
+                    onClick={() => setShowAccountSettings(true)}
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Cài đặt tài khoản</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full flex items-center justify-center gap-2 macos-btn rounded-xl bg-white/80 hover:bg-white/90 dark:bg-black/40 dark:hover:bg-black/50 border border-gray-200/50 dark:border-white/10 shadow-sm transition-all h-10"
                     onClick={handleLogout}
                   >
                     <LogOut className="h-4 w-4" />
@@ -113,6 +126,12 @@ const BottomNavigation = () => {
           </PopoverContent>
         </Popover>
       </div>
+
+      {/* Account Settings Modal */}
+      <AccountSettings
+        isOpen={showAccountSettings}
+        onClose={() => setShowAccountSettings(false)}
+      />
     </div>
   );
 };

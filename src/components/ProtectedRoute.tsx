@@ -18,11 +18,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       navigate('/login');
     }
   }, [isAuthenticated, isLoading, navigate]);
-  
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Đang tải...</div>;
   }
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

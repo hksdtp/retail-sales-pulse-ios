@@ -14,18 +14,37 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
   const { toast } = useToast();
   const { currentUser } = useAuth();
 
-  // Lấy dữ liệu từ API
+  // Lấy dữ liệu từ API với phân quyền
   const loadTasks = async () => {
     try {
       setIsLoading(true);
       console.log('🌐 Đang tải tasks từ API...');
-      
-      const response = await getTasks();
-      
+      console.log('👤 Current user:', currentUser);
+
+      if (!currentUser) {
+        console.log('⚠️ Chưa có thông tin user, bỏ qua việc tải tasks');
+        setTasks([]);
+        setFilteredTasks([]);
+        return;
+      }
+
+      // Gọi API với thông tin user để filter đúng
+      const response = await getTasks(currentUser);
+
       if (response.success && response.data) {
-        console.log(`✅ Đã tải ${response.count} tasks từ API`);
-        setTasks(response.data);
-        setFilteredTasks(response.data);
+        console.log(`✅ Đã tải ${response.count} tasks từ API cho user ${currentUser.name} (${currentUser.id})`);
+        console.log('📊 Tasks data:', response.data);
+
+        // Double check: Filter thêm ở frontend để đảm bảo an toàn
+        const userTasks = response.data.filter(task => {
+          // Chỉ hiển thị tasks được giao cho user hiện tại
+          return task.assignedTo === currentUser.id || task.user_id === currentUser.id;
+        });
+
+        console.log(`🔒 Sau khi filter frontend: ${userTasks.length}/${response.data.length} tasks`);
+
+        setTasks(userTasks);
+        setFilteredTasks(userTasks);
       } else {
         console.error('❌ Lỗi khi tải tasks:', response.error);
         toast({
@@ -46,10 +65,12 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
-  // Load dữ liệu ban đầu
+  // Load dữ liệu ban đầu và khi currentUser thay đổi
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if (currentUser) {
+      loadTasks();
+    }
+  }, [currentUser]); // Reload khi user thay đổi
 
   // Thêm công việc mới
   const addTask = async (taskData: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>): Promise<Task> => {

@@ -17,18 +17,20 @@ import { SidebarProvider } from "./components/ui/sidebar";
 import { AuthProvider } from "./context/AuthContext";
 import { ApiTaskDataProvider } from "./context/ApiTaskDataProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
+import FirebaseAutoSetupProvider from "./components/firebase/FirebaseAutoSetupProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <ApiTaskDataProvider>
-        <TooltipProvider>
-          <SidebarProvider className="mx-[120px] my-0 px-0 py-0 bg-slate-50 rounded-full">
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+    <FirebaseAutoSetupProvider>
+      <AuthProvider>
+        <ApiTaskDataProvider>
+          <TooltipProvider>
+            <SidebarProvider className="mx-[120px] my-0 px-0 py-0 bg-slate-50 rounded-full">
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/firebase-setup" element={<FirebaseSetup />} />
@@ -52,11 +54,12 @@ const App = () => (
                   </ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </BrowserRouter>
-          </SidebarProvider>
-        </TooltipProvider>
-      </ApiTaskDataProvider>
-    </AuthProvider>
+              </BrowserRouter>
+            </SidebarProvider>
+          </TooltipProvider>
+        </ApiTaskDataProvider>
+      </AuthProvider>
+    </FirebaseAutoSetupProvider>
   </QueryClientProvider>
 );
 

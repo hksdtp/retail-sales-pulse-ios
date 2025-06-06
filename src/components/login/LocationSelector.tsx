@@ -12,25 +12,11 @@ interface LocationSelectorProps {
 }
 
 const getLocationNames = (departmentType: string | null) => {
-  if (departmentType === 'project') {
-    return {
-      all: 'Hà Xuân Trường',
-      hanoi: 'Hà Nội',
-      hcm: 'Hồ Chí Minh'
-    };
-  } else if (departmentType === 'retail') {
-    return {
-      all: 'Khổng Đức Mạnh',
-      hanoi: 'Hà Nội',
-      hcm: 'Hồ Chí Minh'
-    };
-  } else {
-    return {
-      all: 'Toàn quốc',
-      hanoi: 'Hà Nội',
-      hcm: 'Hồ Chí Minh'
-    };
-  }
+  return {
+    all: 'Khổng Đức Mạnh',
+    hanoi: 'Hà Nội',
+    hcm: 'Hồ Chí Minh'
+  };
 };
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({ 
@@ -78,11 +64,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                     <div className="flex flex-col">
                       <span className="font-medium">{label}</span>
                       <span className="text-[10px] opacity-80">
-                        {departmentType === 'project' 
-                          ? 'Trưởng Phòng Kinh Doanh Dự Án'
-                          : departmentType === 'retail'
-                            ? 'Trưởng Phòng Kinh doanh bán lẻ'
-                            : ''}
+                        Trưởng Phòng Kinh doanh bán lẻ
                       </span>
                     </div>
                   ) : (

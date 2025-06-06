@@ -19,7 +19,13 @@ const TopPerformers = () => {
   // Lọc danh sách nhân viên xuất sắc từ dữ liệu người dùng thực
   const topPerformers = useMemo(() => {
     // Lấy danh sách nhân viên (không bao gồm giám đốc)
-    const employees = users.filter(user => user.role !== 'retail_director' && user.role !== 'project_director');
+    const employees = users.filter(user =>
+      user &&
+      user.id &&
+      user.name &&
+      user.role !== 'retail_director' &&
+      user.role !== 'project_director'
+    );
     
     // Tạo dữ liệu hiệu suất giả lập cho mỗi nhân viên
     return employees
@@ -40,9 +46,9 @@ const TopPerformers = () => {
           
         return {
           id: user.id,
-          name: user.name,
+          name: user.name || 'Không xác định',
           role: user.role === 'team_leader' ? 'Nhóm trưởng' : 'Nhân viên',
-          avatar: user.name.charAt(0),
+          avatar: (user.name || 'N').charAt(0).toUpperCase(),
           sales,
           deals,
           completion

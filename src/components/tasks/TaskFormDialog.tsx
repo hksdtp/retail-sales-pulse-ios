@@ -53,6 +53,9 @@ const formSchema = z.object({
   status: z.enum(['todo', 'in-progress', 'on-hold', 'completed'], {
     required_error: "Vui lòng chọn trạng thái"
   }),
+  priority: z.enum(['high', 'normal', 'low'], {
+    required_error: "Vui lòng chọn mức độ ưu tiên"
+  }),
   date: z.string().min(1, {
     message: "Vui lòng chọn ngày"
   }),
@@ -95,6 +98,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       description: '',
       type: 'partner_new',
       status: 'todo',
+      priority: 'normal',
       date: new Date().toISOString().split('T')[0], // Ngày hiện tại theo thời gian thực
       time: '',
       team_id: currentUser?.team_id,
@@ -143,6 +147,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
         description: data.description,
         type: data.type,
         status: data.status,
+        priority: data.priority,
         date: data.date,
         time: data.time || '',
         user_id: currentUser?.id || '',
@@ -157,7 +162,20 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       console.log("Dữ liệu công việc mới:", newTask);
       
       // Sử dụng hàm addTask từ TaskDataProvider
-      await addTask(newTask);
+      const createdTask = await addTask(newTask);
+
+      // Tạo thông báo khi tạo công việc mới
+      if (currentUser && createdTask) {
+        // Import notificationService
+        const { default: notificationService } = await import('@/services/notificationService');
+
+        notificationService.createTaskNotification(
+          createdTask.id,
+          createdTask.title,
+          currentUser.id,
+          currentUser.name
+        );
+      }
 
       toast({
         title: "Thành công!",
@@ -252,15 +270,15 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <FormField
                 control={form.control}
                 name="type"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#2d3436] font-medium">Loại công việc</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -336,8 +354,8 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#2d3436] font-medium">Trạng thái</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -368,6 +386,47 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                           <div className="flex items-center">
                             <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
                             <span className="text-green-700 font-medium">Hoàn thành</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#2d3436] font-medium">Mức độ ưu tiên</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
+                          <SelectValue placeholder="Chọn mức độ ưu tiên" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
+                        <SelectItem value="high" className="flex items-center">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                            <span className="text-red-700 font-medium">Cao</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="normal" className="flex items-center">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                            <span className="text-yellow-700 font-medium">Bình thường</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="low" className="flex items-center">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                            <span className="text-green-700 font-medium">Thấp</span>
                           </div>
                         </SelectItem>
                       </SelectContent>

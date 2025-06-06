@@ -13,6 +13,17 @@ import { getApiUrl } from '@/config/api';
 // Các helper function để làm việc với FirebaseService
 const isFirebaseConfigured = () => FirebaseService.isConfigured();
 
+const deleteTaskFromFirebase = async (taskId: string) => {
+  try {
+    const instance = FirebaseService.getInstance();
+    await instance.deleteDocument('tasks', taskId);
+    return true;
+  } catch (error) {
+    console.error('Lỗi khi xóa task từ Firebase:', error);
+    throw error;
+  }
+};
+
 // Helper function để làm việc với API và Tasks
 const getTasks = async (currentUser?: any, users?: any[]) => {
   try {
@@ -238,36 +249,39 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         // Kiểm tra xem có dữ liệu thô trong localStorage không
         const localRawTasks = getRawTasks();
         
-        // Nếu không có dữ liệu, sử dụng dữ liệu mẫu
-        if (localRawTasks.length === 0) {
-          console.log('Không tìm thấy dữ liệu gốc trong localStorage, sử dụng dữ liệu mẫu...');
-          saveMockTasksToLocalStorage();
-          rawTasksData = [...mockTasks];
-          // Lưu dữ liệu gốc vào localStorage
-          saveRawTasks(rawTasksData);
-        } else {
-          console.log('Đã tìm thấy dữ liệu gốc trong localStorage:', localRawTasks.length, 'công việc');
-          rawTasksData = localRawTasks;
-        }
-        
-        // Ưu tiên lấy dữ liệu mới nhất từ API nếu được cấu hình
+        // PRODUCTION MODE: Xóa tất cả và bắt đầu trống
+        console.log('🗑️ PRODUCTION MODE: Xóa tất cả dữ liệu và bắt đầu trống...');
+        localStorage.clear(); // Xóa toàn bộ localStorage
+        sessionStorage.clear(); // Xóa session storage
+
+        // Xóa tất cả dữ liệu từ API nếu có
         if (isFirebaseConfigured()) {
           try {
-            console.log('Đang tải dữ liệu từ API...');
-            const apiData = await getTasks(currentUser, users);
-            if (Array.isArray(apiData) && apiData.length > 0) {
-              console.log(`Đã tải ${apiData.length} công việc từ API`);
-              const convertedTasks = convertFirebaseTasks(apiData);
-              rawTasksData = convertedTasks;
-              // Lưu dữ liệu gốc từ API
-              saveRawTasks(rawTasksData);
-            } else {
-              console.log('Không có dữ liệu từ API');
+            console.log('🗑️ Đang xóa tất cả dữ liệu từ Firebase...');
+            const allTasks = await getTasks();
+            if (Array.isArray(allTasks) && allTasks.length > 0) {
+              console.log(`🗑️ Tìm thấy ${allTasks.length} công việc, đang xóa...`);
+              for (const task of allTasks) {
+                try {
+                  await deleteTaskFromFirebase(task.id);
+                  console.log(`✅ Đã xóa: ${task.title}`);
+                } catch (error) {
+                  console.error(`❌ Lỗi xóa ${task.title}:`, error);
+                }
+              }
+              console.log('🎉 Đã xóa tất cả dữ liệu từ Firebase');
             }
           } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu từ API:', error);
+            console.error('❌ Lỗi khi xóa dữ liệu từ Firebase:', error);
           }
         }
+
+        rawTasksData = [];
+        // Không lưu gì cả, giữ trống hoàn toàn
+        
+        // PRODUCTION MODE: Không load dữ liệu từ API/Firebase
+        console.log('🚀 PRODUCTION MODE: Bắt đầu với dữ liệu trống, không load từ API/Firebase');
+        rawTasksData = [];
 
         // === START: LOGIC LỌC PHÂN QUYỀN MỚI SỬ DỤNG CONFIG ===
         let filteredTasksForRole: Task[] = [];
@@ -360,10 +374,10 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
                 return true;
               }
               
-              // 2. Công việc chung được chia sẻ bởi admin
+              // 2. Công việc chung được chia sẻ (bởi admin hoặc director)
               const creator = users.find(u => u.id === task.user_id);
-              if (creator && isAdmin(creator.id) && task.isShared) {
-                permissionLog(`Task ${task.id}: Công việc chung được chia sẻ bởi Admin`, LogLevel.DETAILED);
+              if (creator && (isAdmin(creator.id) || isDirector(creator.role)) && task.isShared) {
+                permissionLog(`Task ${task.id}: Công việc chung được chia sẻ bởi ${creator.role}`, LogLevel.DETAILED);
                 return true;
               }
               
@@ -733,31 +747,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       // Lấy dữ liệu gốc từ Firebase hoặc local storage
       let rawTasksData: Task[] = [];
       
-      // Ưu tiên lấy dữ liệu từ API nếu được cấu hình
-      if (isFirebaseConfigured()) {
-        try {
-          console.log('Đang làm mới dữ liệu từ API...');
-          const apiData = await getTasks(currentUser, users);
-          if (Array.isArray(apiData) && apiData.length > 0) {
-            console.log(`Đã tải ${apiData.length} công việc từ API`);
-            const convertedTasks = convertFirebaseTasks(apiData);
-            rawTasksData = convertedTasks;
-            // Lưu dữ liệu gốc mới từ API
-            saveRawTasks(rawTasksData);
-          } else {
-            console.log('Không có dữ liệu từ API, sử dụng dữ liệu local');
-            // Lấy từ local storage nếu không có từ API
-            rawTasksData = getRawTasks();
-          }
-        } catch (error) {
-          console.error('Lỗi khi làm mới dữ liệu từ Firebase:', error);
-          // Lấy từ local storage nếu có lỗi
-          rawTasksData = getRawTasks();
-        }
-      } else {
-        // Nếu không có cấu hình Firebase, lấy từ local storage
-        rawTasksData = getRawTasks();
-      }
+      // PRODUCTION MODE: Không refresh từ API/Firebase
+      console.log('🚀 PRODUCTION MODE: Không refresh dữ liệu từ API/Firebase');
+      rawTasksData = [];
       
       // API đã lọc theo user_id rồi, không cần lọc phân quyền nữa
       permissionLog(`API đã trả về ${rawTasksData.length} công việc được lọc cho user ${currentUser?.name}`, LogLevel.BASIC);

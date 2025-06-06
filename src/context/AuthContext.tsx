@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole, UserLocation, Team, UserCredentials } from '@/types/user';
 import { useToast } from '@/hooks/use-toast';
+import passwordService from '@/services/passwordService';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -65,9 +66,9 @@ const MOCK_TEAMS: Team[] = [
   {
     id: '4',
     name: 'NHÓM 4',
-    leader_id: '7',
+    leader_id: '12',
     location: 'hanoi',
-    description: 'Nhóm kinh doanh 4 Hà Nội',
+    description: 'Nhóm 4 - Hà Nội',
     created_at: '2023-02-01',
     department: 'retail',
     department_type: 'retail'
@@ -93,67 +94,7 @@ const MOCK_TEAMS: Team[] = [
     department_type: 'retail'
   },
   
-  // Nhóm phòng Dự án
-  {
-    id: '7',
-    name: 'NHÓM KỸ THUẬT DỰ ÁN',
-    leader_id: '13',
-    location: 'hanoi',
-    description: 'Nhóm kỹ thuật dự án Hà Nội',
-    created_at: '2023-01-01',
-    department: 'project',
-    department_type: 'project'
-  },
-  {
-    id: '8',
-    name: 'NHÓM SALES ADMIN',
-    leader_id: '14',
-    location: 'hanoi',
-    description: 'Nhóm sales admin dự án Hà Nội',
-    created_at: '2023-01-01',
-    department: 'project',
-    department_type: 'project'
-  },
-  {
-    id: '9',
-    name: 'NHÓM KINH DOANH DỰ ÁN',
-    leader_id: '16',
-    location: 'hanoi',
-    description: 'Nhóm kinh doanh dự án Hà Nội',
-    created_at: '2023-01-15',
-    department: 'project',
-    department_type: 'project'
-  },
-  {
-    id: '10',
-    name: 'NHÓM GIÁM SÁT',
-    leader_id: '18',
-    location: 'hcm',
-    description: 'Nhóm giám sát dự án HCM',
-    created_at: '2023-02-01',
-    department: 'project',
-    department_type: 'project'
-  },
-  {
-    id: '11',
-    name: 'NHÓM KINH DOANH',
-    leader_id: '17',
-    location: 'hcm',
-    description: 'Nhóm kinh doanh dự án HCM',
-    created_at: '2023-01-01',
-    department: 'project',
-    department_type: 'project'
-  },
-  {
-    id: '12',
-    name: 'NHÓM SALES ADMIN',
-    leader_id: '20',
-    location: 'hcm',
-    description: 'Nhóm sales admin dự án HCM',
-    created_at: '2023-01-15',
-    department: 'project',
-    department_type: 'project'
-  }
+
 ];
 
 // Dữ liệu mẫu chi tiết người dùng
@@ -238,6 +179,19 @@ const MOCK_USERS: User[] = [
   },
   {
     id: '7',
+    name: 'Quản Thu Hà',
+    email: 'ha.quan@example.com',
+    role: 'employee',
+    team_id: '1',
+    location: 'hanoi',
+    department: 'retail',
+    department_type: 'retail',
+    position: 'Nhân viên',
+    status: 'active',
+    password_changed: true
+  },
+  {
+    id: '12',
     name: 'Phạm Thị Hương',
     email: 'huong.pham@example.com',
     role: 'team_leader',
@@ -301,129 +255,11 @@ const MOCK_USERS: User[] = [
     status: 'active',
     password_changed: true
   },
-  // Phòng Kinh doanh Dự án - Hà Nội
-  {
-    id: '12',
-    name: 'Hà Xuân Trường',
-    email: 'truong.ha@example.com',
-    role: 'project_director',
-    team_id: '0',
-    location: 'hanoi',
-    department: 'project',
-    department_type: 'project',
-    position: 'Trưởng phòng Kinh doanh Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '13',
-    name: 'Trần Hồng Công',
-    email: 'cong.tran@example.com',
-    role: 'project_supervisor',
-    team_id: '7',
-    location: 'hanoi',
-    department: 'project',
-    department_type: 'project',
-    position: 'Giám sát kỹ thuật Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '14',
-    name: 'Trần Thị Hải Anh',
-    email: 'haianh.tran@example.com',
-    role: 'project_admin',
-    team_id: '8',
-    location: 'hanoi',
-    department: 'project',
-    department_type: 'project',
-    position: 'Sales Admin Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '15',
-    name: 'Ngô Thị Trang',
-    email: 'trang.ngo@example.com',
-    role: 'project_admin',
-    team_id: '8',
-    location: 'hanoi',
-    department: 'project',
-    department_type: 'project',
-    position: 'Sales Admin Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '16',
-    name: 'Phạm Thị Dung',
-    email: 'dung.pham@example.com',
-    role: 'project_staff',
-    team_id: '9',
-    location: 'hanoi',
-    department: 'project',
-    department_type: 'project',
-    position: 'Nhân viên Kinh doanh Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  // Phòng Kinh doanh Dự án - Hồ Chí Minh
-  {
-    id: '17',
-    name: 'Nguyễn Thị Diễm Hương',
-    email: 'diemhuong.nguyen@example.com',
-    role: 'project_staff',
-    team_id: '11',
-    location: 'hcm',
-    department: 'project',
-    department_type: 'project',
-    position: 'Nhân viên Kinh doanh Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '18',
-    name: 'Huỳnh Bá Hiếu',
-    email: 'hieu.huynh@example.com',
-    role: 'project_supervisor',
-    team_id: '10',
-    location: 'hcm',
-    department: 'project',
-    department_type: 'project',
-    position: 'Giám sát Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '19',
-    name: 'Hoàng Dương Hà Nhi',
-    email: 'hahanh.hoang@example.com',
-    role: 'project_staff',
-    team_id: '11',
-    location: 'hcm',
-    department: 'project',
-    department_type: 'project',
-    position: 'Nhân viên Kinh doanh Dự án',
-    status: 'active',
-    password_changed: true
-  },
-  {
-    id: '20',
-    name: 'Lâm Mỹ Phụng',
-    email: 'myphung.lam@example.com',
-    role: 'project_admin',
-    team_id: '12',
-    location: 'hcm',
-    department: 'project',
-    department_type: 'project',
-    position: 'Sales Admin Dự án',
-    status: 'active',
-    password_changed: true
-  }
+
 ];
 
 // Lưu trữ mật khẩu (trong thực tế sẽ được hash và lưu trong database)
-const DEFAULT_PASSWORD = '123';
+const DEFAULT_PASSWORD = '123456';
 const MOCK_CREDENTIALS: Record<string, string> = {};
 
 // Tạo mật khẩu mặc định cho tất cả người dùng
@@ -437,9 +273,29 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const { toast } = useToast();
 
+  // Load users và teams từ API
+  const loadUsersAndTeams = async () => {
+    try {
+      // Force sử dụng MOCK_DATA để đảm bảo dữ liệu nhất quán
+      console.log('Using mock users and teams data');
+      setUsers(MOCK_USERS);
+      setTeams(MOCK_TEAMS);
+    } catch (error) {
+      console.error('Lỗi khi tải users và teams:', error);
+      // Fallback to mock data nếu có lỗi
+      setUsers(MOCK_USERS);
+      setTeams(MOCK_TEAMS);
+    }
+  };
+
   useEffect(() => {
+    // Load users và teams
+    loadUsersAndTeams();
+
     // Kiểm tra người dùng đã đăng nhập từ localStorage
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
@@ -458,31 +314,30 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      // Kiểm tra thông tin đăng nhập
-      const storedPassword = MOCK_CREDENTIALS[email];
-      
-      if (!storedPassword) {
+      // Tìm thông tin người dùng
+      let user = users.find(u => u.email === email);
+      if (!user) {
+        user = MOCK_USERS.find(u => u.email === email);
+      }
+
+      if (!user) {
         throw new Error('Tài khoản không tồn tại');
       }
-      
-      if (storedPassword !== password) {
+
+      // Sử dụng passwordService để xác thực
+      const isValidPassword = passwordService.verifyPassword(user.id, password);
+      if (!isValidPassword) {
         throw new Error('Mật khẩu không chính xác');
       }
-      
-      // Tìm thông tin người dùng
-      const user = MOCK_USERS.find(u => u.email === email);
-      
-      if (!user) {
-        throw new Error('Không tìm thấy thông tin người dùng');
-      }
-      
+
+      // Kiểm tra xem có phải lần đăng nhập đầu tiên không
+      const isFirstLoginCheck = passwordService.isFirstLogin(user.id);
+
       // Lưu thông tin người dùng vào state và localStorage
       setCurrentUser(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
-      
-      // Kiểm tra xem đây có phải là lần đăng nhập đầu tiên
-      setIsFirstLogin(!user.password_changed);
-      
+      setIsFirstLogin(isFirstLoginCheck);
+
       return Promise.resolve();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
@@ -505,25 +360,32 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
   const changePassword = (newPassword: string) => {
     if (!currentUser) return;
-    
-    // Trong môi trường thực tế, cần gọi API để cập nhật mật khẩu
-    // Ở đây chúng ta chỉ cập nhật trong dữ liệu mẫu
-    MOCK_CREDENTIALS[currentUser.email] = newPassword;
-    
-    // Cập nhật trạng thái đã đổi mật khẩu
-    const updatedUser = {
-      ...currentUser,
-      password_changed: true
-    };
-    
-    setCurrentUser(updatedUser);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-    setIsFirstLogin(false);
-    
-    toast({
-      title: "Đổi mật khẩu thành công",
-      description: "Mật khẩu của bạn đã được cập nhật"
-    });
+
+    // Sử dụng passwordService để đổi mật khẩu
+    const success = passwordService.changePassword(currentUser.id, newPassword);
+
+    if (success) {
+      // Cập nhật trạng thái đã đổi mật khẩu
+      const updatedUser = {
+        ...currentUser,
+        password_changed: true
+      };
+
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      setIsFirstLogin(false);
+
+      toast({
+        title: "Đổi mật khẩu thành công",
+        description: "Mật khẩu của bạn đã được cập nhật"
+      });
+    } else {
+      toast({
+        title: "Đổi mật khẩu thất bại",
+        description: "Có lỗi xảy ra khi đổi mật khẩu",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -535,8 +397,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       isLoading,
       isFirstLogin,
       changePassword,
-      users: MOCK_USERS,
-      teams: MOCK_TEAMS
+      users: users,
+      teams: teams
     }}>
       {children}
     </AuthContext.Provider>
