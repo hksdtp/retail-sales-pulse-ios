@@ -1,10 +1,10 @@
-
-import React from 'react';
-import { User, Team } from '@/types/user';
 import { Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Team, User } from '@/types/user';
 
 interface TeamSelectorProps {
   filteredTeams: Team[];
@@ -13,14 +13,14 @@ interface TeamSelectorProps {
   onBack: () => void;
 }
 
-const TeamSelector: React.FC<TeamSelectorProps> = ({ 
-  filteredTeams, 
+const TeamSelector: React.FC<TeamSelectorProps> = ({
+  filteredTeams,
   users,
-  onTeamSelect, 
-  onBack 
+  onTeamSelect,
+  onBack,
 }) => {
   const getTeamMembers = (teamId: string) => {
-    return users.filter(user => user.team_id === teamId);
+    return users.filter((user) => user.team_id === teamId);
   };
 
   const getAvatarText = (name: string) => {
@@ -37,23 +37,18 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
           <Users className="h-5 w-5 mr-2 text-ios-blue" />
           Chọn nhóm
         </label>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBack}
-          className="text-ios-blue"
-        >
+        <Button variant="ghost" size="sm" onClick={onBack} className="text-ios-blue">
           Quay lại
         </Button>
       </div>
 
       <div className="max-h-72 overflow-y-auto space-y-3 pr-1">
-        {filteredTeams.map(team => {
+        {filteredTeams.map((team) => {
           const teamMembers = getTeamMembers(team.id);
-          const leader = users.find(user => user.id === team.leader_id);
-          
+          const leader = users.find((user) => user.id === team.leader_id);
+
           return (
-            <div 
+            <div
               key={team.id}
               className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors"
               onClick={() => onTeamSelect(team)}
@@ -68,7 +63,7 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
                   {teamMembers.length}
                 </Badge>
               </div>
-              
+
               {leader && (
                 <div className="flex items-center mt-3">
                   <Avatar className="h-8 w-8 mr-2">
@@ -87,11 +82,9 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
             </div>
           );
         })}
-        
+
         {filteredTeams.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            Không có nhóm nào trong khu vực này
-          </div>
+          <div className="text-center py-8 text-gray-500">Không có nhóm nào trong khu vực này</div>
         )}
       </div>
     </div>

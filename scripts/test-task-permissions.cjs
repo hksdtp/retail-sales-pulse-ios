@@ -10,7 +10,7 @@ const testUsers = [
     email: 'manh.khong@example.com',
     role: 'retail_director',
     team_id: '0',
-    location: 'hanoi'
+    location: 'hanoi',
   },
   {
     id: '3',
@@ -18,7 +18,7 @@ const testUsers = [
     email: 'khanhduy@example.com',
     role: 'employee',
     team_id: '1',
-    location: 'hanoi'
+    location: 'hanoi',
   },
   {
     id: '5',
@@ -26,7 +26,7 @@ const testUsers = [
     email: 'manhlinh@example.com',
     role: 'employee',
     team_id: '2',
-    location: 'hanoi'
+    location: 'hanoi',
   },
   {
     id: '2',
@@ -34,8 +34,8 @@ const testUsers = [
     email: 'vietanh@example.com',
     role: 'team_leader',
     team_id: '1',
-    location: 'hanoi'
-  }
+    location: 'hanoi',
+  },
 ];
 
 async function createTestTask(creatorId, assignedToId, title) {
@@ -55,8 +55,8 @@ async function createTestTask(creatorId, assignedToId, title) {
         user_id: creatorId,
         assignedTo: assignedToId,
         teamId: '1',
-        location: 'hanoi'
-      })
+        location: 'hanoi',
+      }),
     });
 
     const result = await response.json();
@@ -89,20 +89,20 @@ async function testTaskPermissions() {
 
   // 1. Tạo test tasks
   console.log('1. 📝 Tạo test tasks...');
-  
+
   // Lê Khánh Duy tạo task cho chính mình
   const task1 = await createTestTask('3', '3', 'Task của Lê Khánh Duy cho chính mình');
   console.log(`   ✅ Task 1: ${task1 ? task1.id : 'Failed'} - Lê Khánh Duy → Lê Khánh Duy`);
-  
+
   // Lê Khánh Duy tạo task cho Nguyễn Mạnh Linh
   const task2 = await createTestTask('3', '5', 'Task của Lê Khánh Duy cho Nguyễn Mạnh Linh');
   console.log(`   ✅ Task 2: ${task2 ? task2.id : 'Failed'} - Lê Khánh Duy → Nguyễn Mạnh Linh`);
-  
+
   // Nguyễn Mạnh Linh tạo task cho chính mình
   const task3 = await createTestTask('5', '5', 'Task của Nguyễn Mạnh Linh cho chính mình');
   console.log(`   ✅ Task 3: ${task3 ? task3.id : 'Failed'} - Nguyễn Mạnh Linh → Nguyễn Mạnh Linh`);
 
-  await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for data sync
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for data sync
 
   // 2. Test permissions cho từng user
   console.log('\n2. 🔍 Test permissions cho từng user...\n');
@@ -113,9 +113,9 @@ async function testTaskPermissions() {
     const tasks = await getTasksForUser(user.id, user.role, user.team_id);
     console.log(`   📊 Thấy được ${tasks.length} tasks:`);
 
-    tasks.forEach(task => {
-      const creator = testUsers.find(u => u.id === task.user_id);
-      const assignee = testUsers.find(u => u.id === task.assignedTo);
+    tasks.forEach((task) => {
+      const creator = testUsers.find((u) => u.id === task.user_id);
+      const assignee = testUsers.find((u) => u.id === task.assignedTo);
       console.log(`      - ${task.title}`);
       console.log(`        Tạo bởi: ${creator ? creator.name : 'Unknown'}`);
       console.log(`        Giao cho: ${assignee ? assignee.name : 'Unknown'}`);

@@ -7,6 +7,8 @@
     "build": "tsc && vite build",
     "build:dev": "vite build --mode development",
     "dev": "vite --port 8080",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -31,7 +31,7 @@ class NotificationService {
     taskId: string,
     taskTitle: string,
     creatorId: string,
-    creatorName: string
+    creatorName: string,
   ): void {
     const notification: Notification = {
       id: `task_created_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -43,7 +43,7 @@ class NotificationService {
       userId: creatorId,
       userName: creatorName,
       timestamp: new Date().toISOString(),
-      isRead: false
+      isRead: false,
     };
 
     this.addNotification(notification);
@@ -55,7 +55,7 @@ class NotificationService {
     taskTitle: string,
     updaterId: string,
     updaterName: string,
-    changes: string
+    changes: string,
   ): void {
     const notification: Notification = {
       id: `task_updated_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -67,7 +67,7 @@ class NotificationService {
       userId: updaterId,
       userName: updaterName,
       timestamp: new Date().toISOString(),
-      isRead: false
+      isRead: false,
     };
 
     this.addNotification(notification);
@@ -80,13 +80,13 @@ class NotificationService {
     userId: string,
     userName: string,
     oldStatus: string,
-    newStatus: string
+    newStatus: string,
   ): void {
     const statusMapping: Record<string, string> = {
       'todo': 'Chưa bắt đầu',
       'in-progress': 'Đang thực hiện',
       'on-hold': 'Tạm dừng',
-      'completed': 'Hoàn thành'
+      'completed': 'Hoàn thành',
     };
 
     const notification: Notification = {
@@ -102,8 +102,8 @@ class NotificationService {
       isRead: false,
       metadata: {
         oldStatus,
-        newStatus
-      }
+        newStatus,
+      },
     };
 
     this.addNotification(notification);
@@ -116,12 +116,12 @@ class NotificationService {
     userId: string,
     userName: string,
     oldPriority: string,
-    newPriority: string
+    newPriority: string,
   ): void {
     const priorityMapping: Record<string, string> = {
-      'low': 'Thấp',
-      'normal': 'Bình thường',
-      'high': 'Cao'
+      low: 'Thấp',
+      normal: 'Bình thường',
+      high: 'Cao',
     };
 
     const notification: Notification = {
@@ -137,8 +137,8 @@ class NotificationService {
       isRead: false,
       metadata: {
         oldPriority,
-        newPriority
-      }
+        newPriority,
+      },
     };
 
     this.addNotification(notification);
@@ -147,10 +147,10 @@ class NotificationService {
   // Thêm thông báo vào danh sách
   private addNotification(notification: Notification): void {
     const notifications = this.getNotifications();
-    
+
     // Thêm vào đầu danh sách (mới nhất trước)
     notifications.unshift(notification);
-    
+
     // Lưu lại
     this.saveNotifications(notifications);
 
@@ -161,8 +161,8 @@ class NotificationService {
   // Đánh dấu đã đọc
   markAsRead(notificationId: string): void {
     const notifications = this.getNotifications();
-    const updated = notifications.map(n => 
-      n.id === notificationId ? { ...n, isRead: true } : n
+    const updated = notifications.map((n) =>
+      n.id === notificationId ? { ...n, isRead: true } : n,
     );
     this.saveNotifications(updated);
     this.triggerNotificationUpdate();
@@ -171,7 +171,7 @@ class NotificationService {
   // Đánh dấu tất cả đã đọc
   markAllAsRead(): void {
     const notifications = this.getNotifications();
-    const updated = notifications.map(n => ({ ...n, isRead: true }));
+    const updated = notifications.map((n) => ({ ...n, isRead: true }));
     this.saveNotifications(updated);
     this.triggerNotificationUpdate();
   }
@@ -179,7 +179,7 @@ class NotificationService {
   // Xóa thông báo
   deleteNotification(notificationId: string): void {
     const notifications = this.getNotifications();
-    const updated = notifications.filter(n => n.id !== notificationId);
+    const updated = notifications.filter((n) => n.id !== notificationId);
     this.saveNotifications(updated);
     this.triggerNotificationUpdate();
   }
@@ -193,13 +193,13 @@ class NotificationService {
   // Lấy số thông báo chưa đọc
   getUnreadCount(): number {
     const notifications = this.getNotifications();
-    return notifications.filter(n => !n.isRead).length;
+    return notifications.filter((n) => !n.isRead).length;
   }
 
   // Lấy thông báo theo task ID
   getNotificationsByTaskId(taskId: string): Notification[] {
     const notifications = this.getNotifications();
-    return notifications.filter(n => n.taskId === taskId);
+    return notifications.filter((n) => n.taskId === taskId);
   }
 
   // Trigger event để update UI (có thể dùng EventEmitter hoặc custom event)
@@ -212,7 +212,7 @@ class NotificationService {
   onNotificationUpdate(callback: () => void): () => void {
     const handler = () => callback();
     window.addEventListener('notificationsUpdated', handler);
-    
+
     // Return unsubscribe function
     return () => {
       window.removeEventListener('notificationsUpdated', handler);
@@ -222,18 +222,18 @@ class NotificationService {
   // Lọc thông báo theo user role
   getNotificationsForRole(userRole: string, userId: string): Notification[] {
     const notifications = this.getNotifications();
-    
+
     // Trưởng phòng xem tất cả thông báo
     if (userRole === 'retail_director' || userRole === 'project_director') {
       return notifications;
     }
-    
+
     // Team leader chỉ xem thông báo của team mình
     if (userRole === 'team_leader') {
       // TODO: Filter by team - cần thêm team_id vào notification
       return notifications;
     }
-    
+
     // Nhân viên không xem thông báo
     return [];
   }
@@ -250,7 +250,7 @@ class NotificationService {
       userId: 'test_user',
       userName: 'Test User',
       timestamp: new Date().toISOString(),
-      isRead: false
+      isRead: false,
     };
 
     this.addNotification(testNotification);

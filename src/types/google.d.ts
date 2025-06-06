@@ -20,7 +20,7 @@ declare global {
               shape?: 'rectangular' | 'pill' | 'circle' | 'square';
               logo_alignment?: 'left' | 'center';
               locale?: string;
-            }
+            },
           ) => void;
           disableAutoSelect: () => void;
           storeCredential: (credential: any) => void;

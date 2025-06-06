@@ -1,8 +1,9 @@
+import { Bell, Edit, Plus, RefreshCw } from 'lucide-react';
 import React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Bell, Plus, Edit, RefreshCw } from 'lucide-react';
-import notificationService from '@/services/notificationService';
 import { useAuth } from '@/context/AuthContext';
+import notificationService from '@/services/notificationService';
 
 const NotificationTestButton: React.FC = () => {
   const { currentUser } = useAuth();
@@ -15,7 +16,7 @@ const NotificationTestButton: React.FC = () => {
       'test_task_1',
       'Báo cáo doanh số tháng 12',
       currentUser.id,
-      currentUser.name
+      currentUser.name,
     );
 
     // Test notification 2: Status change
@@ -25,7 +26,7 @@ const NotificationTestButton: React.FC = () => {
       currentUser.id,
       currentUser.name,
       'todo',
-      'in-progress'
+      'in-progress',
     );
 
     // Test notification 3: Priority change
@@ -35,7 +36,7 @@ const NotificationTestButton: React.FC = () => {
       currentUser.id,
       currentUser.name,
       'normal',
-      'high'
+      'high',
     );
 
     // Test notification 4: Task updated
@@ -44,7 +45,7 @@ const NotificationTestButton: React.FC = () => {
       'Kiểm tra kho hàng',
       currentUser.id,
       currentUser.name,
-      'tiêu đề, mô tả'
+      'tiêu đề, mô tả',
     );
 
     alert('Đã tạo 4 thông báo test! Kiểm tra icon chuông ở góc phải.');
@@ -56,9 +57,10 @@ const NotificationTestButton: React.FC = () => {
   };
 
   // Chỉ hiển thị cho manager
-  const shouldShow = currentUser?.role === 'retail_director' || 
-                    currentUser?.role === 'project_director' ||
-                    currentUser?.role === 'team_leader';
+  const shouldShow =
+    currentUser?.role === 'retail_director' ||
+    currentUser?.role === 'project_director' ||
+    currentUser?.role === 'team_leader';
 
   if (!shouldShow) return null;
 
@@ -73,7 +75,7 @@ const NotificationTestButton: React.FC = () => {
         <Bell className="w-4 h-4 mr-2" />
         Test Thông báo
       </Button>
-      
+
       <Button
         onClick={clearAllNotifications}
         variant="outline"

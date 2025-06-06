@@ -1,9 +1,9 @@
-
+import { Calendar, ChartBar, FileText, PieChart, Users } from 'lucide-react';
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { Badge } from '@/components/ui/badge';
-import { Calendar, PieChart, FileText, Users, ChartBar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface Report {
   id: string;
@@ -67,20 +67,27 @@ const reports: Report[] = [
 
 const getTypeIcon = (type: string) => {
   switch (type) {
-    case 'daily': return <Calendar className="w-5 h-5" />;
-    case 'weekly': return <FileText className="w-5 h-5" />;
-    case 'monthly': return <ChartBar className="w-5 h-5" />;
-    case 'quarterly': return <PieChart className="w-5 h-5" />;
-    case 'location': return <ChartBar className="w-5 h-5" />;
-    case 'partner': return <Users className="w-5 h-5" />;
-    default: return <FileText className="w-5 h-5" />;
+    case 'daily':
+      return <Calendar className="w-5 h-5" />;
+    case 'weekly':
+      return <FileText className="w-5 h-5" />;
+    case 'monthly':
+      return <ChartBar className="w-5 h-5" />;
+    case 'quarterly':
+      return <PieChart className="w-5 h-5" />;
+    case 'location':
+      return <ChartBar className="w-5 h-5" />;
+    case 'partner':
+      return <Users className="w-5 h-5" />;
+    default:
+      return <FileText className="w-5 h-5" />;
   }
 };
 
 const ReportsList = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {reports.map(report => (
+      {reports.map((report) => (
         <Card key={report.id} className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-start">
@@ -94,7 +101,9 @@ const ReportsList = () => {
                 </div>
                 <p className="text-muted-foreground text-sm mt-2">{report.description}</p>
                 <div className="flex justify-between items-center mt-4">
-                  <span className="text-sm text-muted-foreground">Lần cuối: {report.lastGenerated}</span>
+                  <span className="text-sm text-muted-foreground">
+                    Lần cuối: {report.lastGenerated}
+                  </span>
                   <Button size="sm">Tải xuống</Button>
                 </div>
               </div>

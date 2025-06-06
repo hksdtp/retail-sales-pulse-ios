@@ -5,13 +5,13 @@ export const API_CONFIG = {
 
   // Local development API URL (for testing)
   LOCAL_URL: 'http://127.0.0.1:5001/appqlgd/us-central1/api',
-  
+
   // Environment
   IS_DEVELOPMENT: import.meta.env.DEV,
-  
+
   // Timeout settings
   TIMEOUT: 30000, // 30 seconds
-  
+
   // Retry settings
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000, // 1 second
@@ -21,7 +21,7 @@ export const API_CONFIG = {
 export const getApiUrl = () => {
   // Always use production for now
   return API_CONFIG.BASE_URL;
-  
+
   // Uncomment below to use local in development
   // return API_CONFIG.IS_DEVELOPMENT ? API_CONFIG.LOCAL_URL : API_CONFIG.BASE_URL;
 };
@@ -30,19 +30,19 @@ export const getApiUrl = () => {
 export const API_ENDPOINTS = {
   // Health check
   HEALTH: '/health',
-  
+
   // Tasks
   TASKS: '/tasks',
   TASK_BY_ID: (id: string) => `/tasks/${id}`,
-  
+
   // Users (will be added later)
   USERS: '/users',
   USER_BY_ID: (id: string) => `/users/${id}`,
-  
+
   // Teams (will be added later)
   TEAMS: '/teams',
   TEAM_BY_ID: (id: string) => `/teams/${id}`,
-  
+
   // Reports (will be added later)
   REPORTS: '/reports',
   REPORT_BY_ID: (id: string) => `/reports/${id}`,

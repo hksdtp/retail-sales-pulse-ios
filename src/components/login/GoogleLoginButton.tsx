@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface GoogleLoginButtonProps {
   disabled?: boolean;
@@ -17,7 +18,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    
+
     try {
       // Kiểm tra xem Google API có sẵn không
       if (!window.google) {
@@ -27,20 +28,22 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
       // Khởi tạo Google Sign-In
       await new Promise((resolve, reject) => {
         window.google.accounts.id.initialize({
-          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID || '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com',
+          client_id:
+            process.env.REACT_APP_GOOGLE_CLIENT_ID ||
+            '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com',
           callback: (response: any) => {
             try {
               // Decode JWT token để lấy thông tin user
               const payload = JSON.parse(atob(response.credential.split('.')[1]));
-              
+
               // Tìm user trong hệ thống dựa trên email
-              const user = users.find(u => u.email === payload.email);
-              
+              const user = users.find((u) => u.email === payload.email);
+
               if (!user) {
                 toast({
                   title: 'Đăng nhập thất bại',
                   description: 'Email này chưa được đăng ký trong hệ thống',
-                  variant: 'destructive'
+                  variant: 'destructive',
                 });
                 reject(new Error('User not found'));
                 return;
@@ -49,17 +52,17 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
               // Lưu thông tin user vào localStorage
               localStorage.setItem('currentUser', JSON.stringify(user));
               localStorage.setItem('googleAuth', 'true');
-              
+
               toast({
                 title: 'Đăng nhập thành công',
-                description: `Chào mừng ${user.name}!`
+                description: `Chào mừng ${user.name}!`,
               });
 
               // Chuyển hướng về trang chính
               setTimeout(() => {
                 window.location.href = '/';
               }, 1000);
-              
+
               resolve(response);
             } catch (error) {
               console.error('Lỗi khi xử lý Google login:', error);
@@ -67,7 +70,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
             }
           },
           auto_select: false,
-          cancel_on_tap_outside: true
+          cancel_on_tap_outside: true,
         });
 
         // Hiển thị popup đăng nhập
@@ -81,19 +84,18 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
                 size: 'large',
                 width: '100%',
                 text: 'signin_with',
-                shape: 'rectangular'
-              }
+                shape: 'rectangular',
+              },
             );
           }
         });
       });
-
     } catch (error) {
       console.error('Lỗi Google Login:', error);
       toast({
         title: 'Đăng nhập thất bại',
         description: 'Không thể đăng nhập bằng Google. Vui lòng thử lại.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -109,7 +111,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
     >
       {/* Google Sign-In Button Container */}
       <div id="google-signin-button" className="w-full mb-4"></div>
-      
+
       {/* Custom Google Login Button */}
       <Button
         type="button"

@@ -1,10 +1,11 @@
-
-import React from 'react';
-import { User, Team } from '@/types/user';
-import { Briefcase, MapPin } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
+import { Briefcase, MapPin } from 'lucide-react';
+import React from 'react';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Team, User } from '@/types/user';
+
 import { getAvatarText, positionLabels } from './LoginUtils';
 
 interface DirectorViewProps {
@@ -14,12 +15,12 @@ interface DirectorViewProps {
 
 const DirectorView: React.FC<DirectorViewProps> = ({ user, teams }) => {
   if (user.role !== 'retail_director' && user.role !== 'project_director') return null;
-  
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="flex flex-col items-center space-y-4 p-6 bg-ios-gray rounded-lg"
     >
       <Avatar className="h-24 w-24 border-4 border-ios-blue">
@@ -43,11 +44,11 @@ const DirectorView: React.FC<DirectorViewProps> = ({ user, teams }) => {
           <span className="text-sm text-gray-500">Quản lý</span>
           <div className="flex items-center justify-center mt-1">
             <Badge variant="outline" className="mr-2">
-              <span className="mr-1">{teams.filter(t => t.location === 'hanoi').length}</span>
+              <span className="mr-1">{teams.filter((t) => t.location === 'hanoi').length}</span>
               <span>Nhóm Hà Nội</span>
             </Badge>
             <Badge variant="outline">
-              <span className="mr-1">{teams.filter(t => t.location === 'hcm').length}</span>
+              <span className="mr-1">{teams.filter((t) => t.location === 'hcm').length}</span>
               <span>Nhóm Hồ Chí Minh</span>
             </Badge>
           </div>

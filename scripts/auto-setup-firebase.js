@@ -4,12 +4,12 @@ console.log('==============================');
 
 // Firebase config for the project
 const firebaseConfig = {
-  apiKey: "AIzaSyDXQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ",
-  authDomain: "appqlgd.firebaseapp.com",
-  projectId: "appqlgd",
-  storageBucket: "appqlgd.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdefghijklmnop"
+  apiKey: 'AIzaSyDXQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ',
+  authDomain: 'appqlgd.firebaseapp.com',
+  projectId: 'appqlgd',
+  storageBucket: 'appqlgd.appspot.com',
+  messagingSenderId: '123456789012',
+  appId: '1:123456789012:web:abcdefghijklmnop',
 };
 
 // Function to setup Firebase in browser
@@ -19,10 +19,10 @@ function setupFirebaseInBrowser() {
       // Save config to localStorage
       localStorage.setItem('firebaseConfig', JSON.stringify(firebaseConfig));
       localStorage.setItem('firebaseConfigured', 'true');
-      
+
       console.log('✅ Firebase config saved to localStorage');
       console.log('🎉 Firebase will be auto-configured on next app load');
-      
+
       return true;
     } catch (error) {
       console.error('❌ Failed to save Firebase config:', error);
@@ -45,18 +45,18 @@ function displayConfigForManualSetup() {
 // Main execution
 function main() {
   console.log('🚀 Starting Firebase auto-setup...');
-  
+
   const browserSetupSuccess = setupFirebaseInBrowser();
-  
+
   if (!browserSetupSuccess) {
     displayConfigForManualSetup();
   }
-  
+
   console.log('\n🎯 Setup Methods Available:');
   console.log('1. ✅ Auto-setup via FirebaseAutoSetupProvider (Recommended)');
   console.log('2. 🔧 Manual setup via Firebase Settings page');
   console.log('3. 💾 localStorage persistence (already configured)');
-  
+
   console.log('\n🔥 Firebase Auto-Setup Complete!');
 }
 
@@ -68,6 +68,6 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     firebaseConfig,
     setupFirebaseInBrowser,
-    displayConfigForManualSetup
+    displayConfigForManualSetup,
   };
 }

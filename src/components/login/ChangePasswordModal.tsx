@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, Key, Check, X } from 'lucide-react';
+import { Check, Eye, EyeOff, Key, Lock, X } from 'lucide-react';
+import React, { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -15,7 +16,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   isOpen,
   userName,
   onPasswordChange,
-  onCancel
+  onCancel,
 }) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,10 +27,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const passwordRequirements = [
     { text: 'Ít nhất 6 ký tự', met: newPassword.length >= 6 },
     { text: 'Có chữ và số', met: /^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword) },
-    { text: 'Mật khẩu khớp nhau', met: newPassword === confirmPassword && newPassword.length > 0 }
+    { text: 'Mật khẩu khớp nhau', met: newPassword === confirmPassword && newPassword.length > 0 },
   ];
 
-  const isValidPassword = passwordRequirements.every(req => req.met);
+  const isValidPassword = passwordRequirements.every((req) => req.met);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +38,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
       onPasswordChange(newPassword);
     } catch (error) {
       console.error('Error changing password:', error);
@@ -83,9 +84,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* New Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mật khẩu mới
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -126,7 +125,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>

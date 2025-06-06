@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { AlertCircle, CheckCircle, ExternalLink, Info } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -11,11 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { googleSheetsService } from '@/services/GoogleSheetsService';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, ExternalLink, AlertCircle, CheckCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GoogleSheetsConfigProps {
   open: boolean;
@@ -28,7 +29,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
   const [sheetId, setSheetId] = useState('');
   const [serviceAccountJSON, setServiceAccountJSON] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
-  const [currentTab, setCurrentTab] = useState<string>("general");
+  const [currentTab, setCurrentTab] = useState<string>('general');
 
   // Lấy cấu hình hiện tại khi mở dialog
   useEffect(() => {
@@ -57,18 +58,18 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
     try {
       if (!sheetId.trim()) {
         toast({
-          title: "Lỗi",
-          description: "ID Google Sheet không được để trống",
-          variant: "destructive",
+          title: 'Lỗi',
+          description: 'ID Google Sheet không được để trống',
+          variant: 'destructive',
         });
         return;
       }
 
       if (!serviceAccountJSON.trim()) {
         toast({
-          title: "Lỗi",
-          description: "Thông tin Service Account JSON không được để trống",
-          variant: "destructive",
+          title: 'Lỗi',
+          description: 'Thông tin Service Account JSON không được để trống',
+          variant: 'destructive',
         });
         return;
       }
@@ -78,17 +79,17 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
         JSON.parse(serviceAccountJSON.trim());
       } catch (e) {
         toast({
-          title: "Lỗi",
-          description: "Service Account JSON không hợp lệ",
-          variant: "destructive",
+          title: 'Lỗi',
+          description: 'Service Account JSON không hợp lệ',
+          variant: 'destructive',
         });
         return;
       }
 
       googleSheetsService.setConfig(sheetId.trim(), serviceAccountJSON.trim());
       toast({
-        title: "Thành công",
-        description: "Cấu hình Google Sheets đã được lưu",
+        title: 'Thành công',
+        description: 'Cấu hình Google Sheets đã được lưu',
       });
 
       if (onConfigSaved) {
@@ -99,9 +100,9 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
     } catch (error) {
       console.error('Lỗi khi lưu cấu hình:', error);
       toast({
-        title: "Lỗi",
-        description: "Không thể lưu cấu hình Google Sheets",
-        variant: "destructive",
+        title: 'Lỗi',
+        description: 'Không thể lưu cấu hình Google Sheets',
+        variant: 'destructive',
       });
     }
   };
@@ -111,9 +112,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
       <DialogContent className="sm:max-w-[475px] md:max-w-[650px]">
         <DialogHeader>
           <DialogTitle>Cấu hình Google Sheets</DialogTitle>
-          <DialogDescription>
-            Nhập thông tin để kết nối với Google Sheets API
-          </DialogDescription>
+          <DialogDescription>Nhập thông tin để kết nối với Google Sheets API</DialogDescription>
         </DialogHeader>
 
         <Tabs value={currentTab} onValueChange={setCurrentTab}>
@@ -121,7 +120,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
             <TabsTrigger value="general">Cài đặt chung</TabsTrigger>
             <TabsTrigger value="guide">Hướng dẫn chi tiết</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="general" className="space-y-4 mt-4">
             {isConfigured && (
               <Alert className="bg-green-50 border-green-200 text-green-800">
@@ -141,11 +140,17 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
                 placeholder="Ví dụ: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
               />
               <p className="text-xs text-muted-foreground">
-                ID của Google Sheet nằm trong URL: https://docs.google.com/spreadsheets/d/<span className="font-medium">ID_SHEET</span>/edit
+                ID của Google Sheet nằm trong URL: https://docs.google.com/spreadsheets/d/
+                <span className="font-medium">ID_SHEET</span>/edit
               </p>
               <div className="flex items-center text-xs text-blue-600">
                 <ExternalLink className="h-3 w-3 mr-1" />
-                <a href="https://docs.google.com/spreadsheets" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                <a
+                  href="https://docs.google.com/spreadsheets"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
                   Mở Google Sheets
                 </a>
               </div>
@@ -170,65 +175,90 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
               />
               <p className="text-xs text-muted-foreground">
                 Dán toàn bộ nội dung file JSON của Service Account từ Google Cloud Console.
-                <b className="text-red-500"> Đảm bảo đã chia sẻ quyền chỉnh sửa Google Sheet cho email của Service Account.</b>
+                <b className="text-red-500">
+                  {' '}
+                  Đảm bảo đã chia sẻ quyền chỉnh sửa Google Sheet cho email của Service Account.
+                </b>
               </p>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="guide" className="space-y-4 mt-4">
             <div className="border rounded-lg p-4 space-y-3">
               <h3 className="font-medium text-base">Các bước tạo Service Account:</h3>
               <ol className="list-decimal pl-4 space-y-2 text-sm">
                 <li>
                   <p>
-                    <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a
+                      href="https://console.cloud.google.com/projectcreate"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
                       Tạo dự án Google Cloud mới
-                    </a> hoặc chọn dự án hiện có
+                    </a>{' '}
+                    hoặc chọn dự án hiện có
                   </p>
                 </li>
                 <li>
                   <p>
-                    <a href="https://console.cloud.google.com/apis/library/sheets.googleapis.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a
+                      href="https://console.cloud.google.com/apis/library/sheets.googleapis.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
                       Kích hoạt Google Sheets API
-                    </a> cho dự án của bạn
+                    </a>{' '}
+                    cho dự án của bạn
                   </p>
                 </li>
                 <li>
                   <p>
-                    <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a
+                      href="https://console.cloud.google.com/iam-admin/serviceaccounts"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
                       Tạo Service Account
-                    </a> với quyền "Editor"
+                    </a>{' '}
+                    với quyền "Editor"
                   </p>
                 </li>
                 <li>
-                  <p>
-                    Tạo khóa cho Service Account (Chọn định dạng JSON)
-                  </p>
+                  <p>Tạo khóa cho Service Account (Chọn định dạng JSON)</p>
+                </li>
+                <li>
+                  <p>Tải xuống file JSON khóa và sao chép nội dung vào ô trên</p>
                 </li>
                 <li>
                   <p>
-                    Tải xuống file JSON khóa và sao chép nội dung vào ô trên
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    <a href="https://docs.google.com/spreadsheets" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a
+                      href="https://docs.google.com/spreadsheets"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
                       Tạo Google Sheet mới
                     </a>
                   </p>
                 </li>
                 <li>
                   <p>
-                    Chia sẻ Google Sheet với email của Service Account (có dạng <span className="font-mono">name@project-id.iam.gserviceaccount.com</span>) với quyền Editor
+                    Chia sẻ Google Sheet với email của Service Account (có dạng{' '}
+                    <span className="font-mono">name@project-id.iam.gserviceaccount.com</span>) với
+                    quyền Editor
                   </p>
                 </li>
                 <li>
                   <p>
-                    Sao chép ID của Sheet (phần giữa /d/ và /edit trong URL) và dán vào ô Sheet ID ở tab Cài đặt chung
+                    Sao chép ID của Sheet (phần giữa /d/ và /edit trong URL) và dán vào ô Sheet ID ở
+                    tab Cài đặt chung
                   </p>
                 </li>
               </ol>
-              
+
               <Alert className="bg-blue-50 border-blue-200 text-blue-800 mt-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
@@ -238,7 +268,7 @@ const GoogleSheetsConfig = ({ open, onOpenChange, onConfigSaved }: GoogleSheetsC
                     <li>Đã bật Google Sheets API trong dự án Google Cloud</li>
                     <li>Đã chia sẻ Google Sheet với đúng email của Service Account</li>
                     <li>Service Account có quyền Editor trên Google Sheet</li>
-                    <li>Tệp JSON đã được sao chép đầy đủ (kiểm tra dấu ngoặc {"{...}"})</li>
+                    <li>Tệp JSON đã được sao chép đầy đủ (kiểm tra dấu ngoặc {'{...}'})</li>
                   </ul>
                 </AlertDescription>
               </Alert>

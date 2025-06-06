@@ -1,25 +1,36 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
+import {
+  addDays,
+  endOfMonth,
+  endOfWeek,
+  format,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+} from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Filter } from 'lucide-react';
+import React from 'react';
 
-export type TimeFilterType = 
-  | 'today' 
-  | 'tomorrow' 
-  | 'this-week' 
-  | 'next-week' 
-  | 'this-month' 
-  | 'past-week' 
-  | 'past-month' 
-  | 'custom' 
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+export type TimeFilterType =
+  | 'today'
+  | 'tomorrow'
+  | 'this-week'
+  | 'next-week'
+  | 'this-month'
+  | 'past-week'
+  | 'past-month'
+  | 'custom'
   | 'all';
 
 interface TaskFilterProps {
@@ -32,8 +43,8 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
 
   const handleFilterChange = (value: string) => {
     const filterType = value as TimeFilterType;
-    
-    switch(filterType) {
+
+    switch (filterType) {
       case 'today':
         onFilterChange('today');
         break;
@@ -81,30 +92,40 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
         onFilterChange('all');
         break;
     }
-  }
+  };
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       setCustomDate(date);
       onFilterChange('custom', date, date);
     }
-  }
+  };
 
   // Hiển thị nhãn của bộ lọc hiện tại
   const getFilterLabel = () => {
-    switch(currentFilter) {
-      case 'today': return 'Hôm nay';
-      case 'tomorrow': return 'Ngày mai';
-      case 'this-week': return 'Tuần này';
-      case 'next-week': return 'Tuần tới';
-      case 'this-month': return 'Tháng này';
-      case 'past-week': return '7 ngày qua';
-      case 'past-month': return '30 ngày qua';
-      case 'custom': return customDate ? `Ngày ${format(customDate, 'dd/MM/yyyy')}` : 'Tùy chọn';
-      case 'all': return 'Tất cả';
-      default: return 'Chọn thời gian';
+    switch (currentFilter) {
+      case 'today':
+        return 'Hôm nay';
+      case 'tomorrow':
+        return 'Ngày mai';
+      case 'this-week':
+        return 'Tuần này';
+      case 'next-week':
+        return 'Tuần tới';
+      case 'this-month':
+        return 'Tháng này';
+      case 'past-week':
+        return '7 ngày qua';
+      case 'past-month':
+        return '30 ngày qua';
+      case 'custom':
+        return customDate ? `Ngày ${format(customDate, 'dd/MM/yyyy')}` : 'Tùy chọn';
+      case 'all':
+        return 'Tất cả';
+      default:
+        return 'Chọn thời gian';
     }
-  }
+  };
 
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 my-4">
@@ -112,7 +133,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
         <Filter className="h-5 w-5 text-gray-500" />
         <span className="text-sm font-medium">Lọc theo thời gian:</span>
       </div>
-      
+
       <div className="flex space-x-2">
         <Select defaultValue={currentFilter} onValueChange={handleFilterChange}>
           <SelectTrigger className="w-[180px] h-9">
@@ -134,8 +155,8 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
         {currentFilter === 'custom' && (
           <Popover>
             <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-[180px] h-9 justify-start text-left font-normal"
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />

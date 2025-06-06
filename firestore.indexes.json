@@ -1,4 +1,5 @@
 {
+  "fieldOverrides": [],
   "indexes": [
     {
       "collectionGroup": "tasks",
@@ -60,6 +61,5 @@
         }
       ]
     }
-  ],
-  "fieldOverrides": []
+  ]
 }

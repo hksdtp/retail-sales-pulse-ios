@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useCallback, useEffect, useState } from 'react';
+
 import { getApiUrl } from '@/config/api';
+
 import { Task } from '../components/tasks/types/TaskTypes';
+import { useAuth } from '../context/AuthContext';
 
 export type TaskViewLevel = 'department' | 'team' | 'individual' | 'personal' | 'shared';
 
@@ -20,7 +22,10 @@ interface ManagerTaskData {
   refreshTasks: () => Promise<void>;
 }
 
-export const useManagerTaskData = (viewLevel: TaskViewLevel, selectedMemberId?: string | null): ManagerTaskData => {
+export const useManagerTaskData = (
+  viewLevel: TaskViewLevel,
+  selectedMemberId?: string | null,
+): ManagerTaskData => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,64 +34,69 @@ export const useManagerTaskData = (viewLevel: TaskViewLevel, selectedMemberId?: 
     team: 0,
     individual: 0,
     personal: 0,
-    shared: 0
+    shared: 0,
   });
   const [memberTaskCounts, setMemberTaskCounts] = useState<{ [memberId: string]: number }>({});
 
   const { currentUser, users, teams } = useAuth();
 
-  const fetchTasksByLevel = useCallback(async (level: TaskViewLevel) => {
-    if (!currentUser) return [];
+  const fetchTasksByLevel = useCallback(
+    async (level: TaskViewLevel) => {
+      if (!currentUser) return [];
 
-    try {
-      const apiUrl = getApiUrl();
-      const params = new URLSearchParams();
-      
-      // Base parameters
-      params.append('user_id', currentUser.id);
-      params.append('role', currentUser.role);
-      params.append('view_level', level);
+      try {
+        const apiUrl = getApiUrl();
+        const params = new URLSearchParams();
 
-      // Team leader chỉ có thể xem team của mình
-      if (currentUser.team_id) {
-        params.append('team_id', currentUser.team_id);
-      }
+        // Base parameters
+        params.append('user_id', currentUser.id);
+        params.append('role', currentUser.role);
+        params.append('view_level', level);
 
-      if (currentUser.department_type) {
-        params.append('department', currentUser.department_type);
-      }
+        // Team leader chỉ có thể xem team của mình
+        if (currentUser.team_id) {
+          params.append('team_id', currentUser.team_id);
+        }
 
-      // Thêm selectedMemberId nếu có (cho individual view)
-      if (level === 'individual' && selectedMemberId) {
-        params.append('member_id', selectedMemberId);
-      }
+        if (currentUser.department_type) {
+          params.append('department', currentUser.department_type);
+        }
 
-      console.log(`🔒 Security: ${currentUser.role} ${currentUser.name} requesting ${level} view for team ${currentUser.team_id}`);
-      if (level === 'individual' && selectedMemberId) {
-        console.log(`👤 Specific member requested: ${selectedMemberId}`);
-      }
+        // Thêm selectedMemberId nếu có (cho individual view)
+        if (level === 'individual' && selectedMemberId) {
+          params.append('member_id', selectedMemberId);
+        }
 
-      const url = `${apiUrl}/tasks/manager-view?${params.toString()}`;
-      console.log(`🔍 Fetching ${level} tasks:`, url);
-      
-      console.log(`📡 API Request: ${url}`);
-      const response = await fetch(url);
-      const result = await response.json();
+        console.log(
+          `🔒 Security: ${currentUser.role} ${currentUser.name} requesting ${level} view for team ${currentUser.team_id}`,
+        );
+        if (level === 'individual' && selectedMemberId) {
+          console.log(`👤 Specific member requested: ${selectedMemberId}`);
+        }
 
-      console.log(`📊 API Response for ${level}:`, result);
+        const url = `${apiUrl}/tasks/manager-view?${params.toString()}`;
+        console.log(`🔍 Fetching ${level} tasks:`, url);
 
-      if (result.success && result.data) {
-        console.log(`✅ Loaded ${result.data.length} ${level} tasks`);
-        return result.data;
-      } else {
-        console.error(`❌ Error loading ${level} tasks:`, result.error);
+        console.log(`📡 API Request: ${url}`);
+        const response = await fetch(url);
+        const result = await response.json();
+
+        console.log(`📊 API Response for ${level}:`, result);
+
+        if (result.success && result.data) {
+          console.log(`✅ Loaded ${result.data.length} ${level} tasks`);
+          return result.data;
+        } else {
+          console.error(`❌ Error loading ${level} tasks:`, result.error);
+          return [];
+        }
+      } catch (error) {
+        console.error(`❌ Network error loading ${level} tasks:`, error);
         return [];
       }
-    } catch (error) {
-      console.error(`❌ Network error loading ${level} tasks:`, error);
-      return [];
-    }
-  }, [currentUser]);
+    },
+    [currentUser],
+  );
 
   const loadTasks = useCallback(async () => {
     if (!currentUser) return;
@@ -95,7 +105,9 @@ export const useManagerTaskData = (viewLevel: TaskViewLevel, selectedMemberId?: 
     setError(null);
 
     try {
-      console.log(`🔄 Loading tasks for view level: ${viewLevel}, member: ${selectedMemberId || 'all'}`);
+      console.log(
+        `🔄 Loading tasks for view level: ${viewLevel}, member: ${selectedMemberId || 'all'}`,
+      );
 
       let tasksData = await fetchTasksByLevel(viewLevel);
 
@@ -110,37 +122,42 @@ export const useManagerTaskData = (viewLevel: TaskViewLevel, selectedMemberId?: 
       }
 
       setTasks(tasksData);
-      
+
       // Load counts for all levels (for the selector)
-      const isDirector = currentUser.role === 'retail_director' || currentUser.role === 'project_director';
+      const isDirector =
+        currentUser.role === 'retail_director' || currentUser.role === 'project_director';
       const isTeamLeader = currentUser.role === 'team_leader';
-      
+
       if (isDirector || isTeamLeader) {
-        const [personalTasks, teamTasks, departmentTasks, individualTasks, sharedTasks] = await Promise.all([
-          fetchTasksByLevel('personal'),
-          fetchTasksByLevel('team'),
-          isDirector ? fetchTasksByLevel('department') : Promise.resolve([]),
-          fetchTasksByLevel('individual'),
-          fetchTasksByLevel('shared')
-        ]);
+        const [personalTasks, teamTasks, departmentTasks, individualTasks, sharedTasks] =
+          await Promise.all([
+            fetchTasksByLevel('personal'),
+            fetchTasksByLevel('team'),
+            isDirector ? fetchTasksByLevel('department') : Promise.resolve([]),
+            fetchTasksByLevel('individual'),
+            fetchTasksByLevel('shared'),
+          ]);
 
         setTaskCounts({
           personal: personalTasks.length,
           team: teamTasks.length,
           department: departmentTasks.length,
           individual: individualTasks.length,
-          shared: sharedTasks.length
+          shared: sharedTasks.length,
         });
 
         // Tính task counts cho từng member (cho individual view)
         if (isTeamLeader || isDirector) {
-          const teamMembers = users.filter(user => user.team_id === currentUser.team_id);
+          const teamMembers = users.filter((user) => user.team_id === currentUser.team_id);
           const memberCounts: { [memberId: string]: number } = {};
 
-          console.log(`👥 Team members for counting:`, teamMembers.map(m => `${m.name} (${m.id})`));
+          console.log(
+            `👥 Team members for counting:`,
+            teamMembers.map((m) => `${m.name} (${m.id})`),
+          );
 
           for (const member of teamMembers) {
-            const memberTasks = individualTasks.filter(task => task.assignedTo === member.id);
+            const memberTasks = individualTasks.filter((task) => task.assignedTo === member.id);
             memberCounts[member.id] = memberTasks.length;
             console.log(`📊 Member ${member.name} (${member.id}): ${memberTasks.length} tasks`);
           }
@@ -149,7 +166,6 @@ export const useManagerTaskData = (viewLevel: TaskViewLevel, selectedMemberId?: 
           setMemberTaskCounts(memberCounts);
         }
       }
-      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
@@ -173,6 +189,6 @@ export const useManagerTaskData = (viewLevel: TaskViewLevel, selectedMemberId?: 
     error,
     taskCounts,
     memberTaskCounts,
-    refreshTasks
+    refreshTasks,
   };
 };

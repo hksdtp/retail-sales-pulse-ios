@@ -30,7 +30,7 @@ class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) {
         return this.props.fallback;
       }
-      
+
       return (
         <div className="p-4 m-4 bg-red-50 border border-red-200 rounded-lg">
           <h2 className="text-lg font-semibold text-red-700 mb-2">Đã xảy ra lỗi</h2>

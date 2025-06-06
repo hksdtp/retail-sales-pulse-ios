@@ -4,12 +4,12 @@
 function testAppsScript() {
   // URL của Google Apps Script (thay thế bằng URL mới sau khi deploy)
   const url = prompt('Nhập URL Google Apps Script mới của bạn:');
-  
+
   if (!url) {
     console.error('Không nhận được URL');
     return;
   }
-  
+
   // Dữ liệu thử nghiệm
   const testData = {
     title: 'Công việc thử nghiệm',
@@ -22,31 +22,31 @@ function testAppsScript() {
     assignedTo: 'Test User',
     team_id: 'Test Team',
     location: 'Hà Nội',
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
   };
-  
+
   console.log('Đang gửi dữ liệu thử nghiệm đến:', url);
   console.log('Dữ liệu:', testData);
-  
+
   // Tạo form ẩn
   const iframe = document.createElement('iframe');
   iframe.name = `test_frame_${Date.now()}`;
   iframe.style.display = 'none';
   document.body.appendChild(iframe);
-  
+
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = url;
   form.target = iframe.name;
-  
+
   const hiddenField = document.createElement('input');
   hiddenField.type = 'hidden';
   hiddenField.name = 'data';
   hiddenField.value = JSON.stringify(testData);
   form.appendChild(hiddenField);
-  
+
   document.body.appendChild(form);
-  
+
   // Xử lý hoàn thành
   iframe.onload = () => {
     console.log('Đã gửi dữ liệu thành công!');
@@ -56,7 +56,7 @@ function testAppsScript() {
       alert('Đã gửi dữ liệu thử nghiệm thành công! Vui lòng kiểm tra Google Sheet của bạn.');
     }, 1000);
   };
-  
+
   // Gửi form
   form.submit();
 }

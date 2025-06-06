@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTasks, healthCheck } from '@/services/api';
@@ -45,9 +46,9 @@ export const ApiTest: React.FC = () => {
             Test Get Tasks
           </Button>
         </div>
-        
+
         {loading && <div>Loading...</div>}
-        
+
         {result && (
           <div className="mt-4">
             <h3 className="font-semibold">Result ({result.type}):</h3>

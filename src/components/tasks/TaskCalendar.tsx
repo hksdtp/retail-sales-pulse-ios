@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 interface CalendarTask {
   id: string;
@@ -17,24 +17,23 @@ const tasksByDate: Record<string, CalendarTask[]> = {
     { id: '1', title: 'Gặp đối tác ABC', type: 'partner', time: '10:30' },
     { id: '3', title: 'Khảo sát công trình Y', type: 'client', time: '14:00' },
   ],
-  '2025-05-06': [
-    { id: '4', title: 'Làm việc với KTS Nguyễn', type: 'architect', time: '09:00' },
-  ],
-  '2025-05-07': [
-    { id: '5', title: 'Chờ phản hồi báo giá', type: 'quote', time: '15:00' },
-  ],
-  '2025-05-12': [
-    { id: '2', title: 'Báo giá dự án X', type: 'quote', time: '11:00' },
-  ],
+  '2025-05-06': [{ id: '4', title: 'Làm việc với KTS Nguyễn', type: 'architect', time: '09:00' }],
+  '2025-05-07': [{ id: '5', title: 'Chờ phản hồi báo giá', type: 'quote', time: '15:00' }],
+  '2025-05-12': [{ id: '2', title: 'Báo giá dự án X', type: 'quote', time: '11:00' }],
 };
 
 const getTypeColor = (type: string) => {
   switch (type) {
-    case 'partner': return 'bg-ios-blue text-white';
-    case 'architect': return 'bg-ios-green text-white';
-    case 'client': return 'bg-ios-orange text-white';
-    case 'quote': return 'bg-ios-yellow text-black';
-    default: return 'bg-gray-200 text-gray-800';
+    case 'partner':
+      return 'bg-ios-blue text-white';
+    case 'architect':
+      return 'bg-ios-green text-white';
+    case 'client':
+      return 'bg-ios-orange text-white';
+    case 'quote':
+      return 'bg-ios-yellow text-black';
+    default:
+      return 'bg-gray-200 text-gray-800';
   }
 };
 
@@ -48,7 +47,7 @@ const formatDateKey = (date: Date | undefined): string => {
 
 const TaskCalendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date('2025-05-05'));
-  
+
   // Function to determine if a date has tasks
   const isDayWithTask = (day: Date) => {
     const dateKey = formatDateKey(day);
@@ -57,15 +56,15 @@ const TaskCalendar = () => {
 
   // Get tasks for selected date
   const selectedDateTasks = date ? tasksByDate[formatDateKey(date)] || [] : [];
-  
+
   // Format date for display
   const formatDisplayDate = (date: Date | undefined) => {
     if (!date) return '';
-    return date.toLocaleDateString('vi-VN', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('vi-VN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   };
 
@@ -86,21 +85,24 @@ const TaskCalendar = () => {
                 hasTasks: {
                   fontWeight: 'bold',
                   textDecoration: 'underline',
-                  textDecorationColor: '#0A84FF'
-                }
+                  textDecorationColor: '#0A84FF',
+                },
               }}
             />
           </CardContent>
         </Card>
       </div>
-      
+
       <div className="md:col-span-2">
         <h3 className="font-medium mb-4">{formatDisplayDate(date)}</h3>
-        
+
         {selectedDateTasks.length > 0 ? (
           <div className="space-y-3">
-            {selectedDateTasks.map(task => (
-              <Card key={task.id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+            {selectedDateTasks.map((task) => (
+              <Card
+                key={task.id}
+                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -109,9 +111,13 @@ const TaskCalendar = () => {
                         <h4 className="font-medium">{task.title}</h4>
                       </div>
                       <Badge className={`${getTypeColor(task.type)} mt-2`}>
-                        {task.type === 'partner' ? 'Đối tác' : 
-                         task.type === 'architect' ? 'KTS' :
-                         task.type === 'client' ? 'Khách hàng' : 'Báo giá'}
+                        {task.type === 'partner'
+                          ? 'Đối tác'
+                          : task.type === 'architect'
+                            ? 'KTS'
+                            : task.type === 'client'
+                              ? 'Khách hàng'
+                              : 'Báo giá'}
                       </Badge>
                     </div>
                   </div>

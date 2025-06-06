@@ -1,26 +1,22 @@
-
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import {
-  PieChart,
-  List,
   CalendarCheck,
   FileText,
-  Users,
-  User,
+  List,
   LogOut,
-  Settings
+  PieChart,
+  Settings,
+  User,
+  Users,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+
 import AccountSettings from '@/components/account/AccountSettings';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/lib/utils';
 
 const BottomNavigation = () => {
   const { currentUser, logout } = useAuth();
@@ -33,27 +29,33 @@ const BottomNavigation = () => {
     navigate('/login');
   };
 
-  const menuItems = [{
-    title: "Dashboard",
-    icon: PieChart,
-    url: "/"
-  }, {
-    title: "Công việc",
-    icon: List,
-    url: "/tasks"
-  }, {
-    title: "Kế hoạch",
-    icon: CalendarCheck,
-    url: "/calendar"
-  }, {
-    title: "Báo cáo",
-    icon: FileText,
-    url: "/reports"
-  }, {
-    title: "Nhân viên",
-    icon: Users,
-    url: "/employees"
-  }];
+  const menuItems = [
+    {
+      title: 'Dashboard',
+      icon: PieChart,
+      url: '/',
+    },
+    {
+      title: 'Công việc',
+      icon: List,
+      url: '/tasks',
+    },
+    {
+      title: 'Kế hoạch',
+      icon: CalendarCheck,
+      url: '/calendar',
+    },
+    {
+      title: 'Báo cáo',
+      icon: FileText,
+      url: '/reports',
+    },
+    {
+      title: 'Nhân viên',
+      icon: Users,
+      url: '/employees',
+    },
+  ];
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -67,17 +69,17 @@ const BottomNavigation = () => {
             key={item.title}
             to={item.url}
             className={cn(
-              "flex flex-col items-center justify-center px-3 py-2 text-xs font-medium rounded-xl transition-all",
+              'flex flex-col items-center justify-center px-3 py-2 text-xs font-medium rounded-xl transition-all',
               isActive(item.url)
-                ? "text-ios-blue bg-white/80 shadow-sm border border-gray-100/20"
-                : "text-gray-500 hover:text-ios-blue hover:bg-white/50 hover:-translate-y-0.5"
+                ? 'text-ios-blue bg-white/80 shadow-sm border border-gray-100/20'
+                : 'text-gray-500 hover:text-ios-blue hover:bg-white/50 hover:-translate-y-0.5',
             )}
           >
-            <item.icon className={cn("h-5 w-5 mb-1", isActive(item.url) && "text-ios-blue")} />
+            <item.icon className={cn('h-5 w-5 mb-1', isActive(item.url) && 'text-ios-blue')} />
             <span>{item.title}</span>
           </Link>
         ))}
-        
+
         <Popover>
           <PopoverTrigger asChild>
             <button className="flex flex-col items-center justify-center px-3 py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/50 hover:-translate-y-0.5 rounded-xl transition-all">
@@ -85,7 +87,11 @@ const BottomNavigation = () => {
               <span>Tài khoản</span>
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-72 p-4 macos-glass backdrop-blur-xl bg-white/90 dark:bg-black/80 border border-white/20 shadow-xl rounded-xl" align="end" sideOffset={10}>
+          <PopoverContent
+            className="w-72 p-4 macos-glass backdrop-blur-xl bg-white/90 dark:bg-black/80 border border-white/20 shadow-xl rounded-xl"
+            align="end"
+            sideOffset={10}
+          >
             {currentUser && (
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
@@ -94,12 +100,14 @@ const BottomNavigation = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-base font-medium">{currentUser.name}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">{currentUser.position || currentUser.role}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {currentUser.position || currentUser.role}
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-gray-200/50 dark:via-white/10 to-transparent"></div>
-                
+
                 <div className="pt-1 space-y-2">
                   <Button
                     variant="outline"
@@ -128,10 +136,7 @@ const BottomNavigation = () => {
       </div>
 
       {/* Account Settings Modal */}
-      <AccountSettings
-        isOpen={showAccountSettings}
-        onClose={() => setShowAccountSettings(false)}
-      />
+      <AccountSettings isOpen={showAccountSettings} onClose={() => setShowAccountSettings(false)} />
     </div>
   );
 };

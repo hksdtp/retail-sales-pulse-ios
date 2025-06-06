@@ -1,5 +1,5 @@
-
 import React, { createContext } from 'react';
+
 import { Task } from '../components/tasks/types/TaskTypes';
 
 export interface TaskFilters {
@@ -18,7 +18,9 @@ export interface TaskFilters {
 export interface TaskDataContextType {
   tasks: Task[];
   filteredTasks: Task[];
-  addTask: (task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>) => Promise<Task>;
+  addTask: (
+    task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>,
+  ) => Promise<Task>;
   updateTask: (id: string, updatedTask: Partial<Task>) => Promise<Task>;
   deleteTask: (id: string) => Promise<boolean>;
   getTaskById: (id: string) => Task | undefined;

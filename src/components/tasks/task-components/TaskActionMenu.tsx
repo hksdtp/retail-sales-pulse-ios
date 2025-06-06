@@ -1,10 +1,7 @@
+import { AlertCircle, Check, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,11 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { MoreVertical, Pencil, Trash2, Check, AlertCircle } from 'lucide-react';
-import { Task } from '../types/TaskTypes';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTaskData } from '@/hooks/use-task-data';
 import { useToast } from '@/hooks/use-toast';
+
+import { Task } from '../types/TaskTypes';
 
 interface TaskActionMenuProps {
   task: Task;
@@ -36,16 +38,16 @@ const TaskActionMenu: React.FC<TaskActionMenuProps> = ({ task, onEdit }) => {
     try {
       await deleteTask(task.id);
       toast({
-        title: "Đã xóa công việc",
-        description: "Công việc đã được xóa thành công"
+        title: 'Đã xóa công việc',
+        description: 'Công việc đã được xóa thành công',
       });
       setDeleteDialogOpen(false);
     } catch (error) {
       console.error('Lỗi khi xóa công việc:', error);
       toast({
-        title: "Lỗi",
-        description: "Không thể xóa công việc. Vui lòng thử lại.",
-        variant: "destructive"
+        title: 'Lỗi',
+        description: 'Không thể xóa công việc. Vui lòng thử lại.',
+        variant: 'destructive',
       });
     } finally {
       setIsDeleting(false);
@@ -57,15 +59,15 @@ const TaskActionMenu: React.FC<TaskActionMenuProps> = ({ task, onEdit }) => {
     try {
       await updateTaskStatus(task.id, 'completed');
       toast({
-        title: "Đã hoàn thành",
-        description: "Công việc đã được đánh dấu là hoàn thành"
+        title: 'Đã hoàn thành',
+        description: 'Công việc đã được đánh dấu là hoàn thành',
       });
     } catch (error) {
       console.error('Lỗi khi cập nhật trạng thái công việc:', error);
       toast({
-        title: "Lỗi",
-        description: "Không thể cập nhật trạng thái công việc. Vui lòng thử lại.",
-        variant: "destructive"
+        title: 'Lỗi',
+        description: 'Không thể cập nhật trạng thái công việc. Vui lòng thử lại.',
+        variant: 'destructive',
       });
     }
   };
@@ -81,7 +83,7 @@ const TaskActionMenu: React.FC<TaskActionMenuProps> = ({ task, onEdit }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           {task.status !== 'completed' && (
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="flex items-center gap-2 text-emerald-600"
               onClick={handleMarkAsCompleted}
             >
@@ -89,14 +91,11 @@ const TaskActionMenu: React.FC<TaskActionMenuProps> = ({ task, onEdit }) => {
               <span>Đánh dấu hoàn thành</span>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem 
-            className="flex items-center gap-2 text-blue-600"
-            onClick={onEdit}
-          >
+          <DropdownMenuItem className="flex items-center gap-2 text-blue-600" onClick={onEdit}>
             <Pencil className="h-4 w-4" />
             <span>Chỉnh sửa công việc</span>
           </DropdownMenuItem>
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="flex items-center gap-2 text-red-600"
             onClick={() => setDeleteDialogOpen(true)}
           >
@@ -115,7 +114,8 @@ const TaskActionMenu: React.FC<TaskActionMenuProps> = ({ task, onEdit }) => {
               Xác nhận xóa công việc
             </DialogTitle>
             <DialogDescription className="pt-3">
-              Bạn có chắc chắn muốn xóa công việc "{task.title}" không? Thao tác này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa công việc "{task.title}" không? Thao tác này không thể hoàn
+              tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

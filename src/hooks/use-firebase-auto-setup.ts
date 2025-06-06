@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { FirebaseService } from '@/services/FirebaseService';
 
 interface FirebaseAutoSetupResult {
@@ -17,7 +18,7 @@ export const useFirebaseAutoSetup = (): FirebaseAutoSetupResult => {
       try {
         // Kiểm tra xem Firebase đã được cấu hình chưa
         const alreadyConfigured = FirebaseService.isConfigured();
-        
+
         if (alreadyConfigured) {
           console.log('🔥 Firebase already configured');
           setIsConfigured(true);
@@ -38,30 +39,29 @@ export const useFirebaseAutoSetup = (): FirebaseAutoSetupResult => {
 
         // Nếu không có trong localStorage, sử dụng config mặc định
         const defaultConfig = {
-          apiKey: "AIzaSyDXQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ",
-          authDomain: "appqlgd.firebaseapp.com",
-          projectId: "appqlgd",
-          storageBucket: "appqlgd.appspot.com",
-          messagingSenderId: "123456789012",
-          appId: "1:123456789012:web:abcdefghijklmnop"
+          apiKey: 'AIzaSyDXQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ',
+          authDomain: 'appqlgd.firebaseapp.com',
+          projectId: 'appqlgd',
+          storageBucket: 'appqlgd.appspot.com',
+          messagingSenderId: '123456789012',
+          appId: '1:123456789012:web:abcdefghijklmnop',
         };
 
         console.log('🔧 Initializing Firebase with default config...');
-        
+
         // Khởi tạo Firebase với config mặc định
         const firebaseService = FirebaseService.initializeApp(defaultConfig);
-        
+
         if (firebaseService) {
           console.log('✅ Firebase auto-configured successfully');
           setIsConfigured(true);
-          
+
           // Lưu vào localStorage để lần sau không cần setup lại
           localStorage.setItem('firebaseConfig', JSON.stringify(defaultConfig));
           localStorage.setItem('firebaseConfigured', 'true');
         } else {
           throw new Error('Failed to initialize Firebase');
         }
-
       } catch (err) {
         console.error('❌ Firebase auto-setup failed:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -77,6 +77,6 @@ export const useFirebaseAutoSetup = (): FirebaseAutoSetupResult => {
   return {
     isConfigured,
     isConfiguring,
-    error
+    error,
   };
 };

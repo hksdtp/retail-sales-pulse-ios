@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FirebaseService } from '@/services/FirebaseService';
+
 import { useToast } from '@/hooks/use-toast';
+import { FirebaseService } from '@/services/FirebaseService';
 
 interface FirebaseAutoSetupProviderProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
 
         // Kiểm tra xem đã cấu hình chưa
         let isConfigured = FirebaseService.isConfigured();
-        
+
         if (isConfigured) {
           console.log('✅ Firebase already configured');
           setIsSetupComplete(true);
@@ -29,12 +30,12 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
         // Thử khởi tạo từ localStorage
         console.log('🔍 Checking localStorage for Firebase config...');
         const savedConfig = localStorage.getItem('firebaseConfig');
-        
+
         if (savedConfig) {
           try {
             const config = JSON.parse(savedConfig);
             console.log('🔧 Initializing Firebase from localStorage...');
-            
+
             const firebaseService = FirebaseService.initializeApp(config);
             if (firebaseService) {
               console.log('✅ Firebase initialized from localStorage');
@@ -48,34 +49,34 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
         // Nếu vẫn chưa cấu hình, dùng config mặc định
         if (!isConfigured) {
           console.log('🔧 Using default Firebase config...');
-          
+
           const defaultConfig = {
-            apiKey: "AIzaSyDXQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ",
-            authDomain: "appqlgd.firebaseapp.com",
-            projectId: "appqlgd",
-            storageBucket: "appqlgd.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdefghijklmnop"
+            apiKey: 'AIzaSyDXQJQJQJQJQJQJQJQJQJQJQJQJQJQJQJQ',
+            authDomain: 'appqlgd.firebaseapp.com',
+            projectId: 'appqlgd',
+            storageBucket: 'appqlgd.appspot.com',
+            messagingSenderId: '123456789012',
+            appId: '1:123456789012:web:abcdefghijklmnop',
           };
 
           const firebaseService = FirebaseService.initializeApp(defaultConfig);
-          
+
           if (firebaseService) {
             console.log('✅ Firebase auto-configured with default settings');
-            
+
             // Lưu config để lần sau
             localStorage.setItem('firebaseConfig', JSON.stringify(defaultConfig));
             localStorage.setItem('firebaseConfigured', 'true');
-            
+
             // Hiển thị thông báo thành công (không làm phiền user)
             setTimeout(() => {
               toast({
-                title: "🔥 Firebase Ready",
-                description: "Hệ thống đã sẵn sàng hoạt động",
-                duration: 3000
+                title: '🔥 Firebase Ready',
+                description: 'Hệ thống đã sẵn sàng hoạt động',
+                duration: 3000,
               });
             }, 1000);
-            
+
             isConfigured = true;
           }
         }
@@ -85,18 +86,18 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
         }
 
         setIsSetupComplete(true);
-
       } catch (error) {
         console.error('❌ Firebase auto-setup failed:', error);
-        
+
         // Vẫn cho phép app chạy, chỉ hiển thị warning
         toast({
-          title: "⚠️ Firebase Setup",
-          description: "Một số tính năng có thể bị hạn chế. Vui lòng cấu hình Firebase thủ công nếu cần.",
-          variant: "destructive",
-          duration: 5000
+          title: '⚠️ Firebase Setup',
+          description:
+            'Một số tính năng có thể bị hạn chế. Vui lòng cấu hình Firebase thủ công nếu cần.',
+          variant: 'destructive',
+          duration: 5000,
         });
-        
+
         setIsSetupComplete(true); // Vẫn cho phép app chạy
       } finally {
         setIsConfiguring(false);

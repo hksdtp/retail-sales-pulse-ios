@@ -1,9 +1,10 @@
+import { CheckCircle, Settings, Zap } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { FirebaseService } from '@/services/FirebaseService';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Settings, Zap } from 'lucide-react';
 
 const AutoFirebaseSetup: React.FC = () => {
   const [isConfigured, setIsConfigured] = useState(false);
@@ -12,12 +13,12 @@ const AutoFirebaseSetup: React.FC = () => {
 
   // Firebase config for the project
   const firebaseConfig = {
-    apiKey: "AIzaSyBqJVJKvXxKxKxKxKxKxKxKxKxKxKxKxKx",
-    authDomain: "appqlgd.firebaseapp.com",
-    projectId: "appqlgd", 
-    storageBucket: "appqlgd.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdefghijklmnop"
+    apiKey: 'AIzaSyBqJVJKvXxKxKxKxKxKxKxKxKxKxKxKxKx',
+    authDomain: 'appqlgd.firebaseapp.com',
+    projectId: 'appqlgd',
+    storageBucket: 'appqlgd.appspot.com',
+    messagingSenderId: '123456789012',
+    appId: '1:123456789012:web:abcdefghijklmnop',
   };
 
   useEffect(() => {
@@ -34,25 +35,24 @@ const AutoFirebaseSetup: React.FC = () => {
     try {
       // Initialize Firebase with the config
       FirebaseService.initializeApp(firebaseConfig);
-      
+
       toast({
-        title: "🎉 Cấu hình thành công!",
-        description: "Firebase đã được cấu hình và sẵn sàng sử dụng.",
+        title: '🎉 Cấu hình thành công!',
+        description: 'Firebase đã được cấu hình và sẵn sàng sử dụng.',
       });
-      
+
       setIsConfigured(true);
-      
+
       // Reload page to apply changes
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-      
     } catch (error) {
       console.error('Error setting up Firebase:', error);
       toast({
-        title: "❌ Lỗi cấu hình",
-        description: "Không thể cấu hình Firebase. Vui lòng thử lại.",
-        variant: "destructive"
+        title: '❌ Lỗi cấu hình',
+        description: 'Không thể cấu hình Firebase. Vui lòng thử lại.',
+        variant: 'destructive',
       });
     } finally {
       setIsConfiguring(false);
@@ -88,7 +88,9 @@ const AutoFirebaseSetup: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-gray-600 space-y-2">
-          <p><strong>Tính năng cần Firebase:</strong></p>
+          <p>
+            <strong>Tính năng cần Firebase:</strong>
+          </p>
           <ul className="list-disc list-inside space-y-1 text-xs">
             <li>Lưu trữ và đồng bộ công việc</li>
             <li>Xóa toàn bộ công việc</li>
@@ -96,8 +98,8 @@ const AutoFirebaseSetup: React.FC = () => {
             <li>Truy cập từ nhiều thiết bị</li>
           </ul>
         </div>
-        
-        <Button 
+
+        <Button
           onClick={handleAutoSetup}
           disabled={isConfiguring}
           className="w-full bg-orange-600 hover:bg-orange-700 text-white"
@@ -114,7 +116,7 @@ const AutoFirebaseSetup: React.FC = () => {
             </>
           )}
         </Button>
-        
+
         <p className="text-xs text-gray-500 text-center">
           Quá trình này sẽ mất vài giây và tự động reload trang.
         </p>

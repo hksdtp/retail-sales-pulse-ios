@@ -2,7 +2,7 @@
 export enum LogLevel {
   NONE = 0,
   BASIC = 1,
-  DETAILED = 2
+  DETAILED = 2,
 }
 
 // Các hàm kiểm tra vai trò người dùng
@@ -27,7 +27,7 @@ export const isManager = (role?: string): boolean => {
 export const permissionLog = (message: string, level: LogLevel = LogLevel.BASIC): void => {
   // Thiết lập mức độ log mặc định là BASIC, có thể thay đổi ở đây
   const currentLogLevel = LogLevel.BASIC;
-  
+
   if (level <= currentLogLevel) {
     console.log(`[PERMISSION] ${message}`);
   }

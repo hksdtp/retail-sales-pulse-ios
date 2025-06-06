@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { FirebaseService } from '@/services/FirebaseService';
 
@@ -17,7 +25,7 @@ const FirebaseSetup: React.FC = () => {
   const [appId, setAppId] = useState('');
   const [configJson, setConfigJson] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
-  
+
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -52,19 +60,19 @@ const FirebaseSetup: React.FC = () => {
         projectId,
         storageBucket,
         messagingSenderId,
-        appId
+        appId,
       };
 
       localStorage.setItem('firebaseConfig', JSON.stringify(config));
-      
+
       // Khởi tạo Firebase với cấu hình mới
       FirebaseService.initializeApp(config);
-      
+
       toast({
         title: 'Cấu hình thành công',
         description: 'Cấu hình Firebase đã được lưu và khởi tạo thành công.',
       });
-      
+
       setIsConfigured(true);
       setTimeout(() => navigate('/'), 1500);
     } catch (error) {
@@ -80,22 +88,22 @@ const FirebaseSetup: React.FC = () => {
   const handleJsonSetup = () => {
     try {
       const config = JSON.parse(configJson);
-      
+
       // Kiểm tra các trường bắt buộc
       if (!config.apiKey || !config.authDomain || !config.projectId) {
         throw new Error('Thiếu thông tin cấu hình cần thiết');
       }
 
       localStorage.setItem('firebaseConfig', JSON.stringify(config));
-      
+
       // Khởi tạo Firebase với cấu hình mới
       FirebaseService.initializeApp(config);
-      
+
       toast({
         title: 'Cấu hình thành công',
         description: 'Cấu hình Firebase đã được lưu và khởi tạo thành công.',
       });
-      
+
       setIsConfigured(true);
       setTimeout(() => navigate('/'), 1500);
     } catch (error) {
@@ -119,10 +127,11 @@ const FirebaseSetup: React.FC = () => {
       setAppId('');
       setConfigJson('');
       setIsConfigured(false);
-      
+
       toast({
         title: 'Đã xóa cấu hình',
-        description: 'Cấu hình Firebase đã được xóa. Bạn cần cấu hình lại để sử dụng các tính năng đồng bộ.',
+        description:
+          'Cấu hình Firebase đã được xóa. Bạn cần cấu hình lại để sử dụng các tính năng đồng bộ.',
       });
     }
   };
@@ -147,18 +156,26 @@ const FirebaseSetup: React.FC = () => {
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-green-800">Firebase đã được cấu hình</h3>
+                    <h3 className="text-sm font-medium text-green-800">
+                      Firebase đã được cấu hình
+                    </h3>
                     <div className="mt-2 text-sm text-green-700">
-                      <p>Ứng dụng đã được kết nối với Firebase Project: <strong>{projectId}</strong></p>
+                      <p>
+                        Ứng dụng đã được kết nối với Firebase Project: <strong>{projectId}</strong>
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="project-id">Project ID</Label>
@@ -180,61 +197,61 @@ const FirebaseSetup: React.FC = () => {
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="apiKey">API Key</Label>
-                    <Input 
-                      id="apiKey" 
-                      placeholder="AIzaSyC..." 
+                    <Input
+                      id="apiKey"
+                      placeholder="AIzaSyC..."
                       value={apiKey}
                       onChange={(e) => setApiKey(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="authDomain">Auth Domain</Label>
-                    <Input 
-                      id="authDomain" 
-                      placeholder="your-app.firebaseapp.com" 
+                    <Input
+                      id="authDomain"
+                      placeholder="your-app.firebaseapp.com"
                       value={authDomain}
                       onChange={(e) => setAuthDomain(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="projectId">Project ID</Label>
-                    <Input 
-                      id="projectId" 
-                      placeholder="your-project-id" 
+                    <Input
+                      id="projectId"
+                      placeholder="your-project-id"
                       value={projectId}
                       onChange={(e) => setProjectId(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="storageBucket">Storage Bucket</Label>
-                    <Input 
-                      id="storageBucket" 
-                      placeholder="your-app.appspot.com" 
+                    <Input
+                      id="storageBucket"
+                      placeholder="your-app.appspot.com"
                       value={storageBucket}
                       onChange={(e) => setStorageBucket(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="messagingSenderId">Messaging Sender ID</Label>
-                    <Input 
-                      id="messagingSenderId" 
-                      placeholder="123456789" 
+                    <Input
+                      id="messagingSenderId"
+                      placeholder="123456789"
                       value={messagingSenderId}
                       onChange={(e) => setMessagingSenderId(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="appId">App ID</Label>
-                    <Input 
-                      id="appId" 
-                      placeholder="1:123456789:web:abcdef" 
+                    <Input
+                      id="appId"
+                      placeholder="1:123456789:web:abcdef"
                       value={appId}
                       onChange={(e) => setAppId(e.target.value)}
                     />
                   </div>
                 </div>
-                <Button 
-                  onClick={handleManualSetup} 
+                <Button
+                  onClick={handleManualSetup}
                   className="w-full"
                   disabled={!apiKey || !projectId || !authDomain}
                 >
@@ -252,11 +269,7 @@ const FirebaseSetup: React.FC = () => {
                     onChange={(e) => setConfigJson(e.target.value)}
                   />
                 </div>
-                <Button 
-                  onClick={handleJsonSetup} 
-                  className="w-full"
-                  disabled={!configJson}
-                >
+                <Button onClick={handleJsonSetup} className="w-full" disabled={!configJson}>
                   Lưu cấu hình
                 </Button>
               </TabsContent>
@@ -269,9 +282,7 @@ const FirebaseSetup: React.FC = () => {
               <Button variant="outline" onClick={handleResetConfig}>
                 Xóa cấu hình
               </Button>
-              <Button onClick={handleGoToApp}>
-                Đi đến ứng dụng
-              </Button>
+              <Button onClick={handleGoToApp}>Đi đến ứng dụng</Button>
             </>
           ) : (
             <Button variant="outline" onClick={handleGoToApp}>

@@ -1,6 +1,25 @@
-import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where, DocumentData } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL, StorageReference, FirebaseStorage } from 'firebase/storage';
+import { FirebaseApp, initializeApp } from 'firebase/app';
+import {
+  DocumentData,
+  Firestore,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+import {
+  FirebaseStorage,
+  StorageReference,
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+} from 'firebase/storage';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -17,21 +36,21 @@ export class FirebaseService {
   private db: Firestore | null = null;
   private storage: FirebaseStorage | null = null;
   private initialized = false;
-  
+
   private constructor() {}
-  
+
   public static getInstance(): FirebaseService {
     if (!FirebaseService.instance) {
       FirebaseService.instance = new FirebaseService();
     }
     return FirebaseService.instance;
   }
-  
+
   public static isConfigured(): boolean {
     try {
       const configStr = localStorage.getItem('firebaseConfig');
       if (!configStr) return false;
-      
+
       const config = JSON.parse(configStr);
       return !!(config.apiKey && config.authDomain && config.projectId && config.appId);
     } catch (error) {
@@ -39,24 +58,24 @@ export class FirebaseService {
       return false;
     }
   }
-  
+
   public static initializeApp(config: FirebaseConfig): FirebaseService {
     const instance = FirebaseService.getInstance();
-    
+
     try {
       instance.app = initializeApp(config);
       instance.db = getFirestore(instance.app);
-      
+
       if (config.storageBucket) {
         instance.storage = getStorage(instance.app);
       }
-      
+
       instance.initialized = true;
-      
+
       localStorage.setItem('firebaseConfig', JSON.stringify(config));
-      
+
       console.log('Firebase đã được khởi tạo thành công');
-      
+
       return instance;
     } catch (error) {
       console.error('Lỗi khi khởi tạo Firebase:', error);
@@ -64,12 +83,12 @@ export class FirebaseService {
       throw error;
     }
   }
-  
+
   public static initializeFromLocalStorage(): FirebaseService | null {
     try {
       const configStr = localStorage.getItem('firebaseConfig');
       if (!configStr) return null;
-      
+
       const config = JSON.parse(configStr);
       return FirebaseService.initializeApp(config);
     } catch (error) {
@@ -77,7 +96,7 @@ export class FirebaseService {
       return null;
     }
   }
-  
+
   public getFirestore(): Firestore | null {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo hoặc cấu hình không đúng');
@@ -85,7 +104,7 @@ export class FirebaseService {
     }
     return this.db;
   }
-  
+
   public getStorage(): FirebaseStorage | null {
     if (!this.initialized || !this.storage) {
       console.error('Firebase Storage chưa được khởi tạo hoặc cấu hình không đúng');
@@ -93,13 +112,16 @@ export class FirebaseService {
     }
     return this.storage;
   }
-  
-  public async addDocument(collectionName: string, data: Record<string, unknown>): Promise<string | null> {
+
+  public async addDocument(
+    collectionName: string,
+    data: Record<string, unknown>,
+  ): Promise<string | null> {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo');
       return null;
     }
-    
+
     try {
       const docRef = await addDoc(collection(this.db, collectionName), data);
       return docRef.id;
@@ -108,13 +130,17 @@ export class FirebaseService {
       return null;
     }
   }
-  
-  public async updateDocument(collectionName: string, docId: string, data: Record<string, unknown>): Promise<boolean> {
+
+  public async updateDocument(
+    collectionName: string,
+    docId: string,
+    data: Record<string, unknown>,
+  ): Promise<boolean> {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo');
       return false;
     }
-    
+
     try {
       const docRef = doc(this.db, collectionName, docId);
       await updateDoc(docRef, data);
@@ -124,13 +150,13 @@ export class FirebaseService {
       return false;
     }
   }
-  
+
   public async deleteDocument(collectionName: string, docId: string): Promise<boolean> {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo');
       return false;
     }
-    
+
     try {
       const docRef = doc(this.db, collectionName, docId);
       await deleteDoc(docRef);
@@ -140,50 +166,55 @@ export class FirebaseService {
       return false;
     }
   }
-  
+
   public async getDocuments(collectionName: string): Promise<DocumentData[]> {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo');
       return [];
     }
-    
+
     try {
       const querySnapshot = await getDocs(collection(this.db, collectionName));
-      return querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
       console.error(`Lỗi khi lấy tài liệu từ ${collectionName}:`, error);
       return [];
     }
   }
-  
-  public async queryDocuments(collectionName: string, fieldPath: string, operator: "<" | "<=" | "==" | "!=" | ">" | ">=", value: unknown): Promise<DocumentData[]> {
+
+  public async queryDocuments(
+    collectionName: string,
+    fieldPath: string,
+    operator: '<' | '<=' | '==' | '!=' | '>' | '>=',
+    value: unknown,
+  ): Promise<DocumentData[]> {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo');
       return [];
     }
-    
+
     try {
       const q = query(collection(this.db, collectionName), where(fieldPath, operator, value));
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
       console.error(`Lỗi khi truy vấn tài liệu từ ${collectionName}:`, error);
       return [];
     }
   }
-  
+
   public async uploadFile(path: string, file: File): Promise<string | null> {
     if (!this.initialized || !this.storage) {
       console.error('Firebase Storage chưa được khởi tạo');
       return null;
     }
-    
+
     try {
       const storageRef = ref(this.storage, path);
       await uploadBytes(storageRef, file);

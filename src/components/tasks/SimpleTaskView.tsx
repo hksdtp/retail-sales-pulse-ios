@@ -1,32 +1,45 @@
+import {
+  Activity,
+  Calendar,
+  CheckSquare,
+  Circle,
+  Clock,
+  Download,
+  FileText,
+  Filter,
+  List,
+  MoreVertical,
+  Package,
+  Users,
+} from 'lucide-react';
 import React from 'react';
-import { List, Activity, Clock, Calendar, Download, Filter, MoreVertical, CheckSquare, Users, Package, FileText, Circle } from 'lucide-react';
 
 const mockTasks: any[] = [];
 
 const statusMapping = {
   'todo': 'CẦN LÀM',
   'in-progress': 'ĐANG THỰC HIỆN',
-  'completed': 'ĐÃ HOÀN THÀNH'
+  'completed': 'ĐÃ HOÀN THÀNH',
 };
 
 const statusColors = {
   'CẦN LÀM': 'bg-gray-500',
   'ĐANG THỰC HIỆN': 'bg-blue-500',
-  'ĐÃ HOÀN THÀNH': 'bg-green-600'
+  'ĐÃ HOÀN THÀNH': 'bg-green-600',
 };
 
 const typeMapping = {
-  'client_new': { code: 'KH', icon: Users },
-  'quote_new': { code: 'BG', icon: Package },
-  'meeting': { code: 'HỌP', icon: FileText },
-  'other': { code: 'KC', icon: Circle }
+  client_new: { code: 'KH', icon: Users },
+  quote_new: { code: 'BG', icon: Package },
+  meeting: { code: 'HỌP', icon: FileText },
+  other: { code: 'KC', icon: Circle },
 };
 
 const typeColors = {
-  'KH': 'bg-green-100 text-green-700',
-  'BG': 'bg-red-100 text-red-700',
-  'HỌP': 'bg-purple-100 text-purple-700',
-  'KC': 'bg-gray-100 text-gray-700'
+  KH: 'bg-green-100 text-green-700',
+  BG: 'bg-red-100 text-red-700',
+  HỌP: 'bg-purple-100 text-purple-700',
+  KC: 'bg-gray-100 text-gray-700',
 };
 
 export default function SimpleTaskView() {
@@ -34,7 +47,7 @@ export default function SimpleTaskView() {
     { icon: List, label: 'DANH SÁCH MỤC', value: 'list' },
     { icon: Activity, label: 'DÒNG HOẠT ĐỘNG', value: 'activity' },
     { icon: Clock, label: 'DÒNG THỜI GIAN', value: 'timeline' },
-    { icon: Calendar, label: 'LỊCH', value: 'calendar' }
+    { icon: Calendar, label: 'LỊCH', value: 'calendar' },
   ];
 
   const formatDate = (dateString: string) => {
@@ -43,7 +56,12 @@ export default function SimpleTaskView() {
   };
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+    return name
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -113,17 +131,25 @@ export default function SimpleTaskView() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className={`w-8 h-8 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-3`}>
-                      {React.createElement(typeMapping[task.type]?.icon || Circle, { className: "w-4 h-4" })}
+                    <div
+                      className={`w-8 h-8 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-3`}
+                    >
+                      {React.createElement(typeMapping[task.type]?.icon || Circle, {
+                        className: 'w-4 h-4',
+                      })}
                     </div>
                     <span className="text-sm font-medium text-gray-900 flex items-center">
                       {task.title}
-                      {task.status === 'completed' && <CheckSquare className="w-4 h-4 ml-2 text-blue-600" />}
+                      {task.status === 'completed' && (
+                        <CheckSquare className="w-4 h-4 ml-2 text-blue-600" />
+                      )}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white ${statusColors[statusMapping[task.status] || 'CẦN LÀM']}`}>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white ${statusColors[statusMapping[task.status] || 'CẦN LÀM']}`}
+                  >
                     {statusMapping[task.status] || 'CẦN LÀM'}
                   </span>
                 </td>
@@ -158,9 +184,7 @@ export default function SimpleTaskView() {
           <button className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
             Trước
           </button>
-          <button className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm">
-            1
-          </button>
+          <button className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm">1</button>
           <button className="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
             Sau
           </button>

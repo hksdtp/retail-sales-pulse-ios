@@ -1,8 +1,8 @@
-
 import React from 'react';
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
 // Dữ liệu mẫu phân bố theo khu vực
 const data = [
@@ -16,12 +16,12 @@ const COLORS = ['#007AFF', '#FF9500', '#4CD964'];
 
 const RegionDistribution = () => {
   const { currentUser } = useAuth();
-  
+
   // Chỉ hiển thị nếu người dùng có vai trò là retail_director hoặc project_director
   if (currentUser?.role !== 'retail_director' && currentUser?.role !== 'project_director') {
     return null;
   }
-  
+
   return (
     <Card className="shadow-sm h-full">
       <CardHeader>
@@ -40,14 +40,7 @@ const RegionDistribution = () => {
                 fill="#8884d8"
                 paddingAngle={2}
                 dataKey="value"
-                label={({
-                  cx,
-                  cy,
-                  midAngle,
-                  innerRadius,
-                  outerRadius,
-                  percent,
-                }) => {
+                label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
                   const radius = innerRadius + (outerRadius - innerRadius) * 1.1;
                   const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
                   const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));

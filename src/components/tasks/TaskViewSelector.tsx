@@ -1,7 +1,8 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Building2, Users, User, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Building2, Eye, User, Users } from 'lucide-react';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
 
 export type TaskViewLevel = 'department' | 'team' | 'individual' | 'personal' | 'shared';
 
@@ -22,9 +23,10 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
   currentUser,
   selectedView,
   onViewChange,
-  taskCounts = { department: 0, team: 0, individual: 0, personal: 0, shared: 0 }
+  taskCounts = { department: 0, team: 0, individual: 0, personal: 0, shared: 0 },
 }) => {
-  const isDirector = currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
+  const isDirector =
+    currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
   const isTeamLeader = currentUser?.role === 'team_leader';
   const isManager = isDirector || isTeamLeader;
 
@@ -41,7 +43,7 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
       color: 'bg-blue-50 text-blue-700 border-blue-200',
       hoverColor: 'hover:bg-blue-100',
       count: taskCounts.personal,
-      available: true
+      available: true,
     },
     {
       id: 'shared' as TaskViewLevel,
@@ -51,7 +53,7 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
       color: 'bg-yellow-50 text-yellow-700 border-yellow-200',
       hoverColor: 'hover:bg-yellow-100',
       count: taskCounts.shared,
-      available: true
+      available: true,
     },
     {
       id: 'team' as TaskViewLevel,
@@ -61,7 +63,7 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
       color: 'bg-green-50 text-green-700 border-green-200',
       hoverColor: 'hover:bg-green-100',
       count: taskCounts.team,
-      available: isManager
+      available: isManager,
     },
     {
       id: 'individual' as TaskViewLevel,
@@ -71,7 +73,7 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
       color: 'bg-orange-50 text-orange-700 border-orange-200',
       hoverColor: 'hover:bg-orange-100',
       count: taskCounts.individual,
-      available: isManager
+      available: isManager,
     },
     {
       id: 'department' as TaskViewLevel,
@@ -81,11 +83,11 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
       color: 'bg-purple-50 text-purple-700 border-purple-200',
       hoverColor: 'hover:bg-purple-100',
       count: taskCounts.department,
-      available: isDirector
-    }
+      available: isDirector,
+    },
   ];
 
-  const availableOptions = viewOptions.filter(option => option.available);
+  const availableOptions = viewOptions.filter((option) => option.available);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
@@ -93,48 +95,48 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
         <Eye className="h-5 w-5 text-gray-600" />
         <h3 className="text-lg font-semibold text-gray-800">Chế độ xem công việc</h3>
         <span className="text-sm text-gray-500">
-          ({currentUser?.role === 'retail_director' ? 'Trưởng Phòng Bán Lẻ' :
-            currentUser?.role === 'project_director' ? 'Giám Đốc Dự Án' :
-            `Trưởng Nhóm - ${currentUser?.name}`})
+          (
+          {currentUser?.role === 'retail_director'
+            ? 'Trưởng Phòng Bán Lẻ'
+            : currentUser?.role === 'project_director'
+              ? 'Giám Đốc Dự Án'
+              : `Trưởng Nhóm - ${currentUser?.name}`}
+          )
         </span>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {availableOptions.map((option) => {
           const Icon = option.icon;
           const isSelected = selectedView === option.id;
-          
+
           return (
-            <motion.div
-              key={option.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
+            <motion.div key={option.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
-                variant={isSelected ? "default" : "outline"}
+                variant={isSelected ? 'default' : 'outline'}
                 onClick={() => onViewChange(option.id)}
                 className={`
                   w-full h-auto p-4 flex flex-col items-center gap-2 text-left
-                  ${isSelected 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-md' 
-                    : `${option.color} ${option.hoverColor} border-2`
+                  ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-md'
+                      : `${option.color} ${option.hoverColor} border-2`
                   }
                   transition-all duration-200
                 `}
               >
                 <div className="flex items-center justify-between w-full">
                   <Icon className={`h-5 w-5 ${isSelected ? 'text-white' : ''}`} />
-                  <span className={`
+                  <span
+                    className={`
                     text-xs px-2 py-1 rounded-full font-medium
-                    ${isSelected 
-                      ? 'bg-white/20 text-white' 
-                      : 'bg-gray-100 text-gray-600'
-                    }
-                  `}>
+                    ${isSelected ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}
+                  `}
+                  >
                     {option.count}
                   </span>
                 </div>
-                
+
                 <div className="w-full">
                   <div className={`font-medium text-sm ${isSelected ? 'text-white' : ''}`}>
                     {option.label}
@@ -148,7 +150,7 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
           );
         })}
       </div>
-      
+
       {isDirector && (
         <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="flex items-center gap-2 text-sm text-blue-700">
@@ -158,7 +160,7 @@ const TaskViewSelector: React.FC<TaskViewSelectorProps> = ({
           </div>
         </div>
       )}
-      
+
       {isTeamLeader && !isDirector && (
         <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
           <div className="flex items-center gap-2 text-sm text-green-700">

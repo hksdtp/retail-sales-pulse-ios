@@ -1,9 +1,9 @@
 // Service để quản lý đồng bộ hai chiều giữa web app và Google Sheets
-
-import { googleSheetsService } from './GoogleSheetsService';
-import { appsScriptGoogleSheetsService } from './AppsScriptGoogleSheetsService';
 import { Task } from '@/components/tasks/types/TaskTypes';
 import { mockTasks } from '@/data/mockTasks';
+
+import { appsScriptGoogleSheetsService } from './AppsScriptGoogleSheetsService';
+import { googleSheetsService } from './GoogleSheetsService';
 
 class SyncService {
   private syncInterval: NodeJS.Timeout | null = null;
@@ -20,11 +20,11 @@ class SyncService {
   startPeriodicSync(
     intervalSeconds: number = 300, // Mặc định 5 phút
     onSyncSuccess?: (tasks: Task[]) => void,
-    onSyncError?: (error: Error) => void
+    onSyncError?: (error: Error) => void,
   ): boolean {
     // Hủy chu kỳ đồng bộ cũ nếu đang có
     this.stopSync();
-    
+
     // Kiểm tra đã cấu hình Google Sheets chưa
     if (!googleSheetsService.isConfigured() && !appsScriptGoogleSheetsService.isConfigured()) {
       const configError = new Error('Google Sheets chưa được cấu hình');
@@ -33,40 +33,41 @@ class SyncService {
       }
       return false;
     }
-    
+
     // Hàm gọi khi đến thời gian đồng bộ
     const syncFunction = async () => {
       try {
         // Lấy dữ liệu mới nhất
         const tasks = await this.fetchTasksFromGoogleSheets();
-        
+
         if (onSyncSuccess) {
           onSyncSuccess(tasks);
         }
       } catch (error) {
         // Đảm bảo error luôn là một đối tượng Error để dễ xử lý
-        const syncError = error instanceof Error 
-          ? error 
-          : new Error(typeof error === 'string' ? error : 'Lỗi không xác định khi đồng bộ');
-        
-        console.error('Lỗi khi đồng bộ:', { 
-          error, 
-          message: syncError.message, 
-          stack: syncError.stack 
+        const syncError =
+          error instanceof Error
+            ? error
+            : new Error(typeof error === 'string' ? error : 'Lỗi không xác định khi đồng bộ');
+
+        console.error('Lỗi khi đồng bộ:', {
+          error,
+          message: syncError.message,
+          stack: syncError.stack,
         });
-        
+
         if (onSyncError) {
           onSyncError(syncError);
         }
       }
     };
-    
+
     // Gọi lần đầu ngay lập tức
     syncFunction();
-    
+
     // Thiết lập chu kỳ đồng bộ
     this.syncInterval = setInterval(syncFunction, intervalSeconds * 1000);
-    
+
     return true;
   }
 
@@ -86,10 +87,7 @@ class SyncService {
    * @returns true nếu đã cấu hình
    */
   private isGoogleSheetsConfigured(): boolean {
-    return (
-      googleSheetsService.isConfigured() ||
-      appsScriptGoogleSheetsService.isConfigured()
-    );
+    return googleSheetsService.isConfigured() || appsScriptGoogleSheetsService.isConfigured();
   }
 
   /**
@@ -115,7 +113,7 @@ class SyncService {
       // Lấy tasks từ Google Sheets
       const tasks = await this.fetchTasksFromGoogleSheets();
       onSync(tasks);
-      
+
       // Cập nhật thời gian đồng bộ cuối cùng
       this.lastSyncTime = Date.now();
       this.isInitialSync = false;
@@ -134,7 +132,7 @@ class SyncService {
     try {
       // Lấy service đã cấu hình
       const service = this.getConfiguredService();
-      
+
       if (!service) {
         console.warn('Chưa cấu hình Google Sheets, sử dụng dữ liệu mẫu');
         return this.useMockData();
@@ -163,7 +161,7 @@ class SyncService {
       return this.useMockData();
     }
   }
-  
+
   /**
    * Sử dụng dữ liệu mẫu khi không thể kết nối với Google Sheets
    * @returns Danh sách tasks mẫu
@@ -180,17 +178,17 @@ class SyncService {
    */
   async syncTaskToGoogleSheets(task: Task): Promise<Task> {
     const service = this.getConfiguredService();
-    
+
     if (!service) {
       throw new Error('Chưa cấu hình Google Sheets');
     }
 
     // Lưu task lên Google Sheets
     await service.saveTask(task);
-    
+
     return task;
   }
-  
+
   /**
    * Đồng bộ nhiều task cùng lúc
    * @param tasks Danh sách tasks cần đồng bộ
@@ -198,7 +196,7 @@ class SyncService {
    */
   async syncMultipleTasksToGoogleSheets(tasks: Task[]): Promise<Task[]> {
     const results: Task[] = [];
-    
+
     for (const task of tasks) {
       try {
         const syncedTask = await this.syncTaskToGoogleSheets(task);
@@ -207,17 +205,17 @@ class SyncService {
         console.error(`Lỗi khi đồng bộ task ${task.id}:`, error);
       }
     }
-    
+
     return results;
   }
-  
+
   /**
    * Lấy thời gian đồng bộ cuối cùng
    */
   getLastSyncTime(): number {
     return this.lastSyncTime;
   }
-  
+
   /**
    * Kiểm tra có phải lần đồng bộ đầu tiên không
    */

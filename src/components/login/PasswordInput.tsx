@@ -1,12 +1,13 @@
-
-import React from 'react';
-import { User } from '@/types/user';
-import { Button } from '@/components/ui/button';
-import { Team } from '@/types/user';
 import { motion } from 'framer-motion';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { User } from '@/types/user';
+import { Team } from '@/types/user';
+
 import DirectorView from './DirectorView';
-import RegularUserView from './RegularUserView';
 import PasswordField from './PasswordField';
+import RegularUserView from './RegularUserView';
 import SubmitButton from './SubmitButton';
 
 interface PasswordInputProps {
@@ -26,26 +27,21 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   isSubmitting,
   onSubmit,
   onBack,
-  teams
+  teams,
 }) => {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className="space-y-4"
     >
       <div className="flex items-center justify-between">
         <label htmlFor="password" className="text-lg font-medium">
           Mật khẩu
         </label>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBack}
-          className="text-ios-blue"
-        >
+        <Button variant="ghost" size="sm" onClick={onBack} className="text-ios-blue">
           Quay lại
         </Button>
       </div>
@@ -53,16 +49,9 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
       {selectedUser && <DirectorView user={selectedUser} teams={teams} />}
       {selectedUser && <RegularUserView user={selectedUser} />}
 
-      <PasswordField 
-        password={password} 
-        onPasswordChange={onPasswordChange}
-      />
+      <PasswordField password={password} onPasswordChange={onPasswordChange} />
 
-      <SubmitButton 
-        isSubmitting={isSubmitting} 
-        disabled={!password} 
-        onClick={onSubmit}
-      />
+      <SubmitButton isSubmitting={isSubmitting} disabled={!password} onClick={onSubmit} />
     </motion.div>
   );
 };

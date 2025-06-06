@@ -1,13 +1,13 @@
-
+import { motion } from 'framer-motion';
 import React from 'react';
+
+import ConversionRates from '@/components/dashboard/ConversionRates';
 import KpiCard from '@/components/dashboard/KpiCard';
+import RegionDistribution from '@/components/dashboard/RegionDistribution';
 import RevenueChart from '@/components/dashboard/RevenueChart';
 import TopPerformers from '@/components/dashboard/TopPerformers';
-import RegionDistribution from '@/components/dashboard/RegionDistribution';
-import ConversionRates from '@/components/dashboard/ConversionRates';
-import { KpiItem } from '@/utils/kpiUtils';
 import { User } from '@/types/user';
-import { motion } from 'framer-motion';
+import { KpiItem } from '@/utils/kpiUtils';
 
 interface KpiDashboardProps {
   kpiData: KpiItem[];
@@ -15,12 +15,13 @@ interface KpiDashboardProps {
 }
 
 const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => {
-  const isDirector = currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
-  
+  const isDirector =
+    currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       {/* KPI Cards */}
-      <motion.div 
+      <motion.div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -45,15 +46,15 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => 
           </motion.div>
         ))}
       </motion.div>
-      
+
       {/* Charts - Chỉ hiển thị RevenueChart cho tất cả người dùng */}
-      <motion.div 
+      <motion.div
         className="grid grid-cols-1 lg:grid-cols-3 gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <motion.div 
+        <motion.div
           className="lg:col-span-2"
           whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
         >
@@ -61,7 +62,7 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => 
             <RevenueChart />
           </div>
         </motion.div>
-        <motion.div 
+        <motion.div
           className="lg:col-span-1"
           whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
         >
@@ -70,14 +71,14 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => 
           </div>
         </motion.div>
       </motion.div>
-      
-      <motion.div 
+
+      <motion.div
         className="grid grid-cols-1 lg:grid-cols-3 gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <motion.div 
+        <motion.div
           className="lg:col-span-1"
           whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
         >
@@ -85,7 +86,7 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => 
             <RegionDistribution />
           </div>
         </motion.div>
-        <motion.div 
+        <motion.div
           className="lg:col-span-2"
           whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
         >

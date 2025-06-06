@@ -1,69 +1,83 @@
-import React, { useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useForm, Controller } from 'react-hook-form';
+import { Briefcase, FilePen, FileText, Plus, Users } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogFooter,
-  DialogDescription
-} from '@/components/ui/dialog';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { Briefcase, Users, FileText, FilePen, Plus } from 'lucide-react';
-import { Calendar, Clock } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTaskData } from '@/hooks/use-task-data';
+import { useToast } from '@/hooks/use-toast';
 
 // Schema xác thực form
 const formSchema = z.object({
   title: z.string().min(3, {
-    message: "Tiêu đề phải có ít nhất 3 ký tự"
+    message: 'Tiêu đề phải có ít nhất 3 ký tự',
   }),
   description: z.string().min(10, {
-    message: "Mô tả phải có ít nhất 10 ký tự"
+    message: 'Mô tả phải có ít nhất 10 ký tự',
   }),
-  type: z.enum(['partner_new', 'partner_old', 'architect_new', 'architect_old', 'client_new', 'client_old', 'quote_new', 'quote_old', 'other'], {
-    required_error: "Vui lòng chọn loại công việc"
-  }),
+  type: z.enum(
+    [
+      'partner_new',
+      'partner_old',
+      'architect_new',
+      'architect_old',
+      'client_new',
+      'client_old',
+      'quote_new',
+      'quote_old',
+      'other',
+    ],
+    {
+      required_error: 'Vui lòng chọn loại công việc',
+    },
+  ),
   status: z.enum(['todo', 'in-progress', 'on-hold', 'completed'], {
-    required_error: "Vui lòng chọn trạng thái"
+    required_error: 'Vui lòng chọn trạng thái',
   }),
   priority: z.enum(['high', 'normal', 'low'], {
-    required_error: "Vui lòng chọn mức độ ưu tiên"
+    required_error: 'Vui lòng chọn mức độ ưu tiên',
   }),
   date: z.string().min(1, {
-    message: "Vui lòng chọn ngày"
+    message: 'Vui lòng chọn ngày',
   }),
   time: z.string().optional(),
   team_id: z.string().optional(),
   assignedTo: z.string().optional(), // Thêm trường để chỉ định người được giao công việc
   isShared: z.boolean().optional(),
-  isSharedWithTeam: z.boolean().optional()
+  isSharedWithTeam: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -75,22 +89,27 @@ interface TaskFormDialogProps {
   onTaskCreated?: () => void; // Thêm sự kiện khi tạo công việc thành công
 }
 
-const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }: TaskFormDialogProps) => {
+const TaskFormDialog = ({
+  open,
+  onOpenChange,
+  formType = 'self',
+  onTaskCreated,
+}: TaskFormDialogProps) => {
   const { currentUser, teams, users } = useAuth();
   const { toast } = useToast();
   const { addTask } = useTaskData();
   const [canAssignToOthers, setCanAssignToOthers] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   useEffect(() => {
     // Chỉ giám đốc (retail_director, project_director) và trưởng nhóm mới có thể giao việc cho người khác
     setCanAssignToOthers(
-      currentUser?.role === 'retail_director' || 
-      currentUser?.role === 'project_director' || 
-      currentUser?.role === 'team_leader'
+      currentUser?.role === 'retail_director' ||
+        currentUser?.role === 'project_director' ||
+        currentUser?.role === 'team_leader',
     );
   }, [currentUser]);
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -104,8 +123,8 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       team_id: currentUser?.team_id,
       assignedTo: currentUser?.id, // Mặc định gán cho người dùng hiện tại
       isShared: false, // Mặc định không chia sẻ
-      isSharedWithTeam: false // Mặc định không chia sẻ với nhóm
-    }
+      isSharedWithTeam: false, // Mặc định không chia sẻ với nhóm
+    },
   });
 
   // Reset ngày về hôm nay khi mở dialog
@@ -119,16 +138,16 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
   // Lọc danh sách người dùng dựa trên vai trò và nhóm
   const getFilteredUsers = () => {
     if (!currentUser || !users) return [];
-    
+
     if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
       // Giám đốc có thể giao việc cho bất kỳ ai
       return users;
     } else if (currentUser.role === 'team_leader') {
       // Trưởng nhóm chỉ có thể giao việc cho thành viên trong nhóm của mình
-      return users.filter(user => user.team_id === currentUser.team_id);
+      return users.filter((user) => user.team_id === currentUser.team_id);
     } else {
       // Nhân viên chỉ có thể tạo việc cho chính mình
-      return users.filter(user => user.id === currentUser.id);
+      return users.filter((user) => user.id === currentUser.id);
     }
   };
 
@@ -136,11 +155,11 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    
+
     try {
       // Đảm bảo có người được giao công việc
       const assignee = data.assignedTo || currentUser?.id;
-      
+
       // Đảm bảo các trường bắt buộc được cung cấp
       const newTask = {
         title: data.title,
@@ -156,11 +175,11 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
         location: currentUser?.location || '',
         assignedTo: assignee || '',
         isShared: data.isShared || false,
-        isSharedWithTeam: data.isSharedWithTeam || false
+        isSharedWithTeam: data.isSharedWithTeam || false,
       };
-      
-      console.log("Dữ liệu công việc mới:", newTask);
-      
+
+      console.log('Dữ liệu công việc mới:', newTask);
+
       // Sử dụng hàm addTask từ TaskDataProvider
       const createdTask = await addTask(newTask);
 
@@ -173,15 +192,15 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
           createdTask.id,
           createdTask.title,
           currentUser.id,
-          currentUser.name
+          currentUser.name,
         );
       }
 
       toast({
-        title: "Thành công!",
-        description: "Công việc đã được tạo và lưu thành công."
+        title: 'Thành công!',
+        description: 'Công việc đã được tạo và lưu thành công.',
       });
-      
+
       // Làm mới danh sách công việc
       // onTaskCreated sẽ gọi refreshTasks() trong TaskList.tsx
 
@@ -194,11 +213,11 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       onOpenChange(false);
       form.reset();
     } catch (error) {
-      console.error("Lỗi khi tạo công việc:", error);
+      console.error('Lỗi khi tạo công việc:', error);
       toast({
-        title: "Lỗi",
-        description: error instanceof Error ? error.message : "Không thể tạo công việc",
-        variant: "destructive"
+        title: 'Lỗi',
+        description: error instanceof Error ? error.message : 'Không thể tạo công việc',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -219,18 +238,16 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
       <DialogContent className="sm:max-w-[550px] md:max-w-[650px] lg:max-w-[750px] bg-white/95 backdrop-blur-lg border border-white/30 shadow-xl rounded-[20px]">
         <DialogHeader className="space-y-2 pb-2">
           <DialogTitle className="text-xl md:text-2xl font-bold text-[#2d3436] tracking-wide">
-            {formType === 'self' && "Tạo công việc mới cho bản thân"}
-            {formType === 'team' && "Giao công việc cho Nhóm/Cá nhân"}
-            {formType === 'individual' && "Giao công việc cho thành viên"}
+            {formType === 'self' && 'Tạo công việc mới cho bản thân'}
+            {formType === 'team' && 'Giao công việc cho Nhóm/Cá nhân'}
+            {formType === 'individual' && 'Giao công việc cho thành viên'}
           </DialogTitle>
           <DialogDescription className="text-[#636e72] text-sm md:text-base font-medium">
             {/* Ẩn phần mô tả của tạo công việc cho bản thân */}
-            {formType === 'team' && "Phân công công việc cho nhóm hoặc cá nhân bất kỳ"}
-            {formType === 'individual' && "Phân công công việc cho các thành viên trong nhóm"}
+            {formType === 'team' && 'Phân công công việc cho nhóm hoặc cá nhân bất kỳ'}
+            {formType === 'individual' && 'Phân công công việc cho các thành viên trong nhóm'}
           </DialogDescription>
         </DialogHeader>
-
-
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-2">
@@ -241,10 +258,10 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 <FormItem className="mt-0">
                   <FormLabel className="text-[#2d3436] font-medium">Tiêu đề công việc</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Nhập tiêu đề công việc" 
+                    <Input
+                      placeholder="Nhập tiêu đề công việc"
                       className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage className="text-xs font-medium" />
@@ -259,10 +276,10 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 <FormItem>
                   <FormLabel className="text-[#2d3436] font-medium">Mô tả</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Mô tả chi tiết về công việc" 
+                    <Textarea
+                      placeholder="Mô tả chi tiết về công việc"
                       className="min-h-[100px] bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20 resize-none"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage className="text-xs font-medium" />
@@ -277,10 +294,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#2d3436] font-medium">Loại công việc</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
                           <SelectValue placeholder="Chọn loại công việc" />
@@ -354,10 +368,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#2d3436] font-medium">Trạng thái</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
                           <SelectValue placeholder="Chọn trạng thái" />
@@ -401,10 +412,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#2d3436] font-medium">Mức độ ưu tiên</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
                           <SelectValue placeholder="Chọn mức độ ưu tiên" />
@@ -465,11 +473,16 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                           </button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl" align="start">
+                      <PopoverContent
+                        className="w-auto p-0 bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
+                        align="start"
+                      >
                         <CalendarComponent
                           mode="single"
                           selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date ? date.toISOString().split('T')[0] : '')}
+                          onSelect={(date) =>
+                            field.onChange(date ? date.toISOString().split('T')[0] : '')
+                          }
                           disabled={(date) => date < new Date('1900-01-01')}
                           initialFocus
                           className="rounded-xl border-none shadow-none p-3"
@@ -503,18 +516,23 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                           </button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="p-3 bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl" align="start">
+                      <PopoverContent
+                        className="p-3 bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
+                        align="start"
+                      >
                         <div className="flex flex-col space-y-3">
                           <div className="grid grid-cols-4 gap-2">
-                            {['07:00', '08:00', '09:00', '10:00'].map(time => (
+                            {['07:00', '08:00', '09:00', '10:00'].map((time) => (
                               <button
                                 key={time}
                                 className={`p-2 rounded-lg text-sm ${field.value === time ? 'bg-[#6c5ce7] text-white' : 'hover:bg-gray-100'}`}
                                 onClick={() => {
                                   field.onChange(time);
-                                  document.querySelector('[data-state="open"]')?.dispatchEvent(
-                                    new KeyboardEvent('keydown', { key: 'Escape' })
-                                  );
+                                  document
+                                    .querySelector('[data-state="open"]')
+                                    ?.dispatchEvent(
+                                      new KeyboardEvent('keydown', { key: 'Escape' }),
+                                    );
                                 }}
                               >
                                 {time}
@@ -522,15 +540,17 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                             ))}
                           </div>
                           <div className="grid grid-cols-4 gap-2">
-                            {['11:00', '13:00', '14:00', '15:00'].map(time => (
+                            {['11:00', '13:00', '14:00', '15:00'].map((time) => (
                               <button
                                 key={time}
                                 className={`p-2 rounded-lg text-sm ${field.value === time ? 'bg-[#6c5ce7] text-white' : 'hover:bg-gray-100'}`}
                                 onClick={() => {
                                   field.onChange(time);
-                                  document.querySelector('[data-state="open"]')?.dispatchEvent(
-                                    new KeyboardEvent('keydown', { key: 'Escape' })
-                                  );
+                                  document
+                                    .querySelector('[data-state="open"]')
+                                    ?.dispatchEvent(
+                                      new KeyboardEvent('keydown', { key: 'Escape' }),
+                                    );
                                 }}
                               >
                                 {time}
@@ -538,15 +558,17 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                             ))}
                           </div>
                           <div className="grid grid-cols-4 gap-2">
-                            {['16:00', '17:00', '18:00', '19:00'].map(time => (
+                            {['16:00', '17:00', '18:00', '19:00'].map((time) => (
                               <button
                                 key={time}
                                 className={`p-2 rounded-lg text-sm ${field.value === time ? 'bg-[#6c5ce7] text-white' : 'hover:bg-gray-100'}`}
                                 onClick={() => {
                                   field.onChange(time);
-                                  document.querySelector('[data-state="open"]')?.dispatchEvent(
-                                    new KeyboardEvent('keydown', { key: 'Escape' })
-                                  );
+                                  document
+                                    .querySelector('[data-state="open"]')
+                                    ?.dispatchEvent(
+                                      new KeyboardEvent('keydown', { key: 'Escape' }),
+                                    );
                                 }}
                               >
                                 {time}
@@ -561,12 +583,14 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                                 value={field.value || ''}
                                 onChange={(e) => field.onChange(e.target.value)}
                               />
-                              <button 
+                              <button
                                 className="ml-2 p-2 rounded-lg bg-[#6c5ce7] text-white text-sm"
                                 onClick={() => {
-                                  document.querySelector('[data-state="open"]')?.dispatchEvent(
-                                    new KeyboardEvent('keydown', { key: 'Escape' })
-                                  );
+                                  document
+                                    .querySelector('[data-state="open"]')
+                                    ?.dispatchEvent(
+                                      new KeyboardEvent('keydown', { key: 'Escape' }),
+                                    );
                                 }}
                               >
                                 Chọn
@@ -589,7 +613,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[#2d3436] font-medium">Người thực hiện</FormLabel>
-                    <Select 
+                    <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value || currentUser?.id}
                     >
@@ -599,7 +623,7 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
-                        {filteredUsers.map(user => (
+                        {filteredUsers.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.name} {user.id === currentUser?.id ? '(Bản thân)' : ''}
                           </SelectItem>
@@ -664,30 +688,32 @@ const TaskFormDialog = ({ open, onOpenChange, formType = 'self', onTaskCreated }
                 )}
               />
             </div>
-            
+
             {/* Phần thông tin người tạo đã được ẩn theo yêu cầu */}
 
             {/* Phần hướng dẫn đã được xóa theo yêu cầu */}
 
             <DialogFooter className="mt-8 space-x-3">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 className="h-11 px-5 rounded-xl border-gray-200 hover:bg-gray-100/50 hover:border-gray-300 hover:translate-y-[-1px] transition-all"
                 onClick={() => onOpenChange(false)}
               >
                 Hủy
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="h-11 px-5 rounded-xl bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] hover:opacity-90 hover:translate-y-[-1px] transition-all"
               >
-                {isSubmitting ? 'Đang lưu...' : (
-                  formType === 'self' ? 'Tạo công việc cho bản thân' : 
-                  formType === 'team' ? 'Giao công việc cho Nhóm/Cá nhân' : 
-                  'Giao công việc cho thành viên'
-                )}
+                {isSubmitting
+                  ? 'Đang lưu...'
+                  : formType === 'self'
+                    ? 'Tạo công việc cho bản thân'
+                    : formType === 'team'
+                      ? 'Giao công việc cho Nhóm/Cá nhân'
+                      : 'Giao công việc cho thành viên'}
               </Button>
             </DialogFooter>
           </form>

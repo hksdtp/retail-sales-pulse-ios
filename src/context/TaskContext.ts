@@ -1,14 +1,20 @@
 import { createContext } from 'react';
+
 import { Task } from '@/components/tasks/types/TaskTypes';
 
 // Định nghĩa kiểu cho context
 export interface TaskDataContextType {
   tasks: Task[];
   isLoading: boolean;
-  addTask: (task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>) => Promise<Task>;
+  addTask: (
+    task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>,
+  ) => Promise<Task>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<Task>;
   deleteTask: (id: string) => Promise<boolean>;
-  updateTaskStatus: (id: string, status: 'todo' | 'in-progress' | 'on-hold' | 'completed') => Promise<Task>;
+  updateTaskStatus: (
+    id: string,
+    status: 'todo' | 'in-progress' | 'on-hold' | 'completed',
+  ) => Promise<Task>;
   refreshTasks: () => Promise<void>;
   filterTasks: (filters: TaskFilters) => Task[];
 }

@@ -1,14 +1,16 @@
+import { AlertCircle, Check, CloudOff } from 'lucide-react';
+import { MapPin, RefreshCw, User, Users } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, Check, CloudOff } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/context/AuthContext';
-import { MapPin, User, Users, RefreshCw } from 'lucide-react';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Task } from './types/TaskTypes';
-import { getTypeColor, getTypeName, getLocationName } from './task-utils/TaskFormatters';
-import { useTaskData } from '@/hooks/use-task-data';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/context/AuthContext';
+import { useTaskData } from '@/hooks/use-task-data';
+
+import { getLocationName, getTypeColor, getTypeName } from './task-utils/TaskFormatters';
+import { Task } from './types/TaskTypes';
 
 interface Column {
   id: string;
@@ -27,10 +29,9 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Xác định xem dữ liệu đang được sử dụng là mẫu hay thực
-  const isUsingMockData = tasks.some(task => 
-    task.id?.includes('task_1') || 
-    task.id?.includes('task_2') || 
-    task.id?.includes('task_3')
+  const isUsingMockData = tasks.some(
+    (task) =>
+      task.id?.includes('task_1') || task.id?.includes('task_2') || task.id?.includes('task_3'),
   );
 
   // Thực hiện làm mới dữ liệu
@@ -55,73 +56,75 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
     {
       id: 'todo',
       title: 'Chưa bắt đầu',
-      tasks: tasks.filter(t => t.status === 'todo')
+      tasks: tasks.filter((t) => t.status === 'todo'),
     },
     {
       id: 'in-progress',
       title: 'Đang thực hiện',
-      tasks: tasks.filter(t => t.status === 'in-progress')
+      tasks: tasks.filter((t) => t.status === 'in-progress'),
     },
     {
       id: 'on-hold',
       title: 'Đang chờ',
-      tasks: tasks.filter(t => t.status === 'on-hold')
+      tasks: tasks.filter((t) => t.status === 'on-hold'),
     },
     {
       id: 'completed',
       title: 'Hoàn thành',
-      tasks: tasks.filter(t => t.status === 'completed')
+      tasks: tasks.filter((t) => t.status === 'completed'),
     },
   ];
 
   // Lọc dữ liệu theo khu vực, nhóm và vai trò người dùng
-  const filteredColumns = columns.map(column => {
-    const filteredTasks = column.tasks.filter(task => {
+  const filteredColumns = columns.map((column) => {
+    const filteredTasks = column.tasks.filter((task) => {
       // Lọc theo khu vực
       const matchLocation = location === 'all' || task.location === location;
-      
+
       // Lọc theo quyền của người dùng
       let hasPermissionToView = false;
-      
+
       if (currentUser) {
         if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
           // Giám đốc xem tất cả công việc
           hasPermissionToView = true;
         } else if (currentUser.role === 'team_leader') {
           // Trưởng nhóm chỉ xem công việc của nhóm mình
-          const userTeam = teams.find(team => team.leader_id === currentUser.id);
+          const userTeam = teams.find((team) => team.leader_id === currentUser.id);
           hasPermissionToView = userTeam ? task.teamId === userTeam.id : false;
         } else {
           // Nhân viên chỉ xem công việc được giao cho mình
           hasPermissionToView = task.assignedTo === currentUser.id;
         }
       }
-      
+
       // Lọc theo nhóm nếu được chọn
       const matchTeam = teamId === 'all' || task.teamId === teamId;
-      
+
       return matchLocation && matchTeam && hasPermissionToView;
     });
 
     return {
       ...column,
-      tasks: filteredTasks
+      tasks: filteredTasks,
     };
   });
 
   // Tìm thông tin nhóm và người được giao
   const getTeamName = (teamId: string) => {
-    const team = teams.find(t => t.id === teamId);
+    const team = teams.find((t) => t.id === teamId);
     return team ? team.name : 'Không xác định';
   };
-  
+
   const getAssignee = (userId: string) => {
-    const user = users.find(u => u.id === userId);
-    return user ? { name: user.name, avatar: user.name.charAt(0) } : { name: 'Không xác định', avatar: '?' };
+    const user = users.find((u) => u.id === userId);
+    return user
+      ? { name: user.name, avatar: user.name.charAt(0) }
+      : { name: 'Không xác định', avatar: '?' };
   };
 
   // Kiểm tra nếu không có công việc nào thỏa mãn điều kiện lọc
-  const hasAnyTasks = filteredColumns.some(column => column.tasks.length > 0);
+  const hasAnyTasks = filteredColumns.some((column) => column.tasks.length > 0);
 
   if (isLoading) {
     return (
@@ -133,7 +136,7 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
       </Card>
     );
   }
-  
+
   if (!hasAnyTasks) {
     return (
       <Card className="border border-dashed shadow-none">
@@ -145,7 +148,7 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
                 Làm mới dữ liệu
               </Button>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {isUsingMockData ? (
                 <div className="flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-md">
@@ -174,36 +177,39 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {filteredColumns.map(column => (
+      {filteredColumns.map((column) => (
         <div key={column.id} className="flex flex-col">
           <div className="bg-muted px-4 py-2 mb-2 rounded-md font-medium flex justify-between items-center">
             <span>{column.title}</span>
             <Badge variant="outline">{column.tasks.length}</Badge>
           </div>
           <div className="space-y-3">
-            {column.tasks.map(task => (
-              <Card key={task.id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+            {column.tasks.map((task) => (
+              <Card
+                key={task.id}
+                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-3">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">{task.title}</h4>
                         {task.isNew && (
-                          <Badge variant="default" className="bg-ios-red text-white ml-2">Mới</Badge>
+                          <Badge variant="default" className="bg-ios-red text-white ml-2">
+                            Mới
+                          </Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <Badge className={getTypeColor(task.type)}>
-                        {getTypeName(task.type)}
-                      </Badge>
+                      <Badge className={getTypeColor(task.type)}>{getTypeName(task.type)}</Badge>
                       <span className="text-xs text-muted-foreground">{task.date}</span>
                     </div>
-                    
+
                     <div className="flex items-center text-xs gap-2 pt-2 border-t">
                       <div className="flex items-center gap-1">
                         <MapPin size={12} />
@@ -215,11 +221,9 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
                         <span>{getTeamName(task.teamId)}</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between mt-1">
-                      <div className="text-xs text-muted-foreground">
-                        Người thực hiện:
-                      </div>
+                      <div className="text-xs text-muted-foreground">Người thực hiện:</div>
                       <div className="flex items-center gap-1">
                         <Avatar className="h-6 w-6">
                           <AvatarFallback className="bg-ios-blue text-white text-xs">

@@ -16,7 +16,7 @@ const sampleUsers = [
     department_type: 'retail',
     position: 'Trưởng phòng kinh doanh bán lẻ',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '2',
@@ -30,7 +30,7 @@ const sampleUsers = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '3',
@@ -44,7 +44,7 @@ const sampleUsers = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '4',
@@ -58,7 +58,7 @@ const sampleUsers = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '5',
@@ -72,8 +72,8 @@ const sampleUsers = [
     department_type: 'retail',
     position: 'Nhân viên bán hàng',
     status: 'active',
-    password_changed: true
-  }
+    password_changed: true,
+  },
 ];
 
 // Sample teams data
@@ -85,7 +85,7 @@ const sampleTeams = [
     location: 'hanoi',
     description: 'Nhóm kinh doanh 1 Hà Nội',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '2',
@@ -94,7 +94,7 @@ const sampleTeams = [
     location: 'hanoi',
     description: 'Nhóm kinh doanh 2 Hà Nội',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '3',
@@ -103,28 +103,28 @@ const sampleTeams = [
     location: 'hcm',
     description: 'Nhóm kinh doanh 1 Hồ Chí Minh',
     department: 'retail',
-    department_type: 'retail'
-  }
+    department_type: 'retail',
+  },
 ];
 
 async function createUsersAndTeams() {
   try {
     console.log('🚀 Bắt đầu tạo Users và Teams...\n');
-    
+
     // Test API health
     console.log('1. Kiểm tra API health...');
     const healthResponse = await fetch(`${API_BASE}/health`);
     const healthData = await healthResponse.json();
     console.log('✅ API Status:', healthData.status);
     console.log('');
-    
+
     // Tạo users trực tiếp trong Firestore (vì chưa có POST API cho users)
     console.log('2. Tạo users...');
     console.log('   ℹ️  Lưu ý: Users sẽ được tạo trực tiếp trong Firestore Console');
     console.log('   🔗 Truy cập: https://console.firebase.google.com/project/appqlgd/firestore');
     console.log('   📝 Tạo collection "users" và thêm các documents sau:');
     console.log('');
-    
+
     sampleUsers.forEach((user, index) => {
       console.log(`   User ${index + 1}:`);
       console.log(`   - Document ID: ${user.id}`);
@@ -134,12 +134,12 @@ async function createUsersAndTeams() {
       console.log(`   - Location: ${user.location}`);
       console.log('');
     });
-    
+
     console.log('3. Tạo teams...');
     console.log('   ℹ️  Lưu ý: Teams sẽ được tạo trực tiếp trong Firestore Console');
     console.log('   📝 Tạo collection "teams" và thêm các documents sau:');
     console.log('');
-    
+
     sampleTeams.forEach((team, index) => {
       console.log(`   Team ${index + 1}:`);
       console.log(`   - Document ID: ${team.id}`);
@@ -148,18 +148,18 @@ async function createUsersAndTeams() {
       console.log(`   - Location: ${team.location}`);
       console.log('');
     });
-    
+
     // Test existing APIs
     console.log('4. Test APIs hiện có...');
-    
+
     const usersResponse = await fetch(`${API_BASE}/users`);
     const usersData = await usersResponse.json();
     console.log(`✅ Users API: ${usersData.count} users found`);
-    
+
     const teamsResponse = await fetch(`${API_BASE}/teams`);
     const teamsData = await teamsResponse.json();
     console.log(`✅ Teams API: ${teamsData.count} teams found`);
-    
+
     console.log('');
     console.log('🎉 Hoàn thành kiểm tra APIs!');
     console.log('📋 Bước tiếp theo:');
@@ -167,7 +167,6 @@ async function createUsersAndTeams() {
     console.log('   2. Tạo collections "users" và "teams"');
     console.log('   3. Thêm dữ liệu mẫu như đã liệt kê ở trên');
     console.log('   4. Test lại APIs để xác nhận dữ liệu');
-    
   } catch (error) {
     console.error('❌ Lỗi:', error);
   }

@@ -1,5 +1,12 @@
 export type DepartmentType = 'project' | 'retail';
-export type UserRole = 'employee' | 'team_leader' | 'retail_director' | 'project_director' | 'project_supervisor' | 'project_admin' | 'project_staff';
+export type UserRole =
+  | 'employee'
+  | 'team_leader'
+  | 'retail_director'
+  | 'project_director'
+  | 'project_supervisor'
+  | 'project_admin'
+  | 'project_staff';
 export type UserLocation = 'hanoi' | 'hcm';
 
 export interface User {

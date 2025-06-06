@@ -1,10 +1,10 @@
-
-import React from 'react';
-import { User } from '@/types/user';
 import { User as UserIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { User } from '@/types/user';
 
 interface UserSelectorProps {
   filteredUsers: User[];
@@ -16,21 +16,17 @@ const positionLabels: Record<string, string> = {
   retail_director: 'Trưởng Phòng Kinh doanh bán lẻ',
   project_director: 'Trưởng Phòng Kinh doanh dự án',
   team_leader: 'Trưởng nhóm',
-  employee: 'Nhân viên'
+  employee: 'Nhân viên',
 };
 
-const UserSelector: React.FC<UserSelectorProps> = ({ 
-  filteredUsers, 
-  onUserSelect, 
-  onBack 
-}) => {
+const UserSelector: React.FC<UserSelectorProps> = ({ filteredUsers, onUserSelect, onBack }) => {
   const getAvatarText = (name: string) => {
     if (!name) return '';
     const nameParts = name.split(' ');
     if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
     return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
   };
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -38,40 +34,43 @@ const UserSelector: React.FC<UserSelectorProps> = ({
           <UserIcon className="h-5 w-5 mr-2 text-ios-blue" />
           Chọn người dùng
         </label>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBack}
-          className="text-ios-blue"
-        >
+        <Button variant="ghost" size="sm" onClick={onBack} className="text-ios-blue">
           Quay lại
         </Button>
       </div>
 
       <div className="max-h-72 overflow-y-auto space-y-3 pr-1">
         {filteredUsers.map((user, index) => (
-          <div 
+          <div
             key={user.id}
             className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => onUserSelect(user)}
           >
             <Avatar className="h-12 w-12">
-              <AvatarFallback className={`text-white ${
-                user.role === 'team_leader' ? 'bg-ios-blue' : 
-                user.role === 'retail_director' || user.role === 'project_director' ? 'bg-purple-500' : 
-                'bg-gray-500'
-              }`}>
+              <AvatarFallback
+                className={`text-white ${
+                  user.role === 'team_leader'
+                    ? 'bg-ios-blue'
+                    : user.role === 'retail_director' || user.role === 'project_director'
+                      ? 'bg-purple-500'
+                      : 'bg-gray-500'
+                }`}
+              >
                 {getAvatarText(user.name)}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="font-medium">{user.name}</span>
               <div className="flex items-center mt-1">
-                <Badge className={`mr-1 h-5 text-xs ${
-                  user.role === 'retail_director' || user.role === 'project_director' ? 'bg-purple-500' : 
-                  user.role === 'team_leader' ? 'bg-ios-blue' : 
-                  'bg-gray-500'
-                }`}>
+                <Badge
+                  className={`mr-1 h-5 text-xs ${
+                    user.role === 'retail_director' || user.role === 'project_director'
+                      ? 'bg-purple-500'
+                      : user.role === 'team_leader'
+                        ? 'bg-ios-blue'
+                        : 'bg-gray-500'
+                  }`}
+                >
                   {positionLabels[user.role]}
                 </Badge>
                 <span className="text-xs text-gray-500">{user.email}</span>
@@ -79,11 +78,9 @@ const UserSelector: React.FC<UserSelectorProps> = ({
             </div>
           </div>
         ))}
-        
+
         {filteredUsers.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            Không tìm thấy người dùng nào
-          </div>
+          <div className="text-center py-8 text-gray-500">Không tìm thấy người dùng nào</div>
         )}
       </div>
     </div>

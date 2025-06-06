@@ -1,9 +1,9 @@
-
-import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface PasswordFieldProps {
   password: string;
@@ -12,24 +12,24 @@ interface PasswordFieldProps {
 
 const PasswordField: React.FC<PasswordFieldProps> = ({ password, onPasswordChange }) => {
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Thiết lập mật khẩu mặc định là "123" khi component được tạo
   useEffect(() => {
     if (!password) {
-      onPasswordChange("123");
+      onPasswordChange('123');
     }
   }, []);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 25 }}
+      transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 25 }}
       className="relative mt-4"
     >
       <Input
         id="password"
-        type={showPassword ? "text" : "password"}
+        type={showPassword ? 'text' : 'password'}
         value={password}
         onChange={(e) => onPasswordChange(e.target.value)}
         required

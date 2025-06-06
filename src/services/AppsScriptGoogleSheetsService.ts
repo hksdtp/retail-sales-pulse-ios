@@ -13,15 +13,15 @@ class AppsScriptGoogleSheetsService {
     if (!url.trim()) {
       throw new Error('URL không được để trống');
     }
-    
+
     // Kiểm tra URL có đúng định dạng Google Apps Script không
     if (!url.includes('script.google.com/macros/s/')) {
       throw new Error('URL không hợp lệ. Phải là URL của Google Apps Script');
     }
-    
+
     this.webhookUrl = url.trim();
     localStorage.setItem('googleAppsScriptUrl', this.webhookUrl);
-    
+
     return true;
   }
 
@@ -33,7 +33,7 @@ class AppsScriptGoogleSheetsService {
   // Lấy thông tin cấu hình
   getConfig() {
     return {
-      webhookUrl: this.webhookUrl
+      webhookUrl: this.webhookUrl,
     };
   }
 
@@ -47,26 +47,27 @@ class AppsScriptGoogleSheetsService {
 
       // Tạo callback ID duy nhất
       const callbackName = `googleSheetsCallback_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      
+
       // Xử lý callback từ Google Apps Script
       (window as any)[callbackName] = (response: any) => {
         try {
           // Xóa script và cleanup
           delete (window as any)[callbackName];
           const scripts = document.querySelectorAll(`script[data-callback="${callbackName}"]`);
-          scripts.forEach(script => script.remove());
-          
+          scripts.forEach((script) => script.remove());
+
           // Kiểm tra response trước khi resolve
           if (!response) {
             reject(new Error('Không có phản hồi từ Google Apps Script'));
             return;
           }
-          
+
           // Trả về kết quả
           resolve(response);
         } catch (callbackError) {
           // Xử lý lỗi trong callback
-          const errorMsg = callbackError instanceof Error ? callbackError.message : 'Lỗi khi xử lý phản hồi';
+          const errorMsg =
+            callbackError instanceof Error ? callbackError.message : 'Lỗi khi xử lý phản hồi';
           reject(new Error(`Lỗi callback: ${errorMsg}`));
         }
       };
@@ -75,41 +76,48 @@ class AppsScriptGoogleSheetsService {
         // Tạo URL với payload và callback
         const url = new URL(this.webhookUrl);
         url.searchParams.append('callback', callbackName);
-        
+
         // Thêm payload vào URL
         if (payload) {
-          Object.keys(payload).forEach(key => {
+          Object.keys(payload).forEach((key) => {
             // Sử dụng Object.prototype để tránh ESLint warning
             if (Object.prototype.hasOwnProperty.call(payload, key)) {
               url.searchParams.append(key, payload[key]);
             }
           });
         }
-        
+
         // Tạo script tag để gọi API
         const script = document.createElement('script');
         script.setAttribute('data-callback', callbackName);
         script.src = url.toString();
-        
+
         // Xử lý lỗi
         script.onerror = (e) => {
           delete (window as any)[callbackName];
           script.remove();
-          reject(new Error(`Lỗi khi gọi Google Apps Script: ${e instanceof Error ? e.message : 'Không thể kết nối'}`));
+          reject(
+            new Error(
+              `Lỗi khi gọi Google Apps Script: ${e instanceof Error ? e.message : 'Không thể kết nối'}`,
+            ),
+          );
         };
 
         // Gắn script vào document để thực hiện request
         document.body.appendChild(script);
-        
+
         // Thiết lập timeout để tránh chờ vô hạn
         setTimeout(() => {
           if ((window as any)[callbackName]) {
             delete (window as any)[callbackName];
             script.remove();
-            reject(new Error('Timeout khi gọi Google Apps Script - không nhận được phản hồi sau 30 giây'));
+            reject(
+              new Error(
+                'Timeout khi gọi Google Apps Script - không nhận được phản hồi sau 30 giây',
+              ),
+            );
           }
         }, 30000); // 30 giây timeout
-        
       } catch (error) {
         delete (window as any)[callbackName];
         const errorMsg = error instanceof Error ? error.message : 'Lỗi không xác định';
@@ -124,45 +132,46 @@ class AppsScriptGoogleSheetsService {
       try {
         console.log('Gửi dữ liệu đến Apps Script URL:', this.webhookUrl);
         console.log('Dữ liệu gửi đi:', data);
-        
+
         // Tạo iframe ẩn để chứa form
         const iframe = document.createElement('iframe');
         iframe.name = `form_iframe_${Date.now()}`;
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
-        
+
         // Tạo form
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = this.webhookUrl!;
         form.target = iframe.name;
         form.enctype = 'application/x-www-form-urlencoded';
-        
+
         // Thêm trường dữ liệu
         const hiddenField = document.createElement('input');
         hiddenField.type = 'hidden';
         hiddenField.name = 'data';
         hiddenField.value = JSON.stringify(data);
         form.appendChild(hiddenField);
-        
+
         // Thêm từng trường dữ liệu riêng biệt (phòng trường hợp server không parse JSON)
         for (const key in data) {
           if (data.hasOwnProperty(key)) {
             const field = document.createElement('input');
             field.type = 'hidden';
             field.name = key;
-            field.value = typeof data[key] === 'object' ? JSON.stringify(data[key]) : String(data[key]);
+            field.value =
+              typeof data[key] === 'object' ? JSON.stringify(data[key]) : String(data[key]);
             form.appendChild(field);
           }
         }
-        
+
         // Thêm form vào trang
         document.body.appendChild(form);
-        
+
         // Xử lý hoàn thành
         iframe.onload = () => {
           console.log('Iframe đã hoàn tất tải');
-          
+
           // Thử lấy nội dung phản hồi từ iframe
           try {
             const iframeContent = iframe.contentDocument || iframe.contentWindow?.document;
@@ -173,16 +182,16 @@ class AppsScriptGoogleSheetsService {
           } catch (e) {
             console.warn('Không thể đọc nội dung iframe (CORS):', e);
           }
-          
+
           // Xóa các phần tử đã tạo
           document.body.removeChild(form);
           setTimeout(() => {
             document.body.removeChild(iframe);
           }, 1000);
-          
+
           resolve({ success: true, message: 'Dữ liệu đã được gửi' });
         };
-        
+
         // Xử lý lỗi
         iframe.onerror = (error) => {
           console.error('Lỗi khi tải iframe:', error);
@@ -190,7 +199,7 @@ class AppsScriptGoogleSheetsService {
           document.body.removeChild(iframe);
           reject(new Error('Không thể tải iframe'));
         };
-        
+
         // Gửi form
         console.log('Đang gửi form...');
         form.submit();
@@ -211,7 +220,7 @@ class AppsScriptGoogleSheetsService {
     try {
       // Chuẩn bị dữ liệu để lưu vào Google Sheets
       const formattedData = this.formatTaskDataForSheets(taskData);
-      
+
       // Thử phương pháp form submit
       try {
         const responseData = await this.createFormSubmitRequest(formattedData);
@@ -219,7 +228,7 @@ class AppsScriptGoogleSheetsService {
         return responseData;
       } catch (formError) {
         console.warn('Không thể sử dụng phương pháp form, thử lại với JSONP:', formError);
-        
+
         // Nếu form không thành công, thử JSONP
         const responseData = await this.createCORSRequest(formattedData);
         console.log('Dữ liệu đã được lưu vào Google Sheets (JSONP):', responseData);
@@ -245,24 +254,24 @@ class AppsScriptGoogleSheetsService {
       assignedTo: taskData.assignedTo || '',
       team_id: taskData.team_id || '',
       location: this.translateLocation(taskData.location),
-      created_at: taskData.created_at
+      created_at: taskData.created_at,
     };
   }
 
   // Các hàm dịch giữ nguyên từ service cũ
   private translateTaskType(type: string): string {
     const typeMap: Record<string, string> = {
-      'partner_new': 'Đối tác mới',
-      'partner_old': 'Đối tác cũ',
-      'architect_new': 'KTS mới',
-      'architect_old': 'KTS cũ',
-      'client_new': 'Khách hàng mới',
-      'client_old': 'Khách hàng cũ',
-      'quote_new': 'Báo giá mới',
-      'quote_old': 'Báo giá cũ',
-      'other': 'Khác'
+      partner_new: 'Đối tác mới',
+      partner_old: 'Đối tác cũ',
+      architect_new: 'KTS mới',
+      architect_old: 'KTS cũ',
+      client_new: 'Khách hàng mới',
+      client_old: 'Khách hàng cũ',
+      quote_new: 'Báo giá mới',
+      quote_old: 'Báo giá cũ',
+      other: 'Khác',
     };
-    
+
     return typeMap[type] || type;
   }
 
@@ -271,16 +280,16 @@ class AppsScriptGoogleSheetsService {
       'todo': 'Chưa bắt đầu',
       'in-progress': 'Đang thực hiện',
       'on-hold': 'Đang chờ',
-      'completed': 'Hoàn thành'
+      'completed': 'Hoàn thành',
     };
-    
+
     return statusMap[status] || status;
   }
 
   private translateLocation(location: string): string {
     return location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
   }
-  
+
   // Chuyển đổi ngược từ tiếng Việt sang loại công việc
   private reverseTranslateTaskType(vietnameseType: string): string {
     const reverseTypeMap: Record<string, string> = {
@@ -292,12 +301,12 @@ class AppsScriptGoogleSheetsService {
       'Khách hàng cũ': 'client_old',
       'Báo giá mới': 'quote_new',
       'Báo giá cũ': 'quote_old',
-      'Khác': 'other'
+      'Khác': 'other',
     };
-    
+
     return reverseTypeMap[vietnameseType] || vietnameseType;
   }
-  
+
   // Chuyển đổi ngược từ tiếng Việt sang trạng thái
   private reverseTranslateTaskStatus(vietnameseStatus: string): string {
     const reverseStatusMap: Record<string, string> = {
@@ -305,17 +314,17 @@ class AppsScriptGoogleSheetsService {
       'Đang thực hiện': 'in-progress',
       'Đang chờ': 'on-hold',
       'Tạm hoãn': 'on-hold',
-      'Hoàn thành': 'completed'
+      'Hoàn thành': 'completed',
     };
-    
+
     return reverseStatusMap[vietnameseStatus] || vietnameseStatus;
   }
-  
+
   // Chuyển đổi ngược từ tiếng Việt sang mã khu vực
   private reverseTranslateLocation(vietnameseLocation: string): string {
     return vietnameseLocation === 'Hà Nội' ? 'hanoi' : 'hcm';
   }
-  
+
   // Lấy dữ liệu từ Google Sheets thông qua Apps Script
   async fetchTasks(): Promise<any[]> {
     if (!this.isConfigured()) {
@@ -324,56 +333,59 @@ class AppsScriptGoogleSheetsService {
 
     try {
       // Gọi Apps Script với action=fetch
-      const responseData = await this.createCORSRequest({ action: 'fetch' })
-        .catch(err => {
-          // Chuyển đổi các lỗi fetch thành đối tượng Error có thông tin chi tiết
-          throw new Error(`Không thể kết nối đến Google Apps Script: ${err?.message || JSON.stringify(err)}`);
-        });
-      
+      const responseData = await this.createCORSRequest({ action: 'fetch' }).catch((err) => {
+        // Chuyển đổi các lỗi fetch thành đối tượng Error có thông tin chi tiết
+        throw new Error(
+          `Không thể kết nối đến Google Apps Script: ${err?.message || JSON.stringify(err)}`,
+        );
+      });
+
       if (!responseData) {
         throw new Error('Không nhận được phản hồi từ Google Apps Script');
       }
-      
+
       if (!responseData.success) {
         throw new Error(responseData.message || 'Google Apps Script trả về lỗi khi lấy dữ liệu');
       }
-      
+
       // Kiểm tra dữ liệu
       if (!responseData.data || !Array.isArray(responseData.data)) {
         throw new Error('Dữ liệu nhận được không đúng định dạng');
       }
-      
+
       // Tạo mảng tasks từ dữ liệu
       const tasks = this.parseTasksFromSheetData(responseData.data || []);
       console.log('Đã đọc dữ liệu từ Google Sheets:', tasks);
       return tasks;
-      
     } catch (error) {
       // Đảm bảo lỗi luôn có thông tin đầy đủ
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : (typeof error === 'string' ? error : 'Lỗi không xác định khi kết nối Google Sheets');
-      
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'string'
+            ? error
+            : 'Lỗi không xác định khi kết nối Google Sheets';
+
       // Log chi tiết hơn về lỗi
       console.error('Lỗi khi lấy dữ liệu từ Google Sheets:', {
         message: errorMessage,
         originalError: error,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
-      
+
       throw new Error(`Lỗi từ Google Sheets API: ${errorMessage}`);
     }
   }
-  
+
   // Chuyển đổi dữ liệu từ Google Sheets sang mảng tasks
   private parseTasksFromSheetData(sheetData: any[]): any[] {
     const tasks = [];
-    
+
     if (!Array.isArray(sheetData)) {
       console.warn('Dữ liệu không phải mảng:', sheetData);
       return [];
     }
-    
+
     for (const rowData of sheetData) {
       // Mỗi hàng là một đối tượng chứa dữ liệu của task
       try {
@@ -392,18 +404,18 @@ class AppsScriptGoogleSheetsService {
           location: this.reverseTranslateLocation(rowData.location || 'hanoi'),
           created_at: rowData.created_at || new Date().toISOString(),
           progress: 0, // Giá trị mặc định
-          isNew: false // Giá trị mặc định
+          isNew: false, // Giá trị mặc định
         };
-        
+
         tasks.push(task);
       } catch (e) {
         console.warn('Lỗi khi xử lý hàng dữ liệu:', e, rowData);
       }
     }
-    
+
     return tasks;
   }
-  
+
   // Tạo ID duy nhất cho task
   private generateId(): string {
     return Date.now().toString() + Math.floor(Math.random() * 1000).toString();

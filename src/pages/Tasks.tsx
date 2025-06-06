@@ -1,27 +1,21 @@
+import { Download, Plus, Trash2, UserRound, Users } from 'lucide-react';
+import { Settings } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
-import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '@/config/api';
+
 import ErrorBoundary from '../components/ErrorBoundary';
-import { Plus, Users, UserRound, Download, Trash2 } from 'lucide-react';
+import { ExportDialog } from '../components/export/ExportDialog';
+import AutoFirebaseSetup from '../components/firebase/AutoFirebaseSetup';
 import AppLayout from '../components/layout/AppLayout';
 import PageHeader from '../components/layout/PageHeader';
-import { Button } from '../components/ui/button';
-import TaskFormDialog from '../components/tasks/TaskFormDialog';
-import { ExportDialog } from '../components/export/ExportDialog';
-import { useAuth } from '../context/AuthContext';
-import FirebaseConfig from '../components/settings/FirebaseConfig';
-import { FirebaseService } from '../services/FirebaseService';
-import { Settings } from 'lucide-react';
-import { useToast } from '../hooks/use-toast';
-import TaskList from './TaskList';
-import TaskManagementView from '../components/tasks/TaskManagementView';
-import SimpleTaskView from '../components/tasks/SimpleTaskView';
-import { useTaskData } from '../hooks/use-task-data';
-import { useManagerTaskData, TaskViewLevel } from '../hooks/use-manager-task-data';
-import { getApiUrl } from '@/config/api';
-import AutoFirebaseSetup from '../components/firebase/AutoFirebaseSetup';
-import TaskViewSelector from '../components/tasks/TaskViewSelector';
-import MemberTaskSelector from '../components/tasks/MemberTaskSelector';
 import NotificationCenter from '../components/notifications/NotificationCenter';
+import FirebaseConfig from '../components/settings/FirebaseConfig';
+import MemberTaskSelector from '../components/tasks/MemberTaskSelector';
+import SimpleTaskView from '../components/tasks/SimpleTaskView';
+import TaskFormDialog from '../components/tasks/TaskFormDialog';
+import TaskManagementView from '../components/tasks/TaskManagementView';
+import TaskViewSelector from '../components/tasks/TaskViewSelector';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +26,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../components/ui/alert-dialog";
+} from '../components/ui/alert-dialog';
+import { Button } from '../components/ui/button';
+import { useAuth } from '../context/AuthContext';
+import { TaskViewLevel, useManagerTaskData } from '../hooks/use-manager-task-data';
+import { useTaskData } from '../hooks/use-task-data';
+import { useToast } from '../hooks/use-toast';
+import { FirebaseService } from '../services/FirebaseService';
+import TaskList from './TaskList';
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -47,24 +48,26 @@ const Tasks = () => {
   const { toast } = useToast();
 
   // Kiểm tra xem user có phải manager không
-  const isManager = currentUser?.role === 'retail_director' ||
-                   currentUser?.role === 'project_director' ||
-                   currentUser?.role === 'team_leader';
+  const isManager =
+    currentUser?.role === 'retail_director' ||
+    currentUser?.role === 'project_director' ||
+    currentUser?.role === 'team_leader';
 
   // Sử dụng hook phù hợp dựa trên role
   const regularTaskData = useTaskData();
   const managerTaskData = useManagerTaskData(viewLevel, selectedMemberId);
 
   // Chọn data source dựa trên role và view level
-  const tasks = isManager && viewLevel !== 'personal' ? managerTaskData.tasks : regularTaskData.tasks;
-  
+  const tasks =
+    isManager && viewLevel !== 'personal' ? managerTaskData.tasks : regularTaskData.tasks;
+
   // Hàm để kích hoạt làm mới danh sách công việc
   const handleTaskCreated = () => {
     // Tăng giá trị trigger để kích hoạt useEffect trong TaskList
-    setTaskUpdateTrigger(prev => prev + 1);
+    setTaskUpdateTrigger((prev) => prev + 1);
     toast({
-      title: "Đã làm mới dữ liệu",
-      description: "Danh sách công việc đã được cập nhật với công việc mới"
+      title: 'Đã làm mới dữ liệu',
+      description: 'Danh sách công việc đã được cập nhật với công việc mới',
     });
   };
 
@@ -108,8 +111,12 @@ const Tasks = () => {
         tasks.forEach((task, index) => {
           console.log(`Task ${index}:`, task);
           const fields = task.fields || {};
-          console.log(`  - assignedTo: ${fields.assignedTo?.stringValue || fields.assignedTo?.integerValue || 'undefined'}`);
-          console.log(`  - user_id: ${fields.user_id?.stringValue || fields.user_id?.integerValue || 'undefined'}`);
+          console.log(
+            `  - assignedTo: ${fields.assignedTo?.stringValue || fields.assignedTo?.integerValue || 'undefined'}`,
+          );
+          console.log(
+            `  - user_id: ${fields.user_id?.stringValue || fields.user_id?.integerValue || 'undefined'}`,
+          );
           console.log(`  - title: ${fields.title?.stringValue || 'undefined'}`);
         });
 
@@ -117,7 +124,7 @@ const Tasks = () => {
         console.log(`Current user ID: ${currentUser.id} (type: ${typeof currentUser.id})`);
 
         // Tìm tasks của user hiện tại
-        const userTasks = tasks.filter(task => {
+        const userTasks = tasks.filter((task) => {
           const fields = task.fields || {};
           const assignedTo = fields.assignedTo?.stringValue || fields.assignedTo?.integerValue;
           const user_id = fields.user_id?.stringValue || fields.user_id?.integerValue;
@@ -129,8 +136,8 @@ const Tasks = () => {
 
         if (userTasks.length === 0) {
           toast({
-            title: "Thông báo",
-            description: `Không có công việc nào để xóa. Tìm thấy ${tasks.length} tasks tổng cộng nhưng không có task nào thuộc về user ${currentUser.id}.`
+            title: 'Thông báo',
+            description: `Không có công việc nào để xóa. Tìm thấy ${tasks.length} tasks tổng cộng nhưng không có task nào thuộc về user ${currentUser.id}.`,
           });
           return;
         }
@@ -140,23 +147,22 @@ const Tasks = () => {
         const deletePromises = userTasks.map(async (task) => {
           const taskPath = task.name; // Full path của document
           const deleteResponse = await fetch(`https://firestore.googleapis.com/v1/${taskPath}`, {
-            method: 'DELETE'
+            method: 'DELETE',
           });
           return deleteResponse.ok;
         });
 
         const deleteResults = await Promise.all(deletePromises);
-        const successCount = deleteResults.filter(result => result).length;
+        const successCount = deleteResults.filter((result) => result).length;
 
         toast({
-          title: "Thành công!",
-          description: `Đã xóa ${successCount}/${userTasks.length} công việc qua REST API.`
+          title: 'Thành công!',
+          description: `Đã xóa ${successCount}/${userTasks.length} công việc qua REST API.`,
         });
 
         // Trigger refresh
-        setTaskUpdateTrigger(prev => prev + 1);
+        setTaskUpdateTrigger((prev) => prev + 1);
         return;
-
       } catch (error) {
         console.error('❌ REST API error:', error);
         throw error;
@@ -164,19 +170,18 @@ const Tasks = () => {
 
       // Fallback: Nếu REST API không hoạt động, thông báo lỗi
       console.log('❌ All methods failed');
-
     } catch (error) {
       console.error('Lỗi khi xóa toàn bộ công việc:', error);
       toast({
-        title: "Lỗi",
+        title: 'Lỗi',
         description: `Không thể xóa toàn bộ công việc: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
+        variant: 'destructive',
       });
     } finally {
       setIsDeleting(false);
     }
   };
-  
+
   // Firebase đã được auto-setup trong App.tsx, không cần manual setup nữa
   useEffect(() => {
     const isConfigured = FirebaseService.isConfigured();
@@ -187,19 +192,19 @@ const Tasks = () => {
       console.log('⚠️ Firebase not configured, some features may be limited');
     }
   }, []);
-  
+
   // Xác định vị trí và tiêu đề phù hợp với vai trò
   const locationName = currentUser?.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
-  
+
   let subtitle = '';
   let headerTitle = 'Quản lý công việc';
-  
+
   if (currentUser?.role === 'retail_director') {
     subtitle = 'Theo dõi và quản lý tất cả công việc của phòng kinh doanh bán lẻ';
   } else if (currentUser?.role === 'project_director') {
     subtitle = 'Theo dõi và quản lý tất cả công việc của phòng kinh doanh dự án';
   } else if (currentUser?.role === 'team_leader') {
-    const userTeam = teams.find(team => team.leader_id === currentUser.id);
+    const userTeam = teams.find((team) => team.leader_id === currentUser.id);
     subtitle = `Theo dõi và quản lý công việc của ${userTeam?.name || 'nhóm'} - ${locationName}`;
   } else {
     subtitle = `Theo dõi công việc được giao - ${locationName}`;
@@ -227,41 +232,43 @@ const Tasks = () => {
           />
 
           <div className="flex space-x-2">
-          <ExportDialog>
-            <Button
-              variant="outline"
-              size="icon"
-              title="Xuất dữ liệu"
-              className="text-blue-600 border-blue-200 bg-blue-50"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-          </ExportDialog>
+            <ExportDialog>
+              <Button
+                variant="outline"
+                size="icon"
+                title="Xuất dữ liệu"
+                className="text-blue-600 border-blue-200 bg-blue-50"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </ExportDialog>
 
-          {/* Nút tạo công việc gộp */}
-          <Button
-            className="flex items-center gap-2 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
-            onClick={() => {
-              // Mặc định mở form với type phù hợp với role
-              if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
-                setTaskFormType('team');
-              } else if (currentUser?.role === 'team_leader') {
-                setTaskFormType('individual');
-              } else {
-                setTaskFormType('self');
-              }
-              setIsFormOpen(true);
-            }}
-          >
-            <Plus className="h-5 w-5" />
-            <span>Tạo công việc</span>
-          </Button>
+            {/* Nút tạo công việc gộp */}
+            <Button
+              className="flex items-center gap-2 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
+              onClick={() => {
+                // Mặc định mở form với type phù hợp với role
+                if (
+                  currentUser?.role === 'retail_director' ||
+                  currentUser?.role === 'project_director'
+                ) {
+                  setTaskFormType('team');
+                } else if (currentUser?.role === 'team_leader') {
+                  setTaskFormType('individual');
+                } else {
+                  setTaskFormType('self');
+                }
+                setIsFormOpen(true);
+              }}
+            >
+              <Plus className="h-5 w-5" />
+              <span>Tạo công việc</span>
+            </Button>
           </div>
         </div>
       </div>
 
       <div>
-
         {/* Hiển thị giao diện mới cho danh sách công việc */}
         <ErrorBoundary>
           <TaskManagementView
@@ -270,7 +277,10 @@ const Tasks = () => {
             onViewLevelChange={setViewLevel}
             onSelectedMemberChange={setSelectedMemberId}
             onCreateTask={() => {
-              if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+              if (
+                currentUser?.role === 'retail_director' ||
+                currentUser?.role === 'project_director'
+              ) {
                 setTaskFormType('team');
               } else if (currentUser?.role === 'team_leader') {
                 setTaskFormType('individual');
@@ -294,8 +304,9 @@ const Tasks = () => {
         onOpenChange={setIsFirebaseConfigOpen}
         onConfigSaved={() => {
           toast({
-            title: "Cấu hình thành công",
-            description: "Firebase đã được cấu hình thành công. Dữ liệu sẽ được lưu trữ an toàn trên Cloud Firestore."
+            title: 'Cấu hình thành công',
+            description:
+              'Firebase đã được cấu hình thành công. Dữ liệu sẽ được lưu trữ an toàn trên Cloud Firestore.',
           });
         }}
       />

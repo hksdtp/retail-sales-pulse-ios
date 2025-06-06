@@ -17,7 +17,7 @@ const sampleTasks = [
     team_id: '1',
     location: 'hanoi',
     assignedTo: '2',
-    isNew: true
+    isNew: true,
   },
   {
     title: 'Liên hệ khách hàng mới',
@@ -32,7 +32,7 @@ const sampleTasks = [
     team_id: '2',
     location: 'hanoi',
     assignedTo: '3',
-    isNew: false
+    isNew: false,
   },
   {
     title: 'Kiểm tra kho hàng',
@@ -47,7 +47,7 @@ const sampleTasks = [
     team_id: '3',
     location: 'hcm',
     assignedTo: '4',
-    isNew: true
+    isNew: true,
   },
   {
     title: 'Họp team tuần',
@@ -62,7 +62,7 @@ const sampleTasks = [
     team_id: '1',
     location: 'hanoi',
     assignedTo: '2',
-    isNew: false
+    isNew: false,
   },
   {
     title: 'Training nhân viên mới',
@@ -77,64 +77,63 @@ const sampleTasks = [
     team_id: '2',
     location: 'hanoi',
     assignedTo: '3',
-    isNew: false
-  }
+    isNew: false,
+  },
 ];
 
 async function createSampleData() {
   try {
     console.log('🚀 Bắt đầu tạo dữ liệu mẫu...\n');
-    
+
     // Test API health
     console.log('1. Kiểm tra API health...');
     const healthResponse = await fetch(`${API_BASE}/health`);
     const healthData = await healthResponse.json();
     console.log('✅ API Status:', healthData.status);
     console.log('');
-    
+
     // Create sample tasks
     console.log('2. Tạo tasks mẫu...');
     for (let i = 0; i < sampleTasks.length; i++) {
       const task = sampleTasks[i];
       console.log(`   Đang tạo task ${i + 1}/${sampleTasks.length}: ${task.title}`);
-      
+
       const response = await fetch(`${API_BASE}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(task)
+        body: JSON.stringify(task),
       });
-      
+
       const result = await response.json();
       if (result.success) {
         console.log(`   ✅ Đã tạo task: ${task.title}`);
       } else {
         console.log(`   ❌ Lỗi tạo task: ${result.error}`);
       }
-      
+
       // Delay để tránh rate limit
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
-    
+
     console.log('');
-    
+
     // Verify data
     console.log('3. Kiểm tra dữ liệu đã tạo...');
     const tasksResponse = await fetch(`${API_BASE}/tasks`);
     const tasksData = await tasksResponse.json();
-    
+
     console.log(`✅ Tổng số tasks: ${tasksData.count}`);
     console.log('✅ Danh sách tasks:');
     tasksData.data.forEach((task, index) => {
       console.log(`   ${index + 1}. ${task.title} (${task.status})`);
     });
-    
+
     console.log('');
     console.log('🎉 Hoàn thành tạo dữ liệu mẫu!');
     console.log('🌐 Dữ liệu đã được lưu trên Firebase Cloud');
     console.log('🔗 Xem tại: https://console.firebase.google.com/project/appqlgd/firestore');
-    
   } catch (error) {
     console.error('❌ Lỗi khi tạo dữ liệu mẫu:', error);
   }

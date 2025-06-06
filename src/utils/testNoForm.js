@@ -3,12 +3,12 @@
 
 async function testDirectFetch() {
   const url = prompt('Nhập URL Google Apps Script của bạn:');
-  
+
   if (!url) {
     console.error('Không nhận được URL');
     return;
   }
-  
+
   // Dữ liệu thử nghiệm
   const testData = {
     title: 'Test từ fetch API',
@@ -21,12 +21,12 @@ async function testDirectFetch() {
     assignedTo: 'Tester',
     team_id: 'Test Team',
     location: 'Hà Nội',
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
   };
-  
+
   console.log('Đang gửi dữ liệu thử nghiệm đến:', url);
   console.log('Dữ liệu:', testData);
-  
+
   try {
     // Phương pháp 1: Sử dụng fetch API
     console.log('Thử phương pháp 1: fetch API với JSON');
@@ -36,37 +36,39 @@ async function testDirectFetch() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(testData)
+      body: JSON.stringify(testData),
     });
-    
+
     console.log('Phản hồi fetch:', fetchResponse);
     console.log('Fetch đã hoàn thành!');
-    
+
     // Phương pháp 2: Tạo form và gửi
     console.log('Thử phương pháp 2: XMLHttpRequest');
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    
+
     // Chuyển đổi dữ liệu thành x-www-form-urlencoded
     const formData = new URLSearchParams();
     formData.append('data', JSON.stringify(testData));
-    
+
     // Xử lý hoàn thành
-    xhr.onload = function() {
+    xhr.onload = function () {
       console.log('XHR đã hoàn thành:', xhr.status, xhr.responseText);
     };
-    
+
     // Xử lý lỗi
-    xhr.onerror = function(error) {
+    xhr.onerror = function (error) {
       console.error('Lỗi XHR:', error);
     };
-    
+
     // Gửi request
     xhr.send(formData.toString());
     console.log('Đã gửi XHR request');
-    
-    alert('Đã gửi dữ liệu thử nghiệm bằng cả hai phương pháp! Vui lòng kiểm tra Google Sheet của bạn sau vài giây.');
+
+    alert(
+      'Đã gửi dữ liệu thử nghiệm bằng cả hai phương pháp! Vui lòng kiểm tra Google Sheet của bạn sau vài giây.',
+    );
   } catch (error) {
     console.error('Lỗi khi gửi dữ liệu:', error);
     alert('Có lỗi khi gửi dữ liệu: ' + error.message);

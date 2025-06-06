@@ -14,7 +14,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng phòng kinh doanh bán lẻ',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '2',
@@ -28,7 +28,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '3',
@@ -42,7 +42,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '4',
@@ -56,7 +56,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '5',
@@ -70,7 +70,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '6',
@@ -84,7 +84,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '7',
@@ -98,7 +98,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '8',
@@ -112,7 +112,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '9',
@@ -126,7 +126,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '10',
@@ -140,7 +140,7 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '11',
@@ -154,8 +154,8 @@ const exactEmployeeData = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
-  }
+    password_changed: true,
+  },
 ];
 
 const exactTeamsData = [
@@ -166,7 +166,7 @@ const exactTeamsData = [
     location: 'hanoi',
     description: 'Nhóm kinh doanh 1 Hà Nội',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '2',
@@ -175,7 +175,7 @@ const exactTeamsData = [
     location: 'hanoi',
     description: 'Nhóm kinh doanh 2 Hà Nội',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '3',
@@ -184,7 +184,7 @@ const exactTeamsData = [
     location: 'hanoi',
     description: 'Nhóm kinh doanh 3 Hà Nội',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '4',
@@ -193,7 +193,7 @@ const exactTeamsData = [
     location: 'hanoi',
     description: 'Nhóm kinh doanh 4 Hà Nội',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '5',
@@ -202,7 +202,7 @@ const exactTeamsData = [
     location: 'hcm',
     description: 'Nhóm kinh doanh 1 Hồ Chí Minh',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '6',
@@ -211,33 +211,35 @@ const exactTeamsData = [
     location: 'hcm',
     description: 'Nhóm kinh doanh 2 Hồ Chí Minh',
     department: 'retail',
-    department_type: 'retail'
-  }
+    department_type: 'retail',
+  },
 ];
 
 function displayImportInstructions() {
   console.log('🚀 IMPORT CHÍNH XÁC THEO DANH SÁCH NHÂN VIÊN');
   console.log('===========================================\n');
-  
+
   console.log('🔥 1. MỞ FIREBASE CONSOLE:');
   console.log('   https://console.firebase.google.com/project/appqlgd/firestore\n');
-  
+
   console.log('👤 2. TẠO COLLECTION "users" - 11 NHÂN VIÊN:');
   console.log('============================================');
-  
+
   exactEmployeeData.forEach((user, index) => {
     console.log(`\n📄 Document ID: ${user.id}`);
-    console.log(`👤 ${user.name} - ${user.role === 'retail_director' ? 'Giám đốc' : user.role === 'team_leader' ? 'Trưởng nhóm' : 'Nhân viên'}`);
+    console.log(
+      `👤 ${user.name} - ${user.role === 'retail_director' ? 'Giám đốc' : user.role === 'team_leader' ? 'Trưởng nhóm' : 'Nhân viên'}`,
+    );
     console.log(`📧 ${user.email} | 📍 ${user.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh'}`);
     console.log('📋 Copy JSON này:');
     const { id, ...userData } = user;
     console.log(JSON.stringify(userData, null, 2));
     console.log('---');
   });
-  
+
   console.log('\n\n👥 3. TẠO COLLECTION "teams" - 6 NHÓM:');
   console.log('=====================================');
-  
+
   exactTeamsData.forEach((team, index) => {
     console.log(`\n📄 Document ID: ${team.id}`);
     console.log(`👥 ${team.name} | 📍 ${team.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh'}`);
@@ -246,14 +248,14 @@ function displayImportInstructions() {
     console.log(JSON.stringify(teamData, null, 2));
     console.log('---');
   });
-  
+
   console.log('\n\n📊 4. TỔNG KẾT:');
   console.log('===============');
   console.log(`✅ Tổng cộng: ${exactEmployeeData.length} nhân viên`);
   console.log('📍 Hà Nội: 7 người (1 Giám đốc + 4 Trưởng nhóm + 2 Nhân viên)');
   console.log('📍 Hồ Chí Minh: 4 người (2 Trưởng nhóm + 2 Nhân viên)');
   console.log(`👥 Tổng cộng: ${exactTeamsData.length} nhóm`);
-  
+
   console.log('\n\n🔐 5. THÔNG TIN ĐĂNG NHẬP:');
   console.log('=========================');
   console.log('Tất cả nhân viên đều có password: 123456');
@@ -265,7 +267,7 @@ function displayImportInstructions() {
   console.log('Test với Trưởng nhóm:');
   console.log('Email: vietanh@example.com');
   console.log('Password: 123456');
-  
+
   console.log('\n✅ CHÍNH XÁC 100% theo danh sách bạn cung cấp!');
 }
 

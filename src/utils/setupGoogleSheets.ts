@@ -1,14 +1,13 @@
-
 import { googleSheetsService } from '@/services/GoogleSheetsService';
 
 // Hàm cấu hình tự động Google Sheets với Service Account
 export const setupGoogleSheetsConfig = () => {
   // ID Google Sheet mà bạn đã cung cấp
   const sheetId = '18suuPRMUScXDWPmvIzmbZpLOTlEViis5olm7G1TqV1A';
-  
+
   // API key dự phòng nếu cần
   const apiKey = 'AIzaSyAXwhLirER9EBC101q9mhyT5Uyj06bC5rg';
-  
+
   // Thông tin Service Account JSON
   const serviceAccountJson = `{
   "type": "service_account",
@@ -27,23 +26,23 @@ export const setupGoogleSheetsConfig = () => {
   try {
     // Cấu hình ServiceAccount
     const success = googleSheetsService.setConfig(sheetId, serviceAccountJson);
-    
+
     // Dự phòng: nếu cấu hình service account thất bại, cấu hình với API key
     if (!success) {
       googleSheetsService.setConfig(sheetId, serviceAccountJson);
     }
-    
+
     return {
       success: true,
       message: 'Đã cấu hình Google Sheets thành công!',
       serviceAccountEmail: 'salebanle@duthuyen.iam.gserviceaccount.com',
-      sheetId
+      sheetId,
     };
   } catch (error) {
     console.error('Lỗi khi cấu hình Google Sheets:', error);
     return {
       success: false,
-      message: `Lỗi khi cấu hình: ${error instanceof Error ? error.message : 'Lỗi không xác định'}`
+      message: `Lỗi khi cấu hình: ${error instanceof Error ? error.message : 'Lỗi không xác định'}`,
     };
   }
 };

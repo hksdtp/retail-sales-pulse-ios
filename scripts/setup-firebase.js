@@ -3,12 +3,12 @@ console.log('🔥 Setting up Firebase configuration...');
 
 // Firebase config for the project
 const firebaseConfig = {
-  apiKey: "AIzaSyBqJVJKvXxKxKxKxKxKxKxKxKxKxKxKxKx",
-  authDomain: "appqlgd.firebaseapp.com", 
-  projectId: "appqlgd",
-  storageBucket: "appqlgd.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdefghijklmnop"
+  apiKey: 'AIzaSyBqJVJKvXxKxKxKxKxKxKxKxKxKxKxKxKx',
+  authDomain: 'appqlgd.firebaseapp.com',
+  projectId: 'appqlgd',
+  storageBucket: 'appqlgd.appspot.com',
+  messagingSenderId: '123456789012',
+  appId: '1:123456789012:web:abcdefghijklmnop',
 };
 
 // Save to localStorage (for browser)

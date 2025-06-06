@@ -1,12 +1,14 @@
+import { Briefcase, Calendar, Clock, FilePen, FileText, UserRound, Users } from 'lucide-react';
 import React, { useState } from 'react';
-import { Task } from '../types/TaskTypes';
-import { Briefcase, Users, FileText, FilePen, Clock, UserRound, Calendar } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+
+import { Task } from '../types/TaskTypes';
 import TaskActionMenu from './TaskActionMenu';
+
 // Import sẽ được khai báo khi TaskEditDialog đã được tạo và hoàn thiện
 // import TaskEditDialog from './TaskEditDialog';
-
 
 interface TaskCardProps {
   task: Task;
@@ -14,18 +16,18 @@ interface TaskCardProps {
   getAssigneeName?: (userId: string) => string;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ 
-  task, 
-  getTeamName = () => "Không xác định", 
-  getAssigneeName = () => "Không xác định" 
+const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  getTeamName = () => 'Không xác định',
+  getAssigneeName = () => 'Không xác định',
 }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
+
   // Xử lý hiển thị loại công việc với màu sắc khác nhau
   const getTaskTypeBadge = () => {
     let label = '';
     let className = '';
-    
+
     switch (task.type) {
       case 'partner_new':
         label = 'KH: Đối tác mới';
@@ -64,26 +66,58 @@ const TaskCard: React.FC<TaskCardProps> = ({
         className = 'bg-gray-100 text-gray-800 border-gray-300';
         break;
     }
-    
-    return <Badge variant="outline" className={className}>{label}</Badge>;
+
+    return (
+      <Badge variant="outline" className={className}>
+        {label}
+      </Badge>
+    );
   };
-  
+
   // Triển khai hiển thị trạng thái công việc với màu sắc đặc trưng
   const getTaskStatusBadge = () => {
     switch (task.status) {
       case 'todo':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300 font-medium">Cần làm</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-100 text-gray-800 border-gray-300 font-medium"
+          >
+            Cần làm
+          </Badge>
+        );
       case 'in-progress':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 font-medium">Đang làm</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-100 text-blue-800 border-blue-300 font-medium"
+          >
+            Đang làm
+          </Badge>
+        );
       case 'on-hold':
-        return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 font-medium">Tạm hoãn</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-amber-100 text-amber-800 border-amber-300 font-medium"
+          >
+            Tạm hoãn
+          </Badge>
+        );
       case 'completed':
-        return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-300 font-medium">Hoàn thành</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-emerald-100 text-emerald-800 border-emerald-300 font-medium"
+          >
+            Hoàn thành
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{task.status}</Badge>;
     }
   };
-  
+
   // Hiển thị nhãn công việc mới
   const getNewBadge = () => {
     if (task.isNew) {
@@ -91,7 +125,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
     }
     return null;
   };
-  
+
   // Mở chức năng chỉnh sửa (sẽ được hoàn thiện sau)
   const handleEdit = () => {
     // Hiện tại chỉ hiển thị thông báo đơn giản
@@ -104,29 +138,25 @@ const TaskCard: React.FC<TaskCardProps> = ({
       <div className="absolute top-3 right-3">
         <TaskActionMenu task={task} onEdit={handleEdit} />
       </div>
-      
+
       <div className="flex flex-col h-full">
         {/* Phần header với tiêu đề */}
         <div className="mb-3 pr-8">
           <h3 className="text-sm font-semibold text-gray-800 flex-1">{task.title}</h3>
         </div>
-        
+
         {/* Phần trạng thái */}
         <div className="flex items-center gap-2 flex-wrap mb-3">
           {task.isNew && <Badge className="bg-green-500 text-white">Mới</Badge>}
         </div>
-        
+
         {/* Phần mô tả */}
-        <div className="text-xs text-gray-600 mb-3 line-clamp-2">
-          {task.description}
-        </div>
-        
+        <div className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description}</div>
+
         {/* Phần thông tin về ngày, nhóm, người thực hiện */}
         <div className="mt-auto space-y-2 text-xs">
           <div className="mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-1">
-              {getTaskTypeBadge()}
-            </span>
+            <span className="flex items-center gap-1">{getTaskTypeBadge()}</span>
             <div className="flex space-x-2">
               {getTaskStatusBadge()}
               {task.isNew && <Badge className="bg-green-500">Mới</Badge>}
@@ -142,17 +172,17 @@ const TaskCard: React.FC<TaskCardProps> = ({
               </>
             )}
           </div>
-          
+
           <div className="flex items-center text-gray-500">
             <Users className="h-3.5 w-3.5 mr-1.5" />
             <span>{getTeamName(task.teamId)}</span>
           </div>
-          
+
           <div className="flex items-center text-gray-500">
             <UserRound className="h-3.5 w-3.5 mr-1.5" />
             <span>{getAssigneeName(task.assignedTo)}</span>
           </div>
-          
+
           {/* Hiển thị tiến độ */}
           <div className="pt-2">
             <div className="flex justify-between items-center mb-1">
@@ -163,7 +193,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Dialog chỉnh sửa công việc (sẽ được cập nhật sau) */}
       {/* {editDialogOpen && (
         <TaskEditDialog 

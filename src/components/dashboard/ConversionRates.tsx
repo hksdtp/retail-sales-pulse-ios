@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface ConversionRatesProps {
@@ -7,7 +6,7 @@ interface ConversionRatesProps {
 
 const ConversionRates: React.FC<ConversionRatesProps> = ({ visible }) => {
   if (!visible) return null;
-  
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm h-full">
       <h3 className="font-medium text-lg mb-4">Tỷ lệ chuyển đổi</h3>

@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 // Bạn cần tạo service account key từ Firebase Console
 // Tạm thời sử dụng project ID để kết nối
 admin.initializeApp({
-  projectId: 'appqlgd'
+  projectId: 'appqlgd',
 });
 
 const db = admin.firestore();
@@ -25,7 +25,7 @@ const sampleUsers = [
     status: 'active',
     password_changed: true,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
   },
   {
     id: '2',
@@ -41,7 +41,7 @@ const sampleUsers = [
     status: 'active',
     password_changed: true,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
   },
   {
     id: '3',
@@ -57,7 +57,7 @@ const sampleUsers = [
     status: 'active',
     password_changed: true,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
   },
   {
     id: '4',
@@ -73,7 +73,7 @@ const sampleUsers = [
     status: 'active',
     password_changed: true,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
   },
   {
     id: '5',
@@ -89,8 +89,8 @@ const sampleUsers = [
     status: 'active',
     password_changed: true,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
-  }
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
+  },
 ];
 
 // Sample teams data
@@ -104,7 +104,7 @@ const sampleTeams = [
     department: 'retail',
     department_type: 'retail',
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
   },
   {
     id: '2',
@@ -115,7 +115,7 @@ const sampleTeams = [
     department: 'retail',
     department_type: 'retail',
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
   },
   {
     id: '3',
@@ -126,14 +126,14 @@ const sampleTeams = [
     department: 'retail',
     department_type: 'retail',
     created_at: admin.firestore.FieldValue.serverTimestamp(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
-  }
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
+  },
 ];
 
 async function addUsersAndTeams() {
   try {
     console.log('🚀 Bắt đầu thêm Users và Teams vào Firestore...\n');
-    
+
     // Thêm users
     console.log('1. Thêm users...');
     for (const user of sampleUsers) {
@@ -141,9 +141,9 @@ async function addUsersAndTeams() {
       await db.collection('users').doc(id).set(userData);
       console.log(`   ✅ Đã thêm user: ${user.name} (${user.email})`);
     }
-    
+
     console.log('');
-    
+
     // Thêm teams
     console.log('2. Thêm teams...');
     for (const team of sampleTeams) {
@@ -151,7 +151,7 @@ async function addUsersAndTeams() {
       await db.collection('teams').doc(id).set(teamData);
       console.log(`   ✅ Đã thêm team: ${team.name}`);
     }
-    
+
     console.log('');
     console.log('🎉 Hoàn thành thêm dữ liệu vào Firestore!');
     console.log('📊 Đã thêm:');
@@ -159,7 +159,6 @@ async function addUsersAndTeams() {
     console.log(`   - ${sampleTeams.length} teams`);
     console.log('');
     console.log('🔗 Kiểm tra tại: https://console.firebase.google.com/project/appqlgd/firestore');
-    
   } catch (error) {
     console.error('❌ Lỗi khi thêm dữ liệu:', error);
   } finally {

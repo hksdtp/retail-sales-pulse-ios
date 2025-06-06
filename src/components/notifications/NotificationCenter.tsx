@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, Eye, Clock, CheckCircle, AlertCircle, Plus, Edit } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, Bell, CheckCircle, Clock, Edit, Eye, Plus, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+
+import { useAuth } from '@/context/AuthContext';
 
 export interface Notification {
   id: string;
@@ -35,9 +36,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
   const { currentUser } = useAuth();
 
   // Chỉ hiển thị cho Trưởng phòng và Trưởng bộ phận
-  const shouldShowNotifications = currentUser?.role === 'retail_director' || 
-                                  currentUser?.role === 'project_director' ||
-                                  currentUser?.role === 'team_leader';
+  const shouldShowNotifications =
+    currentUser?.role === 'retail_director' ||
+    currentUser?.role === 'project_director' ||
+    currentUser?.role === 'team_leader';
 
   // Load notifications từ localStorage
   useEffect(() => {
@@ -59,26 +61,26 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
   const saveNotifications = (newNotifications: Notification[]) => {
     localStorage.setItem('notifications', JSON.stringify(newNotifications));
     setNotifications(newNotifications);
-    setUnreadCount(newNotifications.filter(n => !n.isRead).length);
+    setUnreadCount(newNotifications.filter((n) => !n.isRead).length);
   };
 
   // Đánh dấu đã đọc
   const markAsRead = (notificationId: string) => {
-    const updated = notifications.map(n => 
-      n.id === notificationId ? { ...n, isRead: true } : n
+    const updated = notifications.map((n) =>
+      n.id === notificationId ? { ...n, isRead: true } : n,
     );
     saveNotifications(updated);
   };
 
   // Đánh dấu tất cả đã đọc
   const markAllAsRead = () => {
-    const updated = notifications.map(n => ({ ...n, isRead: true }));
+    const updated = notifications.map((n) => ({ ...n, isRead: true }));
     saveNotifications(updated);
   };
 
   // Xóa thông báo
   const deleteNotification = (notificationId: string) => {
-    const updated = notifications.filter(n => n.id !== notificationId);
+    const updated = notifications.filter((n) => n.id !== notificationId);
     saveNotifications(updated);
   };
 
@@ -147,10 +149,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
         {isOpen && (
           <>
             {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setIsOpen(false)}
-            />
+            <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
             {/* Panel */}
             <motion.div
@@ -215,16 +214,16 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <p className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
+                              <p
+                                className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}
+                              >
                                 {notification.title}
                               </p>
                               {!notification.isRead && (
                                 <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                               )}
                             </div>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {notification.message}
-                            </p>
+                            <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
                             <div className="flex items-center justify-between mt-2">
                               <p className="text-xs text-blue-600 font-medium truncate">
                                 📋 {notification.taskTitle}
@@ -234,7 +233,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
                                 <span>
                                   {formatDistanceToNow(new Date(notification.timestamp), {
                                     addSuffix: true,
-                                    locale: vi
+                                    locale: vi,
                                   })}
                                 </span>
                               </div>
@@ -255,8 +254,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
                   </div>
                 )}
               </div>
-
-
             </motion.div>
           </>
         )}

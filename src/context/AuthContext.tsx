@@ -1,8 +1,8 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole, UserLocation, Team, UserCredentials } from '@/types/user';
 import { useToast } from '@/hooks/use-toast';
 import passwordService from '@/services/passwordService';
+import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -25,7 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   isFirstLogin: false,
   changePassword: () => {},
   users: [],
-  teams: []
+  teams: [],
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -41,7 +41,7 @@ const MOCK_TEAMS: Team[] = [
     description: 'Nhóm kinh doanh 1 Hà Nội',
     created_at: '2023-01-01',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '2',
@@ -51,7 +51,7 @@ const MOCK_TEAMS: Team[] = [
     description: 'Nhóm kinh doanh 2 Hà Nội',
     created_at: '2023-01-01',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '3',
@@ -61,7 +61,7 @@ const MOCK_TEAMS: Team[] = [
     description: 'Nhóm kinh doanh 3 Hà Nội',
     created_at: '2023-01-15',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '4',
@@ -71,7 +71,7 @@ const MOCK_TEAMS: Team[] = [
     description: 'Nhóm 4 - Hà Nội',
     created_at: '2023-02-01',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '5',
@@ -81,7 +81,7 @@ const MOCK_TEAMS: Team[] = [
     description: 'Nhóm kinh doanh 1 Hồ Chí Minh',
     created_at: '2023-01-01',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
   {
     id: '6',
@@ -91,10 +91,8 @@ const MOCK_TEAMS: Team[] = [
     description: 'Nhóm kinh doanh 2 Hồ Chí Minh',
     created_at: '2023-01-15',
     department: 'retail',
-    department_type: 'retail'
+    department_type: 'retail',
   },
-  
-
 ];
 
 // Dữ liệu mẫu chi tiết người dùng
@@ -110,7 +108,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng phòng kinh doanh bán lẻ',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '2',
@@ -123,7 +121,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '3',
@@ -136,7 +134,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '4',
@@ -149,7 +147,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '5',
@@ -162,7 +160,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '6',
@@ -175,7 +173,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '7',
@@ -188,7 +186,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '12',
@@ -201,7 +199,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '8',
@@ -214,7 +212,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '9',
@@ -227,7 +225,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '10',
@@ -240,7 +238,7 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Trưởng nhóm',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
   {
     id: '11',
@@ -253,9 +251,8 @@ const MOCK_USERS: User[] = [
     department_type: 'retail',
     position: 'Nhân viên',
     status: 'active',
-    password_changed: true
+    password_changed: true,
   },
-
 ];
 
 // Lưu trữ mật khẩu (trong thực tế sẽ được hash và lưu trong database)
@@ -263,13 +260,13 @@ const DEFAULT_PASSWORD = '123456';
 const MOCK_CREDENTIALS: Record<string, string> = {};
 
 // Tạo mật khẩu mặc định cho tất cả người dùng
-MOCK_USERS.forEach(user => {
+MOCK_USERS.forEach((user) => {
   if (user.email) {
     MOCK_CREDENTIALS[user.email] = DEFAULT_PASSWORD;
   }
 });
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
@@ -304,7 +301,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         setCurrentUser(user);
         setIsFirstLogin(!user.password_changed);
       } catch (error) {
-        console.error("Lỗi khi parse dữ liệu người dùng:", error);
+        console.error('Lỗi khi parse dữ liệu người dùng:', error);
         localStorage.removeItem('currentUser');
       }
     }
@@ -315,9 +312,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     setIsLoading(true);
     try {
       // Tìm thông tin người dùng
-      let user = users.find(u => u.email === email);
+      let user = users.find((u) => u.email === email);
       if (!user) {
-        user = MOCK_USERS.find(u => u.email === email);
+        user = MOCK_USERS.find((u) => u.email === email);
       }
 
       if (!user) {
@@ -342,9 +339,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
       toast({
-        title: "Đăng nhập thất bại",
+        title: 'Đăng nhập thất bại',
         description: errorMessage,
-        variant: "destructive"
+        variant: 'destructive',
       });
       return Promise.reject(error instanceof Error ? error : new Error(errorMessage));
     } finally {
@@ -368,7 +365,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       // Cập nhật trạng thái đã đổi mật khẩu
       const updatedUser = {
         ...currentUser,
-        password_changed: true
+        password_changed: true,
       };
 
       setCurrentUser(updatedUser);
@@ -376,30 +373,32 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       setIsFirstLogin(false);
 
       toast({
-        title: "Đổi mật khẩu thành công",
-        description: "Mật khẩu của bạn đã được cập nhật"
+        title: 'Đổi mật khẩu thành công',
+        description: 'Mật khẩu của bạn đã được cập nhật',
       });
     } else {
       toast({
-        title: "Đổi mật khẩu thất bại",
-        description: "Có lỗi xảy ra khi đổi mật khẩu",
-        variant: "destructive"
+        title: 'Đổi mật khẩu thất bại',
+        description: 'Có lỗi xảy ra khi đổi mật khẩu',
+        variant: 'destructive',
       });
     }
   };
 
   return (
-    <AuthContext.Provider value={{
-      currentUser,
-      isAuthenticated: !!currentUser,
-      login,
-      logout,
-      isLoading,
-      isFirstLogin,
-      changePassword,
-      users: users,
-      teams: teams
-    }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        isAuthenticated: !!currentUser,
+        login,
+        logout,
+        isLoading,
+        isFirstLogin,
+        changePassword,
+        users: users,
+        teams: teams,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

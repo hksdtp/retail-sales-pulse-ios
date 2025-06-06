@@ -1,31 +1,35 @@
-
 import React from 'react';
-import { useAuth } from '@/context/AuthContext';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import KpiProgressCard from './KpiProgressCard';
-import { getTaskKpiData, TaskKpiItem } from '@/utils/taskKpiUtils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/context/AuthContext';
+import { TaskKpiItem, getTaskKpiData } from '@/utils/taskKpiUtils';
+
+import KpiProgressCard from './KpiProgressCard';
 
 const TaskKpiOverview = () => {
   const { currentUser } = useAuth();
   const kpiData = getTaskKpiData(currentUser);
-  
+
   // Nhóm các loại công việc để hiển thị
-  const partnerItems = kpiData.items.filter(item => 
-    item.category === 'partner_new' || item.category === 'partner_old');
-  
-  const architectItems = kpiData.items.filter(item => 
-    item.category === 'architect_new' || item.category === 'architect_old');
-  
-  const clientItems = kpiData.items.filter(item => 
-    item.category === 'client_new' || item.category === 'client_old');
-  
-  const quoteItems = kpiData.items.filter(item => 
-    item.category === 'quote_new' || item.category === 'quote_old');
-  
-  const otherItems = kpiData.items.filter(item => 
-    item.category === 'other');
+  const partnerItems = kpiData.items.filter(
+    (item) => item.category === 'partner_new' || item.category === 'partner_old',
+  );
+
+  const architectItems = kpiData.items.filter(
+    (item) => item.category === 'architect_new' || item.category === 'architect_old',
+  );
+
+  const clientItems = kpiData.items.filter(
+    (item) => item.category === 'client_new' || item.category === 'client_old',
+  );
+
+  const quoteItems = kpiData.items.filter(
+    (item) => item.category === 'quote_new' || item.category === 'quote_old',
+  );
+
+  const otherItems = kpiData.items.filter((item) => item.category === 'other');
 
   return (
     <div className="space-y-6">
@@ -61,7 +65,7 @@ const TaskKpiOverview = () => {
           <TabsTrigger value="quote">Báo giá</TabsTrigger>
           <TabsTrigger value="other">Khác</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="partner" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {partnerItems.map((item, index) => (
@@ -77,7 +81,7 @@ const TaskKpiOverview = () => {
             ))}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="architect" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {architectItems.map((item, index) => (
@@ -93,7 +97,7 @@ const TaskKpiOverview = () => {
             ))}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="client" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {clientItems.map((item, index) => (
@@ -109,7 +113,7 @@ const TaskKpiOverview = () => {
             ))}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="quote" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {quoteItems.map((item, index) => (
@@ -125,7 +129,7 @@ const TaskKpiOverview = () => {
             ))}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="other" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {otherItems.map((item, index) => (
@@ -142,7 +146,7 @@ const TaskKpiOverview = () => {
           </div>
         </TabsContent>
       </Tabs>
-      
+
       {/* Tỷ lệ chuyển đổi */}
       <Card>
         <CardHeader className="pb-3">
@@ -153,33 +157,45 @@ const TaskKpiOverview = () => {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Báo giá → Đơn hàng</span>
-                <span className="font-medium">{Math.round(kpiData.conversionRates.quoteToOrder)}%</span>
+                <span className="font-medium">
+                  {Math.round(kpiData.conversionRates.quoteToOrder)}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-ios-green h-2 rounded-full" 
-                  style={{ width: `${kpiData.conversionRates.quoteToOrder}%` }} />
+                <div
+                  className="bg-ios-green h-2 rounded-full"
+                  style={{ width: `${kpiData.conversionRates.quoteToOrder}%` }}
+                />
               </div>
             </div>
-            
+
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>KH tiềm năng → KH thực tế</span>
-                <span className="font-medium">{Math.round(kpiData.conversionRates.potentialToActual)}%</span>
+                <span className="font-medium">
+                  {Math.round(kpiData.conversionRates.potentialToActual)}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-ios-blue h-2 rounded-full" 
-                  style={{ width: `${kpiData.conversionRates.potentialToActual}%` }} />
+                <div
+                  className="bg-ios-blue h-2 rounded-full"
+                  style={{ width: `${kpiData.conversionRates.potentialToActual}%` }}
+                />
               </div>
             </div>
-            
+
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>KTS tiềm năng → Dự án</span>
-                <span className="font-medium">{Math.round(kpiData.conversionRates.architectToPrj)}%</span>
+                <span className="font-medium">
+                  {Math.round(kpiData.conversionRates.architectToPrj)}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-ios-orange h-2 rounded-full" 
-                  style={{ width: `${kpiData.conversionRates.architectToPrj}%` }} />
+                <div
+                  className="bg-ios-orange h-2 rounded-full"
+                  style={{ width: `${kpiData.conversionRates.architectToPrj}%` }}
+                />
               </div>
             </div>
           </div>

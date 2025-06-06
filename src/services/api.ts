@@ -1,4 +1,4 @@
-import { getApiUrl, API_ENDPOINTS, HTTP_METHODS, HTTP_STATUS } from '@/config/api';
+import { API_ENDPOINTS, HTTP_METHODS, HTTP_STATUS, getApiUrl } from '@/config/api';
 
 // Types
 export interface ApiResponse<T = any> {
@@ -13,7 +13,20 @@ export interface Task {
   id?: string;
   title: string;
   description: string;
-  type: 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'report' | 'training' | 'meeting' | 'inventory' | 'other';
+  type:
+    | 'partner_new'
+    | 'partner_old'
+    | 'architect_new'
+    | 'architect_old'
+    | 'client_new'
+    | 'client_old'
+    | 'quote_new'
+    | 'quote_old'
+    | 'report'
+    | 'training'
+    | 'meeting'
+    | 'inventory'
+    | 'other';
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
   date: string;
   time: string;
@@ -66,13 +79,10 @@ class ApiClient {
   }
 
   // Generic request method
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
       const url = `${this.baseUrl}${endpoint}`;
-      
+
       const defaultOptions: RequestInit = {
         headers: {
           'Content-Type': 'application/json',
@@ -82,16 +92,16 @@ class ApiClient {
       };
 
       console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
-      
+
       const response = await fetch(url, defaultOptions);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
       console.log(`✅ API Response:`, data);
-      
+
       return data;
     } catch (error) {
       console.error(`❌ API Error:`, error);
@@ -183,15 +193,18 @@ class ApiClient {
   }
 
   // Authentication API
-  async login(email: string, password: string): Promise<ApiResponse<{user: User, token: string}>> {
-    return this.request<{user: User, token: string}>(API_ENDPOINTS.AUTH_LOGIN, {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<ApiResponse<{ user: User; token: string }>> {
+    return this.request<{ user: User; token: string }>(API_ENDPOINTS.AUTH_LOGIN, {
       method: HTTP_METHODS.POST,
       body: JSON.stringify({ email, password }),
     });
   }
 
-  async verifyToken(token: string): Promise<ApiResponse<{user: User}>> {
-    return this.request<{user: User}>(API_ENDPOINTS.AUTH_VERIFY, {
+  async verifyToken(token: string): Promise<ApiResponse<{ user: User }>> {
+    return this.request<{ user: User }>(API_ENDPOINTS.AUTH_VERIFY, {
       method: HTTP_METHODS.POST,
       body: JSON.stringify({ token }),
     });
@@ -220,8 +233,10 @@ export const getTaskById = (id: string) => apiClient.getTaskById(id);
 export const createTask = (task: Omit<Task, 'id'>) => apiClient.createTask(task);
 export const updateTask = (id: string, task: Partial<Task>) => apiClient.updateTask(id, task);
 export const deleteTask = (id: string) => apiClient.deleteTask(id);
-export const updateTaskProgress = (id: string, progress: number) => apiClient.updateTaskProgress(id, progress);
-export const updateTaskStatus = (id: string, status: Task['status']) => apiClient.updateTaskStatus(id, status);
+export const updateTaskProgress = (id: string, progress: number) =>
+  apiClient.updateTaskProgress(id, progress);
+export const updateTaskStatus = (id: string, status: Task['status']) =>
+  apiClient.updateTaskStatus(id, status);
 export const getUsers = () => apiClient.getUsers();
 export const getUserById = (id: string) => apiClient.getUserById(id);
 export const getTeams = () => apiClient.getTeams();

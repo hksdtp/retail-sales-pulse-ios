@@ -4,14 +4,14 @@
 function doGet(e) {
   // Thiết lập CORS cho phép tất cả các domain
   var output = ContentService.createTextOutput();
-  
+
   // Lấy tên callback từ tham số nếu có
   var callback = e.parameter.callback;
-  
+
   // Xử lý action
   var action = e.parameter.action;
   var result;
-  
+
   try {
     if (action === 'fetch') {
       result = fetchTasks();
@@ -21,24 +21,23 @@ function doGet(e) {
     } else {
       result = { success: false, message: 'Action không hợp lệ', data: null };
     }
-  } catch(error) {
-    result = { 
-      success: false, 
+  } catch (error) {
+    result = {
+      success: false,
       message: 'Lỗi: ' + error.message,
-      data: null
+      data: null,
     };
   }
-  
+
   // Định dạng kết quả dưới dạng JSONP nếu có callback
   var responseText = JSON.stringify(result);
   if (callback) {
     responseText = callback + '(' + responseText + ')';
   }
-  
+
   // Thiết lập header để cho phép CORS
-  output.setContent(responseText)
-        .setMimeType(ContentService.MimeType.JSON);
-  
+  output.setContent(responseText).setMimeType(ContentService.MimeType.JSON);
+
   return output;
 }
 
@@ -46,12 +45,12 @@ function doGet(e) {
 function fetchTasks() {
   try {
     // Lấy sheet chứa dữ liệu tasks
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Tasks");
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Tasks');
     if (!sheet) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: 'Không tìm thấy sheet "Tasks"',
-        data: []
+        data: [],
       };
     }
 
@@ -64,30 +63,30 @@ function fetchTasks() {
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
       var task = {};
-      
+
       // Map từng cột vào thuộc tính tương ứng
       for (var j = 0; j < headers.length; j++) {
         var header = headers[j];
         var value = row[j];
         task[header] = value;
       }
-      
+
       // Nếu có ID thì thêm vào danh sách
       if (task.id) {
         tasks.push(task);
       }
     }
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: 'Lấy dữ liệu thành công',
-      data: tasks
+      data: tasks,
     };
-  } catch(error) {
-    return { 
-      success: false, 
+  } catch (error) {
+    return {
+      success: false,
       message: 'Lỗi khi lấy dữ liệu: ' + error.message,
-      data: []
+      data: [],
     };
   }
 }
@@ -96,46 +95,55 @@ function fetchTasks() {
 function saveTask(taskData) {
   try {
     if (!taskData || !taskData.id) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: 'Dữ liệu task không hợp lệ',
-        data: null
+        data: null,
       };
     }
-    
+
     // Lấy sheet chứa dữ liệu tasks
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Tasks");
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Tasks');
     if (!sheet) {
       // Tạo sheet mới nếu chưa có
-      sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Tasks");
-      
+      sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet('Tasks');
+
       // Thêm header
       sheet.appendRow([
-        'id', 'title', 'description', 'type', 'status', 
-        'date', 'time', 'user_name', 'assignedTo', 
-        'team_id', 'location', 'created_at'
+        'id',
+        'title',
+        'description',
+        'type',
+        'status',
+        'date',
+        'time',
+        'user_name',
+        'assignedTo',
+        'team_id',
+        'location',
+        'created_at',
       ]);
     }
-    
+
     // Tìm task theo ID
     var data = sheet.getDataRange().getValues();
     var headers = data[0];
     var rowIndex = -1;
-    
+
     for (var i = 1; i < data.length; i++) {
       if (data[i][0] === taskData.id) {
         rowIndex = i + 1; // +1 vì indexing trong sheet bắt đầu từ 1
         break;
       }
     }
-    
+
     // Chuẩn bị dữ liệu để lưu
     var rowData = [];
     for (var j = 0; j < headers.length; j++) {
       var header = headers[j];
       rowData.push(taskData[header] || '');
     }
-    
+
     // Cập nhật hoặc thêm mới
     if (rowIndex > 0) {
       // Cập nhật task hiện có
@@ -144,17 +152,17 @@ function saveTask(taskData) {
       // Thêm task mới
       sheet.appendRow(rowData);
     }
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       message: 'Lưu task thành công',
-      data: taskData
+      data: taskData,
     };
-  } catch(error) {
-    return { 
-      success: false, 
+  } catch (error) {
+    return {
+      success: false,
       message: 'Lỗi khi lưu task: ' + error.message,
-      data: null
+      data: null,
     };
   }
 }

@@ -36,7 +36,7 @@ class PasswordService {
     let hash = 0;
     for (let i = 0; i < password.length; i++) {
       const char = password.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash).toString(16);
@@ -46,7 +46,7 @@ class PasswordService {
   isFirstLogin(userId: string): boolean {
     const passwords = this.getStoredPasswords();
     const userPassword = passwords[userId];
-    
+
     // Nếu chưa có record hoặc isFirstLogin = true
     return !userPassword || userPassword.isFirstLogin;
   }
@@ -76,7 +76,7 @@ class PasswordService {
         userId,
         hashedPassword,
         isFirstLogin: false,
-        lastChanged: new Date().toISOString()
+        lastChanged: new Date().toISOString(),
       };
 
       this.savePasswords(passwords);
@@ -98,12 +98,12 @@ class PasswordService {
   resetPassword(userId: string): boolean {
     try {
       const passwords = this.getStoredPasswords();
-      
+
       passwords[userId] = {
         userId,
         hashedPassword: this.hashPassword(this.DEFAULT_PASSWORD),
         isFirstLogin: true,
-        lastChanged: new Date().toISOString()
+        lastChanged: new Date().toISOString(),
       };
 
       this.savePasswords(passwords);
@@ -124,7 +124,7 @@ class PasswordService {
   // Lấy danh sách users đã đổi mật khẩu
   getUsersWithCustomPasswords(): string[] {
     const passwords = this.getStoredPasswords();
-    return Object.keys(passwords).filter(userId => !passwords[userId].isFirstLogin);
+    return Object.keys(passwords).filter((userId) => !passwords[userId].isFirstLogin);
   }
 
   // Kiểm tra mật khẩu có đủ mạnh không
@@ -148,7 +148,7 @@ class PasswordService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }

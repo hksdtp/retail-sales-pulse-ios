@@ -1,8 +1,8 @@
-
-import React from 'react';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import NotificationCenter from '@/components/notifications/NotificationCenter';
+import { Button } from '@/components/ui/button';
 
 interface PageHeaderProps {
   title: string;
@@ -13,14 +13,14 @@ interface PageHeaderProps {
 
 const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) => {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="flex flex-col md:flex-row md:items-center justify-between py-6 px-6 md:px-8 border-b border-white/20 backdrop-blur-lg bg-white/30 rounded-[20px] mb-6 shadow-sm"
     >
       <div>
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
@@ -29,7 +29,7 @@ const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) 
           {title}
         </motion.h1>
         {subtitle && (
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
@@ -46,9 +46,7 @@ const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) 
         className="mt-4 md:mt-0 flex items-center space-x-3"
       >
         {/* Notification Center */}
-        <NotificationCenter
-          onTaskClick={onTaskClick || (() => {})}
-        />
+        <NotificationCenter onTaskClick={onTaskClick || (() => {})} />
 
         {/* Actions */}
         {actions}

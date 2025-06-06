@@ -6,7 +6,7 @@ const serviceAccount = require('../service-account-key.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  projectId: 'appqlgd'
+  projectId: 'appqlgd',
 });
 
 const db = admin.firestore();
@@ -27,7 +27,7 @@ const sampleData = {
       status: 'active',
       password_changed: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       id: '2',
@@ -42,7 +42,7 @@ const sampleData = {
       status: 'active',
       password_changed: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       id: '3',
@@ -57,7 +57,7 @@ const sampleData = {
       status: 'active',
       password_changed: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       id: '4',
@@ -72,10 +72,10 @@ const sampleData = {
       status: 'active',
       password_changed: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
-    }
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    },
   ],
-  
+
   teams: [
     {
       id: '1',
@@ -86,7 +86,7 @@ const sampleData = {
       department: 'retail',
       department_type: 'retail',
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       id: '2',
@@ -97,7 +97,7 @@ const sampleData = {
       department: 'retail',
       department_type: 'retail',
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       id: '3',
@@ -108,52 +108,52 @@ const sampleData = {
       department: 'retail',
       department_type: 'retail',
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
-    }
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    },
   ],
-  
+
   settings: [
     {
       key: 'app_version',
       value: '1.0.0',
       description: 'Phiên bản ứng dụng hiện tại',
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       key: 'maintenance_mode',
       value: false,
       description: 'Chế độ bảo trì hệ thống',
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     },
     {
       key: 'google_sheets_enabled',
       value: true,
       description: 'Kích hoạt đồng bộ Google Sheets',
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
-    }
-  ]
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    },
+  ],
 };
 
 async function setupProductionDatabase() {
   try {
     console.log('🌐 Bắt đầu thiết lập database PRODUCTION...');
-    
+
     // Tạo collections và thêm sample data
     for (const [collectionName, documents] of Object.entries(sampleData)) {
       console.log(`📝 Đang tạo collection: ${collectionName}`);
-      
+
       for (const doc of documents) {
         const docId = doc.id || admin.firestore().collection(collectionName).doc().id;
         delete doc.id; // Xóa id khỏi data để không lưu vào document
-        
+
         await db.collection(collectionName).doc(docId).set(doc);
         console.log(`  ✅ Đã tạo document: ${docId}`);
       }
     }
-    
+
     console.log('🎉 Thiết lập database PRODUCTION thành công!');
     console.log('📊 Collections đã tạo:');
     console.log('  - users (4 documents)');
@@ -162,7 +162,6 @@ async function setupProductionDatabase() {
     console.log('');
     console.log('🌐 Dữ liệu đã được lưu trên Firebase Cloud!');
     console.log('🔗 Xem tại: https://console.firebase.google.com/project/appqlgd/firestore');
-    
   } catch (error) {
     console.error('❌ Lỗi khi thiết lập database:', error);
   } finally {

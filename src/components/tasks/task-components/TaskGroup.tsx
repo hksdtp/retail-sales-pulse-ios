@@ -1,5 +1,5 @@
-
 import React from 'react';
+
 import { Task } from '../types/TaskTypes';
 import TaskCard from './TaskCard';
 
@@ -12,16 +12,18 @@ interface TaskGroupProps {
 
 const TaskGroup = ({ title, tasks, getTeamName, getAssigneeName }: TaskGroupProps) => {
   // Tính toán thông tin tiến độ
-  const completedTasks = tasks.filter(task => task.status === 'completed').length;
-  const inProgressTasks = tasks.filter(task => task.status === 'in-progress').length;
-  const progressPercentage = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
-  
+  const completedTasks = tasks.filter((task) => task.status === 'completed').length;
+  const inProgressTasks = tasks.filter((task) => task.status === 'in-progress').length;
+  const progressPercentage =
+    tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+
   return (
     <div className="space-y-3 bg-white/60 p-6 rounded-2xl shadow-sm border border-white/40 backdrop-blur-sm">
       <div className="flex justify-between items-center mb-2">
         <div>
           <h3 className="font-medium text-lg">
-            {title} <span className="text-sm font-normal text-gray-500">({tasks.length} công việc)</span>
+            {title}{' '}
+            <span className="text-sm font-normal text-gray-500">({tasks.length} công việc)</span>
           </h3>
           <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
             <span className="flex items-center">
@@ -41,22 +43,18 @@ const TaskGroup = ({ title, tasks, getTeamName, getAssigneeName }: TaskGroupProp
         <div className="text-right">
           <div className="text-xs text-gray-500 mb-1">Tiến độ: {progressPercentage}%</div>
           <div className="w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full"
               style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {tasks.map(task => (
+        {tasks.map((task) => (
           <div key={task.id} className="h-full">
-            <TaskCard 
-              task={task} 
-              getTeamName={getTeamName} 
-              getAssigneeName={getAssigneeName} 
-            />
+            <TaskCard task={task} getTeamName={getTeamName} getAssigneeName={getAssigneeName} />
           </div>
         ))}
       </div>

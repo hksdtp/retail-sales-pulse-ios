@@ -12,7 +12,7 @@
   --macos-radius: 12px;
   --macos-shadow-light: 0 0 10px rgba(0, 0, 0, 0.05);
   --macos-shadow-dark: 0 0 10px rgba(0, 0, 0, 0.2);
-  
+
   /* Animation Timings */
   --transition-fast: 100ms;
   --transition-medium: 200ms;
@@ -133,48 +133,48 @@
     border-color: var(--macos-border-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   .macos-card {
     background-color: rgba(30, 30, 32, 0.8);
     border-color: var(--macos-border-dark);
     box-shadow: var(--macos-shadow-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   .macos-input {
     background-color: rgba(50, 50, 55, 0.8);
     border-color: var(--macos-border-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   .macos-window {
     background-color: rgba(30, 30, 32, 0.9);
     border-color: var(--macos-border-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   .macos-header {
     background-color: rgba(30, 30, 32, 0.8);
     border-bottom-color: var(--macos-border-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   .macos-nav {
     background-color: rgba(30, 30, 32, 0.7);
     border-right-color: var(--macos-border-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   .macos-glass {
     background-color: rgba(30, 30, 32, 0.7);
     border-color: var(--macos-border-dark);
     color: var(--macos-fg-dark);
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.3);
   }

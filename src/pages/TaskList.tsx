@@ -1,39 +1,61 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { format, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, subDays, subWeeks, subMonths } from 'date-fns';
+import {
+  addDays,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isWithinInterval,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  subMonths,
+  subWeeks,
+} from 'date-fns';
 import { vi } from 'date-fns/locale';
-import type { DateRange } from 'react-day-picker';
+import { motion } from 'framer-motion';
 import {
-  Search, Filter, CheckCircle, Clock, AlertCircle,
-  CheckCircle2, ArrowUpDown, X, RefreshCw, Calendar,
-  Edit, Trash2, MoreHorizontal
+  AlertCircle,
+  ArrowUpDown,
+  Calendar,
+  CheckCircle,
+  CheckCircle2,
+  Clock,
+  Edit,
+  Filter,
+  MoreHorizontal,
+  RefreshCw,
+  Search,
+  Trash2,
+  X,
 } from 'lucide-react';
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Checkbox } from "../components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { DateRange } from 'react-day-picker';
+import { useNavigate } from 'react-router-dom';
+
+import { Task, TaskFilters } from '../components/tasks/types/TaskTypes';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Calendar as CalendarComponent } from '../components/ui/calendar';
+import { Checkbox } from '../components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Separator } from "../components/ui/separator";
-import { useTaskData } from '../hooks/use-task-data';
-import { Task, TaskFilters } from '../components/tasks/types/TaskTypes';
+} from '../components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../components/ui/dropdown-menu';
+import { Input } from '../components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
 import { Progress } from '../components/ui/progress';
-import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
-import { Calendar as CalendarComponent } from "../components/ui/calendar";
+import { Separator } from '../components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { useTaskData } from '../hooks/use-task-data';
 
 interface TaskListProps {
   tasks?: Task[];
@@ -62,26 +84,32 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
   const tasks = useMemo(() => propTasks || taskData?.tasks || [], [propTasks, taskData?.tasks]);
   const isLoading = useMemo(() => taskData?.isLoading || false, [taskData?.isLoading]);
   const currentUser = useMemo(() => taskData?.currentUser, [taskData?.currentUser]);
-  
-  const filterTasksSafe = useCallback((filters: TaskFilters) => {
-    if (taskData?.filterTasks) {
-      return taskData.filterTasks(filters);
-    }
-  }, [taskData]);
-  
-  const updateTaskStatusSafe = useCallback((id: string, status: Task['status']) => {
-    if (taskData?.updateTaskStatus) {
-      return taskData.updateTaskStatus(id, status);
-    }
-  }, [taskData]);
-  
+
+  const filterTasksSafe = useCallback(
+    (filters: TaskFilters) => {
+      if (taskData?.filterTasks) {
+        return taskData.filterTasks(filters);
+      }
+    },
+    [taskData],
+  );
+
+  const updateTaskStatusSafe = useCallback(
+    (id: string, status: Task['status']) => {
+      if (taskData?.updateTaskStatus) {
+        return taskData.updateTaskStatus(id, status);
+      }
+    },
+    [taskData],
+  );
+
   const refreshTasksSafe = useCallback(async () => {
     if (taskData?.refreshTasks) {
       return await taskData.refreshTasks();
     }
     return Promise.resolve();
   }, [taskData]);
-  
+
   useEffect(() => {
     if (!taskData) {
       console.error('Lỗi: Không thể tải dữ liệu từ TaskDataContext');
@@ -104,80 +132,84 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
     await refreshTasksSafe();
   }, [debugTasks, refreshTasksSafe]);
 
-  const filterTasksByDate = useCallback((task: Task): boolean => {
-    if (dateFilter === 'all') return true;
-    
-    const taskDate = new Date(task.created_at || task.date);
-    const now = new Date();
-    
-    switch (dateFilter) {
-      case 'today':
-        return taskDate.toDateString() === now.toDateString();
-      case 'yesterday':
-        const yesterday = subDays(now, 1);
-        return taskDate.toDateString() === yesterday.toDateString();
-      case 'this-week':
-        return isWithinInterval(taskDate, { start: startOfWeek(now), end: endOfWeek(now) });
-      case 'last-week':
-        const lastWeekStart = startOfWeek(subWeeks(now, 1));
-        const lastWeekEnd = endOfWeek(subWeeks(now, 1));
-        return isWithinInterval(taskDate, { start: lastWeekStart, end: lastWeekEnd });
-      case 'next-week':
-        const nextWeekStart = startOfWeek(addDays(now, 7));
-        const nextWeekEnd = endOfWeek(addDays(now, 7));
-        return isWithinInterval(taskDate, { start: nextWeekStart, end: nextWeekEnd });
-      case 'this-month':
-        return isWithinInterval(taskDate, { start: startOfMonth(now), end: endOfMonth(now) });
-      case 'last-month':
-        const lastMonthStart = startOfMonth(subMonths(now, 1));
-        const lastMonthEnd = endOfMonth(subMonths(now, 1));
-        return isWithinInterval(taskDate, { start: lastMonthStart, end: lastMonthEnd });
-      case 'next-month':
-        const nextMonthStart = startOfMonth(addDays(now, 31));
-        const nextMonthEnd = endOfMonth(addDays(now, 31));
-        return isWithinInterval(taskDate, { start: nextMonthStart, end: nextMonthEnd });
-      case 'custom':
-        if (dateRange?.from && dateRange?.to) {
-          return isWithinInterval(taskDate, { start: dateRange.from, end: dateRange.to });
-        }
-        return true;
-      default:
-        return true;
-    }
-  }, [dateFilter, dateRange]);
+  const filterTasksByDate = useCallback(
+    (task: Task): boolean => {
+      if (dateFilter === 'all') return true;
+
+      const taskDate = new Date(task.created_at || task.date);
+      const now = new Date();
+
+      switch (dateFilter) {
+        case 'today':
+          return taskDate.toDateString() === now.toDateString();
+        case 'yesterday':
+          const yesterday = subDays(now, 1);
+          return taskDate.toDateString() === yesterday.toDateString();
+        case 'this-week':
+          return isWithinInterval(taskDate, { start: startOfWeek(now), end: endOfWeek(now) });
+        case 'last-week':
+          const lastWeekStart = startOfWeek(subWeeks(now, 1));
+          const lastWeekEnd = endOfWeek(subWeeks(now, 1));
+          return isWithinInterval(taskDate, { start: lastWeekStart, end: lastWeekEnd });
+        case 'next-week':
+          const nextWeekStart = startOfWeek(addDays(now, 7));
+          const nextWeekEnd = endOfWeek(addDays(now, 7));
+          return isWithinInterval(taskDate, { start: nextWeekStart, end: nextWeekEnd });
+        case 'this-month':
+          return isWithinInterval(taskDate, { start: startOfMonth(now), end: endOfMonth(now) });
+        case 'last-month':
+          const lastMonthStart = startOfMonth(subMonths(now, 1));
+          const lastMonthEnd = endOfMonth(subMonths(now, 1));
+          return isWithinInterval(taskDate, { start: lastMonthStart, end: lastMonthEnd });
+        case 'next-month':
+          const nextMonthStart = startOfMonth(addDays(now, 31));
+          const nextMonthEnd = endOfMonth(addDays(now, 31));
+          return isWithinInterval(taskDate, { start: nextMonthStart, end: nextMonthEnd });
+        case 'custom':
+          if (dateRange?.from && dateRange?.to) {
+            return isWithinInterval(taskDate, { start: dateRange.from, end: dateRange.to });
+          }
+          return true;
+        default:
+          return true;
+      }
+    },
+    [dateFilter, dateRange],
+  );
 
   useEffect(() => {
     try {
       console.log('DEBUG: Bắt đầu lọc tasks');
       console.log('DEBUG: tasks:', tasks?.length || 0);
-      
+
       let result = [...(tasks || [])];
-      
+
       if (searchQuery) {
         result = result.filter(
-          task => task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                  task.description.toLowerCase().includes(searchQuery.toLowerCase())
+          (task) =>
+            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            task.description.toLowerCase().includes(searchQuery.toLowerCase()),
         );
       }
-      
+
       if (statusFilter.length > 0) {
-        result = result.filter(task => statusFilter.includes(task.status));
+        result = result.filter((task) => statusFilter.includes(task.status));
       }
-      
+
       if (typeFilter.length > 0) {
-        result = result.filter(task => typeFilter.includes(task.type));
+        result = result.filter((task) => typeFilter.includes(task.type));
       }
 
       result = result.filter(filterTasksByDate);
-      
+
       console.log('DEBUG: Trước khi sắp xếp: Số task =', result.length);
-      
+
       result.sort((a, b) => {
         const dateA = new Date(a.created_at || a.date).getTime();
         const dateB = new Date(b.created_at || b.date).getTime();
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
       });
-      
+
       setLocalFilteredTasks(result);
       console.log('Số lượng công việc sau khi lọc:', result.length);
     } catch (error) {
@@ -185,7 +217,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
       setLocalFilteredTasks([]);
     }
   }, [tasks, searchQuery, statusFilter, typeFilter, sortOrder, filterTasksByDate]);
-  
+
   // Sử dụng useEffect để khởi tạo dữ liệu ban đầu
   useEffect(() => {
     try {
@@ -197,9 +229,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
     }
   }, [tasks]);
 
-  const handleStatusChange = useCallback((taskId: string, newStatus: Task['status']) => {
-    updateTaskStatusSafe(taskId, newStatus);
-  }, [updateTaskStatusSafe]);
+  const handleStatusChange = useCallback(
+    (taskId: string, newStatus: Task['status']) => {
+      updateTaskStatusSafe(taskId, newStatus);
+    },
+    [updateTaskStatusSafe],
+  );
 
   const handleEditTask = useCallback((task: Task, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -233,15 +268,15 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
 
   const getTaskTypeLabel = (type: string): string => {
     const typeMapping: Record<string, string> = {
-      'partner_new': 'Đối tác mới',
-      'partner_old': 'Đối tác cũ',
-      'architect_new': 'KTS mới',
-      'architect_old': 'KTS cũ',
-      'client_new': 'Khách hàng mới',
-      'client_old': 'Khách hàng cũ',
-      'quote_new': 'Báo giá mới',
-      'quote_old': 'Báo giá cũ',
-      'other': 'Khác'
+      partner_new: 'Đối tác mới',
+      partner_old: 'Đối tác cũ',
+      architect_new: 'KTS mới',
+      architect_old: 'KTS cũ',
+      client_new: 'Khách hàng mới',
+      client_old: 'Khách hàng cũ',
+      quote_new: 'Báo giá mới',
+      quote_old: 'Báo giá cũ',
+      other: 'Khác',
     };
     return typeMapping[type] || 'Không xác định';
   };
@@ -251,7 +286,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
       'todo': 'Chưa thực hiện',
       'in-progress': 'Đang thực hiện',
       'on-hold': 'Tạm hoãn',
-      'completed': 'Hoàn thành'
+      'completed': 'Hoàn thành',
     };
     return statusMapping[status] || 'Không xác định';
   };
@@ -261,13 +296,13 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
       'todo': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
       'in-progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
       'on-hold': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-      'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+      'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     };
     return colorMapping[status] || '';
   };
 
   const getStatusIcon = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'todo':
         return <Clock className="h-5 w-5 text-gray-500" />;
       case 'in-progress':
@@ -291,18 +326,14 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
   };
 
   const toggleStatusFilter = useCallback((status: string) => {
-    setStatusFilter(prev => 
-      prev.includes(status) 
-        ? prev.filter(s => s !== status) 
-        : [...prev, status]
+    setStatusFilter((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
     );
   }, []);
 
   const toggleTypeFilter = useCallback((type: string) => {
-    setTypeFilter(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type) 
-        : [...prev, type]
+    setTypeFilter((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   }, []);
 
@@ -323,19 +354,28 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
 
   const getDateFilterLabel = (): string => {
     switch (dateFilter) {
-      case 'today': return 'Hôm nay';
-      case 'yesterday': return 'Hôm qua';
-      case 'this-week': return 'Tuần này';
-      case 'last-week': return 'Tuần trước';
-      case 'next-week': return 'Tuần sau';
-      case 'this-month': return 'Tháng này';
-      case 'last-month': return 'Tháng trước';
-      case 'next-month': return 'Tháng sau';
-      case 'custom': 
-        return dateRange?.from && dateRange?.to 
+      case 'today':
+        return 'Hôm nay';
+      case 'yesterday':
+        return 'Hôm qua';
+      case 'this-week':
+        return 'Tuần này';
+      case 'last-week':
+        return 'Tuần trước';
+      case 'next-week':
+        return 'Tuần sau';
+      case 'this-month':
+        return 'Tháng này';
+      case 'last-month':
+        return 'Tháng trước';
+      case 'next-month':
+        return 'Tháng sau';
+      case 'custom':
+        return dateRange?.from && dateRange?.to
           ? `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`
           : 'Tùy chỉnh';
-      default: return 'Thời gian';
+      default:
+        return 'Thời gian';
     }
   };
 
@@ -363,7 +403,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
-              <button 
+              <button
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 onClick={() => setSearchQuery('')}
               >
@@ -371,7 +411,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
               </button>
             )}
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -384,10 +424,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                 <DropdownMenuGroup>
                   <div className="px-2 py-1.5 text-sm font-semibold">Thời gian</div>
                   <Separator className="my-1" />
-                  <DropdownMenuItem onClick={() => {
-                    setDateFilter('all');
-                    setDateRange(undefined);
-                  }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setDateFilter('all');
+                      setDateRange(undefined);
+                    }}
+                  >
                     Tất cả
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setDateFilter('today')}>
@@ -415,14 +457,17 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                     Tháng sau
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                
+
                 <Separator className="my-1" />
-                
+
                 <div className="p-2">
                   <div className="text-sm font-semibold mb-2">Tùy chỉnh khoảng thời gian</div>
                   <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
                         <Calendar className="mr-2 h-4 w-4" />
                         {dateRange?.from ? (
                           dateRange?.to ? (
@@ -468,66 +513,103 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                 <DropdownMenuGroup>
                   <div className="px-2 py-1.5 text-sm font-semibold">Trạng thái</div>
                   <Separator className="my-1" />
-                  <DropdownMenuItem className="flex items-center gap-2" onSelect={(e) => e.preventDefault()}>
-                    <Checkbox 
-                      id="status-todo" 
-                      checked={statusFilter.includes('todo')} 
+                  <DropdownMenuItem
+                    className="flex items-center gap-2"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <Checkbox
+                      id="status-todo"
+                      checked={statusFilter.includes('todo')}
                       onCheckedChange={() => toggleStatusFilter('todo')}
                     />
-                    <label htmlFor="status-todo" className="cursor-pointer flex-1 flex items-center gap-2">
+                    <label
+                      htmlFor="status-todo"
+                      className="cursor-pointer flex-1 flex items-center gap-2"
+                    >
                       <Clock className="h-4 w-4 text-gray-500" />
                       Chưa thực hiện
                     </label>
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-2" onSelect={(e) => e.preventDefault()}>
-                    <Checkbox 
-                      id="status-in-progress" 
-                      checked={statusFilter.includes('in-progress')} 
+
+                  <DropdownMenuItem
+                    className="flex items-center gap-2"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <Checkbox
+                      id="status-in-progress"
+                      checked={statusFilter.includes('in-progress')}
                       onCheckedChange={() => toggleStatusFilter('in-progress')}
                     />
-                    <label htmlFor="status-in-progress" className="cursor-pointer flex-1 flex items-center gap-2">
+                    <label
+                      htmlFor="status-in-progress"
+                      className="cursor-pointer flex-1 flex items-center gap-2"
+                    >
                       <Clock className="h-4 w-4 text-yellow-500" />
                       Đang thực hiện
                     </label>
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-2" onSelect={(e) => e.preventDefault()}>
-                    <Checkbox 
-                      id="status-on-hold" 
-                      checked={statusFilter.includes('on-hold')} 
+
+                  <DropdownMenuItem
+                    className="flex items-center gap-2"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <Checkbox
+                      id="status-on-hold"
+                      checked={statusFilter.includes('on-hold')}
                       onCheckedChange={() => toggleStatusFilter('on-hold')}
                     />
-                    <label htmlFor="status-on-hold" className="cursor-pointer flex-1 flex items-center gap-2">
+                    <label
+                      htmlFor="status-on-hold"
+                      className="cursor-pointer flex-1 flex items-center gap-2"
+                    >
                       <AlertCircle className="h-4 w-4 text-red-500" />
                       Tạm hoãn
                     </label>
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-2" onSelect={(e) => e.preventDefault()}>
-                    <Checkbox 
-                      id="status-completed" 
-                      checked={statusFilter.includes('completed')} 
+
+                  <DropdownMenuItem
+                    className="flex items-center gap-2"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <Checkbox
+                      id="status-completed"
+                      checked={statusFilter.includes('completed')}
                       onCheckedChange={() => toggleStatusFilter('completed')}
                     />
-                    <label htmlFor="status-completed" className="cursor-pointer flex-1 flex items-center gap-2">
+                    <label
+                      htmlFor="status-completed"
+                      className="cursor-pointer flex-1 flex items-center gap-2"
+                    >
                       <CheckCircle className="h-4 w-4 text-green-500" />
                       Hoàn thành
                     </label>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                
+
                 <Separator className="my-1" />
-                
+
                 <DropdownMenuGroup>
                   <div className="px-2 py-1.5 text-sm font-semibold">Loại công việc</div>
                   <Separator className="my-1" />
-                  {['partner_new', 'partner_old', 'architect_new', 'architect_old', 
-                    'client_new', 'client_old', 'quote_new', 'quote_old', 'other'].map((type) => (
-                    <DropdownMenuItem key={type} className="flex items-center gap-2" onSelect={(e) => e.preventDefault()}>
-                      <Checkbox 
-                        id={`type-${type}`} 
-                        checked={typeFilter.includes(type)} 
+                  {[
+                    'partner_new',
+                    'partner_old',
+                    'architect_new',
+                    'architect_old',
+                    'client_new',
+                    'client_old',
+                    'quote_new',
+                    'quote_old',
+                    'other',
+                  ].map((type) => (
+                    <DropdownMenuItem
+                      key={type}
+                      className="flex items-center gap-2"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <Checkbox
+                        id={`type-${type}`}
+                        checked={typeFilter.includes(type)}
                         onCheckedChange={() => toggleTypeFilter(type)}
                       />
                       <label htmlFor={`type-${type}`} className="cursor-pointer flex-1">
@@ -536,19 +618,24 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuGroup>
-                
+
                 <Separator className="my-1" />
-                
+
                 <div className="p-2">
-                  <Button variant="secondary" size="sm" className="w-full" onClick={clearAllFilters}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full"
+                    onClick={clearAllFilters}
+                  >
                     Xóa tất cả bộ lọc
                   </Button>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               className="bg-white/80 dark:bg-gray-700/80"
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
             >
@@ -557,34 +644,31 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
             </Button>
           </div>
         </div>
-        
+
         {(statusFilter.length > 0 || typeFilter.length > 0 || dateFilter !== 'all') && (
           <div className="flex flex-wrap gap-2 mt-3">
-            {statusFilter.map(status => (
+            {statusFilter.map((status) => (
               <Badge key={status} variant="secondary" className="flex items-center gap-1">
                 {getStatusLabel(status)}
-                <X 
-                  className="h-3 w-3 ml-1 cursor-pointer" 
+                <X
+                  className="h-3 w-3 ml-1 cursor-pointer"
                   onClick={() => toggleStatusFilter(status)}
                 />
               </Badge>
             ))}
-            
-            {typeFilter.map(type => (
+
+            {typeFilter.map((type) => (
               <Badge key={type} variant="secondary" className="flex items-center gap-1">
                 {getTaskTypeLabel(type)}
-                <X 
-                  className="h-3 w-3 ml-1 cursor-pointer" 
-                  onClick={() => toggleTypeFilter(type)}
-                />
+                <X className="h-3 w-3 ml-1 cursor-pointer" onClick={() => toggleTypeFilter(type)} />
               </Badge>
             ))}
-            
+
             {dateFilter !== 'all' && (
               <Badge variant="secondary" className="flex items-center gap-1">
                 {getDateFilterLabel()}
-                <X 
-                  className="h-3 w-3 ml-1 cursor-pointer" 
+                <X
+                  className="h-3 w-3 ml-1 cursor-pointer"
                   onClick={() => {
                     setDateFilter('all');
                     setDateRange(undefined);
@@ -592,13 +676,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                 />
               </Badge>
             )}
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 text-xs" 
-              onClick={clearAllFilters}
-            >
+
+            <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={clearAllFilters}>
               Xóa tất cả
             </Button>
           </div>
@@ -619,11 +698,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
               <h3 className="text-lg font-medium mb-2">Không tìm thấy công việc nào</h3>
               <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
               {(searchQuery || statusFilter.length > 0 || typeFilter.length > 0) && (
-                <Button 
-                  variant="outline" 
-                  className="mt-4" 
-                  onClick={clearAllFilters}
-                >
+                <Button variant="outline" className="mt-4" onClick={clearAllFilters}>
                   Xóa tất cả bộ lọc
                 </Button>
               )}
@@ -634,15 +709,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
             <div className="flex justify-between items-center p-4">
               <h1 className="text-2xl font-bold">Danh sách công việc</h1>
               <div className="flex gap-2">
-                <Button 
-                  onClick={handleRefresh} 
-                  size="sm" 
-                  variant="outline"
-                >
+                <Button onClick={handleRefresh} size="sm" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Làm mới
                 </Button>
-                <Button onClick={() => navigate("/tasks/new")} size="sm">
+                <Button onClick={() => navigate('/tasks/new')} size="sm">
                   Thêm công việc
                 </Button>
               </div>
@@ -656,9 +727,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                 onClick={() => setSelectedTask(task)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 mt-1">
-                    {getStatusIcon(task.status)}
-                  </div>
+                  <div className="flex-shrink-0 mt-1">{getStatusIcon(task.status)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <h3 className="text-base font-medium text-gray-900 dark:text-gray-100 truncate">
@@ -733,51 +802,55 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                     <Badge className={getStatusColor(selectedTask.status)}>
                       {getStatusLabel(selectedTask.status)}
                     </Badge>
-                    <Badge variant="outline">
-                      {getTaskTypeLabel(selectedTask.type)}
-                    </Badge>
+                    <Badge variant="outline">{getTaskTypeLabel(selectedTask.type)}</Badge>
                     {selectedTask.location && (
-                      <Badge variant="outline">
-                        {selectedTask.location}
-                      </Badge>
+                      <Badge variant="outline">{selectedTask.location}</Badge>
                     )}
                   </div>
                 </DialogDescription>
               </DialogHeader>
-              
+
               <div className="space-y-4">
                 <Tabs defaultValue="details" className="w-full">
                   <TabsList className="grid grid-cols-2">
                     <TabsTrigger value="details">Chi tiết</TabsTrigger>
                     <TabsTrigger value="actions">Thao tác</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="details" className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Mô tả</h4>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Mô tả
+                      </h4>
                       <p className="text-gray-900 dark:text-gray-100 whitespace-pre-line">
                         {selectedTask.description}
                       </p>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Ngày tạo</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Ngày tạo
+                        </h4>
                         <p className="text-gray-900 dark:text-gray-100">
                           {formatDateTime(selectedTask.created_at)}
                         </p>
                       </div>
-                      
+
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Người tạo</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                          Người tạo
+                        </h4>
                         <p className="text-gray-900 dark:text-gray-100">
                           {selectedTask.user_name || 'Không xác định'}
                         </p>
                       </div>
-                      
+
                       {selectedTask.progress > 0 && (
                         <div className="col-span-2">
-                          <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Tiến độ</h4>
+                          <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            Tiến độ
+                          </h4>
                           <div className="flex items-center gap-2">
                             <Progress value={selectedTask.progress} className="h-2 flex-1" />
                             <span className="text-sm font-medium">{selectedTask.progress}%</span>
@@ -786,12 +859,14 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                       )}
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="actions" className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Thay đổi trạng thái</h4>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                        Thay đổi trạng thái
+                      </h4>
                       <div className="grid grid-cols-2 gap-2">
-                        <Button 
+                        <Button
                           variant={selectedTask.status === 'todo' ? 'default' : 'outline'}
                           className="justify-start"
                           onClick={() => handleStatusChange(selectedTask.id, 'todo')}
@@ -799,8 +874,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                           <Clock className="h-4 w-4 mr-2" />
                           Chưa thực hiện
                         </Button>
-                        
-                        <Button 
+
+                        <Button
                           variant={selectedTask.status === 'in-progress' ? 'default' : 'outline'}
                           className="justify-start"
                           onClick={() => handleStatusChange(selectedTask.id, 'in-progress')}
@@ -808,8 +883,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                           <Clock className="h-4 w-4 mr-2 text-yellow-600" />
                           Đang thực hiện
                         </Button>
-                        
-                        <Button 
+
+                        <Button
                           variant={selectedTask.status === 'on-hold' ? 'default' : 'outline'}
                           className="justify-start"
                           onClick={() => handleStatusChange(selectedTask.id, 'on-hold')}
@@ -817,8 +892,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                           <AlertCircle className="h-4 w-4 mr-2 text-red-600" />
                           Tạm hoãn
                         </Button>
-                        
-                        <Button 
+
+                        <Button
                           variant={selectedTask.status === 'completed' ? 'default' : 'outline'}
                           className="justify-start"
                           onClick={() => handleStatusChange(selectedTask.id, 'completed')}
@@ -862,9 +937,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                   <Badge className={getStatusColor(taskToDelete.status)}>
                     {getStatusLabel(taskToDelete.status)}
                   </Badge>
-                  <Badge variant="outline">
-                    {getTaskTypeLabel(taskToDelete.type)}
-                  </Badge>
+                  <Badge variant="outline">{getTaskTypeLabel(taskToDelete.type)}</Badge>
                 </div>
               </div>
 
