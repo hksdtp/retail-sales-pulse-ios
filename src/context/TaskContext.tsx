@@ -1,3 +1,4 @@
+
 import React, { createContext } from 'react';
 import { Task } from '../components/tasks/types/TaskTypes';
 
@@ -8,22 +9,24 @@ export interface TaskFilters {
   date?: Date | null;
   teamId?: string;
   assignedTo?: string;
+  dateRange?: 'today' | 'week' | 'month' | 'all' | 'custom';
+  progress?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface TaskDataContextType {
   tasks: Task[];
   filteredTasks: Task[];
-  setTasks: (tasks: Task[]) => void;
   addTask: (task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>) => Promise<Task>;
-  updateTask: (id: string, updatedTask: Partial<Task>) => Promise<Task | null>;
+  updateTask: (id: string, updatedTask: Partial<Task>) => Promise<Task>;
   deleteTask: (id: string) => Promise<boolean>;
   getTaskById: (id: string) => Task | undefined;
-  filterTasks: (filters: TaskFilters) => void;
+  filterTasks: (filters: TaskFilters) => Task[];
   refreshTasks: () => Promise<void>;
-  updateTaskStatus: (id: string, status: Task['status']) => void;
+  updateTaskStatus: (id: string, status: Task['status']) => Promise<Task>;
   isLoading: boolean;
   filters: TaskFilters;
 }
 
-// Create the context
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);

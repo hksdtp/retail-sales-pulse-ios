@@ -13,14 +13,15 @@ export interface Task {
   id?: string;
   title: string;
   description: string;
-  type: string;
-  status: 'todo' | 'in-progress' | 'completed';
+  type: 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'report' | 'training' | 'meeting' | 'inventory' | 'other';
+  status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
   date: string;
   time: string;
   progress: number;
   user_id: string;
   user_name: string;
   team_id: string;
+  teamId: string;
   location: string;
   assignedTo: string;
   isNew?: boolean;

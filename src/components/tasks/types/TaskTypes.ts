@@ -1,5 +1,4 @@
 
-// Interface cho các bộ lọc công việc
 export interface TaskFilters {
   status?: string;
   type?: string;
@@ -7,6 +6,10 @@ export interface TaskFilters {
   date?: Date | null;
   teamId?: string;
   assignedTo?: string;
+  dateRange?: 'today' | 'week' | 'month' | 'all' | 'custom';
+  progress?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 export interface Task {
@@ -26,8 +29,8 @@ export interface Task {
   team_id?: string;
   created_at: string;
   time?: string;
-  isShared?: boolean; // Đánh dấu công việc được chia sẻ bởi Giám đốc
-  isSharedWithTeam?: boolean; // Đánh dấu công việc được chia sẻ với cả nhóm
+  isShared?: boolean;
+  isSharedWithTeam?: boolean;
   [key: string]: string | number | boolean | undefined | null;
 }
 

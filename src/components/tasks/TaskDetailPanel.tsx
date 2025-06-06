@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, User, Tag, FileText, Edit, Trash2, Plus, Check, Minus, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,10 +23,9 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   const { currentUser } = useAuth();
   const [checklist, setChecklist] = useState<Array<{id: number, text: string, completed: boolean}>>([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
-  const [isEditing, setIsEditing] = useState(true); // Mặc định là edit mode
+  const [isEditing, setIsEditing] = useState(true);
   const [editedTask, setEditedTask] = useState(task);
 
-  // Cập nhật editedTask khi task thay đổi
   useEffect(() => {
     if (task) {
       setEditedTask({ ...task });
@@ -77,7 +77,6 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
     return date.toLocaleDateString('vi-VN');
   };
 
-  // Tính progress dựa trên checklist
   const getProgressFromChecklist = () => {
     if (checklist.length === 0) return 0;
     const completedItems = checklist.filter(item => item.completed).length;
@@ -92,12 +91,12 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
           onClick={onClose}
           style={{
-            zIndex: '2147483646',
-            position: 'fixed !important',
-            top: '0 !important',
-            left: '0 !important',
-            right: '0 !important',
-            bottom: '0 !important'
+            zIndex: 2147483646,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
           }}
         />
       )}
@@ -106,10 +105,10 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
       <div
         className={`fixed top-0 right-0 w-full sm:w-[500px] lg:w-[600px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
         style={{
-          zIndex: '2147483647',
-          position: 'fixed !important',
-          top: '0 !important',
-          right: '0 !important',
+          zIndex: 2147483647,
+          position: 'fixed',
+          top: 0,
+          right: 0,
           height: 'calc(100vh - 80px)',
           bottom: '80px',
           isolation: 'isolate'
@@ -270,8 +269,6 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             </div>
           </div>
         </div>
-
-
       </div>
 
       {/* Actions - responsive */}
@@ -283,7 +280,6 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               e.stopPropagation();
               console.log('💾 SAVING TASK!', editedTask);
 
-              // Tạo thông báo cập nhật task
               if (currentUser && task) {
                 const changes = [];
                 if (editedTask.title !== task.title) changes.push('tiêu đề');
@@ -301,7 +297,6 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               }
 
               onEdit && onEdit(editedTask);
-              // Thông báo và đóng panel
               alert('Đã lưu công việc thành công!');
               onClose();
             }}
