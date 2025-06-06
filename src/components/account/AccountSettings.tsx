@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, Camera, Save, Eye, EyeOff, Check, X, Settings } from 'lucide-react';
@@ -210,10 +211,10 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="modal-content account-settings-content"
+          className="modal-content account-settings-content bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col"
         >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white rounded-t-xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <User className="w-6 h-6 mr-3" />
@@ -232,7 +233,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 flex-shrink-0">
           <div className="flex">
             {[
               { id: 'profile', label: 'Thông tin', icon: User },
@@ -256,7 +257,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-72 overflow-y-auto">
+        <div className="p-6 flex-1 overflow-y-auto">
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <div className="space-y-4">
