@@ -62,7 +62,13 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
           const firebaseService = FirebaseService.initializeApp(defaultConfig);
 
           if (firebaseService) {
+            const isUsingEmulators = FirebaseService.isUsingEmulators();
+            const isDev = FirebaseService.isDevelopmentMode();
+
             console.log('✅ Firebase auto-configured with default settings');
+            if (isDev) {
+              console.log(`🔥 Development mode: ${isUsingEmulators ? 'Using emulators' : 'Using cloud services'}`);
+            }
 
             // Lưu config để lần sau
             localStorage.setItem('firebaseConfig', JSON.stringify(defaultConfig));
@@ -72,7 +78,9 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
             setTimeout(() => {
               toast({
                 title: '🔥 Firebase Ready',
-                description: 'Hệ thống đã sẵn sàng hoạt động',
+                description: isDev && isUsingEmulators
+                  ? 'Hệ thống đã sẵn sàng (Emulator mode)'
+                  : 'Hệ thống đã sẵn sàng hoạt động',
                 duration: 3000,
               });
             }, 1000);

@@ -11,6 +11,7 @@ import {
   query,
   updateDoc,
   where,
+  connectFirestoreEmulator,
 } from 'firebase/firestore';
 import {
   FirebaseStorage,
@@ -19,6 +20,7 @@ import {
   getStorage,
   ref,
   uploadBytes,
+  connectStorageEmulator,
 } from 'firebase/storage';
 
 interface FirebaseConfig {
@@ -36,6 +38,7 @@ export class FirebaseService {
   private db: Firestore | null = null;
   private storage: FirebaseStorage | null = null;
   private initialized = false;
+  private emulatorsConnected = false;
 
   private constructor() {}
 
@@ -70,6 +73,9 @@ export class FirebaseService {
         instance.storage = getStorage(instance.app);
       }
 
+      // Connect to emulators in development environment
+      instance.connectToEmulatorsIfDev();
+
       instance.initialized = true;
 
       localStorage.setItem('firebaseConfig', JSON.stringify(config));
@@ -97,6 +103,35 @@ export class FirebaseService {
     }
   }
 
+  private connectToEmulatorsIfDev(): void {
+    // Check if we're in development environment
+    const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV === 'true';
+
+    if (!isDev || this.emulatorsConnected) {
+      return;
+    }
+
+    try {
+      // Connect Firestore to emulator
+      if (this.db) {
+        connectFirestoreEmulator(this.db, 'localhost', 8080);
+        console.log('🔥 Connected to Firestore emulator on localhost:8080');
+      }
+
+      // Connect Storage to emulator
+      if (this.storage) {
+        connectStorageEmulator(this.storage, 'localhost', 9199);
+        console.log('🔥 Connected to Storage emulator on localhost:9199');
+      }
+
+      this.emulatorsConnected = true;
+      console.log('🔥 Firebase emulators connected for development environment');
+    } catch (error) {
+      // Emulators might already be connected or not running
+      console.warn('⚠️ Could not connect to Firebase emulators:', error);
+    }
+  }
+
   public getFirestore(): Firestore | null {
     if (!this.initialized || !this.db) {
       console.error('Firebase chưa được khởi tạo hoặc cấu hình không đúng');
@@ -111,6 +146,15 @@ export class FirebaseService {
       return null;
     }
     return this.storage;
+  }
+
+  public static isUsingEmulators(): boolean {
+    const instance = FirebaseService.getInstance();
+    return instance.emulatorsConnected;
+  }
+
+  public static isDevelopmentMode(): boolean {
+    return import.meta.env.DEV || import.meta.env.VITE_DEV === 'true';
   }
 
   public async addDocument(

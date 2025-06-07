@@ -36,9 +36,14 @@ const AutoFirebaseSetup: React.FC = () => {
       // Initialize Firebase with the config
       FirebaseService.initializeApp(firebaseConfig);
 
+      const isUsingEmulators = FirebaseService.isUsingEmulators();
+      const isDev = FirebaseService.isDevelopmentMode();
+
       toast({
         title: '🎉 Cấu hình thành công!',
-        description: 'Firebase đã được cấu hình và sẵn sàng sử dụng.',
+        description: isDev && isUsingEmulators
+          ? 'Firebase đã được cấu hình và sẵn sàng sử dụng (Emulator mode).'
+          : 'Firebase đã được cấu hình và sẵn sàng sử dụng.',
       });
 
       setIsConfigured(true);

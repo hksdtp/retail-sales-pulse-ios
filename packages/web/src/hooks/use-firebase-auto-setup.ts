@@ -53,7 +53,13 @@ export const useFirebaseAutoSetup = (): FirebaseAutoSetupResult => {
         const firebaseService = FirebaseService.initializeApp(defaultConfig);
 
         if (firebaseService) {
+          const isUsingEmulators = FirebaseService.isUsingEmulators();
+          const isDev = FirebaseService.isDevelopmentMode();
+
           console.log('✅ Firebase auto-configured successfully');
+          if (isDev) {
+            console.log(`🔥 Development mode: ${isUsingEmulators ? 'Using emulators' : 'Using cloud services'}`);
+          }
           setIsConfigured(true);
 
           // Lưu vào localStorage để lần sau không cần setup lại

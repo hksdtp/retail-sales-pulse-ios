@@ -2,11 +2,11 @@ const admin = require('firebase-admin');
 
 // Initialize Firebase Admin với emulator
 // Kết nối tới Firebase Emulator thay vì production
-// process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
+process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
 
 admin.initializeApp({
-  projectId: 'appqlgd',
-  // projectId: 'dccxx-dev',
+  // projectId: 'appqlgd',
+  projectId: 'dccxx-dev',
 });
 
 const db = admin.firestore();
