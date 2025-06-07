@@ -1,10 +1,10 @@
 // API Configuration
 export const API_CONFIG = {
   // Production API URL
-  BASE_URL: 'https://api-adwc442mha-uc.a.run.app',
+  BASE_URL: import.meta.env.VITE_API_URL || 'https://api-adwc442mha-uc.a.run.app',
 
   // Local development API URL (for testing)
-  LOCAL_URL: 'http://127.0.0.1:5001/appqlgd/us-central1/api',
+  LOCAL_URL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/appqlgd/us-central1/api',
 
   // Environment
   IS_DEVELOPMENT: import.meta.env.DEV,
@@ -20,10 +20,10 @@ export const API_CONFIG = {
 // Get the appropriate API URL based on environment
 export const getApiUrl = () => {
   // Always use production for now
-  return API_CONFIG.BASE_URL;
+  // return API_CONFIG.BASE_URL;
 
   // Uncomment below to use local in development
-  // return API_CONFIG.IS_DEVELOPMENT ? API_CONFIG.LOCAL_URL : API_CONFIG.BASE_URL;
+  return API_CONFIG.IS_DEVELOPMENT ? API_CONFIG.LOCAL_URL : API_CONFIG.BASE_URL;
 };
 
 // API Endpoints

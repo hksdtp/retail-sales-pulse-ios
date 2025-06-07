@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc && vite build",
     "build:dev": "vite build --mode development",
-    "dev": "vite --port 8080",
+    "dev": "vite --port 8088",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
