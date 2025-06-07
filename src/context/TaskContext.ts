@@ -5,12 +5,15 @@ import { Task } from '@/components/tasks/types/TaskTypes';
 // Định nghĩa kiểu cho context
 export interface TaskDataContextType {
   tasks: Task[];
+  filteredTasks: Task[];
   isLoading: boolean;
+  filters: TaskFilters;
   addTask: (
     task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>,
   ) => Promise<Task>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<Task>;
   deleteTask: (id: string) => Promise<boolean>;
+  getTaskById: (id: string) => Task | undefined;
   updateTaskStatus: (
     id: string,
     status: 'todo' | 'in-progress' | 'on-hold' | 'completed',

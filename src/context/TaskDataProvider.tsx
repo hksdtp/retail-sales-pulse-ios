@@ -833,7 +833,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   // Lọc công việc theo các tiêu chí
-  const filterTasks = (filters: TaskFilters): void => {
+  const filterTasks = (filters: TaskFilters): Task[] => {
     // Cập nhật state filters
     setFilters(filters);
 
@@ -902,6 +902,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     // Cập nhật state filteredTasks với kết quả lọc
     setFilteredTasks(filtered);
+
+    // Trả về mảng đã lọc
+    return filtered;
   };
 
   // Khởi tạo state cho filteredTasks và filters
@@ -919,7 +922,6 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   const contextValue: TaskDataContextType = {
     tasks,
     filteredTasks,
-    setTasks,
     addTask,
     updateTask,
     deleteTask,
