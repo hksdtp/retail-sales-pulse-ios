@@ -209,6 +209,11 @@ export class FirebaseService {
     }
   }
 
+  public async getUserByEmail(email: string): Promise<DocumentData | null> {
+    const users = await this.queryDocuments('users', 'email', '==', email);
+    return users.length > 0 ? users[0] : null;
+  }
+
   public async uploadFile(path: string, file: File): Promise<string | null> {
     if (!this.initialized || !this.storage) {
       console.error('Firebase Storage chưa được khởi tạo');

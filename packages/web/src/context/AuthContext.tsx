@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
-import { updateUser as updateUserAPI } from '@/services/api';
 import { FirebaseService } from '@/services/FirebaseService';
-import passwordService from '@/services/passwordService';
+import {
+  getTeams as getTeamsAPI,
+  getUsers as getUsersAPI,
+  login as loginAPI,
+  updateUser as updateUserAPI,
+} from '@/services/api';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
 
 interface AuthContextType {
@@ -13,10 +17,11 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   isFirstLogin: boolean;
-  changePassword: (newPassword: string) => void;
+  changePassword: (newPassword: string) => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   users: User[];
   teams: Team[];
+  authToken: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,249 +31,14 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   isLoading: false,
   isFirstLogin: false,
-  changePassword: () => {},
+  changePassword: (): any => {},
   updateUser: async () => {},
   users: [],
   teams: [],
+  authToken: null,
 });
 
 export const useAuth = () => useContext(AuthContext);
-
-// Dữ liệu mẫu các nhóm
-const MOCK_TEAMS: Team[] = [
-  // Nhóm phòng Bán lẻ
-  {
-    id: '1',
-    name: 'NHÓM 1 - VIỆT ANH',
-    leader_id: '2',
-    location: 'hanoi',
-    description: 'Nhóm kinh doanh 1 Hà Nội',
-    created_at: '2023-01-01',
-    department: 'retail',
-    department_type: 'retail',
-  },
-  {
-    id: '2',
-    name: 'NHÓM 2 - THẢO',
-    leader_id: '4',
-    location: 'hanoi',
-    description: 'Nhóm kinh doanh 2 Hà Nội',
-    created_at: '2023-01-01',
-    department: 'retail',
-    department_type: 'retail',
-  },
-  {
-    id: '3',
-    name: 'NHÓM 3',
-    leader_id: '6',
-    location: 'hanoi',
-    description: 'Nhóm kinh doanh 3 Hà Nội',
-    created_at: '2023-01-15',
-    department: 'retail',
-    department_type: 'retail',
-  },
-  {
-    id: '4',
-    name: 'NHÓM 4',
-    leader_id: '12',
-    location: 'hanoi',
-    description: 'Nhóm 4 - Hà Nội',
-    created_at: '2023-02-01',
-    department: 'retail',
-    department_type: 'retail',
-  },
-  {
-    id: '5',
-    name: 'NHÓM 1',
-    leader_id: '8',
-    location: 'hcm',
-    description: 'Nhóm kinh doanh 1 Hồ Chí Minh',
-    created_at: '2023-01-01',
-    department: 'retail',
-    department_type: 'retail',
-  },
-  {
-    id: '6',
-    name: 'NHÓM 2',
-    leader_id: '10',
-    location: 'hcm',
-    description: 'Nhóm kinh doanh 2 Hồ Chí Minh',
-    created_at: '2023-01-15',
-    department: 'retail',
-    department_type: 'retail',
-  },
-];
-
-// Dữ liệu mẫu chi tiết người dùng
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Khổng Đức Mạnh',
-    email: 'manh.khong@example.com',
-    role: 'retail_director',
-    team_id: '0',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng phòng kinh doanh bán lẻ',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '2',
-    name: 'Lương Việt Anh',
-    email: 'vietanh@example.com',
-    role: 'team_leader',
-    team_id: '1',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng nhóm',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '3',
-    name: 'Lê Khánh Duy',
-    email: 'khanhduy@example.com',
-    role: 'employee',
-    team_id: '1',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Nhân viên',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '4',
-    name: 'Nguyễn Thị Thảo',
-    email: 'thao.nguyen@example.com',
-    role: 'team_leader',
-    team_id: '2',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng nhóm',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '5',
-    name: 'Nguyễn Mạnh Linh',
-    email: 'manhlinh@example.com',
-    role: 'employee',
-    team_id: '2',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Nhân viên',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '6',
-    name: 'Trịnh Thị Bốn',
-    email: 'bon.trinh@example.com',
-    role: 'team_leader',
-    team_id: '3',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng nhóm',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '7',
-    name: 'Quản Thu Hà',
-    email: 'ha.quan@example.com',
-    role: 'employee',
-    team_id: '1',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Nhân viên',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '12',
-    name: 'Phạm Thị Hương',
-    email: 'huong.pham@example.com',
-    role: 'team_leader',
-    team_id: '4',
-    location: 'hanoi',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng nhóm',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '8',
-    name: 'Nguyễn Thị Nga',
-    email: 'nga.nguyen@example.com',
-    role: 'team_leader',
-    team_id: '5',
-    location: 'hcm',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng nhóm',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '9',
-    name: 'Hà Nguyễn Thanh Tuyền',
-    email: 'tuyen.ha@example.com',
-    role: 'employee',
-    team_id: '5',
-    location: 'hcm',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Nhân viên',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '10',
-    name: 'Nguyễn Ngọc Việt Khanh',
-    email: 'vietkhanh@example.com',
-    role: 'team_leader',
-    team_id: '6',
-    location: 'hcm',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Trưởng nhóm',
-    status: 'active',
-    password_changed: true,
-  },
-  {
-    id: '11',
-    name: 'Phùng Thị Thuỳ Vân',
-    email: 'thuyvan@example.com',
-    role: 'employee',
-    team_id: '6',
-    location: 'hcm',
-    department: 'retail',
-    department_type: 'retail',
-    position: 'Nhân viên',
-    status: 'active',
-    password_changed: true,
-  },
-];
-
-// Lưu trữ mật khẩu (trong thực tế sẽ được hash và lưu trong database)
-const DEFAULT_PASSWORD = '123456';
-const MOCK_CREDENTIALS: Record<string, string> = {};
-
-// Tạo mật khẩu mặc định cho tất cả người dùng
-MOCK_USERS.forEach((user) => {
-  if (user.email) {
-    MOCK_CREDENTIALS[user.email] = DEFAULT_PASSWORD;
-  }
-});
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -276,72 +46,130 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load users và teams từ API
+  // Load users và teams từ Firebase/API
   const loadUsersAndTeams = async () => {
     try {
-      // Force sử dụng MOCK_DATA để đảm bảo dữ liệu nhất quán
-      console.log('Using mock users and teams data');
-      setUsers(MOCK_USERS);
-      setTeams(MOCK_TEAMS);
+      console.log('Loading users and teams from Firebase/API...');
+
+      // Try Firebase first
+      const firebaseService = FirebaseService.getInstance();
+      if (firebaseService.getFirestore()) {
+        console.log('Loading from Firebase...');
+        const [usersData, teamsData] = await Promise.all([
+          firebaseService.getDocuments('users'),
+          firebaseService.getDocuments('teams'),
+        ]);
+
+        if (usersData.length > 0 || teamsData.length > 0) {
+          setUsers(usersData as User[]);
+          setTeams(teamsData as Team[]);
+          console.log(
+            `Loaded ${usersData.length} users and ${teamsData.length} teams from Firebase`,
+          );
+          return;
+        }
+      }
+
+      // Fallback to API
+      console.log('Loading from API...');
+      const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
+
+      if (usersResponse.success && usersResponse.data) {
+        setUsers(usersResponse.data);
+        console.log(`Loaded ${usersResponse.data.length} users from API`);
+      }
+
+      if (teamsResponse.success && teamsResponse.data) {
+        setTeams(teamsResponse.data as any);
+        console.log(`Loaded ${teamsResponse.data.length} teams from API`);
+      }
     } catch (error) {
-      console.error('Lỗi khi tải users và teams:', error);
-      // Fallback to mock data nếu có lỗi
-      setUsers(MOCK_USERS);
-      setTeams(MOCK_TEAMS);
+      console.error('Error loading users and teams:', error);
+      toast({
+        title: 'Lỗi tải dữ liệu',
+        description: 'Không thể tải danh sách người dùng và nhóm',
+        variant: 'destructive',
+      });
     }
   };
 
   useEffect(() => {
-    // Load users và teams
-    loadUsersAndTeams();
-
-    // Kiểm tra người dùng đã đăng nhập từ localStorage
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    const initializeAuth = async () => {
       try {
-        const user = JSON.parse(storedUser);
-        setCurrentUser(user);
-        setIsFirstLogin(!user.password_changed);
+        // Initialize Firebase if configured
+        const firebaseService = FirebaseService.initializeFromLocalStorage();
+        if (firebaseService) {
+          console.log('Firebase initialized from localStorage');
+        }
+
+        // Load users and teams
+        await loadUsersAndTeams();
+
+        // Check for stored user and token
+        const storedUser = localStorage.getItem('currentUser');
+        const storedToken = localStorage.getItem('authToken');
+
+        if (storedUser && storedToken) {
+          try {
+            const user = JSON.parse(storedUser);
+            setCurrentUser(user);
+            setAuthToken(storedToken);
+            setIsFirstLogin(!user.password_changed);
+            console.log('Restored user session from localStorage');
+          } catch (error) {
+            console.error('Error parsing stored user data:', error);
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+          }
+        }
       } catch (error) {
-        console.error('Lỗi khi parse dữ liệu người dùng:', error);
-        localStorage.removeItem('currentUser');
+        console.error('Error initializing auth:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      // Tìm thông tin người dùng
-      let user = users.find((u) => u.email === email);
-      if (!user) {
-        user = MOCK_USERS.find((u) => u.email === email);
+      console.log('Attempting login for:', email);
+
+      // Use real API authentication
+      const response = await loginAPI(email, password);
+
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'Đăng nhập thất bại');
       }
 
-      if (!user) {
-        throw new Error('Tài khoản không tồn tại');
-      }
+      const { user, token } = response.data;
 
-      // Sử dụng passwordService để xác thực
-      const isValidPassword = passwordService.verifyPassword(user.id, password);
-      if (!isValidPassword) {
-        throw new Error('Mật khẩu không chính xác');
-      }
-
-      // Kiểm tra xem có phải lần đăng nhập đầu tiên không
-      const isFirstLoginCheck = passwordService.isFirstLogin(user.id);
-
-      // Lưu thông tin người dùng vào state và localStorage
+      // Set user and token
       setCurrentUser(user);
+      setAuthToken(token);
+      setIsFirstLogin(!user.password_changed);
+
+      // Store in localStorage
       localStorage.setItem('currentUser', JSON.stringify(user));
-      setIsFirstLogin(isFirstLoginCheck);
+      localStorage.setItem('authToken', token);
+
+      console.log('Login successful for user:', user.name);
+
+      toast({
+        title: 'Đăng nhập thành công',
+        description: `Chào mừng ${user.name}!`,
+      });
 
       return Promise.resolve();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
+      console.error('Login error:', error);
+
       toast({
         title: 'Đăng nhập thất bại',
         description: errorMessage,
@@ -354,33 +182,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    console.log('Logging out user');
     setCurrentUser(null);
+    setAuthToken(null);
     setIsFirstLogin(false);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
+
+    toast({
+      title: 'Đăng xuất thành công',
+      description: 'Bạn đã đăng xuất khỏi hệ thống',
+    });
   };
 
-  const changePassword = (newPassword: string) => {
+  const changePassword = async (newPassword: string) => {
     if (!currentUser) return;
 
-    // Sử dụng passwordService để đổi mật khẩu
-    const success = passwordService.changePassword(currentUser.id, newPassword);
+    try {
+      console.log('Changing password for user:', currentUser.id);
 
-    if (success) {
-      // Cập nhật trạng thái đã đổi mật khẩu
-      const updatedUser = {
-        ...currentUser,
+      // Update password via Firebase/API
+      const updatedUserData = {
+        password: newPassword,
         password_changed: true,
       };
 
-      setCurrentUser(updatedUser);
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      await updateUser(updatedUserData);
       setIsFirstLogin(false);
 
       toast({
         title: 'Đổi mật khẩu thành công',
         description: 'Mật khẩu của bạn đã được cập nhật',
       });
-    } else {
+    } catch (error) {
+      console.error('Error changing password:', error);
       toast({
         title: 'Đổi mật khẩu thất bại',
         description: 'Có lỗi xảy ra khi đổi mật khẩu',
@@ -395,6 +230,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
+      console.log('Updating user:', currentUser.id, userData);
+
       // Try to update via Firebase first if configured
       const firebaseService = FirebaseService.getInstance();
       if (firebaseService.getFirestore()) {
@@ -404,6 +241,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const updatedUser = { ...currentUser, ...userData };
           setCurrentUser(updatedUser);
           localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+          // Update users state to reflect changes
+          setUsers((prevUsers) =>
+            prevUsers.map((user) => (user.id === currentUser.id ? { ...user, ...userData } : user)),
+          );
 
           toast({
             title: 'Cập nhật thành công',
@@ -422,6 +264,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser(updatedUser);
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
 
+        // Update users state to reflect changes
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === currentUser.id ? { ...user, ...response.data } : user,
+          ),
+        );
+
         toast({
           title: 'Cập nhật thành công',
           description: 'Thông tin cá nhân đã được cập nhật',
@@ -431,6 +280,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
+      console.error('Error updating user:', error);
       toast({
         title: 'Cập nhật thất bại',
         description: errorMessage,
@@ -451,8 +301,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isFirstLogin,
         changePassword,
         updateUser,
-        users: users,
-        teams: teams,
+        users,
+        teams,
+        authToken,
       }}
     >
       {children}
