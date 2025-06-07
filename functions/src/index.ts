@@ -295,7 +295,7 @@ app.get('/tasks/manager-view', async (req, res) => {
       }
     }
 
-    let tasksQuery = admin.firestore().collection('tasks');
+    const tasksQuery = admin.firestore().collection('tasks');
     let tasksSnapshot;
 
     switch (view_level) {
@@ -404,7 +404,7 @@ app.get('/tasks/manager-view', async (req, res) => {
         }
         break;
 
-      case 'individual':
+      case 'individual': {
         // Managers có thể xem tasks của individuals trong phạm vi quyền hạn
         const member_id = req.query.member_id as string;
 
@@ -489,6 +489,7 @@ app.get('/tasks/manager-view', async (req, res) => {
           tasksSnapshot = await tasksQuery.limit(0).get();
         }
         break;
+      }
 
       default:
         return res.status(400).json({
