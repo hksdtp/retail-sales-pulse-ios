@@ -1,7 +1,8 @@
 {
   "projects": {
     "production": "appqlgd",
-    "dev": "dccxx-dev"
+    "dev": "dccxx-dev",
+    "default": "dccxx-dev"
   },
   "targets": {},
   "etags": {}
