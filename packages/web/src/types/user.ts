@@ -1,5 +1,6 @@
-export type DepartmentType = 'project' | 'retail';
+export type DepartmentType = string | 'project' | 'retail';
 export type UserRole =
+  | string
   | 'employee'
   | 'team_leader'
   | 'retail_director'
@@ -7,7 +8,7 @@ export type UserRole =
   | 'project_supervisor'
   | 'project_admin'
   | 'project_staff';
-export type UserLocation = 'hanoi' | 'hcm';
+export type UserLocation = string | 'hanoi' | 'hcm';
 
 export interface User {
   id: string;
@@ -21,7 +22,7 @@ export interface User {
   avatar?: string;
   phone?: string;
   position?: string;
-  status: 'active' | 'inactive';
+  status: string | 'active' | 'inactive';
   password_changed: boolean; // Đánh dấu người dùng đã đổi mật khẩu chưa
 }
 

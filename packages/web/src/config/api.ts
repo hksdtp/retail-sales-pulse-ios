@@ -35,9 +35,10 @@ export const API_ENDPOINTS = {
   TASKS: '/tasks',
   TASK_BY_ID: (id: string) => `/tasks/${id}`,
 
-  // Users (will be added later)
+  // Users
   USERS: '/users',
   USER_BY_ID: (id: string) => `/users/${id}`,
+  UPDATE_USER: (id: string) => `/users/${id}`,
 
   // Teams (will be added later)
   TEAMS: '/teams',

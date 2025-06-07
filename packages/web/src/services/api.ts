@@ -54,6 +54,7 @@ export interface User {
   position: string;
   status: string;
   password_changed: boolean;
+  avatar?: string;
   created_at?: any;
   updated_at?: any;
 }
@@ -183,6 +184,13 @@ class ApiClient {
     return this.request<User>(API_ENDPOINTS.USER_BY_ID(id));
   }
 
+  async updateUser(id: string, userData: Partial<User>): Promise<ApiResponse<User>> {
+    return this.request<User>(API_ENDPOINTS.UPDATE_USER(id), {
+      method: HTTP_METHODS.PUT,
+      body: JSON.stringify(userData),
+    });
+  }
+
   // Teams API
   async getTeams(): Promise<ApiResponse<Team[]>> {
     return this.request<Team[]>(API_ENDPOINTS.TEAMS);
@@ -239,6 +247,7 @@ export const updateTaskStatus = (id: string, status: Task['status']) =>
   apiClient.updateTaskStatus(id, status);
 export const getUsers = () => apiClient.getUsers();
 export const getUserById = (id: string) => apiClient.getUserById(id);
+export const updateUser = (id: string, userData: Partial<User>) => apiClient.updateUser(id, userData);
 export const getTeams = () => apiClient.getTeams();
 export const getTeamById = (id: string) => apiClient.getTeamById(id);
 export const login = (email: string, password: string) => apiClient.login(email, password);

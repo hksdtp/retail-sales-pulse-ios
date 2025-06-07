@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
+import { updateUser as updateUserAPI } from '@/services/api';
+import { FirebaseService } from '@/services/FirebaseService';
 import passwordService from '@/services/passwordService';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
 
@@ -12,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   isFirstLogin: boolean;
   changePassword: (newPassword: string) => void;
+  updateUser: (userData: Partial<User>) => Promise<void>;
   users: User[];
   teams: Team[];
 }
@@ -24,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: false,
   isFirstLogin: false,
   changePassword: () => {},
+  updateUser: async () => {},
   users: [],
   teams: [],
 });
@@ -385,6 +389,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUser = async (userData: Partial<User>): Promise<void> => {
+    if (!currentUser) {
+      throw new Error('Không có người dùng hiện tại');
+    }
+
+    try {
+      // Try to update via Firebase first if configured
+      const firebaseService = FirebaseService.getInstance();
+      if (firebaseService.getFirestore()) {
+        const success = await firebaseService.updateDocument('users', currentUser.id, userData);
+        if (success) {
+          // Update local state
+          const updatedUser = { ...currentUser, ...userData };
+          setCurrentUser(updatedUser);
+          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+          toast({
+            title: 'Cập nhật thành công',
+            description: 'Thông tin cá nhân đã được cập nhật',
+          });
+          return;
+        }
+      }
+
+      // Fallback to API if Firebase is not configured or fails
+      const response = await updateUserAPI(currentUser.id, userData);
+
+      if (response.success && response.data) {
+        // Update local state with response data
+        const updatedUser = { ...currentUser, ...response.data };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        toast({
+          title: 'Cập nhật thành công',
+          description: 'Thông tin cá nhân đã được cập nhật',
+        });
+      } else {
+        throw new Error(response.error || 'Không thể cập nhật thông tin');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
+      toast({
+        title: 'Cập nhật thất bại',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -395,6 +450,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         isFirstLogin,
         changePassword,
+        updateUser,
         users: users,
         teams: teams,
       }}

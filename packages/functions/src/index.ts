@@ -6,6 +6,7 @@ import {
   onDocumentUpdated,
 } from 'firebase-functions/v2/firestore';
 import { onRequest } from 'firebase-functions/v2/https';
+import { FieldValue } from 'firebase-admin/firestore';
 
 const cors = require('cors');
 const express = require('express');
@@ -98,8 +99,8 @@ app.post('/tasks', async (req, res) => {
   try {
     const taskData = {
       ...req.body,
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      created_at: FieldValue.serverTimestamp(),
+      updated_at: FieldValue.serverTimestamp(),
     };
 
     const docRef = await admin.firestore().collection('tasks').add(taskData);
@@ -126,7 +127,7 @@ app.put('/tasks/:id', async (req, res) => {
     const taskId = req.params.id;
     const updateData = {
       ...req.body,
-      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      updated_at: FieldValue.serverTimestamp(),
     };
 
     await admin.firestore().collection('tasks').doc(taskId).update(updateData);
@@ -663,6 +664,69 @@ app.get('/settings', async (req, res) => {
   }
 });
 
+// Update user
+app.put('/users/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updateData = {
+      ...req.body,
+      updated_at: FieldValue.serverTimestamp(),
+    };
+
+    // Remove fields that shouldn't be updated via this endpoint
+    delete updateData.id;
+    delete updateData.created_at;
+
+    // Validate required fields if they're being updated
+    if (updateData.name !== undefined && !updateData.name) {
+      res.status(400).json({
+        success: false,
+        error: 'Name cannot be empty',
+      });
+      return;
+    }
+
+    if (updateData.email !== undefined && !updateData.email) {
+      res.status(400).json({
+        success: false,
+        error: 'Email cannot be empty',
+      });
+      return;
+    }
+
+    // Check if user exists
+    const userDoc = await admin.firestore().collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    // Update the user
+    await admin.firestore().collection('users').doc(userId).update(updateData);
+
+    // Get updated user data
+    const updatedUserDoc = await admin.firestore().collection('users').doc(userId).get();
+    const updatedUserData = updatedUserDoc.data();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: userId,
+        ...updatedUserData,
+      },
+    });
+  } catch (error) {
+    logger.error('Error updating user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update user',
+    });
+  }
+});
+
 // Create user
 app.post('/users', async (req, res) => {
   try {
@@ -677,8 +741,8 @@ app.post('/users', async (req, res) => {
     }
 
     // Add timestamp
-    userData.created_at = admin.firestore.FieldValue.serverTimestamp();
-    userData.updated_at = admin.firestore.FieldValue.serverTimestamp();
+    userData.created_at = FieldValue.serverTimestamp();
+    userData.updated_at = FieldValue.serverTimestamp();
 
     const docRef = await admin.firestore().collection('users').add(userData);
 
@@ -712,8 +776,8 @@ app.post('/teams', async (req, res) => {
     }
 
     // Add timestamp
-    teamData.created_at = admin.firestore.FieldValue.serverTimestamp();
-    teamData.updated_at = admin.firestore.FieldValue.serverTimestamp();
+    teamData.created_at = FieldValue.serverTimestamp();
+    teamData.updated_at = FieldValue.serverTimestamp();
 
     const docRef = await admin.firestore().collection('teams').add(teamData);
 

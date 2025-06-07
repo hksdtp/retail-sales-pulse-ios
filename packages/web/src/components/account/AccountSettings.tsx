@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { FirebaseService } from '@/services/FirebaseService';
 import passwordService from '@/services/passwordService';
 
 interface AccountSettingsProps {
@@ -19,7 +20,7 @@ interface AccountSettingsProps {
 }
 
 const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) => {
-  const { currentUser, changePassword } = useAuth();
+  const { currentUser, changePassword, updateUser } = useAuth();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'avatar'>('profile');
@@ -57,22 +58,16 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
   const handleProfileSave = async () => {
     setIsSubmitting(true);
     try {
-      // TODO: Update user profile via API
-      // For now, just update localStorage
-      const updatedUser = { ...currentUser, name: editedName, email: editedEmail };
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      // Update user profile via AuthContext (which handles Firebase/API)
+      await updateUser({
+        name: editedName,
+        email: editedEmail,
+      });
 
       setIsEditingProfile(false);
-      toast({
-        title: 'Thành công',
-        description: 'Thông tin cá nhân đã được cập nhật',
-      });
     } catch (error) {
-      toast({
-        title: 'Lỗi',
-        description: 'Không thể cập nhật thông tin',
-        variant: 'destructive',
-      });
+      // Error handling is done in updateUser method
+      console.error('Error updating profile:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -152,28 +147,37 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
 
   // Save avatar
   const handleAvatarSave = async () => {
-    if (!selectedAvatar) return;
+    if (!selectedAvatar || !avatarFile || !currentUser) return;
 
     setIsSubmitting(true);
     try {
-      // TODO: Upload avatar to server
-      // For now, just save to localStorage
-      localStorage.setItem(`avatar_${currentUser?.id}`, selectedAvatar);
+      let avatarUrl = selectedAvatar;
+
+      // Try to upload to Firebase Storage if configured
+      const firebaseService = FirebaseService.getInstance();
+      if (firebaseService.getStorage()) {
+        const uploadPath = `avatars/${currentUser.id}/${Date.now()}_${avatarFile.name}`;
+        const uploadedUrl = await firebaseService.uploadFile(uploadPath, avatarFile);
+
+        if (uploadedUrl) {
+          avatarUrl = uploadedUrl;
+        }
+      }
+
+      // Update user profile with avatar URL
+      await updateUser({
+        avatar: avatarUrl,
+      });
+
+      // Also save to localStorage as fallback
+      localStorage.setItem(`avatar_${currentUser.id}`, avatarUrl);
 
       setIsEditingAvatar(false);
       setSelectedAvatar(null);
       setAvatarFile(null);
-
-      toast({
-        title: 'Thành công',
-        description: 'Ảnh đại diện đã được cập nhật',
-      });
     } catch (error) {
-      toast({
-        title: 'Lỗi',
-        description: 'Không thể cập nhật ảnh đại diện',
-        variant: 'destructive',
-      });
+      console.error('Error updating avatar:', error);
+      // Error handling is done in updateUser method
     } finally {
       setIsSubmitting(false);
     }
@@ -188,6 +192,12 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
 
   // Get current avatar
   const getCurrentAvatar = () => {
+    // Check user object first (from Firebase/API)
+    if (currentUser?.avatar) {
+      return currentUser.avatar;
+    }
+
+    // Fallback to localStorage
     const savedAvatar = localStorage.getItem(`avatar_${currentUser?.id}`);
     return savedAvatar || null;
   };
