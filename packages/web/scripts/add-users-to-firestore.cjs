@@ -1,10 +1,12 @@
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin
-// Bạn cần tạo service account key từ Firebase Console
-// Tạm thời sử dụng project ID để kết nối
+// Initialize Firebase Admin với emulator
+// Kết nối tới Firebase Emulator thay vì production
+// process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
+
 admin.initializeApp({
   projectId: 'appqlgd',
+  // projectId: 'dccxx-dev',
 });
 
 const db = admin.firestore();
@@ -132,7 +134,8 @@ const sampleTeams = [
 
 async function addUsersAndTeams() {
   try {
-    console.log('🚀 Bắt đầu thêm Users và Teams vào Firestore...\n');
+    console.log('🚀 Bắt đầu thêm Users và Teams vào Firebase Emulator...\n');
+    console.log('🔧 Kết nối tới Firestore Emulator: localhost:8080\n');
 
     // Thêm users
     console.log('1. Thêm users...');
@@ -153,12 +156,13 @@ async function addUsersAndTeams() {
     }
 
     console.log('');
-    console.log('🎉 Hoàn thành thêm dữ liệu vào Firestore!');
+    console.log('🎉 Hoàn thành thêm dữ liệu vào Firebase Emulator!');
     console.log('📊 Đã thêm:');
     console.log(`   - ${sampleUsers.length} users`);
     console.log(`   - ${sampleTeams.length} teams`);
     console.log('');
-    console.log('🔗 Kiểm tra tại: https://console.firebase.google.com/project/appqlgd/firestore');
+    console.log('🔗 Kiểm tra tại Firebase Emulator UI: http://localhost:4000');
+    console.log('📱 Hoặc truy cập Firestore Emulator trực tiếp: http://localhost:8080');
   } catch (error) {
     console.error('❌ Lỗi khi thêm dữ liệu:', error);
   } finally {
