@@ -226,3 +226,5 @@ export class FirebaseService {
     }
   }
 }
+
+export default FirebaseService;
