@@ -8,10 +8,11 @@
     "deploy": "firebase deploy --only functions",
     "lint": "eslint --ext .js,.ts .",
     "logs": "firebase functions:log",
-    "serve": "npm run build && firebase emulators:start --only functions,firestore",
+    "serve": "npm run build && firebase emulators:start --only functions,firestore,auth",
     "serve:functions-only": "npm run build && firebase emulators:start --only functions",
     "serve:all": "npm run build && firebase emulators:start",
-    "serve:watch": "npm run build && firebase emulators:start --only functions,firestore --inspect-functions",
+    "serve:auth": "npm run build && firebase emulators:start --only auth",
+    "serve:watch": "npm run build && firebase emulators:start --only functions,firestore,auth --inspect-functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell"
   },
