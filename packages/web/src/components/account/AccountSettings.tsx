@@ -1,8 +1,13 @@
-import { motion } from 'framer-motion';
 import { Camera, Check, Eye, EyeOff, Lock, Save, Settings, User, X } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -187,80 +192,50 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
     return savedAvatar || null;
   };
 
-  // Add/remove body class for modal
-  React.useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('modal-open');
-    } else {
-      document.body.classList.remove('modal-open');
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
-  }, [isOpen]);
-
-  if (!isOpen || !currentUser) return null;
+  if (!currentUser) return null;
 
   return (
-    <>
-      {/* Modal Backdrop */}
-      <div className="modal-backdrop" />
-
-      {/* Modal Overlay */}
-      <div className="modal-overlay account-settings-modal">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="modal-content account-settings-content bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col"
-        >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white rounded-t-xl flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <User className="w-6 h-6 mr-3" />
-                <div>
-                  <h2 className="text-xl font-bold">Cài đặt tài khoản</h2>
-                  <p className="text-blue-100 text-sm">{currentUser.name}</p>
-                </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px] max-h-[90vh] p-0 overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-white text-xl font-bold">
+              <User className="w-6 h-6 mr-3" />
+              <div>
+                <div>Cài đặt tài khoản</div>
+                <p className="text-blue-100 text-sm font-normal">{currentUser.name}</p>
               </div>
+            </DialogTitle>
+          </DialogHeader>
+        </div>
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200">
+          <div className="flex">
+            {[
+              { id: 'profile', label: 'Thông tin', icon: User },
+              { id: 'password', label: 'Mật khẩu', icon: Lock },
+              { id: 'avatar', label: 'Ảnh đại diện', icon: Camera },
+            ].map((tab) => (
               <button
-                onClick={onClose}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                }`}
               >
-                <X className="w-5 h-5" />
+                <tab.icon className="w-4 h-4 mr-2" />
+                {tab.label}
               </button>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Tabs */}
-          <div className="border-b border-gray-200 flex-shrink-0">
-            <div className="flex">
-              {[
-                { id: 'profile', label: 'Thông tin', icon: User },
-                { id: 'password', label: 'Mật khẩu', icon: Lock },
-                { id: 'avatar', label: 'Ảnh đại diện', icon: Camera },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors ${
-                    activeTab === tab.id
-                      ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4 mr-2" />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 flex-1 overflow-y-auto">
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="space-y-4">
@@ -624,10 +599,9 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
                 )}
               </div>
             )}
-          </div>
-        </motion.div>
-      </div>
-    </>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
