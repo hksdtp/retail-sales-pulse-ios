@@ -1,5 +1,3 @@
-import cors from 'cors';
-import express from 'express';
 import * as admin from 'firebase-admin';
 import * as logger from 'firebase-functions/logger';
 import {
@@ -8,6 +6,9 @@ import {
   onDocumentUpdated,
 } from 'firebase-functions/v2/firestore';
 import { onRequest } from 'firebase-functions/v2/https';
+
+const cors = require('cors');
+const express = require('express');
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -166,7 +167,7 @@ app.delete('/tasks/:id', async (req, res) => {
 });
 
 // Delete all tasks for a user
-app.delete('/tasks/delete-all', async (req, res) => {
+app.delete('/tasks/deleteall', async (req, res) => {
   try {
     const { user_id } = req.body;
 
@@ -262,7 +263,7 @@ app.delete('/tasks/delete-all', async (req, res) => {
 });
 
 // Manager view endpoint - for directors and team leaders
-app.get('/tasks/manager-view', async (req, res) => {
+app.get('/tasks/managerview', async (req, res) => {
   try {
     const { user_id, role, view_level, team_id, department } = req.query;
 
@@ -766,6 +767,14 @@ app.post('/auth/login', async (req, res) => {
 
     const userDoc = usersSnapshot.docs[0];
     const userData = userDoc.data();
+
+    if (!userData) {
+      res.status(401).json({
+        success: false,
+        error: 'Invalid credentials',
+      });
+      return;
+    }
 
     // Trong production, bạn nên hash password
     // Hiện tại chỉ so sánh trực tiếp cho demo
