@@ -42,6 +42,19 @@ export const mockUsers: MockUser[] = [
     password_changed: true,
   },
   {
+    id: '1b',
+    name: 'Khổng Đức Mạnh',
+    email: 'manh.khong@example.com',
+    role: 'retail_director',
+    team_id: '1',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng phòng',
+    status: 'active',
+    password_changed: true,
+  },
+  {
     id: '2',
     name: 'Lương Việt Anh',
     email: 'anh@company.com',
@@ -71,7 +84,8 @@ export const mockUsers: MockUser[] = [
 
 // Email aliases for easier login
 export const emailAliases: Record<string, string> = {
-  // Khổng Đức Mạnh aliases
+  // Khổng Đức Mạnh aliases - thêm email từ API/Firebase
+  'manh.khong@example.com': 'manh@company.com',
   'ducmanh@company.com': 'manh@company.com',
   'khongducmanh@company.com': 'manh@company.com',
   'manh.khong@company.com': 'manh@company.com',
