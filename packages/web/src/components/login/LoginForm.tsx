@@ -97,6 +97,18 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
+    // Debug logging
+    console.log('LoginForm Debug:', {
+      selectedLocation,
+      selectedTeam,
+      departmentType,
+      totalUsers: users.length,
+      filteredUsers: filteredUsers.length,
+      selectedUser,
+      password: password ? '***' : 'empty'
+    });
+
     if (!selectedUser) {
       toast({
         title: 'Lỗi đăng nhập',
@@ -107,6 +119,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     }
     setIsSubmitting(true);
     try {
+      console.log('Attempting login with email:', selectedUser.email);
       await login(selectedUser.email, password);
 
       // Kiểm tra xem có phải lần đăng nhập đầu tiên không
