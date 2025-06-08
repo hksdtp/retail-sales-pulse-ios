@@ -9,7 +9,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Bắt đầu collapsed
 
   return (
     <div className="min-h-screen flex w-full fixed inset-0 overflow-auto">
