@@ -69,6 +69,31 @@ export const mockUsers: MockUser[] = [
   },
 ];
 
+// Email aliases for easier login
+export const emailAliases: Record<string, string> = {
+  // Khổng Đức Mạnh aliases
+  'ducmanh@company.com': 'manh@company.com',
+  'khongducmanh@company.com': 'manh@company.com',
+  'manh.khong@company.com': 'manh@company.com',
+  'khong.manh@company.com': 'manh@company.com',
+  'ducmanh': 'manh@company.com',
+  'manh': 'manh@company.com',
+
+  // Lương Việt Anh aliases
+  'vietanh@company.com': 'anh@company.com',
+  'luongvietanh@company.com': 'anh@company.com',
+  'anh.luong@company.com': 'anh@company.com',
+  'luong.anh@company.com': 'anh@company.com',
+  'vietanh': 'anh@company.com',
+
+  // Nguyễn Mạnh Linh aliases
+  'manhlinh@company.com': 'linh@company.com',
+  'nguyenmanhlinh@company.com': 'linh@company.com',
+  'linh.nguyen@company.com': 'linh@company.com',
+  'nguyen.linh@company.com': 'linh@company.com',
+  'manhlinh': 'linh@company.com',
+};
+
 // Mock teams data
 export const mockTeams: MockTeam[] = [
   {
@@ -91,13 +116,20 @@ export const mockLogin = async (email: string, password: string): Promise<{
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // Find user by email
-  const user = mockUsers.find(u => u.email === email);
-  
+  // Normalize email (convert to lowercase and check aliases)
+  const normalizedEmail = email.toLowerCase();
+  const actualEmail = emailAliases[normalizedEmail] || normalizedEmail;
+
+  // Find user by email (check both original and actual email)
+  const user = mockUsers.find(u =>
+    u.email.toLowerCase() === actualEmail ||
+    u.email.toLowerCase() === normalizedEmail
+  );
+
   if (!user) {
     return {
       success: false,
-      error: 'Email không tồn tại trong hệ thống',
+      error: `Email "${email}" không tồn tại trong hệ thống. Thử: manh@company.com, anh@company.com, linh@company.com hoặc ducmanh, vietanh, manhlinh`,
     };
   }
 
