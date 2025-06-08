@@ -38,10 +38,10 @@ const MemberTaskSelector: React.FC<MemberTaskSelectorProps> = ({
   const getFilteredMembers = () => {
     if (!currentUser || !users) return [];
 
-    // Director có thể xem tất cả thành viên trong phòng ban
+    // Director có thể xem tất cả thành viên trong phòng ban (bao gồm cả team leaders)
     if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
       return users.filter(
-        (user) => user.department === currentUser.department && user.id !== currentUser.id,
+        (user) => user.department_type === currentUser.department_type && user.id !== currentUser.id,
       );
     }
 

@@ -54,6 +54,7 @@ import notificationService from '@/services/notificationService';
 
 import LoadingScreen from '@/components/ui/LoadingScreen';
 import MemberTaskSelector from './MemberTaskSelector';
+import MemberViewFilters from './MemberViewFilters';
 import TaskDetailPanel from './TaskDetailPanel';
 import { getStatusColor, getTypeName } from './task-utils/TaskFormatters';
 import { Task } from './types/TaskTypes';
@@ -162,6 +163,11 @@ export default function TaskManagementView({
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
 
+  // States cho Member View Filters
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [selectedTeam, setSelectedTeam] = useState('all');
+  const [selectedMember, setSelectedMember] = useState<string | null>(null);
+
   // Early return nếu chưa có currentUser
   if (!currentUser) {
     return <LoadingScreen message="Đang khởi tạo dữ liệu người dùng..." />;
@@ -258,38 +264,47 @@ export default function TaskManagementView({
         }
       case 'individual':
         if (isManager) {
-          // Manager: xem công việc cá nhân của thành viên
-          if (selectedMemberId) {
-            // Xem công việc của thành viên được chọn
-            return regularTasks.filter(
-              (task) =>
-                (task.assignedTo === selectedMemberId || task.user_id === selectedMemberId) &&
-                !task.isSharedWithTeam && // Không phải công việc nhóm
-                !task.isShared, // Không phải công việc chung phòng
-            );
-          } else {
-            // Xem tất cả công việc cá nhân của các thành viên
-            const memberIds = users
-              .filter((user) => {
-                if (
-                  currentUser?.role === 'retail_director' ||
-                  currentUser?.role === 'project_director'
-                ) {
-                  return user.department === currentUser.department && user.id !== currentUser.id;
-                } else if (currentUser?.role === 'team_leader') {
-                  return user.team_id === currentUser.team_id && user.id !== currentUser.id;
-                }
-                return false;
-              })
-              .map((user) => user.id);
+          // Manager: xem công việc của thành viên với filters
+          let filteredUsers = users.filter((user) => {
+            if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+              return user.department_type === currentUser.department_type && user.id !== currentUser.id;
+            } else if (currentUser?.role === 'team_leader') {
+              return user.team_id === currentUser.team_id && user.id !== currentUser.id;
+            }
+            return false;
+          });
 
-            return regularTasks.filter(
-              (task) =>
-                memberIds.includes(task.assignedTo || '') &&
-                !task.isSharedWithTeam && // Không phải công việc nhóm
-                !task.isShared, // Không phải công việc chung phòng
-            );
+          // Áp dụng filters cho directors
+          if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+            // Filter theo location
+            if (selectedLocation !== 'all') {
+              filteredUsers = filteredUsers.filter(user => user.location === selectedLocation);
+            }
+
+            // Filter theo team
+            if (selectedTeam !== 'all') {
+              filteredUsers = filteredUsers.filter(user => user.team_id === selectedTeam);
+            }
+
+            // Filter theo member cụ thể
+            if (selectedMember) {
+              filteredUsers = filteredUsers.filter(user => user.id === selectedMember);
+            }
+          } else {
+            // Team leader: sử dụng selectedMemberId từ props
+            if (selectedMemberId) {
+              filteredUsers = filteredUsers.filter(user => user.id === selectedMemberId);
+            }
           }
+
+          const memberIds = filteredUsers.map(user => user.id);
+
+          // Lấy tất cả công việc của các thành viên được filter
+          return regularTasks.filter((task) => {
+            const isAssignedToMember = memberIds.includes(task.assignedTo || '');
+            const isCreatedByMember = memberIds.includes(task.user_id || '');
+            return isAssignedToMember || isCreatedByMember;
+          });
         }
         return [];
       case 'department':
@@ -419,9 +434,16 @@ export default function TaskManagementView({
 
   const taskViewButtons = getTaskViewButtons();
 
-  // Cập nhật selectedView dựa trên viewLevel
+  // Cập nhật selectedView dựa trên viewLevel và reset filters
   useEffect(() => {
     setSelectedView(viewLevel);
+
+    // Reset filters khi chuyển view
+    if (viewLevel !== 'individual') {
+      setSelectedLocation('all');
+      setSelectedTeam('all');
+      setSelectedMember(null);
+    }
   }, [viewLevel]);
 
   // Hàm lấy tên người dùng
@@ -580,8 +602,23 @@ export default function TaskManagementView({
               </div>
             </div>
 
-            {/* Member Selector cho Individual view - di chuyển xuống dưới */}
-            {isManager && viewLevel === 'individual' && (
+            {/* Member Filters cho Individual view - chỉ cho Directors */}
+            {(currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') &&
+             viewLevel === 'individual' && (
+              <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100">
+                <MemberViewFilters
+                  selectedLocation={selectedLocation}
+                  selectedTeam={selectedTeam}
+                  selectedMember={selectedMember}
+                  onLocationChange={setSelectedLocation}
+                  onTeamChange={setSelectedTeam}
+                  onMemberChange={setSelectedMember}
+                />
+              </div>
+            )}
+
+            {/* Member Selector cho Team Leaders */}
+            {currentUser?.role === 'team_leader' && viewLevel === 'individual' && (
               <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 relative z-[100]">
                 <MemberTaskSelector
                   selectedMemberId={selectedMemberId}
