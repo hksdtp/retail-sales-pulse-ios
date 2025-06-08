@@ -80,7 +80,7 @@ app.get('/tasks', async (req, res) => {
       count: tasks.length,
     });
   } catch (error) {
-    functions.functions.logger.error('Error getting tasks:', error);
+    functions.logger.error('Error getting tasks:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get tasks',
@@ -107,7 +107,7 @@ app.post('/tasks', async (req, res) => {
       },
     });
   } catch (error) {
-    functions.functions.logger.error('Error creating task:', error);
+    functions.logger.error('Error creating task:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create task',
@@ -1038,47 +1038,6 @@ app.get('/export/csv', async (req, res) => {
       error: 'Failed to export CSV',
     });
   }
-});
-
-// Export the API
-export const api = onRequest(app);
-
-// ============================================================================
-// FIRESTORE TRIGGERS
-// ============================================================================
-
-// Trigger when a new task is created
-export const onTaskCreated = onDocumentCreated('tasks/{taskId}', (event) => {
-  const taskData = event.data?.data();
-  const taskId = event.params.taskId;
-
-  functions.logger.info(`New task created: ${taskId}`, taskData);
-
-  // Add any logic here (e.g., send notifications, update statistics)
-  return Promise.resolve();
-});
-
-// Trigger when a task is updated
-export const onTaskUpdated = onDocumentUpdated('tasks/{taskId}', (event) => {
-  const beforeData = event.data?.before.data();
-  const afterData = event.data?.after.data();
-  const taskId = event.params.taskId;
-
-  functions.logger.info(`Task updated: ${taskId}`, { before: beforeData, after: afterData });
-
-  // Add any logic here (e.g., track changes, send notifications)
-  return Promise.resolve();
-});
-
-// Trigger when a task is deleted
-export const onTaskDeleted = onDocumentDeleted('tasks/{taskId}', (event) => {
-  const taskData = event.data?.data();
-  const taskId = event.params.taskId;
-
-  functions.logger.info(`Task deleted: ${taskId}`, taskData);
-
-  // Add any logic here (e.g., cleanup related data, send notifications)
-  return Promise.resolve();
 });
 
 // Export the Express app as a Firebase Function
