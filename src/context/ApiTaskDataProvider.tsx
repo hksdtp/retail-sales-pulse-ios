@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, ReactNode } from 'react';
 import { Task } from '../components/tasks/types/TaskTypes';
 import { useToast } from '../hooks/use-toast';
@@ -5,7 +6,6 @@ import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskDataContextType, TaskFilters } from './TaskContext';
 import { getTasks, createTask, updateTask, deleteTask as deleteTaskApi } from '@/services/api';
 
-// Provider component sử dụng API thật
 export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
@@ -14,7 +14,6 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
   const { toast } = useToast();
   const { currentUser } = useAuth();
 
-  // Lấy dữ liệu từ API với phân quyền
   const loadTasks = async () => {
     try {
       setIsLoading(true);
@@ -28,20 +27,28 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
         return;
       }
 
-      // Gọi API với thông tin user để filter đúng
       const response = await getTasks(currentUser);
 
       if (response.success && response.data) {
         console.log(`✅ Đã tải ${response.count} tasks từ API cho user ${currentUser.name} (${currentUser.id})`);
         console.log('📊 Tasks data:', response.data);
 
-        // Double check: Filter thêm ở frontend để đảm bảo an toàn
-        const userTasks = response.data.filter(task => {
-          // Chỉ hiển thị tasks được giao cho user hiện tại
+        // Map API tasks to internal task format
+        const mappedTasks: Task[] = response.data.map(apiTask => ({
+          ...apiTask,
+          teamId: apiTask.team_id || apiTask.teamId || '',
+          team_id: apiTask.team_id || '',
+          created_at: apiTask.created_at || new Date().toISOString(),
+          isNew: apiTask.isNew || false,
+          isShared: apiTask.isShared || false,
+          isSharedWithTeam: apiTask.isSharedWithTeam || false
+        }));
+
+        const userTasks = mappedTasks.filter(task => {
           return task.assignedTo === currentUser.id || task.user_id === currentUser.id;
         });
 
-        console.log(`🔒 Sau khi filter frontend: ${userTasks.length}/${response.data.length} tasks`);
+        console.log(`🔒 Sau khi filter frontend: ${userTasks.length}/${mappedTasks.length} tasks`);
 
         setTasks(userTasks);
         setFilteredTasks(userTasks);
@@ -65,14 +72,12 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
-  // Load dữ liệu ban đầu và khi currentUser thay đổi
   useEffect(() => {
     if (currentUser) {
       loadTasks();
     }
-  }, [currentUser]); // Reload khi user thay đổi
+  }, [currentUser]);
 
-  // Thêm công việc mới
   const addTask = async (taskData: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>): Promise<Task> => {
     if (!currentUser) {
       throw new Error("Bạn cần đăng nhập để thêm công việc mới");
@@ -84,6 +89,7 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
       user_id: currentUser.id,
       user_name: currentUser.name,
       team_id: currentUser.team_id || '',
+      teamId: currentUser.team_id || '',
       location: currentUser.location || '',
       assignedTo: taskData.assignedTo || currentUser.id,
       time: taskData.time || '',
@@ -97,16 +103,23 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (response.success && response.data) {
         console.log('✅ Đã tạo task thành công:', response.data);
         
-        // Cập nhật state local
-        const newTask = response.data;
-        setTasks(prevTasks => [...prevTasks, newTask]);
+        const mappedTask: Task = {
+          ...response.data,
+          teamId: response.data.team_id || response.data.teamId || '',
+          created_at: response.data.created_at || new Date().toISOString(),
+          isNew: response.data.isNew || false,
+          isShared: response.data.isShared || false,
+          isSharedWithTeam: response.data.isSharedWithTeam || false
+        };
+        
+        setTasks(prevTasks => [...prevTasks, mappedTask]);
         
         toast({
           title: "Thành công",
           description: "Đã thêm công việc mới"
         });
         
-        return newTask;
+        return mappedTask;
       } else {
         throw new Error(response.error || "Không thể tạo công việc mới");
       }
@@ -121,8 +134,7 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
-  // Cập nhật công việc
-  const updateTaskData = async (taskId: string, updates: Partial<Task>): Promise<void> => {
+  const updateTaskData = async (taskId: string, updates: Partial<Task>): Promise<Task> => {
     try {
       console.log('🌐 Đang cập nhật task qua API...');
       const response = await updateTask(taskId, updates);
@@ -130,10 +142,18 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (response.success && response.data) {
         console.log('✅ Đã cập nhật task thành công');
         
-        // Cập nhật state local
+        const mappedTask: Task = {
+          ...response.data,
+          teamId: response.data.team_id || response.data.teamId || '',
+          created_at: response.data.created_at || new Date().toISOString(),
+          isNew: response.data.isNew || false,
+          isShared: response.data.isShared || false,
+          isSharedWithTeam: response.data.isSharedWithTeam || false
+        };
+        
         setTasks(prevTasks => 
           prevTasks.map(task => 
-            task.id === taskId ? { ...task, ...response.data } : task
+            task.id === taskId ? { ...task, ...mappedTask } : task
           )
         );
         
@@ -141,6 +161,8 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
           title: "Thành công",
           description: "Đã cập nhật công việc"
         });
+
+        return mappedTask;
       } else {
         throw new Error(response.error || "Không thể cập nhật công việc");
       }
@@ -155,8 +177,7 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
-  // Xóa công việc
-  const deleteTaskData = async (taskId: string): Promise<void> => {
+  const deleteTaskData = async (taskId: string): Promise<boolean> => {
     try {
       console.log('🌐 Đang xóa task qua API...');
       const response = await deleteTaskApi(taskId);
@@ -164,13 +185,14 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (response.success) {
         console.log('✅ Đã xóa task thành công');
         
-        // Cập nhật state local
         setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
         
         toast({
           title: "Thành công",
           description: "Đã xóa công việc"
         });
+
+        return true;
       } else {
         throw new Error(response.error || "Không thể xóa công việc");
       }
@@ -181,17 +203,15 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
         description: error instanceof Error ? error.message : "Không thể xóa công việc",
         variant: "destructive"
       });
-      throw error;
+      return false;
     }
   };
 
-  // Làm mới dữ liệu
   const refreshTasks = async (): Promise<void> => {
     await loadTasks();
   };
 
-  // Filter tasks
-  const filterTasks = (newFilters: TaskFilters) => {
+  const filterTasksFunc = (newFilters: TaskFilters): Task[] => {
     setFilters(newFilters);
     let filtered = [...tasks];
 
@@ -213,30 +233,27 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     setFilteredTasks(filtered);
+    return filtered;
   };
 
-  // Get task by ID
   const getTaskById = (id: string): Task | undefined => {
     return tasks.find(task => task.id === id);
   };
 
-  // Update task status
-  const updateTaskStatus = (id: string, status: Task['status']) => {
-    updateTaskData(id, { status });
+  const updateTaskStatus = async (id: string, status: Task['status']): Promise<Task> => {
+    return updateTaskData(id, { status });
   };
 
-  // Context value
   const contextValue: TaskDataContextType = {
     tasks,
     filteredTasks,
-    setTasks,
     isLoading,
     filters,
     addTask,
     updateTask: updateTaskData,
     deleteTask: deleteTaskData,
     refreshTasks,
-    filterTasks,
+    filterTasks: filterTasksFunc,
     getTaskById,
     updateTaskStatus
   };
