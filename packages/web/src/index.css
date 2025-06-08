@@ -288,6 +288,7 @@ body.modal-open {
   z-index: 1000 !important;
 }
 
+@media (max-width: 768px) {
     .modal-content,
     .account-settings-content {
         width: 95vw !important;
