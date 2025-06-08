@@ -25,13 +25,10 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(true); // Bắt đầu ở trạng thái collapsed
-  const [isHovered, setIsHovered] = useState(false); // Trạng thái hover
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleToggleCollapse = () => {
     const newCollapsed = !isCollapsed;
@@ -39,31 +36,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     onCollapseChange?.(newCollapsed);
   };
 
-  // Auto-hide/show logic
-  const handleMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    setIsHovered(true);
-    if (isCollapsed) {
-      onCollapseChange?.(false); // Temporarily expand for hover
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    // Delay before collapsing to avoid flickering
-    hoverTimeoutRef.current = setTimeout(() => {
-      if (isCollapsed && !isDropdownOpen) {
-        onCollapseChange?.(true); // Collapse back
-      }
-    }, 300);
-  };
-
-  // Determine if sidebar should be visually expanded
-  const isVisuallyExpanded = !isCollapsed || isHovered;
-
-  // Handle click outside to close dropdown and cleanup timeout
+  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -74,9 +47,6 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -104,8 +74,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     {
       title: "Báo cáo",
       icon: FileText,
-      url: "/reports",
-      requiresDirectorRole: true // Chỉ cho phép retail_director xem
+      url: "/reports"
     },
     {
       title: "Nhân viên",
@@ -114,43 +83,25 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     }
   ];
 
-  // Lọc menu items dựa trên vai trò người dùng
-  const getFilteredMenuItems = () => {
-    return menuItems.filter(item => {
-      // Nếu item yêu cầu quyền director và user không phải retail_director thì ẩn
-      if (item.requiresDirectorRole && currentUser?.role !== 'retail_director') {
-        return false;
-      }
-      return true;
-    });
-  };
-
-  const filteredMenuItems = getFilteredMenuItems();
-
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   return (
     <>
-      <div
-        ref={sidebarRef}
-        className={cn(
-          "sidebar-desktop fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out",
-          "border-r border-gray-200 shadow-lg bg-white",
-          isVisuallyExpanded ? "w-64" : "w-16"
-        )}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
+      <div className={cn(
+        "sidebar-desktop fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out",
+        "macos-glass border-r border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70",
+        isCollapsed ? "w-16" : "w-64"
+      )}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          {isVisuallyExpanded ? (
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          {!isCollapsed ? (
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                 <PieChart className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-gray-900">QLPKDBL</span>
+              <span className="font-bold text-gray-900 dark:text-white">QLPKDBL</span>
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
@@ -158,21 +109,19 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
             </div>
           )}
 
-          {isVisuallyExpanded && (
+          {!isCollapsed && (
             <button
               onClick={handleToggleCollapse}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              title={isCollapsed ? "Tự động ẩn khi không hover" : "Thu nhỏ sidebar"}
+              className="p-2 rounded-lg hover:bg-white/50 transition-colors"
             >
               <ChevronLeft className="w-4 h-4 text-gray-600" />
             </button>
           )}
 
-          {!isVisuallyExpanded && (
+          {isCollapsed && (
             <button
               onClick={handleToggleCollapse}
-              className="absolute top-4 right-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
-              title="Mở rộng sidebar"
+              className="absolute top-4 right-2 p-1 rounded-lg hover:bg-white/50 transition-colors"
             >
               <ChevronRight className="w-3 h-3 text-gray-600" />
             </button>
@@ -181,29 +130,29 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
         {/* Navigation Menu */}
         <nav className="flex-1 p-4 space-y-2">
-          {filteredMenuItems.map((item) => (
+          {menuItems.map((item) => (
             <Link
               key={item.title}
               to={item.url}
               className={cn(
                 "flex items-center rounded-xl transition-all duration-200 relative group",
-                !isVisuallyExpanded ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
+                isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
                 isActive(item.url)
-                  ? "text-ios-blue bg-blue-50 shadow-sm border border-blue-100"
-                  : "text-gray-600 hover:text-ios-blue hover:bg-gray-50 hover:shadow-sm"
+                  ? "text-ios-blue bg-blue-50 dark:bg-blue-900/20 shadow-sm border border-blue-100/50"
+                  : "text-gray-600 hover:text-ios-blue hover:bg-white/50 hover:shadow-sm"
               )}
-              title={!isVisuallyExpanded ? item.title : undefined}
+              title={isCollapsed ? item.title : undefined}
             >
               <item.icon className={cn(
                 "w-5 h-5 flex-shrink-0",
                 isActive(item.url) && "text-ios-blue"
               )} />
-              {isVisuallyExpanded && (
+              {!isCollapsed && (
                 <span className="font-medium">{item.title}</span>
               )}
 
               {/* Tooltip for collapsed state */}
-              {!isVisuallyExpanded && (
+              {isCollapsed && (
                 <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                   {item.title}
                 </div>
@@ -213,12 +162,12 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         </nav>
 
         {/* Account Section */}
-        <div className="p-4 border-t border-gray-200 relative" ref={dropdownRef}>
+        <div className="p-4 border-t border-white/10 relative" ref={dropdownRef}>
           <button
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-200 relative group",
-              !isVisuallyExpanded ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
-              "text-gray-600 hover:text-ios-blue hover:bg-gray-50 hover:shadow-sm"
+              isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
+              "text-gray-600 hover:text-ios-blue hover:bg-white/50 hover:shadow-sm"
             )}
             onClick={() => {
               console.log('Avatar clicked, current state:', isDropdownOpen);
@@ -236,9 +185,9 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
               )}
             </div>
-            {isVisuallyExpanded && (
+            {!isCollapsed && (
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                   {currentUser?.name}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
@@ -248,7 +197,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
             )}
 
             {/* Tooltip for collapsed state */}
-            {!isVisuallyExpanded && (
+            {isCollapsed && (
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                 {currentUser?.name}
               </div>
@@ -259,7 +208,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           {isDropdownOpen && (
             <div className={cn(
               "absolute z-[1000] w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden",
-              !isVisuallyExpanded
+              isCollapsed
                 ? "left-full ml-2 bottom-0"
                 : "left-4 right-4 bottom-full mb-2"
             )}>

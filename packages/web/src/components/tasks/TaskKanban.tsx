@@ -130,8 +130,11 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
     return (
       <Card className="border border-dashed shadow-none">
         <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4"></div>
-          <p className="text-muted-foreground">Đang tải dữ liệu công việc...</p>
+          <div className="relative mb-4">
+            <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-spin"></div>
+            <div className="absolute top-0 left-0 w-8 h-8 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
+          </div>
+          <p className="text-muted-foreground font-medium">Đang tải dữ liệu công việc...</p>
         </CardContent>
       </Card>
     );

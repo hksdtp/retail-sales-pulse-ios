@@ -52,6 +52,7 @@ import { useManagerTaskData } from '@/hooks/use-manager-task-data';
 import { useTaskData } from '@/hooks/use-task-data';
 import notificationService from '@/services/notificationService';
 
+import LoadingScreen from '@/components/ui/LoadingScreen';
 import MemberTaskSelector from './MemberTaskSelector';
 import TaskDetailPanel from './TaskDetailPanel';
 import { getStatusColor, getTypeName } from './task-utils/TaskFormatters';
@@ -163,14 +164,7 @@ export default function TaskManagementView({
 
   // Early return nếu chưa có currentUser
   if (!currentUser) {
-    return (
-      <div className="flex h-screen bg-gray-50 items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Đang tải...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Đang khởi tạo dữ liệu người dùng..." />;
   }
 
   // Sử dụng hook phù hợp dựa trên role
@@ -200,9 +194,51 @@ export default function TaskManagementView({
     switch (view) {
       case 'personal':
         // Công việc cá nhân: được giao trực tiếp cho user hoặc do user tạo
-        return regularTasks.filter(
-          (task) => task.assignedTo === currentUser?.id || task.user_id === currentUser?.id,
-        );
+        console.log('🔍 Personal view filtering:');
+        console.log('  - currentUser.id:', currentUser?.id);
+        console.log('  - regularTasks count:', regularTasks.length);
+        console.log('  - regularTasks:', regularTasks);
+
+        const personalTasks = regularTasks.filter((task) => {
+          const currentUserId = currentUser?.id;
+
+          // Kiểm tra nhiều cách match ID
+          const isAssignedTo = task.assignedTo === currentUserId;
+          const isCreatedBy = task.user_id === currentUserId;
+
+          // Loose comparison
+          const isAssignedToLoose = task.assignedTo == currentUserId;
+          const isCreatedByLoose = task.user_id == currentUserId;
+
+          // Kiểm tra nếu task được giao cho user này (có thể là retail_director)
+          const isForCurrentUser = task.assignedTo === currentUserId ||
+                                   task.user_id === currentUserId ||
+                                   task.assignedTo == currentUserId ||
+                                   task.user_id == currentUserId;
+
+          // Đặc biệt cho retail_director: hiển thị tất cả tasks của phòng
+          const isRetailDirector = currentUser?.role === 'retail_director';
+          const isDepartmentTask = isRetailDirector && (
+            task.isShared || // Công việc chung phòng
+            task.department === 'retail' || // Thuộc phòng bán lẻ
+            task.department_type === 'retail' // Thuộc loại bán lẻ
+          );
+
+          console.log(`  - Task "${task.title}":`);
+          console.log(`    assignedTo: ${task.assignedTo} (${typeof task.assignedTo})`);
+          console.log(`    user_id: ${task.user_id} (${typeof task.user_id})`);
+          console.log(`    currentUser.id: ${currentUserId} (${typeof currentUserId})`);
+          console.log(`    isForCurrentUser: ${isForCurrentUser}`);
+          console.log(`    isRetailDirector: ${isRetailDirector}`);
+          console.log(`    isDepartmentTask: ${isDepartmentTask}`);
+          console.log(`    task.isShared: ${task.isShared}`);
+          console.log(`    task.department: ${task.department}`);
+
+          return isForCurrentUser || isDepartmentTask;
+        });
+
+        console.log('  - Filtered personalTasks:', personalTasks);
+        return personalTasks;
       case 'team':
         if (isManager) {
           // Manager: xem công việc cấp nhóm (team-level tasks)
@@ -257,13 +293,29 @@ export default function TaskManagementView({
         }
         return [];
       case 'department':
-        // Công việc chung của cả phòng: tất cả công việc được chia sẻ với toàn phòng
-        return regularTasks.filter(
-          (task) =>
-            task.isShared && // Được chia sẻ với phòng
-            !task.isSharedWithTeam, // Không phải công việc nhóm
-          // Bỏ điều kiện task.assignedTo !== currentUser?.id để hiển thị cả công việc do Trưởng phòng tạo
-        );
+        // Công việc chung của cả phòng: sử dụng managerTasks nếu có, fallback về regularTasks
+        if (managerTasks.length > 0) {
+          console.log('🏢 Using managerTasks for department view:', managerTasks);
+          return managerTasks;
+        }
+        // Fallback: Công việc chung của cả phòng từ regularTasks
+        console.log('🏢 Filtering department tasks from regularTasks:', regularTasks.length);
+        const departmentTasks = regularTasks.filter((task) => {
+          const isShared = task.isShared;
+          const isSharedWithTeam = task.isSharedWithTeam;
+
+          // Hiển thị tất cả công việc được chia sẻ (cả phòng và nhóm)
+          const shouldShow = isShared || isSharedWithTeam;
+
+          console.log(`  📋 Task "${task.title}":`);
+          console.log(`    isShared: ${isShared}`);
+          console.log(`    isSharedWithTeam: ${isSharedWithTeam}`);
+          console.log(`    shouldShow: ${shouldShow}`);
+
+          return shouldShow;
+        });
+        console.log('🏢 Final department tasks:', departmentTasks.length);
+        return departmentTasks;
       default:
         return regularTasks.filter(
           (task) => task.assignedTo === currentUser?.id || task.user_id === currentUser?.id,
@@ -276,11 +328,14 @@ export default function TaskManagementView({
   // Cập nhật localTasks khi baseTasks thay đổi, nhưng giữ lại các thay đổi local
   useEffect(() => {
     console.log('🔄 Updating localTasks with baseTasks:', baseTasks);
+    console.log('🔍 Current selectedView:', selectedView);
+    console.log('🔍 regularTaskData:', regularTaskData);
+    console.log('🔍 managerTaskData:', managerTaskData);
     // Chỉ cập nhật nếu localTasks chưa có dữ liệu hoặc khác biệt về số lượng
     if (localTasks.length === 0 || localTasks.length !== baseTasks.length) {
       setLocalTasks([...baseTasks]);
     }
-  }, [baseTasks.length]);
+  }, [baseTasks.length, selectedView]);
 
   const tasks = localTasks;
 

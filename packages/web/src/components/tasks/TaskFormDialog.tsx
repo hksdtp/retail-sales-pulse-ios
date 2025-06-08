@@ -1,15 +1,6 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { Briefcase, FilePen, FileText, Plus, Users } from 'lucide-react';
-import { Calendar, Clock } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import React, { useState, useEffect } from 'react';
+import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
@@ -18,16 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -35,689 +18,331 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/context/AuthContext';
-import { useTaskData } from '@/hooks/use-task-data';
-import { useToast } from '@/hooks/use-toast';
+import { canAssignTasks } from '@/config/permissions';
 
-// Schema xác thực form
-const formSchema = z.object({
-  title: z.string().min(3, {
-    message: 'Tiêu đề phải có ít nhất 3 ký tự',
-  }),
-  description: z.string().min(10, {
-    message: 'Mô tả phải có ít nhất 10 ký tự',
-  }),
-  type: z.enum(
-    [
-      'partner_new',
-      'partner_old',
-      'architect_new',
-      'architect_old',
-      'client_new',
-      'client_old',
-      'quote_new',
-      'quote_old',
-      'other',
-    ],
-    {
-      required_error: 'Vui lòng chọn loại công việc',
-    },
-  ),
-  status: z.enum(['todo', 'in-progress', 'on-hold', 'completed'], {
-    required_error: 'Vui lòng chọn trạng thái',
-  }),
-  priority: z.enum(['high', 'normal', 'low'], {
-    required_error: 'Vui lòng chọn mức độ ưu tiên',
-  }),
-  date: z.string().min(1, {
-    message: 'Vui lòng chọn ngày',
-  }),
-  time: z.string().optional(),
-  team_id: z.string().optional(),
-  assignedTo: z.string().optional(), // Thêm trường để chỉ định người được giao công việc
-  isShared: z.boolean().optional(),
-  isSharedWithTeam: z.boolean().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+interface TaskFormData {
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  priority: string;
+  date: string;
+  time?: string;
+  assignedTo?: string;
+  isShared?: boolean;
+  isSharedWithTeam?: boolean;
+}
 
 interface TaskFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  formType?: 'self' | 'team' | 'individual';
-  onTaskCreated?: () => void; // Thêm sự kiện khi tạo công việc thành công
+  onSubmit: (data: TaskFormData) => void;
+  formType: 'self' | 'team' | 'individual';
 }
 
-const TaskFormDialog = ({
+const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   open,
   onOpenChange,
-  formType = 'self',
-  onTaskCreated,
-}: TaskFormDialogProps) => {
-  const { currentUser, teams, users } = useAuth();
-  const { toast } = useToast();
-  const { addTask } = useTaskData();
-  const [canAssignToOthers, setCanAssignToOthers] = useState(false);
+  onSubmit,
+  formType,
+}) => {
+  const { currentUser, users } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    // Chỉ giám đốc (retail_director, project_director) và trưởng nhóm mới có thể giao việc cho người khác
-    setCanAssignToOthers(
-      currentUser?.role === 'retail_director' ||
-        currentUser?.role === 'project_director' ||
-        currentUser?.role === 'team_leader',
-    );
-  }, [currentUser]);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      type: 'partner_new',
-      status: 'todo',
-      priority: 'normal',
-      date: new Date().toISOString().split('T')[0], // Ngày hiện tại theo thời gian thực
-      time: '',
-      team_id: currentUser?.team_id,
-      assignedTo: currentUser?.id, // Mặc định gán cho người dùng hiện tại
-      isShared: false, // Mặc định không chia sẻ
-      isSharedWithTeam: false, // Mặc định không chia sẻ với nhóm
-    },
+  const [formData, setFormData] = useState<TaskFormData>({
+    title: '',
+    description: '',
+    type: '',
+    status: 'todo',
+    priority: 'normal',
+    date: '',
+    time: '',
+    assignedTo: currentUser?.id || '',
+    isShared: false,
+    isSharedWithTeam: false,
   });
 
-  // Reset ngày về hôm nay khi mở dialog
+  const canAssignToOthers = currentUser && canAssignTasks(currentUser.role);
+
+  const filteredUsers = users.filter((user) => {
+    if (formType === 'self') return user.id === currentUser?.id;
+    if (formType === 'individual') {
+      return currentUser?.team_id === user.team_id;
+    }
+    return true;
+  });
+
   useEffect(() => {
     if (open) {
-      const today = new Date().toISOString().split('T')[0];
-      form.setValue('date', today);
+      setFormData({
+        title: '',
+        description: '',
+        type: '',
+        status: 'todo',
+        priority: 'normal',
+        date: '',
+        time: '',
+        assignedTo: currentUser?.id || '',
+        isShared: false,
+        isSharedWithTeam: false,
+      });
     }
-  }, [open, form]);
+  }, [open, currentUser]);
 
-  // Lọc danh sách người dùng dựa trên vai trò và nhóm
-  const getFilteredUsers = () => {
-    if (!currentUser || !users) return [];
-
-    if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
-      // Giám đốc có thể giao việc cho bất kỳ ai
-      return users;
-    } else if (currentUser.role === 'team_leader') {
-      // Trưởng nhóm chỉ có thể giao việc cho thành viên trong nhóm của mình
-      return users.filter((user) => user.team_id === currentUser.team_id);
-    } else {
-      // Nhân viên chỉ có thể tạo việc cho chính mình
-      return users.filter((user) => user.id === currentUser.id);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date) {
+      alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
     }
-  };
-
-  const filteredUsers = getFilteredUsers();
-
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
 
     try {
-      // Đảm bảo có người được giao công việc
-      const assignee = data.assignedTo || currentUser?.id;
-
-      // Đảm bảo các trường bắt buộc được cung cấp
-      const newTask = {
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        status: data.status,
-        priority: data.priority,
-        date: data.date,
-        time: data.time || '',
-        user_id: currentUser?.id || '',
-        user_name: currentUser?.name || '',
-        team_id: data.team_id || currentUser?.team_id || '',
-        location: currentUser?.location || '',
-        assignedTo: assignee || '',
-        isShared: data.isShared || false,
-        isSharedWithTeam: data.isSharedWithTeam || false,
-      };
-
-      console.log('Dữ liệu công việc mới:', newTask);
-
-      // Sử dụng hàm addTask từ TaskDataProvider
-      const createdTask = await addTask(newTask);
-
-      // Tạo thông báo khi tạo công việc mới
-      if (currentUser && createdTask) {
-        // Import notificationService
-        const { default: notificationService } = await import('@/services/notificationService');
-
-        notificationService.createTaskNotification(
-          createdTask.id,
-          createdTask.title,
-          currentUser.id,
-          currentUser.name,
-        );
-      }
-
-      toast({
-        title: 'Thành công!',
-        description: 'Công việc đã được tạo và lưu thành công.',
-      });
-
-      // Làm mới danh sách công việc
-      // onTaskCreated sẽ gọi refreshTasks() trong TaskList.tsx
-
-      // Gọi callback khi tạo công việc thành công
-      if (onTaskCreated) {
-        onTaskCreated();
-      }
-
-      // Đóng form sau khi submit thành công
+      setIsSubmitting(true);
+      await onSubmit(formData);
       onOpenChange(false);
-      form.reset();
     } catch (error) {
-      console.error('Lỗi khi tạo công việc:', error);
-      toast({
-        title: 'Lỗi',
-        description: error instanceof Error ? error.message : 'Không thể tạo công việc',
-        variant: 'destructive',
-      });
+      console.error('Error submitting task:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Hàm lấy biểu tượng cho loại công việc
-  const getTypeIcon = (type: string) => {
-    if (type.startsWith('partner')) return <Briefcase className="mr-2 h-4 w-4" />;
-    if (type.startsWith('architect')) return <FilePen className="mr-2 h-4 w-4" />;
-    if (type.startsWith('client')) return <Users className="mr-2 h-4 w-4" />;
-    if (type.startsWith('quote')) return <FileText className="mr-2 h-4 w-4" />;
-    return <Plus className="mr-2 h-4 w-4" />;
+  const handleInputChange = (field: keyof TaskFormData, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] md:max-w-[650px] lg:max-w-[750px] bg-white/95 backdrop-blur-lg border border-white/30 shadow-xl rounded-[20px]">
-        <DialogHeader className="space-y-2 pb-2">
-          <DialogTitle className="text-xl md:text-2xl font-bold text-[#2d3436] tracking-wide">
-            {formType === 'self' && 'Tạo công việc mới cho bản thân'}
-            {formType === 'team' && 'Giao công việc cho Nhóm/Cá nhân'}
-            {formType === 'individual' && 'Giao công việc cho thành viên'}
-          </DialogTitle>
-          <DialogDescription className="text-[#636e72] text-sm md:text-base font-medium">
-            {/* Ẩn phần mô tả của tạo công việc cho bản thân */}
-            {formType === 'team' && 'Phân công công việc cho nhóm hoặc cá nhân bất kỳ'}
-            {formType === 'individual' && 'Phân công công việc cho các thành viên trong nhóm'}
-          </DialogDescription>
+      <DialogContent className="sm:max-w-[720px] md:max-w-[840px] lg:max-w-[960px] max-h-[95vh] overflow-y-auto bg-white/95 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl">
+        <DialogHeader className="pb-6 border-b border-gray-100/50 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 -m-6 mb-0 p-8 rounded-t-3xl">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+              <Plus className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <DialogTitle className="text-2xl font-bold text-gray-900 tracking-tight">
+                {formType === 'self' && 'Tạo công việc mới'}
+                {formType === 'team' && 'Giao công việc cho Nhóm'}
+                {formType === 'individual' && 'Giao công việc cho thành viên'}
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 text-sm font-medium mt-1">
+                {formType === 'self' && 'Tạo công việc cá nhân và quản lý tiến độ'}
+                {formType === 'team' && 'Phân công công việc cho nhóm hoặc cá nhân bất kỳ'}
+                {formType === 'individual' && 'Phân công công việc cho các thành viên trong nhóm'}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 mt-2">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem className="mt-0">
-                  <FormLabel className="text-[#2d3436] font-medium">Tiêu đề công việc</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Nhập tiêu đề công việc"
-                      className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs font-medium" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-[#2d3436] font-medium">Mô tả</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Mô tả chi tiết về công việc"
-                      className="min-h-[100px] bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20 resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs font-medium" />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#2d3436] font-medium">Loại công việc</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
-                          <SelectValue placeholder="Chọn loại công việc" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
-                        <SelectItem value="partner_new" className="flex items-center">
-                          <div className="flex items-center">
-                            <Briefcase className="mr-2 h-4 w-4 text-blue-500" />
-                            <span className="text-blue-700 font-medium">Đối tác mới</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="partner_old" className="flex items-center">
-                          <div className="flex items-center">
-                            <Briefcase className="mr-2 h-4 w-4 text-blue-400" />
-                            <span className="text-blue-600">Đối tác cũ</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="architect_new" className="flex items-center">
-                          <div className="flex items-center">
-                            <FilePen className="mr-2 h-4 w-4 text-purple-500" />
-                            <span className="text-purple-700 font-medium">KTS mới</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="architect_old" className="flex items-center">
-                          <div className="flex items-center">
-                            <FilePen className="mr-2 h-4 w-4 text-purple-400" />
-                            <span className="text-purple-600">KTS cũ</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="client_new" className="flex items-center">
-                          <div className="flex items-center">
-                            <Users className="mr-2 h-4 w-4 text-green-500" />
-                            <span className="text-green-700 font-medium">Khách hàng mới</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="client_old" className="flex items-center">
-                          <div className="flex items-center">
-                            <Users className="mr-2 h-4 w-4 text-green-400" />
-                            <span className="text-green-600">Khách hàng cũ</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="quote_new" className="flex items-center">
-                          <div className="flex items-center">
-                            <FileText className="mr-2 h-4 w-4 text-amber-500" />
-                            <span className="text-amber-700 font-medium">Báo giá mới</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="quote_old" className="flex items-center">
-                          <div className="flex items-center">
-                            <FileText className="mr-2 h-4 w-4 text-amber-400" />
-                            <span className="text-amber-600">Báo giá cũ</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="other" className="flex items-center">
-                          <div className="flex items-center">
-                            <Plus className="mr-2 h-4 w-4 text-gray-500" />
-                            <span className="text-gray-700">Khác</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+        <form onSubmit={handleSubmit} className="space-y-6 mt-6 p-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+            <label className="text-gray-900 font-semibold text-base flex items-center space-x-2 mb-3">
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+              <span>Tiêu đề công việc</span>
+            </label>
+            <div className="relative">
+              <Input
+                placeholder="Nhập tiêu đề công việc..."
+                className="h-12 bg-white/80 backdrop-blur-sm border-0 border-b-2 border-gray-200 rounded-none focus:border-blue-500 focus:ring-0 text-lg font-medium placeholder-gray-400 transition-all duration-200"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
               />
+              <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-200 w-0 focus-within:w-full"></div>
+            </div>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#2d3436] font-medium">Trạng thái</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
-                          <SelectValue placeholder="Chọn trạng thái" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
-                        <SelectItem value="todo" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-gray-400 mr-2"></div>
-                            <span className="text-gray-700 font-medium">Chưa bắt đầu</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="in-progress" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                            <span className="text-blue-700 font-medium">Đang thực hiện</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="on-hold" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-amber-400 mr-2"></div>
-                            <span className="text-amber-700 font-medium">Đang chờ</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="completed" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                            <span className="text-green-700 font-medium">Hoàn thành</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#2d3436] font-medium">Mức độ ưu tiên</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
-                          <SelectValue placeholder="Chọn mức độ ưu tiên" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
-                        <SelectItem value="high" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                            <span className="text-red-700 font-medium">Cao</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="normal" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-                            <span className="text-yellow-700 font-medium">Bình thường</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="low" className="flex items-center">
-                          <div className="flex items-center">
-                            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                            <span className="text-green-700 font-medium">Thấp</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+            <label className="text-gray-900 font-semibold text-base flex items-center space-x-2 mb-3">
+              <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+              <span>Mô tả chi tiết</span>
+            </label>
+            <div className="relative">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-t-xl"></div>
+              <Textarea
+                placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
+                className="min-h-[120px] bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-green-500 focus:ring-green-500/20 resize-none pt-4 text-gray-700 placeholder-gray-400"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
               />
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <Controller
-                control={form.control}
-                name="date"
-                render={({ field, fieldState }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-[#2d3436] font-medium">Ngày</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <button
-                            className={`flex h-11 items-center justify-between rounded-xl border border-gray-200/50 bg-white/70 backdrop-blur-sm pl-4 pr-3 py-2 text-left text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 focus:border-[#6c5ce7] hover:border-[#6c5ce7]/50 transition-all shadow-sm ${fieldState.invalid ? 'border-red-500' : ''}`}
-                            type="button"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-[#6c5ce7]" />
-                              <span>
-                                {field.value
-                                  ? format(new Date(field.value), 'dd/MM/yyyy', { locale: vi })
-                                  : 'Chọn ngày'}
-                              </span>
-                            </div>
-                            <div className="ml-auto">
-                              <Calendar className="h-4 w-4 text-[#6c5ce7]" />
-                            </div>
-                          </button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-auto p-0 bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
-                        align="start"
-                      >
-                        <CalendarComponent
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) =>
-                            field.onChange(date ? date.toISOString().split('T')[0] : '')
-                          }
-                          disabled={(date) => date < new Date('1900-01-01')}
-                          initialFocus
-                          className="rounded-xl border-none shadow-none p-3"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage className="text-xs font-medium" />
-                  </FormItem>
-                )}
-              />
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+              <h3 className="text-gray-900 font-semibold text-base">Thông tin công việc</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="text-gray-700 font-medium text-sm mb-2 block">Loại công việc</label>
+                <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-purple-500 focus:ring-purple-500/20 hover:border-purple-300 transition-all duration-200">
+                    <SelectValue placeholder="Chọn loại công việc" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
+                    <SelectItem value="sales">Bán hàng</SelectItem>
+                    <SelectItem value="customer_service">Chăm sóc khách hàng</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="admin">Hành chính</SelectItem>
+                    <SelectItem value="training">Đào tạo</SelectItem>
+                    <SelectItem value="meeting">Họp</SelectItem>
+                    <SelectItem value="report">Báo cáo</SelectItem>
+                    <SelectItem value="other">Khác</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Controller
-                control={form.control}
-                name="time"
-                render={({ field, fieldState }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-[#2d3436] font-medium">Thời gian (nếu có)</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <button
-                            className={`flex h-11 w-full items-center justify-between rounded-xl border border-gray-200/50 bg-white/70 backdrop-blur-sm pl-4 pr-3 py-2 text-left text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6c5ce7]/20 focus:border-[#6c5ce7] hover:border-[#6c5ce7]/50 transition-all shadow-sm ${fieldState.invalid ? 'border-red-500' : ''}`}
-                            type="button"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-[#6c5ce7]" />
-                              <span className="text-[#2d3436]">
-                                {field.value ? field.value : 'Chọn thời gian'}
-                              </span>
-                            </div>
-                          </button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="p-3 bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl"
-                        align="start"
-                      >
-                        <div className="flex flex-col space-y-3">
-                          <div className="grid grid-cols-4 gap-2">
-                            {['07:00', '08:00', '09:00', '10:00'].map((time) => (
-                              <button
-                                key={time}
-                                className={`p-2 rounded-lg text-sm ${field.value === time ? 'bg-[#6c5ce7] text-white' : 'hover:bg-gray-100'}`}
-                                onClick={() => {
-                                  field.onChange(time);
-                                  document
-                                    .querySelector('[data-state="open"]')
-                                    ?.dispatchEvent(
-                                      new KeyboardEvent('keydown', { key: 'Escape' }),
-                                    );
-                                }}
-                              >
-                                {time}
-                              </button>
-                            ))}
-                          </div>
-                          <div className="grid grid-cols-4 gap-2">
-                            {['11:00', '13:00', '14:00', '15:00'].map((time) => (
-                              <button
-                                key={time}
-                                className={`p-2 rounded-lg text-sm ${field.value === time ? 'bg-[#6c5ce7] text-white' : 'hover:bg-gray-100'}`}
-                                onClick={() => {
-                                  field.onChange(time);
-                                  document
-                                    .querySelector('[data-state="open"]')
-                                    ?.dispatchEvent(
-                                      new KeyboardEvent('keydown', { key: 'Escape' }),
-                                    );
-                                }}
-                              >
-                                {time}
-                              </button>
-                            ))}
-                          </div>
-                          <div className="grid grid-cols-4 gap-2">
-                            {['16:00', '17:00', '18:00', '19:00'].map((time) => (
-                              <button
-                                key={time}
-                                className={`p-2 rounded-lg text-sm ${field.value === time ? 'bg-[#6c5ce7] text-white' : 'hover:bg-gray-100'}`}
-                                onClick={() => {
-                                  field.onChange(time);
-                                  document
-                                    .querySelector('[data-state="open"]')
-                                    ?.dispatchEvent(
-                                      new KeyboardEvent('keydown', { key: 'Escape' }),
-                                    );
-                                }}
-                              >
-                                {time}
-                              </button>
-                            ))}
-                          </div>
-                          <div className="pt-2 border-t">
-                            <div className="flex items-center">
-                              <input
-                                type="time"
-                                className="flex-1 h-9 rounded-lg border border-gray-200 px-3 text-sm"
-                                value={field.value || ''}
-                                onChange={(e) => field.onChange(e.target.value)}
-                              />
-                              <button
-                                className="ml-2 p-2 rounded-lg bg-[#6c5ce7] text-white text-sm"
-                                onClick={() => {
-                                  document
-                                    .querySelector('[data-state="open"]')
-                                    ?.dispatchEvent(
-                                      new KeyboardEvent('keydown', { key: 'Escape' }),
-                                    );
-                                }}
-                              >
-                                Chọn
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage className="text-xs font-medium" />
-                  </FormItem>
-                )}
-              />
+              <div>
+                <label className="text-gray-700 font-medium text-sm mb-2 block">Trạng thái</label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 hover:border-blue-300 transition-all duration-200">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
+                    <SelectItem value="todo">Chưa bắt đầu</SelectItem>
+                    <SelectItem value="in_progress">Đang thực hiện</SelectItem>
+                    <SelectItem value="completed">Hoàn thành</SelectItem>
+                    <SelectItem value="cancelled">Đã hủy</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-gray-700 font-medium text-sm mb-2 block">Mức độ ưu tiên</label>
+                <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-red-500 focus:ring-red-500/20 hover:border-red-300 transition-all duration-200">
+                    <SelectValue placeholder="Chọn mức độ ưu tiên" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
+                    <SelectItem value="low">Thấp</SelectItem>
+                    <SelectItem value="normal">Bình thường</SelectItem>
+                    <SelectItem value="high">Cao</SelectItem>
+                    <SelectItem value="urgent">Khẩn cấp</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+              <h3 className="text-gray-900 font-semibold text-base">Thời gian & Phân công</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="text-gray-700 font-medium text-sm mb-2 block flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-indigo-500" />
+                  <span>Ngày thực hiện</span>
+                </label>
+                <Input
+                  type="date"
+                  className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange('date', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="text-gray-700 font-medium text-sm mb-2 block flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-indigo-500" />
+                  <span>Thời gian (tùy chọn)</span>
+                </label>
+                <Input
+                  type="time"
+                  className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20"
+                  value={formData.time}
+                  onChange={(e) => handleInputChange('time', e.target.value)}
+                />
+              </div>
             </div>
 
-            {canAssignToOthers && filteredUsers.length > 0 && (
-              <FormField
-                control={form.control}
-                name="assignedTo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[#2d3436] font-medium">Người thực hiện</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value || currentUser?.id}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
-                          <SelectValue placeholder="Chọn người thực hiện" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
-                        {filteredUsers.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name} {user.id === currentUser?.id ? '(Bản thân)' : ''}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {(formType === 'team' || formType === 'individual') && canAssignToOthers && (
+              <div className="mt-6">
+                <label className="text-gray-700 font-medium text-sm mb-2 block flex items-center space-x-2">
+                  <Users className="w-4 h-4 text-indigo-500" />
+                  <span>Giao cho</span>
+                </label>
+                <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
+                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20">
+                    <SelectValue placeholder="Chọn người thực hiện" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
+                    {filteredUsers.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.name} - {user.location || 'Chưa xác định'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
 
-            {/* Tùy chọn chia sẻ công việc */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <FormField
-                control={form.control}
-                name="isShared"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value || false}
-                        onChange={field.onChange}
-                        className="h-5 w-5 rounded border-gray-300 text-[#6c5ce7] focus:ring-[#6c5ce7]"
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        Chia sẻ với tất cả nhân viên
-                      </FormLabel>
-                      <p className="text-xs text-gray-500">
-                        Tất cả nhân viên sẽ nhìn thấy công việc này
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
+            {formType === 'team' && (
+              <div className="mt-6 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="shareWithAll"
+                    checked={formData.isShared || false}
+                    onChange={(e) => handleInputChange('isShared', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="shareWithAll" className="text-sm font-medium text-gray-700">
+                    Chia sẻ với tất cả nhân viên
+                  </label>
+                </div>
+                <div className="flex items-center space-x-3 mt-2">
+                  <input
+                    type="checkbox"
+                    id="shareWithTeam"
+                    checked={formData.isSharedWithTeam || false}
+                    onChange={(e) => handleInputChange('isSharedWithTeam', e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="shareWithTeam" className="text-sm font-medium text-gray-700">
+                    Chia sẻ với nhóm của tôi
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
 
-              <FormField
-                control={form.control}
-                name="isSharedWithTeam"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value || false}
-                        onChange={field.onChange}
-                        className="h-5 w-5 rounded border-gray-300 text-[#6c5ce7] focus:ring-[#6c5ce7]"
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        Chia sẻ với nhóm của tôi
-                      </FormLabel>
-                      <p className="text-xs text-gray-500">
-                        Chỉ nhân viên trong nhóm sẽ nhìn thấy công việc này
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Phần thông tin người tạo đã được ẩn theo yêu cầu */}
-
-            {/* Phần hướng dẫn đã được xóa theo yêu cầu */}
-
-            <DialogFooter className="mt-8 space-x-3">
+          <DialogFooter className="mt-8 p-6 bg-gradient-to-r from-gray-50/50 to-white/50 backdrop-blur-sm -m-6 mt-8 rounded-b-3xl border-t border-gray-100/50">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               <Button
                 type="button"
                 variant="outline"
-                className="h-11 px-5 rounded-xl border-gray-200 hover:bg-gray-100/50 hover:border-gray-300 hover:translate-y-[-1px] transition-all"
+                className="h-12 px-6 rounded-xl border-2 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-lg transition-all duration-200 font-semibold text-gray-700 transform hover:scale-105"
                 onClick={() => onOpenChange(false)}
               >
-                Hủy
+                <X className="w-4 h-4 mr-2" />
+                Hủy bỏ
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-11 px-5 rounded-xl bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] hover:opacity-90 hover:translate-y-[-1px] transition-all"
+                className="h-12 px-6 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex-1"
               >
-                {isSubmitting
-                  ? 'Đang lưu...'
-                  : formType === 'self'
-                    ? 'Tạo công việc cho bản thân'
-                    : formType === 'team'
-                      ? 'Giao công việc cho Nhóm/Cá nhân'
-                      : 'Giao công việc cho thành viên'}
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Đang lưu...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    {formType === 'self'
+                      ? 'Tạo công việc'
+                      : formType === 'team'
+                        ? 'Giao công việc cho Nhóm'
+                        : 'Giao công việc cho thành viên'}
+                  </>
+                )}
               </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+            </div>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

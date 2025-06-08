@@ -59,8 +59,11 @@ const TaskList = ({ location, teamId }: TaskListProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6c5ce7]"></div>
-        <span className="ml-3 text-gray-600">Đang tải dữ liệu công việc...</span>
+        <div className="relative">
+          <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-spin"></div>
+          <div className="absolute top-0 left-0 w-8 h-8 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
+        </div>
+        <span className="ml-3 text-gray-600 font-medium">Đang tải dữ liệu công việc...</span>
       </div>
     );
   }

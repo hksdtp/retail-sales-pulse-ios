@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Doanh Số Tổng Hợp - BP Bán Lẻ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .branch-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.6);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+
+        th:first-child, td:first-child {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 11;
+        }
+
+        th:first-child {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .branch-content {
+            display: none;
+        }
+
+        .branch-content.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .team-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .team-item:last-child {
+            border-bottom: none;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .team-achievement {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .performance-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-excellent {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+        }
+
+        .badge-good {
+            background: linear-gradient(45deg, #3b82f6, #60a5fa);
+            color: white;
+        }
+
+        .badge-average {
+            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+
+        .badge-poor {
+            background: linear-gradient(45deg, #ef4444, #f87171);
+            color: white;
+        }
+
+        .badge-very-poor {
+            background: linear-gradient(45deg, #7c2d12, #dc2626);
+            color: white;
+        }
+
+        .individual-performance {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .individual-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .individual-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .individual-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .individual-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .individual-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-item .label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .monthly-trend {
+            margin-top: 15px;
+        }
+
+        .trend-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .trend-chart {
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ranking-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .ranking-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 15px;
+            font-size: 0.9rem;
+        }
+
+        .rank-1 { background: linear-gradient(45deg, #ffd700, #ffed4e); }
+        .rank-2 { background: linear-gradient(45deg, #c0c0c0, #e5e7eb); }
+        .rank-3 { background: linear-gradient(45deg, #cd7f32, #d97706); }
+        .rank-other { background: linear-gradient(45deg, #6b7280, #9ca3af); }
+
+        .rank-info {
+            flex: 1;
+        }
+
+        .rank-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .rank-details {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .executive-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .insight-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .insight-list li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .warning-list li:before {
+            content: '⚠️';
+        }
+
+        .action-plan {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .priority-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .priority-card {
+            border-left: 5px solid;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .priority-high {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+        }
+
+        .priority-medium {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.02));
+        }
+
+        .priority-low {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+        }
+
+        .priority-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .risk-assessment {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .risk-item {
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .risk-critical {
+            border-left-color: #dc2626;
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .risk-high {
+            border-left-color: #ea580c;
+            background: rgba(234, 88, 12, 0.1);
+        }
+
+        .risk-medium {
+            border-left-color: #ca8a04;
+            background: rgba(202, 138, 4, 0.1);
+        }
+
+        .best-practices {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .practice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .practice-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #667eea;
+        }
+
+        .practice-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .metric-highlight {
+            background: linear-gradient(45deg, #4ade80, #22c55e);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .insights-grid,
+            .priority-section,
+            .risk-matrix,
+            .practice-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .executive-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard Doanh Số Tổng Hợp</h1>
+            <p>BP Bán Lẻ - Cập nhật: 09/06/2025 | Dữ liệu thực tế 5 tháng đầu năm 2024</p>
+            <div class="branch-tabs">
+                <button class="tab-button active" onclick="switchBranch('hanoi')">🏢 BP. Bán lẻ Hà Nội</button>
+                <button class="tab-button" onclick="switchBranch('hcm')">🏬 BP. Bán lẻ HCM</button>
+                <button class="tab-button" onclick="switchBranch('compare')">📈 So sánh</button>
+            </div>
+        </div>
+
+        <!-- Hà Nội Branch -->
+        <div id="hanoi-content" class="branch-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">4,84 tỷ</div>
+                    <div class="stat-label">Tổng doanh số thực tế</div>
+                    <div class="stat-change negative">13,27% KH năm (36,5 tỷ)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 13.27%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2,09 tỷ</div>
+                    <div class="stat-label">Doanh số tháng 5</div>
+                    <div class="stat-change positive">73,25% KH tháng - Cao nhất!</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 73.25%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">📈 Tăng trưởng</div>
+                    <div class="stat-label">Xu hướng tích cực</div>
+                    <div class="stat-change positive">T1: -1% → T5: 73%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">92:8</div>
+                    <div class="stat-label">Tỷ lệ Mành rèm : Nội thất</div>
+                    <div class="stat-change negative">Cần cân bằng sản phẩm</div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">📈 Doanh số theo tháng - Hà Nội</div>
+                    <canvas id="revenueChartHanoi"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">🥧 Cơ cấu sản phẩm</div>
+                    <canvas id="productChartHanoi"></canvas>
+                </div>
+            </div>
+
+            <div class="ranking-section">
+                <div class="chart-title">🏆 Bảng Xếp Hạng Cá Nhân - Hà Nội</div>
+                <div class="ranking-grid">
+                    <div class="ranking-list">
+                        <h3 style="margin-bottom: 15px; color: #333;">🎯 Theo Tỷ lệ đạt KH</h3>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-1">1</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phạm Thị Hương <span class="performance-badge badge-excellent">Xuất sắc</span></div>
+                                <div class="rank-details">21,81% • 1,31 tỷ • Dẫn đầu 2 tháng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-2">2</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lương Việt Anh <span class="performance-badge badge-good">Tốt</span></div>
+                                <div class="rank-details">17,68% • 1,15 tỷ • Ổn định</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-3">3</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Thảo <span class="performance-badge badge-good">Tốt</span></div>
+                                <div class="rank-details">16,74% • 1,09 tỷ • Bùng nổ T5</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">4</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lê Khánh Duy <span class="performance-badge badge-average">Trung bình</span></div>
+                                <div class="rank-details">13,65% • 0,48 tỷ • Cần cải thiện</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">5</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Trịnh Thị Bốn <span class="performance-badge badge-average">Trung bình</span></div>
+                                <div class="rank-details">12,32% • 0,62 tỷ • Không ổn định</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">6</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Mạnh Linh <span class="performance-badge badge-poor">Kém</span></div>
+                                <div class="rank-details">6,80% • 0,20 tỷ • Cần hỗ trợ</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">7</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lê Tiến Quân <span class="performance-badge badge-very-poor">Rất kém</span></div>
+                                <div class="rank-details">0% • 0 tỷ • Chưa có doanh số</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ranking-list">
+                        <h3 style="margin-bottom: 15px; color: #333;">💰 Theo Doanh số tuyệt đối</h3>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-1">1</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phạm Thị Hương</div>
+                                <div class="rank-details">1,31 tỷ • 27,01% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-2">2</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lương Việt Anh</div>
+                                <div class="rank-details">1,15 tỷ • 23,73% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-3">3</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Thảo</div>
+                                <div class="rank-details">1,09 tỷ • 22,47% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">4</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Trịnh Thị Bốn</div>
+                                <div class="rank-details">0,62 tỷ • 12,72% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">5</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lê Khánh Duy</div>
+                                <div class="rank-details">0,48 tỷ • 9,86% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">6</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Mạnh Linh</div>
+                                <div class="rank-details">0,20 tỷ • 4,21% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">7</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lê Tiến Quân</div>
+                                <div class="rank-details">0 tỷ • 0% đóng góp phòng</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="individual-performance">
+                <div class="chart-title">📊 Phân Tích Chi Tiết Cá Nhân - Hà Nội</div>
+                <div class="performance-grid" id="hanoi-individual-grid">
+                    <!-- Performance cards will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="data-table">
+                <div class="chart-title">📋 Chi tiết doanh số theo nhân viên - Hà Nội</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nhân viên</th>
+                                <th>KH năm (tỷ)</th>
+                                <th>Thực tế (tỷ)</th>
+                                <th>Tỷ lệ đạt (%)</th>
+                                <th>T1</th>
+                                <th>T2</th>
+                                <th>T3</th>
+                                <th>T4</th>
+                                <th>T5</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Lương Việt Anh</strong></td>
+                                <td>6,50</td>
+                                <td>1,15</td>
+                                <td>17,68%</td>
+                                <td style="color: #ef4444;">-4,6tr</td>
+                                <td style="color: #10b981;">406,8tr</td>
+                                <td style="color: #10b981;">250,3tr</td>
+                                <td style="color: #10b981;">229,5tr</td>
+                                <td style="color: #10b981;">267,1tr</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lê Khánh Duy</strong></td>
+                                <td>3,50</td>
+                                <td>0,48</td>
+                                <td>13,65%</td>
+                                <td style="color: #ef4444;">-3,4tr</td>
+                                <td style="color: #10b981;">12,6tr</td>
+                                <td>0</td>
+                                <td style="color: #10b981;">425,3tr</td>
+                                <td style="color: #10b981;">43,2tr</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nguyễn Thị Thảo</strong></td>
+                                <td>6,50</td>
+                                <td>1,09</td>
+                                <td>16,74%</td>
+                                <td style="color: #10b981;">24,4tr</td>
+                                <td style="color: #ef4444;">-2,5tr</td>
+                                <td style="color: #10b981;">234,2tr</td>
+                                <td style="color: #10b981;">194,9tr</td>
+                                <td style="color: #10b981;">637,2tr</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nguyễn Mạnh Linh</strong></td>
+                                <td>3,00</td>
+                                <td>0,20</td>
+                                <td>6,80%</td>
+                                <td style="color: #10b981;">4,7tr</td>
+                                <td>0</td>
+                                <td style="color: #10b981;">6,2tr</td>
+                                <td style="color: #10b981;">193,1tr</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Trịnh Thị Bốn</strong></td>
+                                <td>5,00</td>
+                                <td>0,62</td>
+                                <td>12,32%</td>
+                                <td style="color: #ef4444;">-43,9tr</td>
+                                <td style="color: #10b981;">26,3tr</td>
+                                <td style="color: #10b981;">212,1tr</td>
+                                <td style="color: #10b981;">10,5tr</td>
+                                <td style="color: #10b981;">410,8tr</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lê Tiến Quân</strong></td>
+                                <td>3,50</td>
+                                <td>0</td>
+                                <td style="color: #ef4444;">0,00%</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phạm Thị Hương</strong></td>
+                                <td>6,00</td>
+                                <td>1,31</td>
+                                <td style="color: #10b981;">21,81%</td>
+                                <td style="color: #10b981;">0,9tr</td>
+                                <td>0</td>
+                                <td style="color: #10b981;">74,0tr</td>
+                                <td style="color: #10b981;">504,1tr</td>
+                                <td style="color: #10b981;">729,4tr</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- HCM Branch -->
+        <div id="hcm-content" class="branch-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">4,81 tỷ</div>
+                    <div class="stat-label">Tổng doanh số thực tế</div>
+                    <div class="stat-change negative">26,71% KH năm (18 tỷ)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 26.71%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1,46 tỷ</div>
+                    <div class="stat-label">Doanh số tháng 1</div>
+                    <div class="stat-change positive">244,05% KH - Đỉnh cao!</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">📉 Giảm dần</div>
+                    <div class="stat-label">Xu hướng Q2</div>
+                    <div class="stat-change negative">T1: 244% → T5: 38%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100:0</div>
+                    <div class="stat-label">Tỷ lệ Mành rèm : Nội thất</div>
+                    <div class="stat-change negative">Thiếu đa dạng sản phẩm</div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">📈 Doanh số theo tháng - HCM</div>
+                    <canvas id="revenueChartHCM"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">🥧 Cơ cấu sản phẩm</div>
+                    <canvas id="productChartHCM"></canvas>
+                </div>
+            </div>
+
+            <div class="ranking-section">
+                <div class="chart-title">🏆 Bảng Xếp Hạng Cá Nhân - HCM</div>
+                <div class="ranking-grid">
+                    <div class="ranking-list">
+                        <h3 style="margin-bottom: 15px; color: #333;">🎯 Theo Tỷ lệ đạt KH</h3>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-1">1</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Nga <span class="performance-badge badge-excellent">Siêu sao</span></div>
+                                <div class="rank-details">44,49% • 2,58 tỷ • Ace tuyệt đối</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-2">2</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phùng Thị Thuỳ Vân <span class="performance-badge badge-excellent">Xuất sắc</span></div>
+                                <div class="rank-details">35,93% • 1,08 tỷ • Ổn định cao</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-3">3</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Ngọc Việt Khanh <span class="performance-badge badge-good">Tốt</span></div>
+                                <div class="rank-details">20,21% • 1,11 tỷ • Khởi sắc T2</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">4</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Hà Nguyễn Thanh Tuyền <span class="performance-badge badge-very-poor">Rất kém</span></div>
+                                <div class="rank-details">1,90% • 0,04 tỷ • Cần can thiệp</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ranking-list">
+                        <h3 style="margin-bottom: 15px; color: #333;">💰 Theo Doanh số tuyệt đối</h3>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-1">1</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Nga</div>
+                                <div class="rank-details">2,58 tỷ • 53,67% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-2">2</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Ngọc Việt Khanh</div>
+                                <div class="rank-details">1,11 tỷ • 23,12% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-3">3</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phùng Thị Thuỳ Vân</div>
+                                <div class="rank-details">1,08 tỷ • 22,42% đóng góp phòng</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">4</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Hà Nguyễn Thanh Tuyền</div>
+                                <div class="rank-details">0,04 tỷ • 0,79% đóng góp phòng</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="individual-performance">
+                <div class="chart-title">📊 Phân Tích Chi Tiết Cá Nhân - HCM</div>
+                <div class="performance-grid" id="hcm-individual-grid">
+                    <!-- Performance cards will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="data-table">
+                <div class="chart-title">📋 Chi tiết doanh số theo nhân viên - HCM</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nhân viên</th>
+                                <th>KH năm (tỷ)</th>
+                                <th>Thực tế (tỷ)</th>
+                                <th>Tỷ lệ đạt (%)</th>
+                                <th>T1</th>
+                                <th>T2</th>
+                                <th>T3</th>
+                                <th>T4</th>
+                                <th>T5</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Nguyễn Thị Nga</strong></td>
+                                <td>5,80</td>
+                                <td>2,58</td>
+                                <td style="color: #10b981;">44,49%</td>
+                                <td style="color: #10b981;">1.092,5tr</td>
+                                <td style="color: #10b981;">167,6tr</td>
+                                <td style="color: #10b981;">716,7tr</td>
+                                <td style="color: #ef4444;">-9,7tr</td>
+                                <td style="color: #10b981;">613,5tr</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hà Nguyễn Thanh Tuyền</strong></td>
+                                <td>2,00</td>
+                                <td>0,04</td>
+                                <td style="color: #ef4444;">1,90%</td>
+                                <td style="color: #10b981;">0,1tr</td>
+                                <td>0</td>
+                                <td style="color: #10b981;">37,8tr</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nguyễn Ngọc Việt Khanh</strong></td>
+                                <td>5,50</td>
+                                <td>1,11</td>
+                                <td>20,21%</td>
+                                <td style="color: #10b981;">368,1tr</td>
+                                <td style="color: #10b981;">746,9tr</td>
+                                <td style="color: #10b981;">292,5tr</td>
+                                <td style="color: #10b981;">451,2tr</td>
+                                <td style="color: #10b981;">0,4tr</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phùng Thị Thuỳ Vân</strong></td>
+                                <td>3,00</td>
+                                <td>1,08</td>
+                                <td style="color: #10b981;">35,93%</td>
+                                <td style="color: #10b981;">3,5tr</td>
+                                <td>0</td>
+                                <td style="color: #10b981;">144,3tr</td>
+                                <td style="color: #10b981;">193,7tr</td>
+                                <td style="color: #ef4444;">-10,5tr</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compare -->
+        <div id="compare-content" class="branch-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">9,65 tỷ</div>
+                    <div class="stat-label">Tổng doanh số 2 chi nhánh</div>
+                    <div class="stat-change negative">17,70% KH năm (54,5 tỷ)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">HN: ↗ HCM: ↘</div>
+                    <div class="stat-label">Xu hướng đối lập</div>
+                    <div class="stat-change negative">HN tăng dần, HCM giảm dần</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">HCM +0,6%</div>
+                    <div class="stat-label">Chi nhánh dẫn đầu</div>
+                    <div class="stat-change positive">Cách biệt tối thiểu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">50,2:49,8</div>
+                    <div class="stat-label">Tỷ lệ đóng góp HN:HCM</div>
+                    <div class="stat-change positive">Cân bằng hoàn hảo</div>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">📊 So sánh doanh số theo tháng</div>
+                    <canvas id="compareChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">🎯 Tỷ lệ đóng góp</div>
+                    <canvas id="contributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="ranking-section">
+                <div class="chart-title">🏆 So Sánh Top Performers 2 Chi Nhánh</div>
+                <div class="ranking-grid">
+                    <div class="ranking-list">
+                        <h3 style="margin-bottom: 15px; color: #333;">🎯 Top 5 Theo Tỷ lệ đạt KH</h3>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-1">1</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Nga (HCM) <span class="performance-badge badge-excellent">Siêu sao</span></div>
+                                <div class="rank-details">44,49% • 2,58 tỷ • Gấp đôi người thứ 2</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-2">2</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phùng Thị Thuỳ Vân (HCM) <span class="performance-badge badge-excellent">Xuất sắc</span></div>
+                                <div class="rank-details">35,93% • 1,08 tỷ • HCM thống trị top 2</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-3">3</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phạm Thị Hương (HN) <span class="performance-badge badge-good">Tốt nhất HN</span></div>
+                                <div class="rank-details">21,81% • 1,31 tỷ • Ace của Hà Nội</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">4</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Ngọc Việt Khanh (HCM) <span class="performance-badge badge-good">Tốt</span></div>
+                                <div class="rank-details">20,21% • 1,11 tỷ • Ổn định</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">5</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lương Việt Anh (HN) <span class="performance-badge badge-good">Tốt</span></div>
+                                <div class="rank-details">17,68% • 1,15 tỷ • Top 2 Hà Nội</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ranking-list">
+                        <h3 style="margin-bottom: 15px; color: #333;">💰 Top 5 Theo Doanh số</h3>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-1">1</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Nga (HCM)</div>
+                                <div class="rank-details">2,58 tỷ • Dẫn đầu tuyệt đối</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-2">2</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Phạm Thị Hương (HN)</div>
+                                <div class="rank-details">1,31 tỷ • Khoảng cách lớn với #1</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-3">3</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Lương Việt Anh (HN)</div>
+                                <div class="rank-details">1,15 tỷ • Sát nút với #2</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">4</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Ngọc Việt Khanh (HCM)</div>
+                                <div class="rank-details">1,11 tỷ • Nhóm tỷ đô</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="rank-number rank-other">5</div>
+                            <div class="rank-info">
+                                <div class="rank-name">Nguyễn Thị Thảo (HN)</div>
+                                <div class="rank-details">1,09 tỷ • Cạnh tranh gay gắt</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="individual-performance">
+                <div class="chart-title">📊 Phân Tích So Sánh Toàn Hệ Thống</div>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-title">🎯 Phân Tích Hiệu Suất</div>
+                        <div class="team-item">
+                            <span class="team-name">Siêu sao (≥40%)</span>
+                            <span class="team-achievement">1 người (HCM)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Xuất sắc (25-39%)</span>
+                            <span class="team-achievement">1 người (HCM)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Tốt (15-24%)</span>
+                            <span class="team-achievement">3 người (2HN, 1HCM)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Trung bình (10-14%)</span>
+                            <span class="team-achievement">2 người (HN)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Cần cải thiện (<10%)</span>
+                            <span class="team-achievement">4 người (2HN, 1HCM)</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-title">🏢 So Sánh Chi Nhánh</div>
+                        <div class="team-item">
+                            <span class="team-name">HCM: Chất lượng cao</span>
+                            <span class="team-achievement">50% nhân viên xuất sắc</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">HN: Phân hóa lớn</span>
+                            <span class="team-achievement">Từ 0% đến 21,81%</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Gap hiệu suất</span>
+                            <span class="team-achievement">Cao nhất 44,49%, thấp nhất 0%</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Tiềm năng cải thiện</span>
+                            <span class="team-achievement">HN có thể học hỏi HCM</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-title">🚨 Cảnh Báo & Đề Xuất</div>
+                        <div class="team-item">
+                            <span class="team-name">Cần can thiệp ngay</span>
+                            <span class="team-achievement">Lê Tiến Quân (0%)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Cần hỗ trợ đặc biệt</span>
+                            <span class="team-achievement">Hà Nguyễn Thanh Tuyền (1,9%)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Nhân tố học hỏi</span>
+                            <span class="team-achievement">Nguyễn Thị Nga (44,49%)</span>
+                        </div>
+                        <div class="team-item">
+                            <span class="team-name">Mô hình thành công</span>
+                            <span class="team-achievement">Áp dụng kinh nghiệm HCM cho HN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real data from the provided files (Updated: 09/06/2025)
+        const realData = {
+            hanoi: {
+                monthly: {
+                    targets: [2050, 1450, 1800, 2350, 2850, 3350],
+                    actual: [-21.8, 443.3, 776.8, 1557.5, 2087.6, 0],
+                    furniture: [39.1, 12.6, 116.1, 176.3, 27.5, 0],
+                    curtains: [-60.9, 430.6, 660.8, 1381.1, 2060.1, 0],
+                    monthlyDetails: [
+                        { month: 'T1', target: 2050, actual: -21.8, rate: -1.06 },
+                        { month: 'T2', target: 1450, actual: 443.3, rate: 30.57 },
+                        { month: 'T3', target: 1800, actual: 776.8, rate: 43.16 },
+                        { month: 'T4', target: 2350, actual: 1557.5, rate: 66.27 },
+                        { month: 'T5', target: 2850, actual: 2087.6, rate: 73.25 },
+                        { month: 'T6', target: 3350, actual: 0, rate: 0 }
+                    ]
+                },
+                quarterly: {
+                    q1: { target: 5300, actual: 1198.3, rate: 22.61 },
+                    q2: { target: 8550, actual: 3645.1, rate: 42.63 },
+                    q3: { target: 10660, actual: 0, rate: 0 },
+                    q4: { target: 11990, actual: 0, rate: 0 }
+                },
+                employees: [
+                    { 
+                        name: 'Lương Việt Anh', 
+                        target: 6.5, 
+                        actual: 1.149, 
+                        rate: 17.68,
+                        monthly: [-4.6, 406.8, 250.3, 229.5, 267.1, 0]
+                    },
+                    { 
+                        name: 'Lê Khánh Duy', 
+                        target: 3.5, 
+                        actual: 0.478, 
+                        rate: 13.65,
+                        monthly: [-3.4, 12.6, 0, 425.3, 43.2, 0]
+                    },
+                    { 
+                        name: 'Nguyễn Thị Thảo', 
+                        target: 6.5, 
+                        actual: 1.088, 
+                        rate: 16.74,
+                        monthly: [24.4, -2.5, 234.2, 194.9, 637.2, 0]
+                    },
+                    { 
+                        name: 'Nguyễn Mạnh Linh', 
+                        target: 3.0, 
+                        actual: 0.204, 
+                        rate: 6.80,
+                        monthly: [4.7, 0, 6.2, 193.1, 0, 0]
+                    },
+                    { 
+                        name: 'Trịnh Thị Bốn', 
+                        target: 5.0, 
+                        actual: 0.616, 
+                        rate: 12.32,
+                        monthly: [-43.9, 26.3, 212.1, 10.5, 410.8, 0]
+                    },
+                    { 
+                        name: 'Lê Tiến Quân', 
+                        target: 3.5, 
+                        actual: 0, 
+                        rate: 0,
+                        monthly: [0, 0, 0, 0, 0, 0]
+                    },
+                    { 
+                        name: 'Phạm Thị Hương', 
+                        target: 6.0, 
+                        actual: 1.308, 
+                        rate: 21.81,
+                        monthly: [0.9, 0, 74.0, 504.1, 729.4, 0]
+                    }
+                ],
+                groups: [
+                    {
+                        name: 'Nhóm 1 - Việt Anh',
+                        total: 1.627,
+                        rate: 9.17,
+                        members: ['Lương Việt Anh', 'Lê Khánh Duy', 'Nhân viên A']
+                    },
+                    {
+                        name: 'Nhóm 2 - Thảo', 
+                        total: 1.292,
+                        rate: 11.35,
+                        members: ['Nguyễn Thị Thảo', 'Nguyễn Mạnh Linh', 'Nhân viên B']
+                    },
+                    {
+                        name: 'Nhóm 3 - Bốn',
+                        total: 0.616,
+                        rate: 12.32,
+                        members: ['Trịnh Thị Bốn']
+                    },
+                    {
+                        name: 'Nhóm 4 - Quân',
+                        total: 0,
+                        rate: 0,
+                        members: ['Lê Tiến Quân']
+                    },
+                    {
+                        name: 'Nhóm 5 - Hương',
+                        total: 1.308,
+                        rate: 21.81,
+                        members: ['Phạm Thị Hương']
+                    }
+                ]
+            },
+            hcm: {
+                monthly: {
+                    targets: [600, 650, 950, 1220, 1600, 1790],
+                    actual: [1464.3, 914.5, 1191.3, 635.2, 603.0, 0],
+                    furniture: [0, 0, 0, 3.2, 0, 0],
+                    curtains: [1464.3, 914.5, 1191.3, 632.0, 603.0, 0],
+                    monthlyDetails: [
+                        { month: 'T1', target: 600, actual: 1464.3, rate: 244.05 },
+                        { month: 'T2', target: 650, actual: 914.5, rate: 140.69 },
+                        { month: 'T3', target: 950, actual: 1191.3, rate: 125.40 },
+                        { month: 'T4', target: 1220, actual: 635.2, rate: 52.06 },
+                        { month: 'T5', target: 1600, actual: 603.0, rate: 37.69 },
+                        { month: 'T6', target: 1790, actual: 0, rate: 0 }
+                    ]
+                },
+                quarterly: {
+                    q1: { target: 2200, actual: 3570.2, rate: 162.28 },
+                    q2: { target: 4610, actual: 1238.2, rate: 26.86 },
+                    q3: { target: 4760, actual: 0, rate: 0 },
+                    q4: { target: 6430, actual: 0, rate: 0 }
+                },
+                employees: [
+                    { 
+                        name: 'Nguyễn Thị Nga', 
+                        target: 5.8, 
+                        actual: 2.581, 
+                        rate: 44.49,
+                        monthly: [1092.5, 167.6, 716.7, -9.7, 613.5, 0]
+                    },
+                    { 
+                        name: 'Hà Nguyễn Thanh Tuyền', 
+                        target: 2.0, 
+                        actual: 0.038, 
+                        rate: 1.90,
+                        monthly: [0.1, 0, 37.8, 0, 0, 0]
+                    },
+                    { 
+                        name: 'Nguyễn Ngọc Việt Khanh', 
+                        target: 5.5, 
+                        actual: 1.112, 
+                        rate: 20.21,
+                        monthly: [368.1, 746.9, 292.5, 451.2, 0.4, 0]
+                    },
+                    { 
+                        name: 'Phùng Thị Thuỳ Vân', 
+                        target: 3.0, 
+                        actual: 1.078, 
+                        rate: 35.93,
+                        monthly: [3.5, 0, 144.3, 193.7, -10.5, 0]
+                    }
+                ],
+                groups: [
+                    {
+                        name: 'Nhóm 1 - Nga',
+                        total: 2.619,
+                        rate: 29.42,
+                        members: ['Nguyễn Thị Nga', 'Hà Nguyễn Thanh Tuyền', 'Nhân viên A']
+                    },
+                    {
+                        name: 'Nhóm 2 - Việt Khanh', 
+                        total: 2.190,
+                        rate: 24.06,
+                        members: ['Nguyễn Ngọc Việt Khanh', 'Phùng Thị Thuỳ Vân', 'Nhân viên B']
+                    }
+                ]
+            }
+        };
+
+        function switchBranch(branch) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.branch-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(branch + '-content').classList.add('active');
+
+            // Initialize charts for the selected branch
+            setTimeout(() => {
+                if (branch === 'hanoi') {
+                    initHanoiCharts();
+                    createIndividualPerformanceCards('hanoi');
+                } else if (branch === 'hcm') {
+                    initHCMCharts();
+                    createIndividualPerformanceCards('hcm');
+                } else if (branch === 'compare') {
+                    initCompareCharts();
+                }
+            }, 100);
+        }
+
+        function getPerformanceBadge(rate) {
+            if (rate >= 40) return { class: 'badge-excellent', text: 'Siêu sao' };
+            if (rate >= 25) return { class: 'badge-excellent', text: 'Xuất sắc' };
+            if (rate >= 15) return { class: 'badge-good', text: 'Tốt' };
+            if (rate >= 10) return { class: 'badge-average', text: 'Trung bình' };
+            if (rate >= 5) return { class: 'badge-poor', text: 'Kém' };
+            return { class: 'badge-very-poor', text: 'Rất kém' };
+        }
+
+        function getMonthlyTrend(monthly) {
+            const positiveMonths = monthly.filter(m => m > 0).length;
+            const totalMonths = monthly.filter(m => m !== 0).length;
+            if (totalMonths === 0) return 'Chưa có dữ liệu';
+            
+            const stability = positiveMonths / totalMonths;
+            if (stability >= 0.8) return '📈 Rất ổn định';
+            if (stability >= 0.6) return '📊 Ổn định';
+            if (stability >= 0.4) return '📉 Không ổn định';
+            return '🔻 Rất không ổn định';
+        }
+
+        function getInsights(employee) {
+            const insights = [];
+            
+            // Performance insights
+            if (employee.rate >= 25) {
+                insights.push('⭐ Siêu sao của chi nhánh');
+            } else if (employee.rate >= 15) {
+                insights.push('👍 Hiệu suất tốt');
+            } else if (employee.rate < 5) {
+                insights.push('⚠️ Cần can thiệp ngay');
+            }
+
+            // Monthly insights
+            const monthly = employee.monthly;
+            const maxMonth = Math.max(...monthly);
+            const maxIndex = monthly.indexOf(maxMonth);
+            if (maxMonth > 500) {
+                insights.push(`🚀 Đỉnh cao T${maxIndex + 1}: ${maxMonth}tr`);
+            }
+
+            const negativeMonths = monthly.filter(m => m < 0).length;
+            if (negativeMonths > 0) {
+                insights.push(`📉 ${negativeMonths} tháng âm`);
+            }
+
+            // Growth trend
+            const lastThreeMonths = monthly.slice(-3).filter(m => m !== 0);
+            if (lastThreeMonths.length >= 2) {
+                const isGrowing = lastThreeMonths[lastThreeMonths.length - 1] > lastThreeMonths[0];
+                if (isGrowing) {
+                    insights.push('📈 Xu hướng tăng');
+                } else {
+                    insights.push('📉 Xu hướng giảm');
+                }
+            }
+
+            return insights;
+        }
+
+        function createIndividualPerformanceCards(branch) {
+            const employees = realData[branch].employees;
+            const container = document.getElementById(`${branch}-individual-grid`);
+            
+            container.innerHTML = employees.map(employee => {
+                const badge = getPerformanceBadge(employee.rate);
+                const trend = getMonthlyTrend(employee.monthly);
+                const insights = getInsights(employee);
+                
+                return `
+                    <div class="individual-card">
+                        <div class="individual-header">
+                            <div class="individual-name">${employee.name}</div>
+                            <span class="performance-badge ${badge.class}">${badge.text}</span>
+                        </div>
+                        
+                        <div class="individual-stats">
+                            <div class="stat-item">
+                                <div class="value">${employee.actual.toFixed(2)}B</div>
+                                <div class="label">Doanh số (tỷ)</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${employee.rate.toFixed(1)}%</div>
+                                <div class="label">Tỷ lệ đạt KH</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${employee.target.toFixed(1)}B</div>
+                                <div class="label">Kế hoạch năm</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${trend}</div>
+                                <div class="label">Xu hướng</div>
+                            </div>
+                        </div>
+
+                        <div class="monthly-trend">
+                            <div class="trend-title">📊 Doanh số 5 tháng đầu năm (triệu)</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+                                ${employee.monthly.slice(0, 5).map((value, index) => 
+                                    `<span style="color: ${value > 0 ? '#10b981' : value < 0 ? '#ef4444' : '#6b7280'}"">
+                                        T${index + 1}: ${value > 0 ? '+' : ''}${value}tr
+                                    </span>`
+                                ).join('')}
+                            </div>
+                            <div class="trend-chart">
+                                ${employee.monthly.slice(0, 5).map((value, index) => {
+                                    const maxValue = Math.max(...employee.monthly.slice(0, 5).map(Math.abs));
+                                    const height = maxValue > 0 ? Math.abs(value) / maxValue * 100 : 0;
+                                    const color = value > 0 ? '#10b981' : value < 0 ? '#ef4444' : '#e5e7eb';
+                                    return `<div style="
+                                        position: absolute;
+                                        left: ${index * 20}%;
+                                        bottom: 0;
+                                        width: 15%;
+                                        height: ${height}%;
+                                        background: ${color};
+                                        border-radius: 2px 2px 0 0;
+                                    "></div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        ${insights.length > 0 ? `
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f0;">
+                                <div class="trend-title">💡 Nhận xét:</div>
+                                ${insights.map(insight => `<div style="font-size: 0.8rem; color: #666; margin-bottom: 4px;">${insight}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initHanoiCharts() {
+            // Revenue Chart
+            const ctx1 = document.getElementById('revenueChartHanoi');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                        datasets: [
+                            {
+                                label: 'Kế hoạch',
+                                data: realData.hanoi.monthly.targets,
+                                backgroundColor: 'rgba(102, 126, 234, 0.3)',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                type: 'line'
+                            },
+                            {
+                                label: 'Thực tế',
+                                data: realData.hanoi.monthly.actual,
+                                backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                                borderRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'top' } },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Triệu VNĐ' } }
+                        }
+                    }
+                });
+            }
+
+            // Product Chart
+            const ctx2 = document.getElementById('productChartHanoi');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Mành rèm', 'Nội thất'],
+                        datasets: [{
+                            data: [4471.7, 371.6],
+                            backgroundColor: ['#667eea', '#764ba2'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 20 } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initHCMCharts() {
+            // Revenue Chart
+            const ctx1 = document.getElementById('revenueChartHCM');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                        datasets: [
+                            {
+                                label: 'Kế hoạch',
+                                data: realData.hcm.monthly.targets,
+                                backgroundColor: 'rgba(102, 126, 234, 0.3)',
+                                borderColor: '#667eea',
+                                borderWidth: 2,
+                                type: 'line'
+                            },
+                            {
+                                label: 'Thực tế',
+                                data: realData.hcm.monthly.actual,
+                                backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                                borderRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'top' } },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Triệu VNĐ' } }
+                        }
+                    }
+                });
+            }
+
+            // Product Chart
+            const ctx2 = document.getElementById('productChartHCM');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Mành rèm', 'Nội thất'],
+                        datasets: [{
+                            data: [4805.1, 3.2],
+                            backgroundColor: ['#667eea', '#764ba2'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 20 } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initCompareCharts() {
+            // Comparison bar chart
+            const ctx1 = document.getElementById('compareChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['T1', 'T2', 'T3', 'T4', 'T5'],
+                        datasets: [
+                            {
+                                label: 'Hà Nội',
+                                data: [-21.8, 443.3, 776.8, 1557.5, 2087.6],
+                                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                                borderRadius: 8
+                            },
+                            {
+                                label: 'HCM',
+                                data: [1464.3, 914.5, 1191.3, 635.2, 603.0],
+                                backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                                borderRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'top' } },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Triệu VNĐ' } }
+                        }
+                    }
+                });
+            }
+
+            // Contribution pie chart
+            const ctx2 = document.getElementById('contributionChart');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Hà Nội (50.2%)', 'HCM (49.8%)'],
+                        datasets: [{
+                            data: [4843.4, 4808.3],
+                            backgroundColor: ['#667eea', '#764ba2'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 20 } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize default charts
+        document.addEventListener('DOMContentLoaded', function() {
+            initHanoiCharts();
+            createIndividualPerformanceCards('hanoi');
+        });
+    </script>
+</body>
+</html>

@@ -74,12 +74,27 @@ export const useManagerTaskData = (
           console.log(`👤 Specific member requested: ${selectedMemberId}`);
         }
 
-        const url = `${apiUrl}/tasks/manager-view?${params.toString()}`;
+        const url = `${apiUrl}/tasks/managerview?${params.toString()}`;
         console.log(`🔍 Fetching ${level} tasks:`, url);
 
         console.log(`📡 API Request: ${url}`);
         const response = await fetch(url);
-        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const responseText = await response.text();
+        console.log(`📄 Raw response text:`, responseText);
+
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error(`❌ JSON Parse Error:`, parseError);
+          console.error(`📄 Response text that failed to parse:`, responseText);
+          throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+        }
 
         console.log(`📊 API Response for ${level}:`, result);
 

@@ -28,37 +28,37 @@ interface KpiItem {
   unit?: string;
 }
 
-// Sample KPI data with properly typed fields
+// Dữ liệu KPI thật từ báo cáo doanh số
 const kpiData: Record<string, Record<string, KpiItem[]>> = {
   personal: {
     weekly: [
-      { id: '1', name: 'Số đối tác mới', value: 3, target: 5, category: 'partner', trend: 'up' },
-      { id: '2', name: 'Số KTS mới', value: 2, target: 3, category: 'architect', trend: 'flat' },
-      { id: '3', name: 'Số KH/CĐT mới', value: 4, target: 4, category: 'client', trend: 'up' },
-      { id: '4', name: 'Số báo giá mới', value: 7, target: 10, category: 'quote', trend: 'down' },
+      { id: '1', name: 'Doanh số tuần', value: 520, target: 600, category: 'sales', trend: 'up', unit: 'triệu VND' },
+      { id: '2', name: 'Số đơn hàng', value: 8, target: 10, category: 'quote', trend: 'up' },
+      { id: '3', name: 'Khách hàng mới', value: 3, target: 4, category: 'client', trend: 'flat' },
+      { id: '4', name: 'Tỷ lệ chốt đơn', value: 75, target: 80, category: 'conversion', trend: 'up', unit: '%' },
     ],
     monthly: [
-      { id: '5', name: 'Số đối tác mới', value: 12, target: 20, category: 'partner', trend: 'up' },
-      { id: '6', name: 'Số KTS mới', value: 8, target: 12, category: 'architect', trend: 'up' },
-      { id: '7', name: 'Số KH/CĐT mới', value: 15, target: 16, category: 'client', trend: 'flat' },
-      { id: '8', name: 'Số báo giá mới', value: 28, target: 40, category: 'quote', trend: 'down' },
+      { id: '5', name: 'Doanh số tháng 5', value: 2087, target: 2850, category: 'sales', trend: 'up', unit: 'triệu VND' },
+      { id: '6', name: 'Tỷ lệ đạt KH', value: 73.25, target: 100, category: 'target', trend: 'up', unit: '%' },
+      { id: '7', name: 'Số đơn hàng', value: 42, target: 50, category: 'quote', trend: 'up' },
+      { id: '8', name: 'Khách hàng mới', value: 15, target: 20, category: 'client', trend: 'flat' },
       {
         id: '9',
-        name: 'Tỷ lệ chốt SBG',
-        value: 30,
-        target: 40,
-        category: 'quote',
-        trend: 'down',
+        name: 'Tỷ lệ chốt đơn',
+        value: 73,
+        target: 80,
+        category: 'conversion',
+        trend: 'up',
         unit: '%',
       },
       {
         id: '10',
-        name: 'Doanh số',
-        value: 120000000,
-        target: 150000000,
+        name: 'Doanh số 5 tháng',
+        value: 4843,
+        target: 6500,
         category: 'revenue',
         trend: 'up',
-        unit: 'VND',
+        unit: 'triệu VND',
       },
     ],
     quarterly: [
@@ -250,6 +250,12 @@ const kpiData: Record<string, Record<string, KpiItem[]>> = {
 
 const getCategoryColor = (category: string) => {
   switch (category) {
+    case 'sales':
+      return 'bg-green-500';
+    case 'target':
+      return 'bg-blue-500';
+    case 'conversion':
+      return 'bg-purple-500';
     case 'partner':
       return 'bg-ios-blue';
     case 'architect':

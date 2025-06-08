@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/context/AuthContext';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 
 import ChangePasswordForm from './ChangePasswordForm';
 
@@ -21,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [isAuthenticated, isLoading, navigate]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Đang tải...</div>;
+    return <LoadingScreen message="Đang xác thực người dùng..." />;
   }
 
   if (!isAuthenticated) {

@@ -97,10 +97,23 @@ class ApiClient {
       const response = await fetch(url, defaultOptions);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error(`❌ HTTP Error ${response.status}:`, errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log(`📄 Raw response:`, responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ JSON Parse Error:`, parseError);
+        console.error(`📄 Response text that failed to parse:`, responseText);
+        throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
+      }
+
       console.log(`✅ API Response:`, data);
 
       return data;

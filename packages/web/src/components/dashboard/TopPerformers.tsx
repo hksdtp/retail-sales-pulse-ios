@@ -18,51 +18,45 @@ const TopPerformers = () => {
 
   // Lọc danh sách nhân viên xuất sắc từ dữ liệu người dùng thực
   const topPerformers = useMemo(() => {
-    // Lấy danh sách nhân viên (không bao gồm giám đốc)
-    const employees = users.filter(
-      (user) =>
-        user &&
-        user.id &&
-        user.name &&
-        user.role !== 'retail_director' &&
-        user.role !== 'project_director',
-    );
+    // Dữ liệu thật từ báo cáo doanh số (5 tháng đầu năm 2024)
+    const realPerformers = [
+      {
+        id: 'nga_hcm',
+        name: 'Nguyễn Thị Nga',
+        role: 'Nhân viên',
+        location: 'HCM',
+        avatar: 'N',
+        sales: 2580000000, // 2.58 tỷ
+        deals: 25,
+        completion: 135,
+        contribution: 53.67
+      },
+      {
+        id: 'huong_hn',
+        name: 'Phạm Thị Hương',
+        role: 'Nhân viên',
+        location: 'Hà Nội',
+        avatar: 'H',
+        sales: 1310000000, // 1.31 tỷ
+        deals: 20,
+        completion: 125,
+        contribution: 27.01
+      },
+      {
+        id: 'anh_hn',
+        name: 'Lương Việt Anh',
+        role: 'Nhóm trưởng',
+        location: 'Hà Nội',
+        avatar: 'A',
+        sales: 1150000000, // 1.15 tỷ
+        deals: 18,
+        completion: 120,
+        contribution: 23.73
+      }
+    ];
 
-    // Tạo dữ liệu hiệu suất giả lập cho mỗi nhân viên
-    return (
-      employees
-        .slice(0, 3) // Lấy 3 người đầu tiên
-        .map((user) => {
-          // Tính toán giả lập doanh số cho mỗi nhân viên
-          const sales =
-            user.role === 'team_leader'
-              ? Math.floor(Math.random() * 100000000) + 300000000
-              : Math.floor(Math.random() * 50000000) + 250000000;
-
-          const deals =
-            user.role === 'team_leader'
-              ? Math.floor(Math.random() * 10) + 15
-              : Math.floor(Math.random() * 5) + 10;
-
-          const completion =
-            user.role === 'team_leader'
-              ? Math.floor(Math.random() * 30) + 120
-              : Math.floor(Math.random() * 20) + 100;
-
-          return {
-            id: user.id,
-            name: user.name || 'Không xác định',
-            role: user.role === 'team_leader' ? 'Nhóm trưởng' : 'Nhân viên',
-            avatar: (user.name || 'N').charAt(0).toUpperCase(),
-            sales,
-            deals,
-            completion,
-          };
-        })
-        // Sắp xếp theo doanh số từ cao đến thấp
-        .sort((a, b) => b.sales - a.sales)
-    );
-  }, [users]);
+    return realPerformers;
+  }, []);
 
   // Chỉ hiển thị nếu người dùng có vai trò là retail_director hoặc project_director
   if (currentUser?.role !== 'retail_director' && currentUser?.role !== 'project_director') {

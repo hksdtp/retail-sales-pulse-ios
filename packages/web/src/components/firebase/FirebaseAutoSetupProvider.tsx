@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
 import { FirebaseService } from '@/services/FirebaseService';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 
 interface FirebaseAutoSetupProviderProps {
   children: React.ReactNode;
@@ -121,15 +122,7 @@ const FirebaseAutoSetupProvider: React.FC<FirebaseAutoSetupProviderProps> = ({ c
 
   // Hiển thị loading trong khi đang setup (rất nhanh)
   if (isConfiguring) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Đang khởi tạo hệ thống...</h2>
-          <p className="text-gray-600">Firebase đang được cấu hình tự động</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Đang khởi tạo hệ thống..." />;
   }
 
   return <>{children}</>;

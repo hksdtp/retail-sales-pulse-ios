@@ -47,14 +47,19 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
           isSharedWithTeam: apiTask.isSharedWithTeam || false,
         }));
 
-        const userTasks = mappedTasks.filter((task) => {
-          return task.assignedTo === currentUser.id || task.user_id === currentUser.id;
-        });
+        console.log(`📊 All tasks from API: ${mappedTasks.length} tasks`);
+        console.log('📋 Tasks details:', mappedTasks.map(t => ({
+          id: t.id,
+          title: t.title,
+          assignedTo: t.assignedTo,
+          user_id: t.user_id,
+          isShared: t.isShared,
+          isSharedWithTeam: t.isSharedWithTeam
+        })));
 
-        console.log(`🔒 Sau khi filter frontend: ${userTasks.length}/${mappedTasks.length} tasks`);
-
-        setTasks(userTasks);
-        setFilteredTasks(userTasks);
+        // Không filter ở đây nữa, để TaskManagementView xử lý tất cả logic filtering
+        setTasks(mappedTasks);
+        setFilteredTasks(mappedTasks);
       } else {
         console.error('❌ Lỗi khi tải tasks:', response.error);
         toast({
