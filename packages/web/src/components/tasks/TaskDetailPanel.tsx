@@ -118,78 +118,78 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
 
       {/* Panel - responsive */}
       <div
-        className={`fixed top-4 right-4 w-full sm:w-[520px] lg:w-[640px] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-all duration-500 ease-out flex flex-col ${isOpen ? 'translate-x-0 scale-100 opacity-100' : 'translate-x-full scale-95 opacity-0'}`}
+        className={`fixed top-2 right-2 w-full sm:w-[720px] lg:w-[900px] xl:w-[1100px] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-all duration-500 ease-out flex flex-col ${isOpen ? 'translate-x-0 scale-100 opacity-100' : 'translate-x-full scale-95 opacity-0'}`}
         style={{
           zIndex: 2147483647,
           position: 'fixed',
-          top: '16px',
-          right: '16px',
-          height: 'calc(100vh - 112px)',
+          top: '8px',
+          right: '8px',
+          height: 'calc(100vh - 64px)',
           borderRadius: '24px',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           isolation: 'isolate',
         }}
       >
         {/* Header - responsive */}
-        <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-100/50 bg-gradient-to-r from-blue-500/90 to-indigo-600/90 backdrop-blur-sm rounded-t-[24px]">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
+        <div className="flex-shrink-0 flex items-center justify-between p-8 border-b border-gray-100/50 bg-gradient-to-r from-blue-500/90 to-indigo-600/90 backdrop-blur-sm rounded-t-[24px]">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <FileText className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Chi tiết công việc</h2>
-              <p className="text-blue-100 text-sm opacity-90">Chỉnh sửa và quản lý</p>
+              <h2 className="text-2xl font-bold text-white">Chi tiết công việc</h2>
+              <p className="text-blue-100 text-base opacity-90">Chỉnh sửa và quản lý</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-xl transition-all duration-200 group"
+            className="p-3 hover:bg-white/20 rounded-xl transition-all duration-200 group"
           >
-            <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-200" />
+            <X className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-200" />
           </button>
         </div>
 
         {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto min-h-0">
           {/* Title & Status Section - responsive */}
-          <div className="p-6 bg-gradient-to-br from-gray-50/50 to-white border-b border-gray-100/50">
+          <div className="p-8 bg-gradient-to-br from-gray-50/50 to-white border-b border-gray-100/50">
             <div className="relative">
               <input
                 type="text"
                 value={editedTask?.title || ''}
                 onChange={(e) => setEditedTask((prev) => ({ ...prev, title: e.target.value }))}
-                className="text-xl font-bold text-gray-900 mb-4 w-full border-0 border-b-2 border-gray-200 bg-transparent px-0 py-3 focus:outline-none focus:border-blue-500 transition-colors duration-200 placeholder-gray-400"
+                className="text-2xl font-bold text-gray-900 mb-6 w-full border-0 border-b-2 border-gray-200 bg-transparent px-0 py-4 focus:outline-none focus:border-blue-500 transition-colors duration-200 placeholder-gray-400"
                 placeholder="Nhập tiêu đề công việc..."
               />
               <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-200 w-0 focus-within:w-full"></div>
             </div>
 
             {/* Meta Info - responsive */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200/50">
-                  <Calendar className="w-4 h-4 text-blue-500" />
-                  <span className="text-gray-700 font-medium text-sm">{formatDate(task.date)}</span>
+                <div className="flex items-center space-x-3 bg-white/70 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-200/50">
+                  <Calendar className="w-5 h-5 text-blue-500" />
+                  <span className="text-gray-700 font-medium text-base">{formatDate(task.date)}</span>
                 </div>
                 {task.time && (
-                  <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200/50">
-                    <Clock className="w-4 h-4 text-green-500" />
-                    <span className="text-gray-700 font-medium text-sm">{task.time}</span>
+                  <div className="flex items-center space-x-3 bg-white/70 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-200/50">
+                    <Clock className="w-5 h-5 text-green-500" />
+                    <span className="text-gray-700 font-medium text-base">{task.time}</span>
                   </div>
                 )}
-                <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200/50">
-                  <User className="w-4 h-4 text-purple-500" />
-                  <span className="text-gray-700 font-medium text-sm">{task.user_name || 'Chưa xác định'}</span>
+                <div className="flex items-center space-x-3 bg-white/70 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-200/50">
+                  <User className="w-5 h-5 text-purple-500" />
+                  <span className="text-gray-700 font-medium text-base">{task.user_name || 'Chưa xác định'}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <div
-                  className={`px-4 py-2 text-sm font-semibold rounded-full text-white shadow-lg ${statusColors[task.status]} backdrop-blur-sm`}
+                  className={`px-5 py-3 text-base font-semibold rounded-full text-white shadow-lg ${statusColors[task.status]} backdrop-blur-sm`}
                 >
                   {statusMapping[task.status]}
                 </div>
                 <div
-                  className={`px-4 py-2 text-sm font-semibold rounded-full text-white shadow-lg ${priorityColors[task.priority || 'normal']} backdrop-blur-sm`}
+                  className={`px-5 py-3 text-base font-semibold rounded-full text-white shadow-lg ${priorityColors[task.priority || 'normal']} backdrop-blur-sm`}
                 >
                   {priorityMapping[task.priority || 'normal']}
                 </div>
@@ -227,41 +227,41 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           </div>
 
           {/* Description Section - responsive */}
-          <div className="p-6 flex-1">
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3">
-                <FileText className="w-5 h-5 text-white" />
+          <div className="p-8 flex-1">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                <FileText className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h4 className="text-lg font-bold text-gray-900">Nội dung công việc</h4>
-                <p className="text-sm text-gray-500">Mô tả chi tiết về công việc</p>
+                <h4 className="text-xl font-bold text-gray-900">Nội dung công việc</h4>
+                <p className="text-base text-gray-500">Mô tả chi tiết về công việc</p>
               </div>
             </div>
-            <div className="bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-5 shadow-lg mb-6 min-h-[200px] relative overflow-hidden">
+            <div className="bg-white/70 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 shadow-lg mb-8 min-h-[250px] relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
               <textarea
                 value={editedTask?.description || ''}
                 onChange={(e) =>
                   setEditedTask((prev) => ({ ...prev, description: e.target.value }))
                 }
-                className="w-full h-40 text-gray-700 leading-relaxed text-sm resize-none border-none bg-transparent focus:outline-none placeholder-gray-400 pt-2"
+                className="w-full h-56 text-gray-700 leading-relaxed text-base resize-none border-none bg-transparent focus:outline-none placeholder-gray-400 pt-3"
                 placeholder="Nhập mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
               />
             </div>
 
             {/* Checklist Section */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <Check className="w-5 h-5 text-white" />
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <Check className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-gray-900">Checklist công việc</h4>
-                    <p className="text-sm text-gray-500">Theo dõi tiến độ từng bước</p>
+                    <h4 className="text-xl font-bold text-gray-900">Checklist công việc</h4>
+                    <p className="text-base text-gray-500">Theo dõi tiến độ từng bước</p>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-3 rounded-full text-base font-semibold shadow-lg">
                   {checklist.filter((item) => item.completed).length}/{checklist.length}
                 </div>
               </div>
@@ -356,8 +356,8 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
         </div>
 
         {/* Actions - responsive */}
-        <div className="flex-shrink-0 border-t border-gray-100/50 p-6 bg-white/80 backdrop-blur-sm rounded-b-[24px]">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-shrink-0 border-t border-gray-100/50 p-8 bg-white/80 backdrop-blur-sm rounded-b-[24px]">
+          <div className="flex flex-col lg:flex-row gap-4">
             <Button
               onClick={(e) => {
                 e.preventDefault();
@@ -384,10 +384,10 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 alert('Đã lưu công việc thành công!');
                 onClose();
               }}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white transition-all duration-200 h-12 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white transition-all duration-200 h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105"
               type="button"
             >
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-5 h-5 mr-3" />
               Lưu công việc
             </Button>
             <Button
@@ -398,10 +398,10 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 onDelete && onDelete(task.id);
               }}
               variant="outline"
-              className="flex-1 border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 h-12 text-sm font-semibold rounded-xl hover:shadow-lg transform hover:scale-105"
+              className="flex-1 border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 h-14 text-base font-semibold rounded-xl hover:shadow-lg transform hover:scale-105"
               type="button"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-5 h-5 mr-3" />
               Xóa công việc
             </Button>
           </div>
