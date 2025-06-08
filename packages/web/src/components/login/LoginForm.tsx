@@ -30,6 +30,26 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Lọc teams dựa trên location và phòng ban TRƯỚC
+  const filteredTeams = teams.filter((team) => {
+    // Lọc theo phòng ban
+    if (departmentType && team.department_type !== departmentType) {
+      return false;
+    }
+
+    // Không hiển thị teams khi chọn "Hà Xuân Trường" hoặc "Khổng Đức Mạnh"
+    if (selectedLocation === 'all') {
+      return false;
+    }
+
+    // Lọc theo khu vực với mapping
+    const locationMatch =
+      (selectedLocation === 'hanoi' && (team.location === 'Hà Nội' || team.location === 'hanoi')) ||
+      (selectedLocation === 'hcm' && (team.location === 'Hồ Chí Minh' || team.location === 'hcm')) ||
+      team.location === selectedLocation;
+    return locationMatch;
+  });
+
   // Lọc người dùng theo phòng ban, vị trí và nhóm
   const filteredUsers = users.filter((user) => {
     // ĐẢM BẢO TRƯỚC TIÊN LỌC THEO PHÒNG BAN
@@ -105,26 +125,6 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       location: t.location,
       department_type: t.department_type,
     })),
-  });
-
-  // Lọc teams dựa trên location và phòng ban
-  const filteredTeams = teams.filter((team) => {
-    // Lọc theo phòng ban
-    if (departmentType && team.department_type !== departmentType) {
-      return false;
-    }
-
-    // Không hiển thị teams khi chọn "Hà Xuân Trường" hoặc "Khổng Đức Mạnh"
-    if (selectedLocation === 'all') {
-      return false;
-    }
-
-    // Lọc theo khu vực với mapping
-    const locationMatch =
-      (selectedLocation === 'hanoi' && (team.location === 'Hà Nội' || team.location === 'hanoi')) ||
-      (selectedLocation === 'hcm' && (team.location === 'Hồ Chí Minh' || team.location === 'hcm')) ||
-      team.location === selectedLocation;
-    return locationMatch;
   });
 
   const handleSubmit = async (e?: React.FormEvent) => {
