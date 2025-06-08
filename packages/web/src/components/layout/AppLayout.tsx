@@ -25,7 +25,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Main Content */}
       <main className={cn(
         "flex-1 flex flex-col overflow-hidden relative z-10 transition-all duration-300",
-        "ml-64 md:ml-64 sm:ml-0",
+        // Desktop: normal sidebar = 256px (ml-64), collapsed = 64px (ml-16)
+        // Mobile: always no margin (sidebar is hidden)
+        "sm:ml-0 md:ml-64",
         isSidebarCollapsed && "md:ml-16"
       )}>
         {/* macOS style subtle top bar shine */}

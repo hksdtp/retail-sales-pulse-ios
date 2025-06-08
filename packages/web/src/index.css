@@ -319,16 +319,11 @@ body.modal-open {
         display: none !important;
     }
 
-    /* Ensure main content has proper margin on desktop */
+    /* Main content margin is controlled by Tailwind classes in AppLayout */
+    /* Remove the !important override to let Tailwind classes work */
     main {
-        margin-left: 16rem !important;
         padding-bottom: 0 !important;
         transition: margin-left 0.3s ease-in-out !important;
-    }
-
-    /* Adjust main content when sidebar is collapsed */
-    main.sidebar-collapsed {
-        margin-left: 4rem !important;
     }
 }
 
