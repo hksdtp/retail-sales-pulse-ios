@@ -136,7 +136,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       <div
         ref={sidebarRef}
         className={cn(
-          "sidebar-desktop fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out",
+          "sidebar-desktop fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out overflow-hidden",
           "border-r border-gray-200 shadow-lg bg-white",
           isVisuallyExpanded ? "w-64" : "w-16"
         )}
@@ -144,19 +144,26 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         onMouseLeave={handleMouseLeave}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          {isVisuallyExpanded ? (
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                <PieChart className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-gray-900">QLPKDBL</span>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 min-h-[72px]">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0">
+              <img
+                src="/logo.webp"
+                alt="Logo"
+                className="w-6 h-6 object-contain"
+              />
             </div>
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
-              <PieChart className="w-4 h-4 text-white" />
-            </div>
-          )}
+            <span
+              className={cn(
+                "font-bold text-gray-900 whitespace-nowrap transition-all duration-300 ease-in-out",
+                isVisuallyExpanded
+                  ? "opacity-100 translate-x-0 max-w-none delay-75"
+                  : "opacity-0 -translate-x-2 max-w-0 overflow-hidden delay-0"
+              )}
+            >
+              Phòng Kinh Doanh
+            </span>
+          </div>
 
           {isVisuallyExpanded && (
             <button
@@ -186,11 +193,11 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               key={item.title}
               to={item.url}
               className={cn(
-                "flex items-center rounded-xl transition-all duration-200 relative group",
-                !isVisuallyExpanded ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
+                "flex items-center rounded-xl transition-all duration-200 relative group px-3 py-3",
+                !isVisuallyExpanded ? "justify-center" : "space-x-3",
                 isActive(item.url)
-                  ? "text-ios-blue bg-blue-50 shadow-sm border border-blue-100"
-                  : "text-gray-600 hover:text-ios-blue hover:bg-gray-50 hover:shadow-sm"
+                  ? "text-ios-blue bg-blue-50 shadow-md border border-blue-200 scale-105 z-10"
+                  : "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:scale-105 hover:border hover:border-blue-100 hover:z-10 hover:-translate-y-0.5"
               )}
               title={!isVisuallyExpanded ? item.title : undefined}
             >
@@ -198,9 +205,16 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 "w-5 h-5 flex-shrink-0",
                 isActive(item.url) && "text-ios-blue"
               )} />
-              {isVisuallyExpanded && (
-                <span className="font-medium">{item.title}</span>
-              )}
+              <span
+                className={cn(
+                  "font-medium whitespace-nowrap transition-all duration-300 ease-in-out",
+                  isVisuallyExpanded
+                    ? "opacity-100 translate-x-0 max-w-none delay-75"
+                    : "opacity-0 -translate-x-2 max-w-0 overflow-hidden delay-0"
+                )}
+              >
+                {item.title}
+              </span>
 
               {/* Tooltip for collapsed state */}
               {!isVisuallyExpanded && (
@@ -216,9 +230,9 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         <div className="p-4 border-t border-gray-200 relative" ref={dropdownRef}>
           <button
             className={cn(
-              "w-full flex items-center rounded-xl transition-all duration-200 relative group",
-              !isVisuallyExpanded ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
-              "text-gray-600 hover:text-ios-blue hover:bg-gray-50 hover:shadow-sm"
+              "w-full flex items-center rounded-xl transition-all duration-200 relative group px-3 py-3",
+              !isVisuallyExpanded ? "justify-center" : "space-x-3",
+              "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:scale-105 hover:border hover:border-blue-100 hover:-translate-y-0.5"
             )}
             onClick={() => {
               console.log('Avatar clicked, current state:', isDropdownOpen);
@@ -236,16 +250,21 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
               )}
             </div>
-            {isVisuallyExpanded && (
-              <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {currentUser?.name}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {currentUser?.email}
-                </p>
-              </div>
-            )}
+            <div
+              className={cn(
+                "flex-1 text-left min-w-0 transition-all duration-300 ease-in-out",
+                isVisuallyExpanded
+                  ? "opacity-100 translate-x-0 max-w-none delay-75"
+                  : "opacity-0 -translate-x-2 max-w-0 overflow-hidden delay-0"
+              )}
+            >
+              <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">
+                {currentUser?.name}
+              </p>
+              <p className="text-xs text-gray-500 truncate whitespace-nowrap">
+                {currentUser?.email}
+              </p>
+            </div>
 
             {/* Tooltip for collapsed state */}
             {!isVisuallyExpanded && (

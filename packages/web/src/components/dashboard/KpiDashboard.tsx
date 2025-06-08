@@ -15,8 +15,8 @@ interface KpiDashboardProps {
 }
 
 const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => {
-  const isDirector =
-    currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
+  const isDirector = currentUser?.role === 'retail_director';
+  const isTeamLeader = currentUser?.role === 'team_leader';
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -47,54 +47,59 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({ kpiData, currentUser }) => 
         ))}
       </motion.div>
 
-      {/* Charts - Chỉ hiển thị RevenueChart cho tất cả người dùng */}
-      <motion.div
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
+      {/* Charts - Chỉ hiển thị cho Director và Team Leader */}
+      {(isDirector || isTeamLeader) && (
         <motion.div
-          className="lg:col-span-2"
-          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
-            <RevenueChart />
-          </div>
+          <motion.div
+            className="lg:col-span-2"
+            whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+          >
+            <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+              <RevenueChart />
+            </div>
+          </motion.div>
+          <motion.div
+            className="lg:col-span-1"
+            whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+          >
+            <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+              <TopPerformers />
+            </div>
+          </motion.div>
         </motion.div>
-        <motion.div
-          className="lg:col-span-1"
-          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
-        >
-          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
-            <TopPerformers />
-          </div>
-        </motion.div>
-      </motion.div>
+      )}
 
-      <motion.div
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
+      {/* Additional charts - Chỉ cho Director */}
+      {isDirector && (
         <motion.div
-          className="lg:col-span-1"
-          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
-            <RegionDistribution />
-          </div>
+          <motion.div
+            className="lg:col-span-1"
+            whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+          >
+            <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+              <RegionDistribution />
+            </div>
+          </motion.div>
+          <motion.div
+            className="lg:col-span-2"
+            whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+          >
+            <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+              <ConversionRates visible={isDirector} />
+            </div>
+          </motion.div>
         </motion.div>
-        <motion.div
-          className="lg:col-span-2"
-          whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
-        >
-          <div className="bg-white/95 backdrop-blur-lg rounded-[20px] border border-white/30 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
-            <ConversionRates visible={isDirector} />
-          </div>
-        </motion.div>
-      </motion.div>
+      )}
     </div>
   );
 };

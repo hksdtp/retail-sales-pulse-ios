@@ -134,60 +134,88 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-6 p-6">
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
-            <label className="text-gray-900 font-semibold text-base flex items-center space-x-2 mb-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4 p-6">
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <label className="text-gray-900 font-medium text-base flex items-center space-x-2 mb-4">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
               <span>Tiêu đề công việc</span>
             </label>
-            <div className="relative">
-              <Input
-                placeholder="Nhập tiêu đề công việc..."
-                className="h-12 bg-white/80 backdrop-blur-sm border-0 border-b-2 border-gray-200 rounded-none focus:border-blue-500 focus:ring-0 text-lg font-medium placeholder-gray-400 transition-all duration-200"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-              />
-              <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-200 w-0 focus-within:w-full"></div>
-            </div>
+            <Input
+              placeholder="Nhập tiêu đề công việc..."
+              className="h-11 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-base font-medium placeholder-gray-400 shadow-sm"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+            />
           </div>
 
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
-            <label className="text-gray-900 font-semibold text-base flex items-center space-x-2 mb-3">
-              <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <label className="text-gray-900 font-medium text-base flex items-center space-x-2 mb-4">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
               <span>Mô tả chi tiết</span>
             </label>
-            <div className="relative">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-t-xl"></div>
-              <Textarea
-                placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
-                className="min-h-[120px] bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-green-500 focus:ring-green-500/20 resize-none pt-4 text-gray-700 placeholder-gray-400"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-              />
-            </div>
+            <Textarea
+              placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
+              className="min-h-[100px] bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none text-sm text-gray-700 placeholder-gray-400 shadow-sm"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+            />
           </div>
 
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-              <h3 className="text-gray-900 font-semibold text-base">Thông tin công việc</h3>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="flex items-center space-x-2 mb-5">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              <h3 className="text-gray-900 font-medium text-base">Thông tin công việc</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-gray-700 font-medium text-sm mb-2 block">Loại công việc</label>
                 <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-purple-500 focus:ring-purple-500/20 hover:border-purple-300 transition-all duration-200">
+                  <SelectTrigger className="h-10 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-gray-300 transition-all duration-200 shadow-sm">
                     <SelectValue placeholder="Chọn loại công việc" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
-                    <SelectItem value="sales">Bán hàng</SelectItem>
-                    <SelectItem value="customer_service">Chăm sóc khách hàng</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="admin">Hành chính</SelectItem>
-                    <SelectItem value="training">Đào tạo</SelectItem>
-                    <SelectItem value="meeting">Họp</SelectItem>
-                    <SelectItem value="report">Báo cáo</SelectItem>
-                    <SelectItem value="other">Khác</SelectItem>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-xl overflow-hidden">
+                    <SelectItem value="kts_new" className="py-2.5 px-3 hover:bg-blue-50 border-l-4 border-l-blue-500 text-blue-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span>KTS mới</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="kts_old" className="py-2.5 px-3 hover:bg-blue-50 border-l-4 border-l-blue-400 text-blue-600">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <span>KTS cũ</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="kh_cdt_new" className="py-2.5 px-3 hover:bg-green-50 border-l-4 border-l-green-500 text-green-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>KH/CĐT mới</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="kh_cdt_old" className="py-2.5 px-3 hover:bg-green-50 border-l-4 border-l-green-400 text-green-600">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span>KH/CĐT cũ</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="sbg_new" className="py-2.5 px-3 hover:bg-purple-50 border-l-4 border-l-purple-500 text-purple-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        <span>SBG mới</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="sbg_old" className="py-2.5 px-3 hover:bg-purple-50 border-l-4 border-l-purple-400 text-purple-600">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span>SBG cũ</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="other" className="py-2.5 px-3 hover:bg-gray-50 border-l-4 border-l-gray-500 text-gray-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <span>Công việc khác</span>
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -195,14 +223,42 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               <div>
                 <label className="text-gray-700 font-medium text-sm mb-2 block">Trạng thái</label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-blue-500 focus:ring-blue-500/20 hover:border-blue-300 transition-all duration-200">
+                  <SelectTrigger className="h-10 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-gray-300 transition-all duration-200 shadow-sm">
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
-                    <SelectItem value="todo">Chưa bắt đầu</SelectItem>
-                    <SelectItem value="in_progress">Đang thực hiện</SelectItem>
-                    <SelectItem value="completed">Hoàn thành</SelectItem>
-                    <SelectItem value="cancelled">Đã hủy</SelectItem>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-xl overflow-hidden">
+                    <SelectItem value="todo" className="py-3 px-4 hover:bg-gray-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                          Chưa bắt đầu
+                        </div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="in_progress" className="py-3 px-4 hover:bg-blue-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                          Đang thực hiện
+                        </div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="completed" className="py-3 px-4 hover:bg-green-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                          Hoàn thành
+                        </div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="cancelled" className="py-3 px-4 hover:bg-red-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                          Đã hủy
+                        </div>
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -210,26 +266,70 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               <div>
                 <label className="text-gray-700 font-medium text-sm mb-2 block">Mức độ ưu tiên</label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-red-500 focus:ring-red-500/20 hover:border-red-300 transition-all duration-200">
+                  <SelectTrigger className="h-10 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-gray-300 transition-all duration-200 shadow-sm">
                     <SelectValue placeholder="Chọn mức độ ưu tiên" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
-                    <SelectItem value="low">Thấp</SelectItem>
-                    <SelectItem value="normal">Bình thường</SelectItem>
-                    <SelectItem value="high">Cao</SelectItem>
-                    <SelectItem value="urgent">Khẩn cấp</SelectItem>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-xl overflow-hidden">
+                    <SelectItem value="low" className="py-3 px-4 hover:bg-green-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium border border-green-200">
+                          Thấp
+                        </div>
+                        <div className="flex space-x-1">
+                          <div className="w-1.5 h-4 bg-green-400 rounded-sm"></div>
+                          <div className="w-1.5 h-4 bg-gray-200 rounded-sm"></div>
+                          <div className="w-1.5 h-4 bg-gray-200 rounded-sm"></div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="normal" className="py-3 px-4 hover:bg-yellow-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium border border-yellow-200">
+                          Bình thường
+                        </div>
+                        <div className="flex space-x-1">
+                          <div className="w-1.5 h-4 bg-yellow-400 rounded-sm"></div>
+                          <div className="w-1.5 h-4 bg-yellow-400 rounded-sm"></div>
+                          <div className="w-1.5 h-4 bg-gray-200 rounded-sm"></div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="high" className="py-3 px-4 hover:bg-orange-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium border border-orange-200">
+                          Cao
+                        </div>
+                        <div className="flex space-x-1">
+                          <div className="w-1.5 h-4 bg-orange-400 rounded-sm"></div>
+                          <div className="w-1.5 h-4 bg-orange-400 rounded-sm"></div>
+                          <div className="w-1.5 h-4 bg-orange-400 rounded-sm"></div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="urgent" className="py-3 px-4 hover:bg-red-50">
+                      <div className="flex items-center space-x-3">
+                        <div className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium border border-red-200 animate-pulse">
+                          Khẩn cấp
+                        </div>
+                        <div className="flex space-x-1">
+                          <div className="w-1.5 h-4 bg-red-500 rounded-sm animate-pulse"></div>
+                          <div className="w-1.5 h-4 bg-red-500 rounded-sm animate-pulse"></div>
+                          <div className="w-1.5 h-4 bg-red-500 rounded-sm animate-pulse"></div>
+                        </div>
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
-              <h3 className="text-gray-900 font-semibold text-base">Thời gian & Phân công</h3>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="flex items-center space-x-2 mb-5">
+              <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+              <h3 className="text-gray-900 font-medium text-base">Thời gian & Phân công</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-gray-700 font-medium text-sm mb-2 block flex items-center space-x-2">
                   <Calendar className="w-4 h-4 text-indigo-500" />
@@ -237,7 +337,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 </label>
                 <Input
                   type="date"
-                  className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20"
+                  className="h-10 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-sm"
                   value={formData.date}
                   onChange={(e) => handleInputChange('date', e.target.value)}
                 />
@@ -250,7 +350,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 </label>
                 <Input
                   type="time"
-                  className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20"
+                  className="h-10 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-sm"
                   value={formData.time}
                   onChange={(e) => handleInputChange('time', e.target.value)}
                 />
@@ -258,18 +358,18 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             </div>
 
             {(formType === 'team' || formType === 'individual') && canAssignToOthers && (
-              <div className="mt-6">
+              <div className="mt-5">
                 <label className="text-gray-700 font-medium text-sm mb-2 block flex items-center space-x-2">
                   <Users className="w-4 h-4 text-indigo-500" />
                   <span>Giao cho</span>
                 </label>
                 <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
-                  <SelectTrigger className="h-12 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl focus:border-indigo-500 focus:ring-indigo-500/20">
+                  <SelectTrigger className="h-10 bg-white border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 shadow-sm">
                     <SelectValue placeholder="Chọn người thực hiện" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-xl rounded-xl overflow-hidden">
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-xl overflow-hidden">
                     {filteredUsers.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
+                      <SelectItem key={user.id} value={user.id} className="py-2 px-3 hover:bg-gray-50">
                         {user.name} - {user.location || 'Chưa xác định'}
                       </SelectItem>
                     ))}
@@ -279,26 +379,26 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             )}
 
             {formType === 'team' && (
-              <div className="mt-6 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50">
+              <div className="mt-5 p-4 bg-blue-50 rounded-xl border border-blue-100">
                 <div className="flex items-center space-x-3">
                   <input
                     type="checkbox"
                     id="shareWithAll"
                     checked={formData.isShared || false}
                     onChange={(e) => handleInputChange('isShared', e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                   />
                   <label htmlFor="shareWithAll" className="text-sm font-medium text-gray-700">
                     Chia sẻ với tất cả nhân viên
                   </label>
                 </div>
-                <div className="flex items-center space-x-3 mt-2">
+                <div className="flex items-center space-x-3 mt-3">
                   <input
                     type="checkbox"
                     id="shareWithTeam"
                     checked={formData.isSharedWithTeam || false}
                     onChange={(e) => handleInputChange('isSharedWithTeam', e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                   />
                   <label htmlFor="shareWithTeam" className="text-sm font-medium text-gray-700">
                     Chia sẻ với nhóm của tôi
@@ -308,12 +408,12 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             )}
           </div>
 
-          <DialogFooter className="mt-8 p-6 bg-gradient-to-r from-gray-50/50 to-white/50 backdrop-blur-sm -m-6 mt-8 rounded-b-3xl border-t border-gray-100/50">
+          <DialogFooter className="mt-6 p-6 bg-gray-50 -m-6 mt-6 rounded-b-2xl border-t border-gray-100">
             <div className="flex flex-col sm:flex-row gap-3 w-full">
               <Button
                 type="button"
                 variant="outline"
-                className="h-12 px-6 rounded-xl border-2 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-lg transition-all duration-200 font-semibold text-gray-700 transform hover:scale-105"
+                className="h-10 px-6 rounded-xl border border-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm transition-all duration-200 font-medium text-gray-700"
                 onClick={() => onOpenChange(false)}
               >
                 <X className="w-4 h-4 mr-2" />
@@ -322,7 +422,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-12 px-6 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex-1"
+                className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm hover:shadow-md transition-all duration-200 flex-1"
               >
                 {isSubmitting ? (
                   <>

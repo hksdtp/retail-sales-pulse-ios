@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PieChart } from 'lucide-react';
 
 interface LoadingScreenProps {
   message?: string;
@@ -35,17 +34,21 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
               transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 200 }}
             >
               <motion.div
-                className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-lg"
-                animate={{ 
+                className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white shadow-lg flex items-center justify-center"
+                animate={{
                   rotate: [0, 360],
                   scale: [1, 1.05, 1]
                 }}
-                transition={{ 
+                transition={{
                   rotate: { duration: 3, repeat: Infinity, ease: "linear" },
                   scale: { duration: 2, repeat: Infinity, repeatType: "reverse" }
                 }}
               >
-                <PieChart size={32} className="text-white" />
+                <img
+                  src="/logo.webp"
+                  alt="Logo"
+                  className="w-10 h-10 object-contain"
+                />
               </motion.div>
               
               <motion.h2
@@ -54,7 +57,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
               >
-                QLPKDBL
+                Phòng Kinh Doanh
               </motion.h2>
               
               <motion.p

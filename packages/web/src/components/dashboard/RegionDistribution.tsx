@@ -1,15 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
-
-// Dữ liệu mẫu phân bố theo khu vực
-const data = [
-  { name: 'Miền Bắc', value: 55 },
-  { name: 'Miền Trung', value: 15 },
-  { name: 'Miền Nam', value: 30 },
-];
+import { reportsDataService } from '@/services/ReportsDataService';
 
 // Màu sắc iOS cho biểu đồ
 const COLORS = ['#007AFF', '#FF9500', '#4CD964'];
@@ -17,8 +11,29 @@ const COLORS = ['#007AFF', '#FF9500', '#4CD964'];
 const RegionDistribution = () => {
   const { currentUser } = useAuth();
 
-  // Chỉ hiển thị nếu người dùng có vai trò là retail_director hoặc project_director
-  if (currentUser?.role !== 'retail_director' && currentUser?.role !== 'project_director') {
+  // Lấy dữ liệu phân bố theo vùng từ ReportsDataService
+  const data = useMemo(() => {
+    const metrics = reportsDataService.getDashboardMetrics();
+    const totalSales = metrics.regionData.hanoi.sales + metrics.regionData.hcm.sales;
+
+    return [
+      {
+        name: 'Hà Nội',
+        value: Math.round((metrics.regionData.hanoi.sales / totalSales) * 100),
+        sales: metrics.regionData.hanoi.sales,
+        employees: metrics.regionData.hanoi.employees
+      },
+      {
+        name: 'TP.HCM',
+        value: Math.round((metrics.regionData.hcm.sales / totalSales) * 100),
+        sales: metrics.regionData.hcm.sales,
+        employees: metrics.regionData.hcm.employees
+      }
+    ];
+  }, []);
+
+  // Chỉ hiển thị nếu người dùng có vai trò là retail_director
+  if (currentUser?.role !== 'retail_director') {
     return null;
   }
 

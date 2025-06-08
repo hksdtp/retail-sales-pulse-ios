@@ -80,10 +80,13 @@ const Login = () => {
                   transition: { duration: 0.5 },
                 }}
               >
-                <deptInfo.icon
-                  size={50}
-                  className={`${deptInfo.color} mx-auto filter drop-shadow-lg`}
-                />
+                <div className="w-16 h-16 mx-auto bg-white rounded-2xl shadow-lg flex items-center justify-center">
+                  <img
+                    src="/logo.webp"
+                    alt="Logo"
+                    className="w-12 h-12 object-contain filter drop-shadow-lg"
+                  />
+                </div>
               </motion.div>
 
               <h1 className="text-[#2d3436] font-bold text-xl md:text-2xl mb-3 uppercase tracking-wide">

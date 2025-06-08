@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
+import { reportsDataService } from '@/services/ReportsDataService';
 
 interface Performer {
   id: string;
@@ -16,50 +17,13 @@ interface Performer {
 const TopPerformers = () => {
   const { currentUser, users } = useAuth();
 
-  // Lọc danh sách nhân viên xuất sắc từ dữ liệu người dùng thực
+  // Lấy danh sách nhân viên xuất sắc từ ReportsDataService
   const topPerformers = useMemo(() => {
-    // Dữ liệu thật từ báo cáo doanh số (5 tháng đầu năm 2024)
-    const realPerformers = [
-      {
-        id: 'nga_hcm',
-        name: 'Nguyễn Thị Nga',
-        role: 'Nhân viên',
-        location: 'HCM',
-        avatar: 'N',
-        sales: 2580000000, // 2.58 tỷ
-        deals: 25,
-        completion: 135,
-        contribution: 53.67
-      },
-      {
-        id: 'huong_hn',
-        name: 'Phạm Thị Hương',
-        role: 'Nhân viên',
-        location: 'Hà Nội',
-        avatar: 'H',
-        sales: 1310000000, // 1.31 tỷ
-        deals: 20,
-        completion: 125,
-        contribution: 27.01
-      },
-      {
-        id: 'anh_hn',
-        name: 'Lương Việt Anh',
-        role: 'Nhóm trưởng',
-        location: 'Hà Nội',
-        avatar: 'A',
-        sales: 1150000000, // 1.15 tỷ
-        deals: 18,
-        completion: 120,
-        contribution: 23.73
-      }
-    ];
-
-    return realPerformers;
+    return reportsDataService.getTopPerformers(3);
   }, []);
 
-  // Chỉ hiển thị nếu người dùng có vai trò là retail_director hoặc project_director
-  if (currentUser?.role !== 'retail_director' && currentUser?.role !== 'project_director') {
+  // Chỉ hiển thị nếu người dùng có vai trò là retail_director
+  if (currentUser?.role !== 'retail_director') {
     return null;
   }
 

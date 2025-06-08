@@ -15,38 +15,37 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
+import { reportsDataService } from '@/services/ReportsDataService';
 
-const dummyData = {
-  weekly: [
-    { name: 'T2', revenue: 2400, target: 2800 },
-    { name: 'T3', revenue: 1398, target: 2200 },
-    { name: 'T4', revenue: 9800, target: 7000 },
-    { name: 'T5', revenue: 3908, target: 4000 },
-    { name: 'T6', revenue: 4800, target: 4200 },
-    { name: 'T7', revenue: 3800, target: 3500 },
-    { name: 'CN', revenue: 4300, target: 4100 },
-  ],
-  monthly: [
-    { name: 'Tháng 1', revenue: 21400, target: 22000 },
-    { name: 'Tháng 2', revenue: 24500, target: 24000 },
-    { name: 'Tháng 3', revenue: 26400, target: 25000 },
-    { name: 'Tháng 4', revenue: 22400, target: 24000 },
-    { name: 'Tháng 5', revenue: 28300, target: 26000 },
-  ],
-  quarterly: [
-    { name: 'Q1', revenue: 72300, target: 70000 },
-    { name: 'Q2', revenue: 74800, target: 74000 },
-    { name: 'Q3', revenue: 81200, target: 78000 },
-    { name: 'Q4', revenue: 82900, target: 85000 },
-  ],
+const getRevenueData = () => {
+  const metrics = reportsDataService.getDashboardMetrics();
+
+  return {
+    weekly: [
+      { name: 'T2', revenue: 2400000000, target: 2800000000 },
+      { name: 'T3', revenue: 1398000000, target: 2200000000 },
+      { name: 'T4', revenue: 9800000000, target: 7000000000 },
+      { name: 'T5', revenue: 3908000000, target: 4000000000 },
+      { name: 'T6', revenue: 4800000000, target: 4200000000 },
+      { name: 'T7', revenue: 3800000000, target: 3500000000 },
+      { name: 'CN', revenue: 4300000000, target: 4100000000 },
+    ],
+    monthly: metrics.monthlyTrend,
+    quarterly: [
+      { name: 'Q1', revenue: 72300000000, target: 70000000000 },
+      { name: 'Q2', revenue: 74800000000, target: 74000000000 },
+      { name: 'Q3', revenue: 81200000000, target: 78000000000 },
+      { name: 'Q4', revenue: 82900000000, target: 85000000000 },
+    ],
+  };
 };
 
 type PeriodType = 'weekly' | 'monthly' | 'quarterly';
 
 const RevenueChart = () => {
-  const [period, setPeriod] = useState<PeriodType>('weekly');
+  const [period, setPeriod] = useState<PeriodType>('monthly');
 
-  const data = dummyData[period];
+  const data = getRevenueData()[period];
 
   return (
     <Card className="shadow-sm">
