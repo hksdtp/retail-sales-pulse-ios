@@ -624,22 +624,22 @@ export default function TaskManagementView({
 
           {/* Desktop Table View */}
           <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
-                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider w-2/5">
                     Tiêu đề
                   </th>
-                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                     Trạng thái & Ưu tiên
                   </th>
-                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider hidden md:table-cell">
+                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider hidden md:table-cell w-1/6">
                     Người làm
                   </th>
-                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider w-1/6">
                     Tới hạn
                   </th>
-                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider w-24">
                     Tương tác
                   </th>
                 </tr>
@@ -657,28 +657,28 @@ export default function TaskManagementView({
                       }
                     }}
                   >
-                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap">
-                      <div className="flex items-center">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                      <div className="flex items-center min-w-0">
                         <div
-                          className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-2 sm:mr-3`}
+                          className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0`}
                         >
                           {React.createElement(typeMapping[task.type]?.icon || Circle, {
                             className: 'w-3 h-3 sm:w-4 sm:h-4',
                           })}
                         </div>
-                        <span className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 truncate" title={task.title}>
                           {task.title}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                         <button
                           onClick={(e) => {
                             console.log('🔴 Status button clicked!', task.id, task.status);
                             handleStatusChange(e, task.id, task.status);
                           }}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 ${statusColors[task.status]} cursor-pointer transform hover:scale-105 active:scale-95`}
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 ${statusColors[task.status]} cursor-pointer transform hover:scale-105 active:scale-95 whitespace-nowrap`}
                           title={`Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}`}
                         >
                           {statusMapping[task.status] || 'Chưa bắt đầu'}
@@ -688,28 +688,28 @@ export default function TaskManagementView({
                             console.log('🟡 Priority button clicked!', task.id, task.priority);
                             handlePriorityChange(e, task.id, task.priority || 'normal');
                           }}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} cursor-pointer transform hover:scale-105 active:scale-95`}
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} cursor-pointer transform hover:scale-105 active:scale-95 whitespace-nowrap`}
                           title={`Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}`}
                         >
                           {priorityMapping[task.priority || 'normal'] || 'Bình thường'}
                         </button>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold mr-2">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 hidden md:table-cell">
+                      <div className="flex items-center min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold mr-2 flex-shrink-0">
                           {getInitials(getUserName(task.assignedTo))}
                         </div>
-                        <span className="text-sm text-gray-900">
+                        <span className="text-sm text-gray-900 truncate" title={getUserName(task.assignedTo)}>
                           {getUserName(task.assignedTo)}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(task.date)}
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-sm text-gray-900">
+                      <span className="whitespace-nowrap">{formatDate(task.date)}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-1 justify-end">
                         <button
                           onClick={(e) => {
                             e.preventDefault();
@@ -721,7 +721,7 @@ export default function TaskManagementView({
                             e.stopPropagation();
                             console.log('🔵 EDIT BUTTON MOUSE DOWN!');
                           }}
-                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
                           title="Chỉnh sửa"
                           type="button"
                         >
@@ -741,7 +741,7 @@ export default function TaskManagementView({
                             e.stopPropagation();
                             console.log('🔴 DELETE BUTTON MOUSE DOWN!');
                           }}
-                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
                           title="Xóa"
                           type="button"
                         >

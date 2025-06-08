@@ -123,20 +123,20 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         ref={sidebarRef}
         className={cn(
           "sidebar-desktop fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out",
-          "macos-glass border-r border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70",
+          "border-r border-gray-200 shadow-lg bg-white",
           isVisuallyExpanded ? "w-64" : "w-16"
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           {isVisuallyExpanded ? (
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                 <PieChart className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-gray-900 dark:text-white">QLPKDBL</span>
+              <span className="font-bold text-gray-900">QLPKDBL</span>
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
@@ -147,7 +147,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           {isVisuallyExpanded && (
             <button
               onClick={handleToggleCollapse}
-              className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               title={isCollapsed ? "Tự động ẩn khi không hover" : "Thu nhỏ sidebar"}
             >
               <ChevronLeft className="w-4 h-4 text-gray-600" />
@@ -157,7 +157,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           {!isVisuallyExpanded && (
             <button
               onClick={handleToggleCollapse}
-              className="absolute top-4 right-2 p-1 rounded-lg hover:bg-white/50 transition-colors"
+              className="absolute top-4 right-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
               title="Mở rộng sidebar"
             >
               <ChevronRight className="w-3 h-3 text-gray-600" />
@@ -175,8 +175,8 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 "flex items-center rounded-xl transition-all duration-200 relative group",
                 !isVisuallyExpanded ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
                 isActive(item.url)
-                  ? "text-ios-blue bg-blue-50 dark:bg-blue-900/20 shadow-sm border border-blue-100/50"
-                  : "text-gray-600 hover:text-ios-blue hover:bg-white/50 hover:shadow-sm"
+                  ? "text-ios-blue bg-blue-50 shadow-sm border border-blue-100"
+                  : "text-gray-600 hover:text-ios-blue hover:bg-gray-50 hover:shadow-sm"
               )}
               title={!isVisuallyExpanded ? item.title : undefined}
             >
@@ -199,12 +199,12 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         </nav>
 
         {/* Account Section */}
-        <div className="p-4 border-t border-white/10 relative" ref={dropdownRef}>
+        <div className="p-4 border-t border-gray-200 relative" ref={dropdownRef}>
           <button
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-200 relative group",
               !isVisuallyExpanded ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3",
-              "text-gray-600 hover:text-ios-blue hover:bg-white/50 hover:shadow-sm"
+              "text-gray-600 hover:text-ios-blue hover:bg-gray-50 hover:shadow-sm"
             )}
             onClick={() => {
               console.log('Avatar clicked, current state:', isDropdownOpen);
@@ -224,7 +224,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
             </div>
             {isVisuallyExpanded && (
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {currentUser?.name}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
