@@ -57,11 +57,19 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     // Khi chọn nhóm cụ thể
     if (selectedTeam) {
       // Chỉ hiển thị người dùng thuộc nhóm được chọn
-      return user.team_id === selectedTeam.id && user.location === selectedLocation;
+      const locationMatch =
+        (selectedLocation === 'hanoi' && (user.location === 'Hà Nội' || user.location === 'hanoi')) ||
+        (selectedLocation === 'hcm' && (user.location === 'Hồ Chí Minh' || user.location === 'hcm')) ||
+        user.location === selectedLocation;
+      return user.team_id === selectedTeam.id && locationMatch;
     }
 
     // Lọc theo khu vực (hiển thị tất cả người dùng trong khu vực khi không chọn nhóm cụ thể)
-    return user.location === selectedLocation && user.department_type === departmentType;
+    const locationMatch =
+      (selectedLocation === 'hanoi' && (user.location === 'Hà Nội' || user.location === 'hanoi')) ||
+      (selectedLocation === 'hcm' && (user.location === 'Hồ Chí Minh' || user.location === 'hcm')) ||
+      user.location === selectedLocation;
+    return locationMatch && user.department_type === departmentType;
   });
 
   // Debug logging
@@ -70,12 +78,32 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     selectedTeam,
     departmentType,
     totalUsers: users.length,
+    totalTeams: teams.length,
     filteredUsers: filteredUsers.length,
+    filteredTeams: filteredTeams.length,
     filteredUsersData: filteredUsers.map((u) => ({
       id: u.id,
       name: u.name,
       team_id: u.team_id,
       location: u.location,
+    })),
+    filteredTeamsData: filteredTeams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      location: t.location,
+    })),
+    allUsersData: users.map((u) => ({
+      id: u.id,
+      name: u.name,
+      team_id: u.team_id,
+      location: u.location,
+      department_type: u.department_type,
+    })),
+    allTeamsData: teams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      location: t.location,
+      department_type: t.department_type,
     })),
   });
 
@@ -91,8 +119,12 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       return false;
     }
 
-    // Lọc theo khu vực
-    return team.location === selectedLocation;
+    // Lọc theo khu vực với mapping
+    const locationMatch =
+      (selectedLocation === 'hanoi' && (team.location === 'Hà Nội' || team.location === 'hanoi')) ||
+      (selectedLocation === 'hcm' && (team.location === 'Hồ Chí Minh' || team.location === 'hcm')) ||
+      team.location === selectedLocation;
+    return locationMatch;
   });
 
   const handleSubmit = async (e?: React.FormEvent) => {
