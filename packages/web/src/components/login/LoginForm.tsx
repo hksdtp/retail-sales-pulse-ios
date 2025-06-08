@@ -42,10 +42,18 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       return false;
     }
 
-    // Lọc theo khu vực với mapping
+    // Lọc theo khu vực với mapping (support cả Firebase và Mock data format)
     const locationMatch =
-      (selectedLocation === 'hanoi' && (team.location === 'Hà Nội' || team.location === 'hanoi')) ||
-      (selectedLocation === 'hcm' && (team.location === 'Hồ Chí Minh' || team.location === 'hcm')) ||
+      (selectedLocation === 'hanoi' && (
+        team.location === 'Hà Nội' ||
+        team.location === 'hanoi' ||
+        team.location === 'Ha Noi'
+      )) ||
+      (selectedLocation === 'hcm' && (
+        team.location === 'Hồ Chí Minh' ||
+        team.location === 'hcm' ||
+        team.location === 'Ho Chi Minh'
+      )) ||
       team.location === selectedLocation;
     return locationMatch;
   });
@@ -78,16 +86,32 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     if (selectedTeam) {
       // Chỉ hiển thị người dùng thuộc nhóm được chọn
       const locationMatch =
-        (selectedLocation === 'hanoi' && (user.location === 'Hà Nội' || user.location === 'hanoi')) ||
-        (selectedLocation === 'hcm' && (user.location === 'Hồ Chí Minh' || user.location === 'hcm')) ||
+        (selectedLocation === 'hanoi' && (
+          user.location === 'Hà Nội' ||
+          user.location === 'hanoi' ||
+          user.location === 'Ha Noi'
+        )) ||
+        (selectedLocation === 'hcm' && (
+          user.location === 'Hồ Chí Minh' ||
+          user.location === 'hcm' ||
+          user.location === 'Ho Chi Minh'
+        )) ||
         user.location === selectedLocation;
       return user.team_id === selectedTeam.id && locationMatch;
     }
 
     // Lọc theo khu vực (hiển thị tất cả người dùng trong khu vực khi không chọn nhóm cụ thể)
     const locationMatch =
-      (selectedLocation === 'hanoi' && (user.location === 'Hà Nội' || user.location === 'hanoi')) ||
-      (selectedLocation === 'hcm' && (user.location === 'Hồ Chí Minh' || user.location === 'hcm')) ||
+      (selectedLocation === 'hanoi' && (
+        user.location === 'Hà Nội' ||
+        user.location === 'hanoi' ||
+        user.location === 'Ha Noi'
+      )) ||
+      (selectedLocation === 'hcm' && (
+        user.location === 'Hồ Chí Minh' ||
+        user.location === 'hcm' ||
+        user.location === 'Ho Chi Minh'
+      )) ||
       user.location === selectedLocation;
     return locationMatch && user.department_type === departmentType;
   });
