@@ -1,11 +1,5 @@
 import * as admin from 'firebase-admin';
-import * as logger from 'firebase-functions/logger';
-import {
-  onDocumentCreated,
-  onDocumentDeleted,
-  onDocumentUpdated,
-} from 'firebase-functions/v2/firestore';
-import { onRequest } from 'firebase-functions/v2/https';
+import * as functions from 'firebase-functions';
 import { FieldValue } from 'firebase-admin/firestore';
 
 const cors = require('cors');
@@ -86,7 +80,7 @@ app.get('/tasks', async (req, res) => {
       count: tasks.length,
     });
   } catch (error) {
-    logger.error('Error getting tasks:', error);
+    functions.functions.logger.error('Error getting tasks:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get tasks',
@@ -113,7 +107,7 @@ app.post('/tasks', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error creating task:', error);
+    functions.functions.logger.error('Error creating task:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create task',
@@ -140,7 +134,7 @@ app.put('/tasks/:id', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error updating task:', error);
+    functions.logger.error('Error updating task:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update task',
@@ -159,7 +153,7 @@ app.delete('/tasks/:id', async (req, res) => {
       message: 'Task deleted successfully',
     });
   } catch (error) {
-    logger.error('Error deleting task:', error);
+    functions.logger.error('Error deleting task:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to delete task',
@@ -179,14 +173,14 @@ app.delete('/tasks/deleteall', async (req, res) => {
       });
     }
 
-    logger.info(`Deleting tasks for user_id: ${user_id}`);
+    functions.logger.info(`Deleting tasks for user_id: ${user_id}`);
 
     // First, let's check all tasks to see what fields exist
     const allTasksSnapshot = await admin.firestore().collection('tasks').limit(5).get();
 
-    logger.info('Sample tasks structure:');
+    functions.logger.info('Sample tasks structure:');
     allTasksSnapshot.docs.forEach((doc, index) => {
-      logger.info(`Task ${index}:`, doc.data());
+      functions.logger.info(`Task ${index}:`, doc.data());
     });
 
     // Try multiple field names that might contain user ID
@@ -202,13 +196,13 @@ app.delete('/tasks/deleteall', async (req, res) => {
           .get();
 
         if (!snapshot.empty) {
-          logger.info(`Found ${snapshot.size} tasks with field "${field}"`);
+          functions.logger.info(`Found ${snapshot.size} tasks with field "${field}"`);
           tasksToDelete = snapshot.docs;
           break;
         }
       } catch (error) {
         // Field might not exist, continue to next
-        logger.info(`Field "${field}" not found or error:`, error);
+        functions.logger.info(`Field "${field}" not found or error:`, error);
       }
     }
 
@@ -224,12 +218,12 @@ app.delete('/tasks/deleteall', async (req, res) => {
             .get();
 
           if (!snapshot.empty) {
-            logger.info(`Found ${snapshot.size} tasks with field "${field}" as string`);
+            functions.logger.info(`Found ${snapshot.size} tasks with field "${field}" as string`);
             tasksToDelete = snapshot.docs;
             break;
           }
         } catch (error) {
-          logger.info(`Field "${field}" string search error:`, error);
+          functions.logger.info(`Field "${field}" string search error:`, error);
         }
       }
     }
@@ -247,7 +241,7 @@ app.delete('/tasks/deleteall', async (req, res) => {
       await batch.commit();
     }
 
-    logger.info(`Successfully deleted ${deletedCount} tasks for user ${user_id}`);
+    functions.logger.info(`Successfully deleted ${deletedCount} tasks for user ${user_id}`);
 
     return res.json({
       success: true,
@@ -255,7 +249,7 @@ app.delete('/tasks/deleteall', async (req, res) => {
       deletedCount,
     });
   } catch (error) {
-    logger.error('Error deleting all tasks:', error);
+    functions.logger.error('Error deleting all tasks:', error);
     return res.status(500).json({
       success: false,
       error: 'Failed to delete all tasks',
@@ -275,7 +269,7 @@ app.get('/tasks/managerview', async (req, res) => {
       });
     }
 
-    logger.info(
+    functions.logger.info(
       `Manager view request: user_id=${user_id}, role=${role}, view_level=${view_level}, team_id=${team_id}`,
     );
 
@@ -286,7 +280,7 @@ app.get('/tasks/managerview', async (req, res) => {
       if (userDoc.exists) {
         const userData = userDoc.data();
         if (userData?.team_id !== String(team_id)) {
-          logger.warn(
+          functions.logger.warn(
             `Team leader ${user_id} tried to access team ${team_id} but belongs to team ${userData?.team_id}`,
           );
           return res.status(403).json({
@@ -342,7 +336,7 @@ app.get('/tasks/managerview', async (req, res) => {
           }
         } else if (role === 'team_leader' && team_id) {
           // Team Leader: chỉ xem tasks của team members trong team của mình
-          logger.info(`Team leader ${user_id} requesting team ${team_id} tasks`);
+          functions.logger.info(`Team leader ${user_id} requesting team ${team_id} tasks`);
 
           // Lấy tất cả users thuộc team này (bao gồm cả team leader)
           const teamMembersSnapshot = await admin
@@ -352,7 +346,7 @@ app.get('/tasks/managerview', async (req, res) => {
             .get();
 
           const memberIds = teamMembersSnapshot.docs.map((doc) => doc.id);
-          logger.info(
+          functions.logger.info(
             `Found ${memberIds.length} members in team ${team_id}: ${memberIds.join(', ')}`,
           );
 
@@ -374,8 +368,9 @@ app.get('/tasks/managerview', async (req, res) => {
         break;
 
       case 'department':
-        // Chỉ Director mới có quyền xem toàn phòng
+        // Department-level tasks: Công việc chung của phòng ban
         if (role === 'retail_director' || role === 'project_director') {
+          // Directors: Xem tất cả tasks trong department
           if (department) {
             // Lấy tất cả users trong department
             const usersSnapshot = await admin
@@ -399,10 +394,18 @@ app.get('/tasks/managerview', async (req, res) => {
             tasksSnapshot = await tasksQuery.limit(0).get();
           }
         } else {
-          return res.status(403).json({
-            success: false,
-            error: 'Only directors can view department-level tasks',
-          });
+          // Employees và Team Leaders: Chỉ xem shared tasks (công việc chung được chia sẻ)
+          functions.logger.info(`Employee/Team Leader ${user_id} requesting department view - showing shared tasks only`);
+
+          // Lấy tasks có isShared = true (công việc chung của phòng)
+          tasksSnapshot = await tasksQuery.where('isShared', '==', true).get();
+
+          // Nếu không có, thử với type = 'shared'
+          if (tasksSnapshot.empty) {
+            tasksSnapshot = await tasksQuery.where('type', '==', 'shared').get();
+          }
+
+          functions.logger.info(`Found ${tasksSnapshot.docs.length} shared tasks for employee/team leader`);
         }
         break;
 
@@ -438,7 +441,7 @@ app.get('/tasks/managerview', async (req, res) => {
           }
         } else if (role === 'team_leader' && team_id) {
           // Team Leader: chỉ xem tasks của team members trong team của mình
-          logger.info(
+          functions.logger.info(
             `Team leader ${user_id} requesting individual view for team ${team_id}, member: ${member_id || 'all'}`,
           );
 
@@ -450,40 +453,40 @@ app.get('/tasks/managerview', async (req, res) => {
             .get();
 
           const memberIds = teamMembersSnapshot.docs.map((doc) => doc.id);
-          logger.info(
+          functions.logger.info(
             `Found ${memberIds.length} members in team ${team_id}: ${memberIds.join(', ')}`,
           );
 
           if (member_id) {
             // Kiểm tra member có thuộc team này không
             if (memberIds.includes(member_id)) {
-              logger.info(`Getting tasks for specific member: ${member_id}`);
+              functions.logger.info(`Getting tasks for specific member: ${member_id}`);
               tasksSnapshot = await tasksQuery.where('assignedTo', '==', member_id).get();
-              logger.info(`Found ${tasksSnapshot.docs.length} tasks for member ${member_id}`);
+              functions.logger.info(`Found ${tasksSnapshot.docs.length} tasks for member ${member_id}`);
             } else {
-              logger.warn(
+              functions.logger.warn(
                 `Team leader ${user_id} tried to access member ${member_id} not in their team`,
               );
               tasksSnapshot = await tasksQuery.limit(0).get();
             }
           } else {
             // Lấy tất cả tasks của team members
-            logger.info(`Getting tasks for all team members: ${memberIds.join(', ')}`);
+            functions.logger.info(`Getting tasks for all team members: ${memberIds.join(', ')}`);
 
             if (memberIds.length > 0) {
               // Chia nhỏ query vì Firestore giới hạn 10 items trong 'in' query
               const allTasks: any[] = [];
               for (let i = 0; i < memberIds.length; i += 10) {
                 const batch = memberIds.slice(i, i + 10);
-                logger.info(`Querying batch: ${batch.join(', ')}`);
+                functions.logger.info(`Querying batch: ${batch.join(', ')}`);
                 const batchSnapshot = await tasksQuery.where('assignedTo', 'in', batch).get();
-                logger.info(`Batch returned ${batchSnapshot.docs.length} tasks`);
+                functions.logger.info(`Batch returned ${batchSnapshot.docs.length} tasks`);
                 allTasks.push(...batchSnapshot.docs);
               }
               tasksSnapshot = { docs: allTasks };
-              logger.info(`Total tasks found for team: ${allTasks.length}`);
+              functions.logger.info(`Total tasks found for team: ${allTasks.length}`);
             } else {
-              logger.warn(`No team members found for team ${team_id}`);
+              functions.logger.warn(`No team members found for team ${team_id}`);
               tasksSnapshot = await tasksQuery.limit(0).get();
             }
           }
@@ -505,7 +508,7 @@ app.get('/tasks/managerview', async (req, res) => {
       ...doc.data(),
     }));
 
-    logger.info(`Returning ${tasks.length} tasks for ${view_level} view`);
+    functions.logger.info(`Returning ${tasks.length} tasks for ${view_level} view`);
 
     return res.json({
       success: true,
@@ -515,7 +518,7 @@ app.get('/tasks/managerview', async (req, res) => {
       user_role: role,
     });
   } catch (error) {
-    logger.error('Error in manager view:', error);
+    functions.logger.error('Error in manager view:', error);
     return res.status(500).json({
       success: false,
       error: 'Failed to get manager view tasks',
@@ -542,7 +545,7 @@ app.get('/users', async (req, res) => {
       count: users.length,
     });
   } catch (error) {
-    logger.error('Error getting users:', error);
+    functions.logger.error('Error getting users:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get users',
@@ -572,7 +575,7 @@ app.get('/users/:id', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error getting user:', error);
+    functions.logger.error('Error getting user:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get user',
@@ -599,7 +602,7 @@ app.get('/teams', async (req, res) => {
       count: teams.length,
     });
   } catch (error) {
-    logger.error('Error getting teams:', error);
+    functions.logger.error('Error getting teams:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get teams',
@@ -629,7 +632,7 @@ app.get('/teams/:id', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error getting team:', error);
+    functions.logger.error('Error getting team:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get team',
@@ -656,7 +659,7 @@ app.get('/settings', async (req, res) => {
       count: settings.length,
     });
   } catch (error) {
-    logger.error('Error getting settings:', error);
+    functions.logger.error('Error getting settings:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get settings',
@@ -719,7 +722,7 @@ app.put('/users/:id', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error updating user:', error);
+    functions.logger.error('Error updating user:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update user',
@@ -754,7 +757,7 @@ app.post('/users', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error creating user:', error);
+    functions.logger.error('Error creating user:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create user',
@@ -789,7 +792,7 @@ app.post('/teams', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error creating team:', error);
+    functions.logger.error('Error creating team:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create team',
@@ -864,7 +867,7 @@ app.post('/auth/login', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error during login:', error);
+    functions.logger.error('Error during login:', error);
     res.status(500).json({
       success: false,
       error: 'Login failed',
@@ -909,7 +912,7 @@ app.post('/auth/verify', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error verifying token:', error);
+    functions.logger.error('Error verifying token:', error);
     res.status(401).json({
       success: false,
       error: 'Invalid token',
@@ -972,7 +975,7 @@ app.post('/sync/sheets', async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error('Error syncing to Google Sheets:', error);
+    functions.logger.error('Error syncing to Google Sheets:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to sync to Google Sheets',
@@ -1029,7 +1032,7 @@ app.get('/export/csv', async (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename=tasks.csv');
     res.status(200).send(csvContent);
   } catch (error) {
-    logger.error('Error exporting CSV:', error);
+    functions.logger.error('Error exporting CSV:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to export CSV',
@@ -1049,7 +1052,7 @@ export const onTaskCreated = onDocumentCreated('tasks/{taskId}', (event) => {
   const taskData = event.data?.data();
   const taskId = event.params.taskId;
 
-  logger.info(`New task created: ${taskId}`, taskData);
+  functions.logger.info(`New task created: ${taskId}`, taskData);
 
   // Add any logic here (e.g., send notifications, update statistics)
   return Promise.resolve();
@@ -1061,7 +1064,7 @@ export const onTaskUpdated = onDocumentUpdated('tasks/{taskId}', (event) => {
   const afterData = event.data?.after.data();
   const taskId = event.params.taskId;
 
-  logger.info(`Task updated: ${taskId}`, { before: beforeData, after: afterData });
+  functions.logger.info(`Task updated: ${taskId}`, { before: beforeData, after: afterData });
 
   // Add any logic here (e.g., track changes, send notifications)
   return Promise.resolve();
@@ -1072,8 +1075,11 @@ export const onTaskDeleted = onDocumentDeleted('tasks/{taskId}', (event) => {
   const taskData = event.data?.data();
   const taskId = event.params.taskId;
 
-  logger.info(`Task deleted: ${taskId}`, taskData);
+  functions.logger.info(`Task deleted: ${taskId}`, taskData);
 
   // Add any logic here (e.g., cleanup related data, send notifications)
   return Promise.resolve();
 });
+
+// Export the Express app as a Firebase Function
+export const api = functions.https.onRequest(app);
