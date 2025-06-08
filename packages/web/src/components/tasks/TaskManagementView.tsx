@@ -182,10 +182,19 @@ export default function TaskManagementView({
   // Dữ liệu trống - sẵn sàng cho dữ liệu thật
   const mockTasks: any[] = [];
 
+  // Xác định member ID để truyền cho hook
+  const getSelectedMemberForHook = () => {
+    if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+      return selectedMember; // Directors sử dụng selectedMember từ filters
+    } else {
+      return selectedMemberId; // Team leaders sử dụng selectedMemberId từ props
+    }
+  };
+
   let regularTaskData, managerTaskData;
   try {
     regularTaskData = useTaskData();
-    managerTaskData = useManagerTaskData(viewLevel as any, selectedMemberId);
+    managerTaskData = useManagerTaskData(viewLevel as any, getSelectedMemberForHook());
   } catch (error) {
     console.error('Error with hooks, using mock data:', error);
     regularTaskData = { tasks: mockTasks };

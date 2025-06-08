@@ -65,6 +65,7 @@ export const useManagerTaskData = (
         // Thêm selectedMemberId nếu có (cho individual view)
         if (level === 'individual' && selectedMemberId) {
           params.append('member_id', selectedMemberId);
+          console.log(`👤 Adding member_id to API request: ${selectedMemberId}`);
         }
 
         console.log(
@@ -163,12 +164,24 @@ export const useManagerTaskData = (
 
         // Tính task counts cho từng member (cho individual view)
         if (isTeamLeader || isDirector) {
-          const teamMembers = users.filter((user) => user.team_id === currentUser.team_id);
+          let teamMembers;
+
+          if (isDirector) {
+            // Directors: lấy tất cả members trong department
+            teamMembers = users.filter((user) =>
+              user.department_type === currentUser.department_type &&
+              user.id !== currentUser.id
+            );
+          } else {
+            // Team Leaders: chỉ lấy members trong team
+            teamMembers = users.filter((user) => user.team_id === currentUser.team_id);
+          }
+
           const memberCounts: { [memberId: string]: number } = {};
 
           console.log(
-            `👥 Team members for counting:`,
-            teamMembers.map((m) => `${m.name} (${m.id})`),
+            `👥 Team members for counting (${isDirector ? 'Director - All Department' : 'Team Leader - Team Only'}):`,
+            teamMembers.map((m) => `${m.name} (${m.id}) - team: ${m.team_id}`),
           );
 
           for (const member of teamMembers) {
