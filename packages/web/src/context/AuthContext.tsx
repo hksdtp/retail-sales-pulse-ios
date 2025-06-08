@@ -79,21 +79,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Try API
-      console.log('Loading from API...');
-      const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
-
-      if (usersResponse.success && usersResponse.data && teamsResponse.success && teamsResponse.data) {
-        setUsers(usersResponse.data);
-        setTeams(teamsResponse.data as any);
-        console.log(`Loaded ${usersResponse.data.length} users and ${teamsResponse.data.length} teams from API`);
-        return;
-      } else {
-        console.warn('API not available or returned error, falling back to mock data. Users error:', usersResponse.error, 'Teams error:', teamsResponse.error);
-      }
-
-      // Fallback to Mock data
-      console.log('Loading from Mock data...');
+      // Prioritize Mock data for now since we have real data there
+      console.log('Loading from Mock data (prioritized)...');
       const [mockUsersResponse, mockTeamsResponse] = await Promise.all([
         mockGetUsers(),
         mockGetTeams(),
@@ -107,6 +94,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (mockTeamsResponse.success && mockTeamsResponse.data) {
         setTeams(mockTeamsResponse.data as any);
         console.log(`Loaded ${mockTeamsResponse.data.length} teams from Mock`);
+      }
+
+      // If mock data loaded successfully, return early
+      if (mockUsersResponse.success && mockTeamsResponse.success) {
+        console.log('Mock data loaded successfully, skipping API');
+        return;
+      }
+
+      // Try API as fallback
+      console.log('Mock data failed, trying API...');
+      const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
+
+      if (usersResponse.success && usersResponse.data && teamsResponse.success && teamsResponse.data) {
+        setUsers(usersResponse.data);
+        setTeams(teamsResponse.data as any);
+        console.log(`Loaded ${usersResponse.data.length} users and ${teamsResponse.data.length} teams from API`);
+        return;
+      } else {
+        console.warn('API also failed. Users error:', usersResponse.error, 'Teams error:', teamsResponse.error);
       }
 
     } catch (error) {

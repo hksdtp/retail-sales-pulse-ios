@@ -28,6 +28,14 @@ const Employees = () => {
   const { users, teams } = useAuth();
   const [selectedLocation, setSelectedLocation] = useState<'all' | 'hanoi' | 'hcm'>('all');
 
+  // Debug logging
+  console.log('Employees Debug:', {
+    usersCount: users.length,
+    teamsCount: teams.length,
+    users: users.map(u => ({ id: u.id, name: u.name, team_id: u.team_id, role: u.role })),
+    teams: teams.map(t => ({ id: t.id, name: t.name, leader_id: t.leader_id }))
+  });
+
   // Lọc nhân viên theo địa điểm
   const filteredUsers = selectedLocation === 'all'
     ? users
