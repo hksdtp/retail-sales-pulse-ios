@@ -6,6 +6,11 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "build": "cd packages/web && bun run build",
+    "dev": "cd packages/web && bun run dev",
+    "preview": "cd packages/web && bun run preview"
+  },
   "devDependencies": {
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
