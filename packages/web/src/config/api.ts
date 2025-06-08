@@ -19,11 +19,11 @@ export const API_CONFIG = {
 
 // Get the appropriate API URL based on environment
 export const getApiUrl = () => {
-  // Always use production for now
-  // return API_CONFIG.BASE_URL;
+  // For now, always use production API to avoid 401 errors
+  return API_CONFIG.BASE_URL;
 
-  // Uncomment below to use local in development
-  return API_CONFIG.IS_DEVELOPMENT ? API_CONFIG.LOCAL_URL : API_CONFIG.BASE_URL;
+  // Uncomment below to use local in development (when local server is running)
+  // return API_CONFIG.IS_DEVELOPMENT ? API_CONFIG.LOCAL_URL : API_CONFIG.BASE_URL;
 };
 
 // API Endpoints

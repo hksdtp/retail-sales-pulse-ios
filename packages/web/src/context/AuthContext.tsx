@@ -8,6 +8,12 @@ import {
   login as loginAPI,
   updateUser as updateUserAPI,
 } from '@/services/api';
+import {
+  mockLogin,
+  mockGetUsers,
+  mockGetTeams,
+  mockUpdateUser
+} from '@/services/mockAuth';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
 
 interface AuthContextType {
@@ -49,10 +55,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authToken, setAuthToken] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load users và teams từ Firebase/API
+  // Load users và teams từ Firebase/API/Mock
   const loadUsersAndTeams = async () => {
     try {
-      console.log('Loading users and teams from Firebase/API...');
+      console.log('Loading users and teams from Firebase/API/Mock...');
 
       // Try Firebase first
       const firebaseService = FirebaseService.getInstance();
@@ -73,19 +79,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Fallback to API
+      // Try API
       console.log('Loading from API...');
-      const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
+      try {
+        const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
 
-      if (usersResponse.success && usersResponse.data) {
-        setUsers(usersResponse.data);
-        console.log(`Loaded ${usersResponse.data.length} users from API`);
+        if (usersResponse.success && usersResponse.data) {
+          setUsers(usersResponse.data);
+          console.log(`Loaded ${usersResponse.data.length} users from API`);
+        }
+
+        if (teamsResponse.success && teamsResponse.data) {
+          setTeams(teamsResponse.data as any);
+          console.log(`Loaded ${teamsResponse.data.length} teams from API`);
+        }
+        return;
+      } catch (apiError) {
+        console.warn('API not available, falling back to mock data:', apiError);
       }
 
-      if (teamsResponse.success && teamsResponse.data) {
-        setTeams(teamsResponse.data as any);
-        console.log(`Loaded ${teamsResponse.data.length} teams from API`);
+      // Fallback to Mock data
+      console.log('Loading from Mock data...');
+      const [mockUsersResponse, mockTeamsResponse] = await Promise.all([
+        mockGetUsers(),
+        mockGetTeams(),
+      ]);
+
+      if (mockUsersResponse.success && mockUsersResponse.data) {
+        setUsers(mockUsersResponse.data as any);
+        console.log(`Loaded ${mockUsersResponse.data.length} users from Mock`);
       }
+
+      if (mockTeamsResponse.success && mockTeamsResponse.data) {
+        setTeams(mockTeamsResponse.data as any);
+        console.log(`Loaded ${mockTeamsResponse.data.length} teams from Mock`);
+      }
+
     } catch (error) {
       console.error('Error loading users and teams:', error);
       toast({
@@ -140,8 +169,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Attempting login for:', email);
 
-      // Use real API authentication
-      const response = await loginAPI(email, password);
+      let response;
+
+      // Try API authentication first
+      try {
+        response = await loginAPI(email, password);
+        console.log('API login response:', response);
+      } catch (apiError) {
+        console.warn('API login failed, trying mock authentication:', apiError);
+        // Fallback to mock authentication
+        response = await mockLogin(email, password);
+        console.log('Mock login response:', response);
+      }
 
       if (!response.success || !response.data) {
         throw new Error(response.error || 'Đăng nhập thất bại');
