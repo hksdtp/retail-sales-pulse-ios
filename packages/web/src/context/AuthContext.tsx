@@ -81,21 +81,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Try API
       console.log('Loading from API...');
-      try {
-        const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
+      const [usersResponse, teamsResponse] = await Promise.all([getUsersAPI(), getTeamsAPI()]);
 
-        if (usersResponse.success && usersResponse.data) {
-          setUsers(usersResponse.data);
-          console.log(`Loaded ${usersResponse.data.length} users from API`);
-        }
-
-        if (teamsResponse.success && teamsResponse.data) {
-          setTeams(teamsResponse.data as any);
-          console.log(`Loaded ${teamsResponse.data.length} teams from API`);
-        }
+      if (usersResponse.success && usersResponse.data && teamsResponse.success && teamsResponse.data) {
+        setUsers(usersResponse.data);
+        setTeams(teamsResponse.data as any);
+        console.log(`Loaded ${usersResponse.data.length} users and ${teamsResponse.data.length} teams from API`);
         return;
-      } catch (apiError) {
-        console.warn('API not available, falling back to mock data:', apiError);
+      } else {
+        console.warn('API not available or returned error, falling back to mock data. Users error:', usersResponse.error, 'Teams error:', teamsResponse.error);
       }
 
       // Fallback to Mock data
@@ -169,14 +163,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Attempting login for:', email);
 
+      // Try API authentication first
+      const apiResponse = await loginAPI(email, password);
+      console.log('API login response:', apiResponse);
+
       let response;
 
-      // Try API authentication first
-      try {
-        response = await loginAPI(email, password);
-        console.log('API login response:', response);
-      } catch (apiError) {
-        console.warn('API login failed, trying mock authentication:', apiError);
+      // Check if API response is successful
+      if (apiResponse.success && apiResponse.data) {
+        response = apiResponse;
+        console.log('Using API authentication');
+      } else {
+        console.warn('API login failed, trying mock authentication. API error:', apiResponse.error);
         // Fallback to mock authentication
         response = await mockLogin(email, password);
         console.log('Mock login response:', response);
