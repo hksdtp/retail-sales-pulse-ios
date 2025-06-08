@@ -315,6 +315,8 @@ app.get('/tasks/managerview', async (req, res) => {
         if (role === 'retail_director' || role === 'project_director') {
           // Director: xem tất cả tasks trong department
           if (department) {
+            functions.logger.info(`Director ${user_id} requesting team view for department: ${department}`);
+
             // Lấy tất cả users trong department
             const usersSnapshot = await admin
               .firestore()
@@ -323,15 +325,26 @@ app.get('/tasks/managerview', async (req, res) => {
               .get();
 
             const userIds = usersSnapshot.docs.map((doc) => doc.id);
+            functions.logger.info(`Found ${userIds.length} users in department ${department}: ${userIds.join(', ')}`);
 
             if (userIds.length > 0) {
-              tasksSnapshot = await tasksQuery
-                .where('assignedTo', 'in', userIds.slice(0, 10)) // Firestore limit 10 items in 'in' query
-                .get();
+              // Chia nhỏ query vì Firestore giới hạn 10 items trong 'in' query
+              const allTasks: any[] = [];
+              for (let i = 0; i < userIds.length; i += 10) {
+                const batch = userIds.slice(i, i + 10);
+                functions.logger.info(`Querying batch ${Math.floor(i/10) + 1}: ${batch.join(', ')}`);
+                const batchSnapshot = await tasksQuery.where('assignedTo', 'in', batch).get();
+                functions.logger.info(`Batch ${Math.floor(i/10) + 1} returned ${batchSnapshot.docs.length} tasks`);
+                allTasks.push(...batchSnapshot.docs);
+              }
+              tasksSnapshot = { docs: allTasks };
+              functions.logger.info(`Total tasks found for department: ${allTasks.length}`);
             } else {
+              functions.logger.warn(`No users found in department ${department}`);
               tasksSnapshot = await tasksQuery.limit(0).get(); // Empty result
             }
           } else {
+            functions.logger.warn(`Director ${user_id} missing department parameter`);
             tasksSnapshot = await tasksQuery.limit(0).get();
           }
         } else if (role === 'team_leader' && team_id) {
@@ -372,6 +385,8 @@ app.get('/tasks/managerview', async (req, res) => {
         if (role === 'retail_director' || role === 'project_director') {
           // Directors: Xem tất cả tasks trong department
           if (department) {
+            functions.logger.info(`Director ${user_id} requesting department view for: ${department}`);
+
             // Lấy tất cả users trong department
             const usersSnapshot = await admin
               .firestore()
@@ -380,17 +395,22 @@ app.get('/tasks/managerview', async (req, res) => {
               .get();
 
             const userIds = usersSnapshot.docs.map((doc) => doc.id);
+            functions.logger.info(`Found ${userIds.length} users in department ${department}: ${userIds.join(', ')}`);
 
             // Chia nhỏ query vì Firestore giới hạn 10 items trong 'in' query
             const allTasks: any[] = [];
             for (let i = 0; i < userIds.length; i += 10) {
               const batch = userIds.slice(i, i + 10);
+              functions.logger.info(`Department batch ${Math.floor(i/10) + 1}: ${batch.join(', ')}`);
               const batchSnapshot = await tasksQuery.where('assignedTo', 'in', batch).get();
+              functions.logger.info(`Department batch ${Math.floor(i/10) + 1} returned ${batchSnapshot.docs.length} tasks`);
               allTasks.push(...batchSnapshot.docs);
             }
 
             tasksSnapshot = { docs: allTasks };
+            functions.logger.info(`Total department tasks found: ${allTasks.length}`);
           } else {
+            functions.logger.warn(`Director ${user_id} missing department parameter for department view`);
             tasksSnapshot = await tasksQuery.limit(0).get();
           }
         } else {
@@ -509,6 +529,14 @@ app.get('/tasks/managerview', async (req, res) => {
     }));
 
     functions.logger.info(`Returning ${tasks.length} tasks for ${view_level} view`);
+
+    // Debug: Log task details for directors
+    if ((role === 'retail_director' || role === 'project_director') && tasks.length > 0) {
+      functions.logger.info(`📋 Tasks summary for ${role}:`);
+      tasks.forEach(task => {
+        functions.logger.info(`  - Task: ${task.title} | Assigned to: ${task.assignedTo} | User: ${task.user_name || 'Unknown'}`);
+      });
+    }
 
     return res.json({
       success: true,
