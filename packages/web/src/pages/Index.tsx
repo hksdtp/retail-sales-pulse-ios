@@ -5,7 +5,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { useTaskData } from '@/context/TaskContext';
+import { useTaskData } from '@/hooks/use-task-data';
 import { getDashboardSubtitle, getKpiDataForUser } from '@/utils/kpiUtils';
 
 const Index = () => {
