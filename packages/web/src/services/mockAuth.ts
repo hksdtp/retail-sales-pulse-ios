@@ -80,6 +80,46 @@ export const mockUsers: MockUser[] = [
     status: 'active',
     password_changed: true,
   },
+  // Users cho Hồ Chí Minh
+  {
+    id: '4',
+    name: 'Trần Văn Nam',
+    email: 'nam@company.com',
+    role: 'team_leader',
+    team_id: '2',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
+    status: 'active',
+    password_changed: true,
+  },
+  {
+    id: '5',
+    name: 'Lê Thị Hoa',
+    email: 'hoa@company.com',
+    role: 'employee',
+    team_id: '2',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Nhân viên',
+    status: 'active',
+    password_changed: true,
+  },
+  {
+    id: '6',
+    name: 'Phạm Minh Tuấn',
+    email: 'tuan@company.com',
+    role: 'employee',
+    team_id: '2',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Nhân viên',
+    status: 'active',
+    password_changed: true,
+  },
 ];
 
 // Email aliases for easier login
@@ -106,6 +146,27 @@ export const emailAliases: Record<string, string> = {
   'linh.nguyen@company.com': 'linh@company.com',
   'nguyen.linh@company.com': 'linh@company.com',
   'manhlinh': 'linh@company.com',
+
+  // Trần Văn Nam aliases (HCM team leader)
+  'vannam@company.com': 'nam@company.com',
+  'tranvannam@company.com': 'nam@company.com',
+  'nam.tran@company.com': 'nam@company.com',
+  'tran.nam@company.com': 'nam@company.com',
+  'vannam': 'nam@company.com',
+
+  // Lê Thị Hoa aliases
+  'thihoa@company.com': 'hoa@company.com',
+  'lethihoa@company.com': 'hoa@company.com',
+  'hoa.le@company.com': 'hoa@company.com',
+  'le.hoa@company.com': 'hoa@company.com',
+  'thihoa': 'hoa@company.com',
+
+  // Phạm Minh Tuấn aliases
+  'minhtuan@company.com': 'tuan@company.com',
+  'phamminhtuan@company.com': 'tuan@company.com',
+  'tuan.pham@company.com': 'tuan@company.com',
+  'pham.tuan@company.com': 'tuan@company.com',
+  'minhtuan': 'tuan@company.com',
 };
 
 // Mock teams data
@@ -116,6 +177,15 @@ export const mockTeams: MockTeam[] = [
     leader_id: '2',
     location: 'Hà Nội',
     description: 'Nhóm phụ trách bán lẻ khu vực Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+  },
+  {
+    id: '2',
+    name: 'Nhóm Bán lẻ Hồ Chí Minh',
+    leader_id: '4',
+    location: 'Hồ Chí Minh',
+    description: 'Nhóm phụ trách bán lẻ khu vực Hồ Chí Minh',
     department: 'Bán lẻ',
     department_type: 'retail',
   },
