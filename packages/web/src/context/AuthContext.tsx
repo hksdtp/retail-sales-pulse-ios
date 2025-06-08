@@ -55,31 +55,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authToken, setAuthToken] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Load users và teams từ Firebase/API/Mock
+  // Load users và teams từ Mock/API (tránh Firebase CORS)
   const loadUsersAndTeams = async () => {
     try {
-      console.log('Loading users and teams from Firebase/API/Mock...');
+      console.log('Loading users and teams from Mock/API...');
 
-      // Try Firebase first
-      const firebaseService = FirebaseService.getInstance();
-      if (firebaseService.getFirestore()) {
-        console.log('Loading from Firebase...');
-        const [usersData, teamsData] = await Promise.all([
-          firebaseService.getDocuments('users'),
-          firebaseService.getDocuments('teams'),
-        ]);
-
-        if (usersData.length > 0 || teamsData.length > 0) {
-          setUsers(usersData as User[]);
-          setTeams(teamsData as Team[]);
-          console.log(
-            `Loaded ${usersData.length} users and ${teamsData.length} teams from Firebase`,
-          );
-          return;
-        }
-      }
-
-      // Prioritize Mock data for now since we have real data there
+      // Prioritize Mock data first (has real data)
       console.log('Loading from Mock data (prioritized)...');
       const [mockUsersResponse, mockTeamsResponse] = await Promise.all([
         mockGetUsers(),
@@ -98,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // If mock data loaded successfully, return early
       if (mockUsersResponse.success && mockTeamsResponse.success) {
-        console.log('Mock data loaded successfully, skipping API');
+        console.log('Mock data loaded successfully, skipping Firebase/API');
         return;
       }
 
@@ -115,13 +96,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('API also failed. Users error:', usersResponse.error, 'Teams error:', teamsResponse.error);
       }
 
+      // Try Firebase last (may have CORS issues)
+      try {
+        const firebaseService = FirebaseService.getInstance();
+        if (firebaseService.getFirestore()) {
+          console.log('Trying Firebase as last resort...');
+          const [usersData, teamsData] = await Promise.all([
+            firebaseService.getDocuments('users'),
+            firebaseService.getDocuments('teams'),
+          ]);
+
+          if (usersData.length > 0 || teamsData.length > 0) {
+            setUsers(usersData as User[]);
+            setTeams(teamsData as Team[]);
+            console.log(
+              `Loaded ${usersData.length} users and ${teamsData.length} teams from Firebase`,
+            );
+            return;
+          }
+        }
+      } catch (firebaseError) {
+        console.warn('Firebase failed (CORS or network issue):', firebaseError);
+      }
+
     } catch (error) {
       console.error('Error loading users and teams:', error);
-      toast({
-        title: 'Lỗi tải dữ liệu',
-        description: 'Không thể tải danh sách người dùng và nhóm',
-        variant: 'destructive',
-      });
+      // Don't show error toast for CORS issues, just log
+      if (!error.toString().includes('CORS') && !error.toString().includes('access control')) {
+        toast({
+          title: 'Lỗi tải dữ liệu',
+          description: 'Không thể tải danh sách người dùng và nhóm',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
