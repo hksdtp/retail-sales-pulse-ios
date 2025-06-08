@@ -19,6 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
+import { useTaskData } from '@/hooks/use-task-data';
+import { useToast } from '@/hooks/use-toast';
 import { canAssignTasks } from '@/config/permissions';
 
 interface TaskFormData {
@@ -37,17 +39,19 @@ interface TaskFormData {
 interface TaskFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: TaskFormData) => void;
+  onTaskCreated?: () => void;
   formType: 'self' | 'team' | 'individual';
 }
 
 const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   open,
   onOpenChange,
-  onSubmit,
+  onTaskCreated,
   formType,
 }) => {
   const { currentUser, users } = useAuth();
+  const { addTask } = useTaskData();
+  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
@@ -92,16 +96,46 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+      toast({
+        title: 'Lỗi',
+        description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+        variant: 'destructive',
+      });
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await onSubmit(formData);
+
+      // Tạo task mới
+      await addTask({
+        title: formData.title,
+        description: formData.description,
+        type: formData.type,
+        status: formData.status as any,
+        date: formData.date,
+        time: formData.time,
+        assignedTo: formData.assignedTo,
+        isShared: formData.isShared,
+        isSharedWithTeam: formData.isSharedWithTeam,
+        priority: formData.priority,
+      });
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã tạo công việc mới thành công',
+      });
+
+      // Gọi callback để refresh data
+      onTaskCreated?.();
       onOpenChange(false);
     } catch (error) {
       console.error('Error submitting task:', error);
+      toast({
+        title: 'Lỗi',
+        description: error instanceof Error ? error.message : 'Không thể tạo công việc mới',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
