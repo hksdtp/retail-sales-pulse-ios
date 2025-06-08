@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import LoginForm from '@/components/login/LoginForm';
+import LoginLoadingScreen from '@/components/login/LoginLoadingScreen';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 
@@ -20,6 +21,11 @@ const Login = () => {
       navigate('/', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
+
+  // Hiển thị loading screen khi đang tải
+  if (isLoading) {
+    return <LoginLoadingScreen />;
+  }
 
   const deptInfo = {
     title: 'Phòng Kinh Doanh Bán Lẻ',
