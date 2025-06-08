@@ -29,19 +29,29 @@ const Employees = () => {
   const [selectedLocation, setSelectedLocation] = useState<'all' | 'hanoi' | 'hcm'>('all');
 
   // Lọc nhân viên theo địa điểm
-  const filteredUsers =
-    selectedLocation === 'all' ? users : users.filter((user) => user.location === selectedLocation);
+  const filteredUsers = selectedLocation === 'all'
+    ? users
+    : users.filter((user) => {
+        if (selectedLocation === 'hanoi') {
+          return user.location === 'Hà Nội' || user.location === 'hanoi';
+        }
+        if (selectedLocation === 'hcm') {
+          return user.location === 'Hồ Chí Minh' || user.location === 'hcm';
+        }
+        return user.location === selectedLocation;
+      });
 
   // Tìm tên nhóm theo team_id
   const getTeamName = (teamId: string) => {
+    if (teamId === '0' || !teamId) return 'Chưa có nhóm';
     const team = teams.find((t) => t.id === teamId);
     return team ? team.name : 'Chưa có nhóm';
   };
 
   const getRoleName = (role: string) => {
     switch (role) {
-      case 'director':
-        return 'Giám đốc Kinh doanh';
+      case 'retail_director':
+        return 'Trưởng phòng';
       case 'team_leader':
         return 'Trưởng nhóm';
       case 'employee':
@@ -52,7 +62,9 @@ const Employees = () => {
   };
 
   const getLocationName = (location: string) => {
-    return location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
+    if (location === 'hanoi' || location === 'Hà Nội') return 'Hà Nội';
+    if (location === 'hcm' || location === 'Hồ Chí Minh') return 'Hồ Chí Minh';
+    return location;
   };
 
   return (
@@ -124,7 +136,16 @@ const Employees = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teams
-            .filter((team) => selectedLocation === 'all' || team.location === selectedLocation)
+            .filter((team) => {
+              if (selectedLocation === 'all') return true;
+              if (selectedLocation === 'hanoi') {
+                return team.location === 'Hà Nội' || team.location === 'hanoi';
+              }
+              if (selectedLocation === 'hcm') {
+                return team.location === 'Hồ Chí Minh' || team.location === 'hcm';
+              }
+              return team.location === selectedLocation;
+            })
             .map((team) => {
               const teamLeader = users.find((user) => user.id === team.leader_id);
               const teamMembers = users.filter(

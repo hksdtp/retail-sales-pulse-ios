@@ -17,7 +17,9 @@ const TeamLeadersList: React.FC = () => {
   };
 
   const getLocationLabel = (location: string) => {
-    return location === 'hanoi' ? 'Hà Nội' : 'TP. Hồ Chí Minh';
+    if (location === 'hanoi' || location === 'Hà Nội') return 'Hà Nội';
+    if (location === 'hcm' || location === 'Hồ Chí Minh') return 'TP. Hồ Chí Minh';
+    return location;
   };
 
   return (

@@ -309,31 +309,236 @@ function getUserInfoFromEmail(email: string): {
   };
 }
 
-// Mock get users function
+// Mock get users function - trả về tất cả users thật từ hệ thống
 export const mockGetUsers = async (): Promise<{
   success: boolean;
   data?: MockUser[];
   error?: string;
 }> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  
+
+  // Tạo danh sách users thật từ hệ thống
+  const realUsers: MockUser[] = [
+    {
+      id: '1',
+      name: 'Khổng Đức Mạnh',
+      email: 'manh.khong@example.com',
+      role: 'retail_director',
+      team_id: '0', // Chưa có nhóm
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng phòng',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '2',
+      name: 'Lương Việt Anh',
+      email: 'vietanh@example.com',
+      role: 'team_leader',
+      team_id: '1',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '3',
+      name: 'Lê Khánh Duy',
+      email: 'khanhduy@example.com',
+      role: 'employee',
+      team_id: '1',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Nhân viên',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '4',
+      name: 'Nguyễn Thị Thảo',
+      email: 'thao.nguyen@example.com',
+      role: 'team_leader',
+      team_id: '2',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '5',
+      name: 'Nguyễn Mạnh Linh',
+      email: 'manhlinh@example.com',
+      role: 'employee',
+      team_id: '2',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Nhân viên',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '6',
+      name: 'Trịnh Thị Bốn',
+      email: 'bon.trinh@example.com',
+      role: 'team_leader',
+      team_id: '3',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '7',
+      name: 'Phạm Thị Hương',
+      email: 'huong.pham@example.com',
+      role: 'team_leader',
+      team_id: '4',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '8',
+      name: 'Nguyễn Thị Nga',
+      email: 'nga.nguyen@example.com',
+      role: 'team_leader',
+      team_id: '5',
+      location: 'Hồ Chí Minh',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '9',
+      name: 'Hà Nguyễn Thanh Tuyền',
+      email: 'tuyen.ha@example.com',
+      role: 'employee',
+      team_id: '5',
+      location: 'Hồ Chí Minh',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Nhân viên',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '10',
+      name: 'Nguyễn Ngọc Việt Khanh',
+      email: 'vietkhanh@example.com',
+      role: 'team_leader',
+      team_id: '6',
+      location: 'Hồ Chí Minh',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: '11',
+      name: 'Phùng Thị Thuỳ Vân',
+      email: 'thuyvan@example.com',
+      role: 'employee',
+      team_id: '6',
+      location: 'Hồ Chí Minh',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Nhân viên',
+      status: 'active',
+      password_changed: true,
+    },
+  ];
+
   return {
     success: true,
-    data: mockUsers,
+    data: realUsers,
   };
 };
 
-// Mock get teams function
+// Mock get teams function - trả về tất cả teams thật từ hệ thống
 export const mockGetTeams = async (): Promise<{
   success: boolean;
   data?: MockTeam[];
   error?: string;
 }> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  
+
+  // Tạo danh sách teams thật từ hệ thống
+  const realTeams: MockTeam[] = [
+    {
+      id: '1',
+      name: 'NHÓM 1 - VIỆT ANH',
+      leader_id: '2',
+      location: 'Hà Nội',
+      description: 'Nhóm bán lẻ do Lương Việt Anh làm trưởng nhóm',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+    {
+      id: '2',
+      name: 'NHÓM 2 - THẢO',
+      leader_id: '4',
+      location: 'Hà Nội',
+      description: 'Nhóm bán lẻ do Nguyễn Thị Thảo làm trưởng nhóm',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+    {
+      id: '3',
+      name: 'NHÓM 3',
+      leader_id: '6',
+      location: 'Hà Nội',
+      description: 'Nhóm bán lẻ do Trịnh Thị Bốn làm trưởng nhóm',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+    {
+      id: '4',
+      name: 'NHÓM 4',
+      leader_id: '7',
+      location: 'Hà Nội',
+      description: 'Nhóm bán lẻ do Phạm Thị Hương làm trưởng nhóm',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+    {
+      id: '5',
+      name: 'NHÓM 1',
+      leader_id: '8',
+      location: 'Hồ Chí Minh',
+      description: 'Nhóm bán lẻ HCM do Nguyễn Thị Nga làm trưởng nhóm',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+    {
+      id: '6',
+      name: 'NHÓM 2',
+      leader_id: '10',
+      location: 'Hồ Chí Minh',
+      description: 'Nhóm bán lẻ HCM do Nguyễn Ngọc Việt Khanh làm trưởng nhóm',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+  ];
+
   return {
     success: true,
-    data: mockTeams,
+    data: realTeams,
   };
 };
 
