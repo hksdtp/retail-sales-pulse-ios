@@ -56,13 +56,61 @@ export const mockUsers: MockUser[] = [
   },
 ];
 
-// Email aliases for easier login - chỉ giữ lại những cái cần thiết
+// Danh sách emails thật từ hệ thống - tất cả đều có thể đăng nhập với password 123456
+export const realUserEmails = [
+  'manh.khong@example.com',
+  'vietanh@example.com',
+  'khanhduy@example.com',
+  'thao.nguyen@example.com',
+  'manhlinh@example.com',
+  'bon.trinh@example.com',
+  'huong.pham@example.com',
+  'nga.nguyen@example.com',
+  'tuyen.ha@example.com',
+  'vietkhanh@example.com',
+  'thuyvan@example.com'
+];
+
+// Email aliases cho dễ nhớ
 export const emailAliases: Record<string, string> = {
-  // Khổng Đức Mạnh aliases
-  'manh.khong@example.com': 'manh@company.com',
-  'ducmanh@company.com': 'manh@company.com',
-  'ducmanh': 'manh@company.com',
-  'manh': 'manh@company.com',
+  // Khổng Đức Mạnh
+  'ducmanh': 'manh.khong@example.com',
+  'manh': 'manh.khong@example.com',
+
+  // Lương Việt Anh
+  'vietanh': 'vietanh@example.com',
+  'anh': 'vietanh@example.com',
+
+  // Lê Khánh Duy
+  'khanhduy': 'khanhduy@example.com',
+  'duy': 'khanhduy@example.com',
+
+  // Nguyễn Thị Thảo
+  'thao': 'thao.nguyen@example.com',
+
+  // Nguyễn Mạnh Linh
+  'manhlinh': 'manhlinh@example.com',
+  'linh': 'manhlinh@example.com',
+
+  // Trịnh Thị Bốn
+  'bon': 'bon.trinh@example.com',
+
+  // Phạm Thị Hương
+  'huong': 'huong.pham@example.com',
+
+  // Nguyễn Thị Nga
+  'nga': 'nga.nguyen@example.com',
+
+  // Hà Nguyễn Thanh Tuyền
+  'tuyen': 'tuyen.ha@example.com',
+
+  // Nguyễn Ngọc Việt Khanh
+  'vietkhanh': 'vietkhanh@example.com',
+  'khanh': 'vietkhanh@example.com',
+
+  // Phùng Thị Thuỳ Vân
+  'thuyvan': 'thuyvan@example.com',
+  'van': 'thuyvan@example.com',
 };
 
 // Mock teams data - sẽ sử dụng teams từ API/Firebase thay vì mock
@@ -78,7 +126,7 @@ export const mockTeams: MockTeam[] = [
   },
 ];
 
-// Mock authentication function - accepts any email with correct password
+// Mock authentication function - chấp nhận tất cả emails thật từ hệ thống
 export const mockLogin = async (email: string, password: string): Promise<{
   success: boolean;
   data?: { user: MockUser; token: string };
@@ -99,26 +147,49 @@ export const mockLogin = async (email: string, password: string): Promise<{
   const normalizedEmail = email.toLowerCase();
   const actualEmail = emailAliases[normalizedEmail] || normalizedEmail;
 
+  // Check if email is in the real user list or mock data
+  const isRealUser = realUserEmails.includes(actualEmail) || realUserEmails.includes(normalizedEmail);
+
   // Try to find user in mock data first
   let user = mockUsers.find(u =>
     u.email.toLowerCase() === actualEmail ||
     u.email.toLowerCase() === normalizedEmail
   );
 
-  // If not found in mock data, create a dynamic user based on email
+  // If not found in mock data but is a real user, create dynamic user
+  if (!user && (isRealUser || realUserEmails.length > 0)) {
+    // Map email to user info based on real data
+    const userInfo = getUserInfoFromEmail(actualEmail);
+
+    user = {
+      id: `real_${Date.now()}`,
+      name: userInfo.name,
+      email: actualEmail,
+      role: userInfo.role,
+      team_id: userInfo.team_id,
+      location: userInfo.location,
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: userInfo.position,
+      status: 'active',
+      password_changed: true,
+    };
+
+    console.log('Created dynamic user from real data:', user);
+  }
+
+  // If still not found, create generic user
   if (!user) {
-    // Extract name from email (before @)
     const emailPrefix = email.split('@')[0];
     const userName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
 
-    // Create dynamic user
     user = {
       id: `dynamic_${Date.now()}`,
       name: userName,
       email: email,
-      role: 'employee', // Default role
+      role: 'employee',
       team_id: '1',
-      location: 'Hà Nội', // Default location
+      location: 'Hà Nội',
       department: 'Bán lẻ',
       department_type: 'retail',
       position: 'Nhân viên',
@@ -126,7 +197,7 @@ export const mockLogin = async (email: string, password: string): Promise<{
       password_changed: true,
     };
 
-    console.log('Created dynamic mock user:', user);
+    console.log('Created generic dynamic user:', user);
   }
 
   // Generate mock token
@@ -140,6 +211,103 @@ export const mockLogin = async (email: string, password: string): Promise<{
     },
   };
 };
+
+// Helper function để map email thành user info
+function getUserInfoFromEmail(email: string): {
+  name: string;
+  role: string;
+  team_id: string;
+  location: string;
+  position: string;
+} {
+  const emailToUserMap: Record<string, any> = {
+    'manh.khong@example.com': {
+      name: 'Khổng Đức Mạnh',
+      role: 'retail_director',
+      team_id: '0',
+      location: 'Hà Nội',
+      position: 'Trưởng phòng'
+    },
+    'vietanh@example.com': {
+      name: 'Lương Việt Anh',
+      role: 'team_leader',
+      team_id: '1',
+      location: 'Hà Nội',
+      position: 'Trưởng nhóm'
+    },
+    'khanhduy@example.com': {
+      name: 'Lê Khánh Duy',
+      role: 'employee',
+      team_id: '1',
+      location: 'Hà Nội',
+      position: 'Nhân viên'
+    },
+    'thao.nguyen@example.com': {
+      name: 'Nguyễn Thị Thảo',
+      role: 'team_leader',
+      team_id: '2',
+      location: 'Hà Nội',
+      position: 'Trưởng nhóm'
+    },
+    'manhlinh@example.com': {
+      name: 'Nguyễn Mạnh Linh',
+      role: 'employee',
+      team_id: '2',
+      location: 'Hà Nội',
+      position: 'Nhân viên'
+    },
+    'bon.trinh@example.com': {
+      name: 'Trịnh Thị Bốn',
+      role: 'team_leader',
+      team_id: '3',
+      location: 'Hà Nội',
+      position: 'Trưởng nhóm'
+    },
+    'huong.pham@example.com': {
+      name: 'Phạm Thị Hương',
+      role: 'team_leader',
+      team_id: '4',
+      location: 'Hà Nội',
+      position: 'Trưởng nhóm'
+    },
+    'nga.nguyen@example.com': {
+      name: 'Nguyễn Thị Nga',
+      role: 'team_leader',
+      team_id: '5',
+      location: 'Hồ Chí Minh',
+      position: 'Trưởng nhóm'
+    },
+    'tuyen.ha@example.com': {
+      name: 'Hà Nguyễn Thanh Tuyền',
+      role: 'employee',
+      team_id: '5',
+      location: 'Hồ Chí Minh',
+      position: 'Nhân viên'
+    },
+    'vietkhanh@example.com': {
+      name: 'Nguyễn Ngọc Việt Khanh',
+      role: 'team_leader',
+      team_id: '6',
+      location: 'Hồ Chí Minh',
+      position: 'Trưởng nhóm'
+    },
+    'thuyvan@example.com': {
+      name: 'Phùng Thị Thuỳ Vân',
+      role: 'employee',
+      team_id: '6',
+      location: 'Hồ Chí Minh',
+      position: 'Nhân viên'
+    }
+  };
+
+  return emailToUserMap[email] || {
+    name: email.split('@')[0],
+    role: 'employee',
+    team_id: '1',
+    location: 'Hà Nội',
+    position: 'Nhân viên'
+  };
+}
 
 // Mock get users function
 export const mockGetUsers = async (): Promise<{
