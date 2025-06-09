@@ -10,7 +10,15 @@ import { getDashboardSubtitle, getKpiDataForUser } from '@/utils/kpiUtils';
 
 const Index = () => {
   const { currentUser } = useAuth();
-  const { tasks } = useTaskData();
+  const { tasks, isLoading } = useTaskData();
+
+  // Debug logging
+  console.log('📊 Dashboard Index - Task data:', {
+    tasksCount: tasks.length,
+    isLoading,
+    currentUser: currentUser?.name,
+    userId: currentUser?.id
+  });
 
   // Lấy dữ liệu KPI dựa trên người dùng hiện tại và tasks
   const kpiData = getKpiDataForUser(currentUser, tasks);

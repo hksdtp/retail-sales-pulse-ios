@@ -11,8 +11,18 @@ export interface KpiItem {
 }
 
 export const getKpiDataForUser = (currentUser: User | null, tasks: Task[] = []): KpiItem[] => {
+  console.log('🔍 getKpiDataForUser called with:', {
+    user: currentUser?.name,
+    userId: currentUser?.id,
+    tasksCount: tasks.length,
+    taskSample: tasks.slice(0, 2).map(t => ({ id: t.id, title: t.title, assignedTo: t.assignedTo, user_id: t.user_id }))
+  });
+
   // Sử dụng TaskKpiService để lấy dữ liệu KPI từ công việc
-  return taskKpiService.getKpiDataForUser(currentUser, tasks);
+  const kpiData = taskKpiService.getKpiDataForUser(currentUser, tasks);
+
+  console.log('📊 KPI data calculated:', kpiData);
+  return kpiData;
 };
 
 // Xây dựng tiêu đề phụ (subtitle) dựa trên loại người dùng

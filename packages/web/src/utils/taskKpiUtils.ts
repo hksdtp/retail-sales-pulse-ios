@@ -246,7 +246,10 @@ function filterTasksByUser(tasks: Task[], currentUser: User | null): Task[] {
   }
 }
 
-// Hàm để lấy dữ liệu KPI theo loại công việc
-export const getTaskKpiData = (currentUser: User | null): TaskKpiSummary => {
-  return calculateTaskKpi(tasks, currentUser);
+// Hàm để lấy dữ liệu KPI theo loại công việc - sử dụng real tasks
+export const getTaskKpiData = (currentUser: User | null, realTasks: Task[] = []): TaskKpiSummary => {
+  // Ưu tiên sử dụng realTasks nếu có, fallback về mock tasks
+  const tasksToUse = realTasks.length > 0 ? realTasks : tasks;
+  console.log(`🔍 KPI calculation using ${tasksToUse.length} tasks (${realTasks.length > 0 ? 'real' : 'mock'} data)`);
+  return calculateTaskKpi(tasksToUse, currentUser);
 };

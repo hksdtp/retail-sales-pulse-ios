@@ -68,10 +68,10 @@ const statusMapping = {
 };
 
 const statusColors = {
-  'todo': 'bg-gray-400 hover:bg-gray-500',
-  'in-progress': 'bg-blue-500 hover:bg-blue-600',
-  'on-hold': 'bg-amber-400 hover:bg-amber-500',
-  'completed': 'bg-green-500 hover:bg-green-600',
+  'todo': 'bg-gray-500 hover:bg-gray-600 text-white',
+  'in-progress': 'bg-blue-500 hover:bg-blue-600 text-white',
+  'on-hold': 'bg-amber-500 hover:bg-amber-600 text-white',
+  'completed': 'bg-green-500 hover:bg-green-600 text-white',
 };
 
 // Thứ tự chuyển trạng thái

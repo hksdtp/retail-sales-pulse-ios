@@ -138,18 +138,26 @@ class TaskKpiService {
   }
 
   private getEmployeeKpiData(currentUser: User, tasks: Task[]): TaskKpiData[] {
-    // KPI cá nhân - chỉ lọc tasks của bản thân
-    const userTasks = tasks.filter(task => task.user_id === currentUser.id);
+    // KPI cá nhân - lọc tasks của bản thân (assignedTo hoặc user_id)
+    const userTasks = tasks.filter(task =>
+      task.user_id === currentUser.id || task.assignedTo === currentUser.id
+    );
     const completedTasks = userTasks.filter(task => task.status === 'completed');
 
-    // Tổng các loại công việc cá nhân
-    const totalKtsNew = completedTasks.filter(task => task.type === 'kts_new').length;
-    const totalKhCdtNew = completedTasks.filter(task => task.type === 'kh_cdt_new').length;
-    const totalSbgNew = completedTasks.filter(task => task.type === 'sbg_new').length;
+    console.log(`👤 Employee KPI for ${currentUser.name}:`, {
+      totalTasks: userTasks.length,
+      completedTasks: completedTasks.length,
+      userId: currentUser.id
+    });
 
-    const totalKtsOld = completedTasks.filter(task => task.type === 'kts_old').length;
-    const totalKhCdtOld = completedTasks.filter(task => task.type === 'kh_cdt_old').length;
-    const totalSbgOld = completedTasks.filter(task => task.type === 'sbg_old').length;
+    // Tổng các loại công việc cá nhân - sử dụng đúng type names
+    const totalKtsNew = completedTasks.filter(task => task.type === 'architect_new').length;
+    const totalKhCdtNew = completedTasks.filter(task => task.type === 'client_new').length;
+    const totalSbgNew = completedTasks.filter(task => task.type === 'partner_new').length;
+
+    const totalKtsOld = completedTasks.filter(task => task.type === 'architect_old').length;
+    const totalKhCdtOld = completedTasks.filter(task => task.type === 'client_old').length;
+    const totalSbgOld = completedTasks.filter(task => task.type === 'partner_old').length;
 
     // Lấy dữ liệu doanh số cá nhân từ ReportsDataService
     const employee = reportsDataService.getEmployeeById(currentUser.id);
