@@ -33,13 +33,37 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, users } = useAuth();
   const [checklist, setChecklist] = useState<
     Array<{ id: number; text: string; completed: boolean }>
   >([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
   const [isEditing, setIsEditing] = useState(true);
   const [editedTask, setEditedTask] = useState(task);
+
+  // Kiểm tra quyền edit task
+  const canEditTask = (task: any) => {
+    if (!currentUser) return false;
+
+    // Directors có thể edit tất cả tasks
+    if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
+      return true;
+    }
+
+    // Team leaders có thể edit tasks của team members
+    if (currentUser.role === 'team_leader') {
+      // Có thể edit nếu là người tạo hoặc task được assign cho team member
+      const isCreator = task.user_id === currentUser.id;
+      const isTeamTask = users.some(user =>
+        user.team_id === currentUser.team_id &&
+        (user.id === task.assignedTo || user.id === task.user_id)
+      );
+      return isCreator || isTeamTask;
+    }
+
+    // Employees chỉ có thể edit tasks của mình
+    return task.user_id === currentUser.id || task.assignedTo === currentUser.id;
+  };
 
   useEffect(() => {
     if (task) {
@@ -158,8 +182,13 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 type="text"
                 value={editedTask?.title || ''}
                 onChange={(e) => setEditedTask((prev) => ({ ...prev, title: e.target.value }))}
-                className="text-2xl font-bold text-gray-900 mb-6 w-full border-0 border-b-2 border-gray-200 bg-transparent px-0 py-4 focus:outline-none focus:border-blue-500 transition-colors duration-200 placeholder-gray-400"
-                placeholder="Nhập tiêu đề công việc..."
+                disabled={!canEditTask(task)}
+                className={`text-2xl font-bold text-gray-900 mb-6 w-full border-0 border-b-2 bg-transparent px-0 py-4 focus:outline-none transition-colors duration-200 placeholder-gray-400 ${
+                  canEditTask(task)
+                    ? 'border-gray-200 focus:border-blue-500 cursor-text'
+                    : 'border-gray-100 cursor-not-allowed opacity-60'
+                }`}
+                placeholder={canEditTask(task) ? "Nhập tiêu đề công việc..." : "Bạn không có quyền chỉnh sửa"}
               />
               <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-200 w-0 focus-within:w-full"></div>
             </div>
@@ -244,8 +273,13 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 onChange={(e) =>
                   setEditedTask((prev) => ({ ...prev, description: e.target.value }))
                 }
-                className="w-full h-56 text-gray-700 leading-relaxed text-base resize-none border-none bg-transparent focus:outline-none placeholder-gray-400 pt-3"
-                placeholder="Nhập mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
+                disabled={!canEditTask(task)}
+                className={`w-full h-56 leading-relaxed text-base resize-none border-none bg-transparent focus:outline-none placeholder-gray-400 pt-3 ${
+                  canEditTask(task)
+                    ? 'text-gray-700 cursor-text'
+                    : 'text-gray-500 cursor-not-allowed opacity-60'
+                }`}
+                placeholder={canEditTask(task) ? "Nhập mô tả chi tiết về công việc, yêu cầu, mục tiêu..." : "Bạn không có quyền chỉnh sửa nội dung"}
               />
             </div>
 
@@ -362,6 +396,12 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+
+                if (!canEditTask(task)) {
+                  alert('Bạn không có quyền chỉnh sửa công việc này!');
+                  return;
+                }
+
                 console.log('💾 SAVING TASK!', editedTask);
 
                 if (currentUser && task) {
@@ -384,25 +424,41 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 alert('Đã lưu công việc thành công!');
                 onClose();
               }}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white transition-all duration-200 h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105"
+              disabled={!canEditTask(task)}
+              className={`flex-1 transition-all duration-200 h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                canEditTask(task)
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white'
+                  : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+              }`}
               type="button"
             >
               <Save className="w-5 h-5 mr-3" />
-              Lưu công việc
+              {canEditTask(task) ? 'Lưu công việc' : 'Không có quyền'}
             </Button>
             <Button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+
+                if (!canEditTask(task)) {
+                  alert('Bạn không có quyền xóa công việc này!');
+                  return;
+                }
+
                 console.log('🔴 DETAIL PANEL DELETE CLICKED!', task.id);
                 onDelete && onDelete(task.id);
               }}
+              disabled={!canEditTask(task)}
               variant="outline"
-              className="flex-1 border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 h-14 text-base font-semibold rounded-xl hover:shadow-lg transform hover:scale-105"
+              className={`flex-1 transition-all duration-200 h-14 text-base font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 ${
+                canEditTask(task)
+                  ? 'border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
+                  : 'border-2 border-gray-200 text-gray-400 cursor-not-allowed opacity-60'
+              }`}
               type="button"
             >
               <Trash2 className="w-5 h-5 mr-3" />
-              Xóa công việc
+              {canEditTask(task) ? 'Xóa công việc' : 'Không có quyền'}
             </Button>
           </div>
         </div>

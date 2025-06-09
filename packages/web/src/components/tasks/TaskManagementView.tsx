@@ -477,7 +477,31 @@ export default function TaskManagementView({
     return date.toLocaleDateString('vi-VN');
   };
 
-  // Hàm chuyển trạng thái công việc
+  // Kiểm tra quyền edit task
+  const canEditTask = (task: any) => {
+    if (!currentUser) return false;
+
+    // Directors có thể edit tất cả tasks
+    if (currentUser.role === 'retail_director' || currentUser.role === 'project_director') {
+      return true;
+    }
+
+    // Team leaders có thể edit tasks của team members
+    if (currentUser.role === 'team_leader') {
+      // Có thể edit nếu là người tạo hoặc task được assign cho team member
+      const isCreator = task.user_id === currentUser.id;
+      const isTeamTask = users.some(user =>
+        user.team_id === currentUser.team_id &&
+        (user.id === task.assignedTo || user.id === task.user_id)
+      );
+      return isCreator || isTeamTask;
+    }
+
+    // Employees chỉ có thể edit tasks của mình
+    return task.user_id === currentUser.id || task.assignedTo === currentUser.id;
+  };
+
+  // Hàm chuyển trạng thái công việc với API sync
   const handleStatusChange = async (e: React.MouseEvent, taskId: string, currentStatus: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -485,17 +509,46 @@ export default function TaskManagementView({
     const nextStatus = statusFlow[currentStatus as keyof typeof statusFlow];
     if (!nextStatus) return;
 
+    // Tìm task để kiểm tra quyền
+    const task = localTasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // Kiểm tra quyền edit
+    if (!canEditTask(task)) {
+      console.log('❌ Không có quyền thay đổi trạng thái task này');
+      return;
+    }
+
     try {
       console.log(`🔄 Chuyển trạng thái task ${taskId} từ ${currentStatus} sang ${nextStatus}`);
 
-      // Tìm task để lấy thông tin
-      const task = localTasks.find((t) => t.id === taskId);
-      if (!task) return;
-
-      // Cập nhật trạng thái trong localTasks
+      // Cập nhật trạng thái trong localTasks trước (optimistic update)
       setLocalTasks((prevTasks) =>
         prevTasks.map((task) => (task.id === taskId ? { ...task, status: nextStatus } : task)),
       );
+
+      // Gọi API để sync với server
+      const response = await fetch(`https://us-central1-appqlgd.cloudfunctions.net/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: nextStatus,
+          updated_at: new Date().toISOString(),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        // Revert nếu API call thất bại
+        console.error('❌ API call failed, reverting status change');
+        setLocalTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === taskId ? { ...task, status: currentStatus } : task)),
+        );
+        return;
+      }
 
       // Tạo thông báo cho Trưởng phòng/Trưởng bộ phận
       if (currentUser) {
@@ -509,13 +562,17 @@ export default function TaskManagementView({
         );
       }
 
-      console.log(`✅ Đã cập nhật trạng thái task ${taskId} và tạo thông báo`);
+      console.log(`✅ Đã cập nhật trạng thái task ${taskId} và sync với API`);
     } catch (error) {
       console.error('❌ Lỗi khi cập nhật trạng thái:', error);
+      // Revert nếu có lỗi
+      setLocalTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === taskId ? { ...task, status: currentStatus } : task)),
+      );
     }
   };
 
-  // Hàm chuyển mức độ ưu tiên
+  // Hàm chuyển mức độ ưu tiên với API sync
   const handlePriorityChange = async (
     e: React.MouseEvent,
     taskId: string,
@@ -527,19 +584,48 @@ export default function TaskManagementView({
     const nextPriority = priorityFlow[currentPriority as keyof typeof priorityFlow];
     if (!nextPriority) return;
 
+    // Tìm task để kiểm tra quyền
+    const task = localTasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // Kiểm tra quyền edit
+    if (!canEditTask(task)) {
+      console.log('❌ Không có quyền thay đổi ưu tiên task này');
+      return;
+    }
+
     try {
       console.log(
         `🎯 Chuyển mức độ ưu tiên task ${taskId} từ ${currentPriority} sang ${nextPriority}`,
       );
 
-      // Tìm task để lấy thông tin
-      const task = localTasks.find((t) => t.id === taskId);
-      if (!task) return;
-
-      // Cập nhật mức độ ưu tiên trong localTasks
+      // Cập nhật mức độ ưu tiên trong localTasks trước (optimistic update)
       setLocalTasks((prevTasks) =>
         prevTasks.map((task) => (task.id === taskId ? { ...task, priority: nextPriority } : task)),
       );
+
+      // Gọi API để sync với server
+      const response = await fetch(`https://us-central1-appqlgd.cloudfunctions.net/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priority: nextPriority,
+          updated_at: new Date().toISOString(),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        // Revert nếu API call thất bại
+        console.error('❌ API call failed, reverting priority change');
+        setLocalTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === taskId ? { ...task, priority: currentPriority } : task)),
+        );
+        return;
+      }
 
       // Tạo thông báo cho Trưởng phòng/Trưởng bộ phận
       if (currentUser) {
@@ -553,9 +639,13 @@ export default function TaskManagementView({
         );
       }
 
-      console.log(`✅ Đã cập nhật ưu tiên task ${taskId} và tạo thông báo`);
+      console.log(`✅ Đã cập nhật ưu tiên task ${taskId} và sync với API`);
     } catch (error) {
       console.error('❌ Lỗi khi cập nhật mức độ ưu tiên:', error);
+      // Revert nếu có lỗi
+      setLocalTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === taskId ? { ...task, priority: currentPriority } : task)),
+      );
     }
   };
 
@@ -693,18 +783,34 @@ export default function TaskManagementView({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleStatusChange(e, task.id, task.status);
+                      if (canEditTask(task)) {
+                        handleStatusChange(e, task.id, task.status);
+                      }
                     }}
-                    className={`px-2 py-1 text-xs rounded-full text-white ${statusColors[task.status]}`}
+                    disabled={!canEditTask(task)}
+                    className={`px-2 py-1 text-xs rounded-full text-white transition-all duration-200 ${
+                      canEditTask(task)
+                        ? `${statusColors[task.status]} cursor-pointer hover:scale-105`
+                        : 'bg-gray-400 cursor-not-allowed opacity-60'
+                    }`}
+                    title={canEditTask(task) ? `Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
                   >
                     {statusMapping[task.status]}
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handlePriorityChange(e, task.id, task.priority || 'normal');
+                      if (canEditTask(task)) {
+                        handlePriorityChange(e, task.id, task.priority || 'normal');
+                      }
                     }}
-                    className={`px-2 py-1 text-xs rounded-full ${priorityColors[task.priority || 'normal']}`}
+                    disabled={!canEditTask(task)}
+                    className={`px-2 py-1 text-xs rounded-full transition-all duration-200 ${
+                      canEditTask(task)
+                        ? `${priorityColors[task.priority || 'normal']} cursor-pointer hover:scale-105`
+                        : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+                    }`}
+                    title={canEditTask(task) ? `Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
                   >
                     {priorityMapping[task.priority || 'normal']}
                   </button>
@@ -777,20 +883,34 @@ export default function TaskManagementView({
                         <button
                           onClick={(e) => {
                             console.log('🔴 Status button clicked!', task.id, task.status);
-                            handleStatusChange(e, task.id, task.status);
+                            if (canEditTask(task)) {
+                              handleStatusChange(e, task.id, task.status);
+                            }
                           }}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 ${statusColors[task.status]} cursor-pointer transform hover:scale-105 active:scale-95 whitespace-nowrap`}
-                          title={`Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}`}
+                          disabled={!canEditTask(task)}
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 whitespace-nowrap ${
+                            canEditTask(task)
+                              ? `${statusColors[task.status]} cursor-pointer transform hover:scale-105 active:scale-95`
+                              : 'bg-gray-400 cursor-not-allowed opacity-60'
+                          }`}
+                          title={canEditTask(task) ? `Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
                         >
                           {statusMapping[task.status] || 'Chưa bắt đầu'}
                         </button>
                         <button
                           onClick={(e) => {
                             console.log('🟡 Priority button clicked!', task.id, task.priority);
-                            handlePriorityChange(e, task.id, task.priority || 'normal');
+                            if (canEditTask(task)) {
+                              handlePriorityChange(e, task.id, task.priority || 'normal');
+                            }
                           }}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} cursor-pointer transform hover:scale-105 active:scale-95 whitespace-nowrap`}
-                          title={`Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}`}
+                          disabled={!canEditTask(task)}
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 whitespace-nowrap ${
+                            canEditTask(task)
+                              ? `${priorityColors[task.priority || 'normal']} cursor-pointer transform hover:scale-105 active:scale-95`
+                              : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+                          }`}
+                          title={canEditTask(task) ? `Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
                         >
                           {priorityMapping[task.priority || 'normal'] || 'Bình thường'}
                         </button>
@@ -879,19 +999,51 @@ export default function TaskManagementView({
           setShowTaskDetail(false);
           setSelectedTask(null);
         }}
-        onEdit={(updatedTask) => {
+        onEdit={async (updatedTask) => {
           console.log('💾 Saving task from detail panel:', updatedTask);
-          // Cập nhật task trong localTasks
-          setLocalTasks((prev) =>
-            prev.map((task) =>
-              task.id === updatedTask.id
-                ? { ...task, ...updatedTask, updated_at: new Date().toISOString() }
-                : task,
-            ),
-          );
-          // Cập nhật selectedTask để reflect changes
-          setSelectedTask(updatedTask);
-          console.log('✅ Task updated successfully!');
+
+          // Kiểm tra quyền edit
+          if (!canEditTask(selectedTask)) {
+            console.log('❌ Không có quyền edit task này');
+            return;
+          }
+
+          try {
+            // Gọi API để sync với server
+            const response = await fetch(`https://us-central1-appqlgd.cloudfunctions.net/api/tasks/${updatedTask.id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                ...updatedTask,
+                updated_at: new Date().toISOString(),
+              }),
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+              console.error('❌ API call failed for task update');
+              alert('Lỗi khi lưu công việc. Vui lòng thử lại!');
+              return;
+            }
+
+            // Cập nhật task trong localTasks
+            setLocalTasks((prev) =>
+              prev.map((task) =>
+                task.id === updatedTask.id
+                  ? { ...task, ...updatedTask, updated_at: new Date().toISOString() }
+                  : task,
+              ),
+            );
+            // Cập nhật selectedTask để reflect changes
+            setSelectedTask(updatedTask);
+            console.log('✅ Task updated successfully and synced with API!');
+          } catch (error) {
+            console.error('❌ Error updating task:', error);
+            alert('Lỗi khi lưu công việc. Vui lòng thử lại!');
+          }
         }}
         onDelete={(taskId) => {
           console.log('Delete task from detail panel:', taskId);
