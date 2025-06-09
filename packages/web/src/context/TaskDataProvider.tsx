@@ -805,9 +805,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       // Lấy dữ liệu gốc từ Firebase hoặc local storage
       let rawTasksData: Task[] = [];
 
-      // PRODUCTION MODE: Không refresh từ API/Firebase
-      console.log('🚀 PRODUCTION MODE: Không refresh dữ liệu từ API/Firebase');
-      rawTasksData = [];
+      // Lấy dữ liệu từ API
+      console.log('🚀 Loading tasks from API...');
+      rawTasksData = await getTasks();
 
       // API đã lọc theo user_id rồi, không cần lọc phân quyền nữa
       permissionLog(
