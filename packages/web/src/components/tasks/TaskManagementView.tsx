@@ -788,10 +788,10 @@ export default function TaskManagementView({
                       }
                     }}
                     disabled={!canEditTask(task)}
-                    className={`px-2 py-1 text-xs rounded-full text-white transition-all duration-200 ${
+                    className={`px-2 py-1 text-xs rounded-full text-white transition-all duration-200 ${statusColors[task.status]} ${
                       canEditTask(task)
-                        ? `${statusColors[task.status]} cursor-pointer hover:scale-105`
-                        : 'bg-gray-400 cursor-not-allowed opacity-60'
+                        ? 'cursor-pointer hover:scale-105'
+                        : 'cursor-not-allowed'
                     }`}
                     title={canEditTask(task) ? `Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
                   >
@@ -805,10 +805,10 @@ export default function TaskManagementView({
                       }
                     }}
                     disabled={!canEditTask(task)}
-                    className={`px-2 py-1 text-xs rounded-full transition-all duration-200 ${
+                    className={`px-2 py-1 text-xs rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} ${
                       canEditTask(task)
-                        ? `${priorityColors[task.priority || 'normal']} cursor-pointer hover:scale-105`
-                        : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+                        ? 'cursor-pointer hover:scale-105'
+                        : 'cursor-not-allowed'
                     }`}
                     title={canEditTask(task) ? `Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
                   >
@@ -888,10 +888,10 @@ export default function TaskManagementView({
                             }
                           }}
                           disabled={!canEditTask(task)}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 whitespace-nowrap ${
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 whitespace-nowrap ${statusColors[task.status]} ${
                             canEditTask(task)
-                              ? `${statusColors[task.status]} cursor-pointer transform hover:scale-105 active:scale-95`
-                              : 'bg-gray-400 cursor-not-allowed opacity-60'
+                              ? 'cursor-pointer transform hover:scale-105 active:scale-95'
+                              : 'cursor-not-allowed'
                           }`}
                           title={canEditTask(task) ? `Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
                         >
@@ -905,10 +905,10 @@ export default function TaskManagementView({
                             }
                           }}
                           disabled={!canEditTask(task)}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 whitespace-nowrap ${
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 whitespace-nowrap ${priorityColors[task.priority || 'normal']} ${
                             canEditTask(task)
-                              ? `${priorityColors[task.priority || 'normal']} cursor-pointer transform hover:scale-105 active:scale-95`
-                              : 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+                              ? 'cursor-pointer transform hover:scale-105 active:scale-95'
+                              : 'cursor-not-allowed'
                           }`}
                           title={canEditTask(task) ? `Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
                         >
