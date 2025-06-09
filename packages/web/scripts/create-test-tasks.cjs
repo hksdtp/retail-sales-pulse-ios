@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 const API_BASE = 'https://us-central1-appqlgd.cloudfunctions.net/api';
 
-// Test tasks for debugging member view
+// Test tasks for debugging member view - UPDATED WITH REAL USER IDs
 const testTasks = [
   {
     title: 'Liên hệ KTS mới - Dự án ABC',
@@ -13,12 +13,12 @@ const testTasks = [
     date: '2024-12-20',
     time: '09:00',
     progress: 0,
-    assignedTo: '5', // Nguyễn Mạnh Linh
-    user_id: '1', // Khổng Đức Mạnh tạo
+    assignedTo: '76ui8I1vw3wiJLyvwFjq', // Nguyễn Mạnh Linh - REAL ID
+    user_id: 'Ve7sGRnMoRvT1E0VL5Ds', // Khổng Đức Mạnh tạo - REAL ID
     user_name: 'Khổng Đức Mạnh',
     team_id: '2',
     teamId: '2',
-    location: 'Hà Nội',
+    location: 'hanoi',
     isShared: false,
     isSharedWithTeam: false,
   },
@@ -31,12 +31,12 @@ const testTasks = [
     date: '2024-12-21',
     time: '14:00',
     progress: 50,
-    assignedTo: '5', // Nguyễn Mạnh Linh
-    user_id: '5', // Nguyễn Mạnh Linh tự tạo
+    assignedTo: '76ui8I1vw3wiJLyvwFjq', // Nguyễn Mạnh Linh - REAL ID
+    user_id: '76ui8I1vw3wiJLyvwFjq', // Nguyễn Mạnh Linh tự tạo - REAL ID
     user_name: 'Nguyễn Mạnh Linh',
     team_id: '2',
     teamId: '2',
-    location: 'Hà Nội',
+    location: 'hanoi',
     isShared: false,
     isSharedWithTeam: false,
   },
@@ -49,12 +49,12 @@ const testTasks = [
     date: '2024-12-22',
     time: '10:00',
     progress: 0,
-    assignedTo: '3', // Lê Khánh Duy
-    user_id: '2', // Lương Việt Anh tạo
+    assignedTo: 'abtSSmK0p0oeOyy5YWGZ', // Lê Khánh Duy - REAL ID
+    user_id: 'Ue4vzSj1KDg4vZyXwlHJ', // Lương Việt Anh tạo - REAL ID
     user_name: 'Lương Việt Anh',
     team_id: '1',
     teamId: '1',
-    location: 'Hà Nội',
+    location: 'hanoi',
     isShared: false,
     isSharedWithTeam: false,
   },
@@ -67,12 +67,12 @@ const testTasks = [
     date: '2024-12-19',
     time: '16:00',
     progress: 100,
-    assignedTo: '3', // Lê Khánh Duy
-    user_id: '3', // Lê Khánh Duy tự tạo
+    assignedTo: 'abtSSmK0p0oeOyy5YWGZ', // Lê Khánh Duy - REAL ID
+    user_id: 'abtSSmK0p0oeOyy5YWGZ', // Lê Khánh Duy tự tạo - REAL ID
     user_name: 'Lê Khánh Duy',
     team_id: '1',
     teamId: '1',
-    location: 'Hà Nội',
+    location: 'hanoi',
     isShared: false,
     isSharedWithTeam: false,
   }

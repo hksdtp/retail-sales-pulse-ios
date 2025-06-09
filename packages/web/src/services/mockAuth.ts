@@ -162,7 +162,7 @@ export const mockLogin = async (email: string, password: string): Promise<{
     const userInfo = getUserInfoFromEmail(actualEmail);
 
     user = {
-      id: `real_${Date.now()}`,
+      id: userInfo.id, // Use real API ID instead of dynamic ID
       name: userInfo.name,
       email: actualEmail,
       role: userInfo.role,
@@ -212,8 +212,9 @@ export const mockLogin = async (email: string, password: string): Promise<{
   };
 };
 
-// Helper function để map email thành user info
+// Helper function để map email thành user info với real API IDs
 function getUserInfoFromEmail(email: string): {
+  id: string;
   name: string;
   role: string;
   team_id: string;
@@ -222,6 +223,7 @@ function getUserInfoFromEmail(email: string): {
 } {
   const emailToUserMap: Record<string, any> = {
     'manh.khong@example.com': {
+      id: 'Ve7sGRnMoRvT1E0VL5Ds', // Real API ID
       name: 'Khổng Đức Mạnh',
       role: 'retail_director',
       team_id: '0',
@@ -229,6 +231,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng phòng'
     },
     'vietanh@example.com': {
+      id: 'Ue4vzSj1KDg4vZyXwlHJ', // Real API ID
       name: 'Lương Việt Anh',
       role: 'team_leader',
       team_id: '1',
@@ -236,6 +239,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'khanhduy@example.com': {
+      id: 'abtSSmK0p0oeOyy5YWGZ', // Real API ID
       name: 'Lê Khánh Duy',
       role: 'employee',
       team_id: '1',
@@ -243,6 +247,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Nhân viên'
     },
     'thao.nguyen@example.com': {
+      id: 'MO7N4Trk6mASlHpIcjME', // Real API ID
       name: 'Nguyễn Thị Thảo',
       role: 'team_leader',
       team_id: '2',
@@ -250,6 +255,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'manhlinh@example.com': {
+      id: '76ui8I1vw3wiJLyvwFjq', // Real API ID
       name: 'Nguyễn Mạnh Linh',
       role: 'employee',
       team_id: '2',
@@ -257,6 +263,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Nhân viên'
     },
     'bon.trinh@example.com': {
+      id: 'k030JV0tAobf5rMvdzG4', // Real API ID
       name: 'Trịnh Thị Bốn',
       role: 'team_leader',
       team_id: '3',
@@ -264,6 +271,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'huong.pham@example.com': {
+      id: 'ACKzl2RISqrx5ca9QDM6', // Real API ID
       name: 'Phạm Thị Hương',
       role: 'team_leader',
       team_id: '4',
@@ -271,6 +279,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'nga.nguyen@example.com': {
+      id: 'pzSa30JeZR0UoOoKhZ7l', // Real API ID
       name: 'Nguyễn Thị Nga',
       role: 'team_leader',
       team_id: '5',
@@ -278,6 +287,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'tuyen.ha@example.com': {
+      id: '8NpVPLaiLDhv75jZNq5q', // Real API ID
       name: 'Hà Nguyễn Thanh Tuyền',
       role: 'employee',
       team_id: '5',
@@ -285,6 +295,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Nhân viên'
     },
     'vietkhanh@example.com': {
+      id: '0AzCiDnWxcCMzIAwLA9D', // Real API ID
       name: 'Nguyễn Ngọc Việt Khanh',
       role: 'team_leader',
       team_id: '6',
@@ -292,6 +303,7 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'thuyvan@example.com': {
+      id: 'RIWI0w6ETBPy6AA2Z5hL', // Real API ID
       name: 'Phùng Thị Thuỳ Vân',
       role: 'employee',
       team_id: '6',
@@ -301,6 +313,7 @@ function getUserInfoFromEmail(email: string): {
   };
 
   return emailToUserMap[email] || {
+    id: `fallback_${Date.now()}`,
     name: email.split('@')[0],
     role: 'employee',
     team_id: '1',
@@ -317,10 +330,10 @@ export const mockGetUsers = async (): Promise<{
 }> => {
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Tạo danh sách users thật từ hệ thống
+  // Tạo danh sách users thật từ hệ thống với real API IDs
   const realUsers: MockUser[] = [
     {
-      id: '1',
+      id: 'Ve7sGRnMoRvT1E0VL5Ds', // Real API ID
       name: 'Khổng Đức Mạnh',
       email: 'manh.khong@example.com',
       role: 'retail_director',
@@ -333,7 +346,7 @@ export const mockGetUsers = async (): Promise<{
       password_changed: true,
     },
     {
-      id: '2',
+      id: 'Ue4vzSj1KDg4vZyXwlHJ', // Real API ID
       name: 'Lương Việt Anh',
       email: 'vietanh@example.com',
       role: 'team_leader',
@@ -346,7 +359,7 @@ export const mockGetUsers = async (): Promise<{
       password_changed: true,
     },
     {
-      id: '3',
+      id: 'abtSSmK0p0oeOyy5YWGZ', // Real API ID
       name: 'Lê Khánh Duy',
       email: 'khanhduy@example.com',
       role: 'employee',
@@ -359,7 +372,7 @@ export const mockGetUsers = async (): Promise<{
       password_changed: true,
     },
     {
-      id: '4',
+      id: 'MO7N4Trk6mASlHpIcjME', // Real API ID
       name: 'Nguyễn Thị Thảo',
       email: 'thao.nguyen@example.com',
       role: 'team_leader',
@@ -372,7 +385,7 @@ export const mockGetUsers = async (): Promise<{
       password_changed: true,
     },
     {
-      id: '5',
+      id: '76ui8I1vw3wiJLyvwFjq', // Real API ID
       name: 'Nguyễn Mạnh Linh',
       email: 'manhlinh@example.com',
       role: 'employee',
