@@ -111,6 +111,10 @@ export const emailAliases: Record<string, string> = {
   // Phùng Thị Thuỳ Vân
   'thuyvan': 'thuyvan@example.com',
   'van': 'thuyvan@example.com',
+
+  // Quản Thu Hà
+  'thuha': 'thuha@example.com',
+  'ha': 'thuha@example.com',
 };
 
 // Mock teams data - sẽ sử dụng teams từ API/Firebase thay vì mock
@@ -309,6 +313,14 @@ function getUserInfoFromEmail(email: string): {
       team_id: '6',
       location: 'Hồ Chí Minh',
       position: 'Nhân viên'
+    },
+    'thuha@example.com': {
+      id: 'qgM8ogYQwu0T5zJUesfn', // Real API ID
+      name: 'Quản Thu Hà',
+      role: 'employee',
+      team_id: '1',
+      location: 'Hà Nội',
+      position: 'Nhân viên sale'
     }
   };
 
@@ -472,6 +484,19 @@ export const mockGetUsers = async (): Promise<{
       department: 'Bán lẻ',
       department_type: 'retail',
       position: 'Nhân viên',
+      status: 'active',
+      password_changed: true,
+    },
+    {
+      id: 'qgM8ogYQwu0T5zJUesfn', // Real API ID
+      name: 'Quản Thu Hà',
+      email: 'thuha@example.com',
+      role: 'employee',
+      team_id: '1',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Nhân viên sale',
       status: 'active',
       password_changed: true,
     },
