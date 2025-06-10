@@ -138,7 +138,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     <>
       <div
         ref={sidebarRef}
-        className="sidebar-desktop fixed left-0 top-0 h-full z-40 border-r border-gray-200 shadow-lg bg-white overflow-hidden"
+        className="sidebar-desktop h-full z-40 macos-glass border-r border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70 overflow-hidden flex-shrink-0"
         style={{
           width: isVisuallyExpanded ? '256px' : '64px',
           transition: 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -148,14 +148,10 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         onMouseLeave={handleMouseLeave}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 min-h-[72px]">
+        <div className="flex items-center justify-between p-4 border-b border-white/10 dark:border-white/5 min-h-[72px]">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center flex-shrink-0">
-              <img
-                src="/logo.webp"
-                alt="Logo"
-                className="w-6 h-6 object-contain"
-              />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+              <PieChart className="w-4 h-4 text-white" />
             </div>
             <div
               className="overflow-hidden transition-all duration-250 ease-out"
@@ -165,27 +161,27 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
               }}
             >
-              <span className="font-bold text-gray-900 whitespace-nowrap">Phòng Kinh Doanh</span>
+              <span className="font-bold text-gray-900 dark:text-white whitespace-nowrap">Phòng Kinh Doanh</span>
             </div>
           </div>
 
           {isVisuallyExpanded && (
             <button
               onClick={handleToggleCollapse}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               title={isCollapsed ? "Tự động ẩn khi không hover" : "Thu nhỏ sidebar"}
             >
-              <ChevronLeft className="w-4 h-4 text-gray-600" />
+              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </button>
           )}
 
           {!isVisuallyExpanded && (
             <button
               onClick={handleToggleCollapse}
-              className="absolute top-4 right-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              className="absolute top-4 right-2 p-1 rounded-lg hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
               title="Mở rộng sidebar"
             >
-              <ChevronRight className="w-3 h-3 text-gray-600" />
+              <ChevronRight className="w-3 h-3 text-gray-600 dark:text-gray-300" />
             </button>
           )}
         </div>
@@ -231,7 +227,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         </nav>
 
         {/* Account Section */}
-        <div className="p-4 border-t border-gray-200 relative" ref={dropdownRef}>
+        <div className="p-4 border-t border-white/10 dark:border-white/5 relative" ref={dropdownRef}>
           <button
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-200 relative group px-3 py-3",
@@ -338,88 +334,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="bottom-nav-mobile fixed bottom-0 left-0 right-0 z-50 macos-glass border-t border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70">
-        <div className="flex justify-center items-center px-4 py-2 space-x-4">
-          {menuItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.url}
-              className={cn(
-                "flex flex-col items-center justify-center px-3 py-2 text-xs font-medium rounded-xl transition-all",
-                isActive(item.url)
-                  ? "text-ios-blue bg-white/80 shadow-sm border border-gray-100/20"
-                  : "text-gray-500 hover:text-ios-blue hover:bg-white/50 hover:-translate-y-0.5"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5 mb-1", isActive(item.url) && "text-ios-blue")} />
-              <span>{item.title}</span>
-            </Link>
-          ))}
 
-          {/* Account Menu for Mobile */}
-          <div className="relative">
-            <button
-              className="flex flex-col items-center justify-center px-3 py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/50 hover:-translate-y-0.5 rounded-xl transition-all"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <User className="h-5 w-5 mb-1" />
-              <span>Tài khoản</span>
-            </button>
-
-            {/* Mobile Dropdown Menu */}
-            {isDropdownOpen && (
-              <div className="absolute bottom-full mb-2 right-0 w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-[1000]">
-                {/* User Info Header */}
-                <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white text-sm font-bold overflow-hidden">
-                      {localStorage.getItem(`avatar_${currentUser?.id}`) ? (
-                        <img
-                          src={localStorage.getItem(`avatar_${currentUser?.id}`)!}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{currentUser?.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{currentUser?.email}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Menu Items */}
-                <div className="py-2">
-                  <button
-                    onClick={() => {
-                      setShowAccountSettings(true);
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Settings className="w-4 h-4 mr-3 text-gray-400" />
-                    <span>Cài đặt tài khoản</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4 mr-3 text-red-500" />
-                    <span>Thoát tài khoản</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Account Settings Modal */}
       {showAccountSettings && (

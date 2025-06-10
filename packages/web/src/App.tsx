@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import FirebaseAutoSetupProvider from './components/firebase/FirebaseAutoSetupProvider';
-import { SidebarProvider } from './components/ui/sidebar';
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -16,6 +15,7 @@ import FirebaseSetup from './pages/FirebaseSetup';
 import Index from './pages/Index';
 import Kpi from './pages/Kpi';
 import Login from './pages/Login';
+import MobileTest from './pages/MobileTest';
 import NotFound from './pages/NotFound';
 import Reports from './pages/Reports';
 import Tasks from './pages/Tasks';
@@ -29,10 +29,9 @@ const App = () => (
       <AuthProvider>
         <ApiTaskDataProvider>
           <TooltipProvider>
-            <SidebarProvider className="mx-[120px] my-0 px-0 py-0 bg-slate-50 rounded-full">
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/firebase-setup" element={<FirebaseSetup />} />
@@ -61,6 +60,14 @@ const App = () => (
                     }
                   />
                   <Route
+                    path="/curtain-design"
+                    element={
+                      <ProtectedRoute>
+                        <CurtainDesign />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/kpi"
                     element={
                       <ProtectedRoute>
@@ -84,11 +91,12 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+
                   <Route
-                    path="/curtain-design"
+                    path="/mobile-test"
                     element={
                       <ProtectedRoute>
-                        <CurtainDesign />
+                        <MobileTest />
                       </ProtectedRoute>
                     }
                   />
@@ -103,7 +111,6 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
-            </SidebarProvider>
           </TooltipProvider>
         </ApiTaskDataProvider>
       </AuthProvider>
