@@ -10,6 +10,7 @@ import { TooltipProvider } from './components/ui/tooltip';
 import { ApiTaskDataProvider } from './context/ApiTaskDataProvider';
 import { AuthProvider } from './context/AuthContext';
 import Calendar from './pages/Calendar';
+import CurtainDesign from './pages/CurtainDesign';
 import Employees from './pages/Employees';
 import FirebaseSetup from './pages/FirebaseSetup';
 import Index from './pages/Index';
@@ -80,6 +81,14 @@ const App = () => (
                     element={
                       <ProtectedRoute>
                         <Employees />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/curtain-design"
+                    element={
+                      <ProtectedRoute>
+                        <CurtainDesign />
                       </ProtectedRoute>
                     }
                   />

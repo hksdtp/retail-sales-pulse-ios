@@ -11,7 +11,8 @@ import {
   LogOut,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -97,6 +98,11 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       title: "Kế hoạch",
       icon: CalendarCheck,
       url: "/calendar"
+    },
+    {
+      title: "Thiết kế rèm AI",
+      icon: Sparkles,
+      url: "/curtain-design"
     },
     {
       title: "Báo cáo",
