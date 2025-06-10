@@ -185,6 +185,13 @@ export default function TaskManagementView({
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    timeRange: 'all',
+    status: 'all',
+    type: 'all',
+    priority: 'all'
+  });
 
   // States cho Member View Filters
   const [selectedLocation, setSelectedLocation] = useState('all');
@@ -278,21 +285,60 @@ export default function TaskManagementView({
         console.log('  - Filtered personalTasks:', personalTasks);
         return personalTasks;
       case 'team':
+        console.log('👥 Getting team tasks for user:', currentUser?.name, 'role:', currentUser?.role, 'team_id:', currentUser?.team_id);
+        console.log('👥 Available data sources - managerTasks:', managerTasks.length, 'regularTasks:', regularTasks.length);
+
+        // Sử dụng managerTasks nếu có (từ API team view), fallback về regularTasks
+        const sourceData = managerTasks.length > 0 ? managerTasks : regularTasks;
+        console.log('👥 Using data source:', managerTasks.length > 0 ? 'managerTasks' : 'regularTasks', 'with', sourceData.length, 'tasks');
+
         if (isManager) {
-          // Manager: xem công việc cấp nhóm (team-level tasks)
-          // Công việc được giao cho cả nhóm, không phải cá nhân
-          return regularTasks.filter(
-            (task) =>
-              task.isSharedWithTeam && // Công việc được chia sẻ với nhóm
-              (currentUser?.role === 'retail_director' ||
-                currentUser?.role === 'project_director' ||
-                task.team_id === currentUser?.team_id), // Director xem tất cả, Team Leader xem nhóm mình
-          );
+          // Manager: xem công việc của nhóm
+          const teamTasks = sourceData.filter((task) => {
+            const isSharedWithTeam = task.isSharedWithTeam || false;
+
+            // Directors xem tất cả tasks (vì có thể quản lý nhiều team)
+            const isDirector = (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director' || currentUser?.role === 'director');
+
+            // Team Leaders chỉ xem tasks của team mình
+            const isFromTeamMember = currentUser?.team_id && users && users.length > 0 && users.some(user =>
+              user.team_id === currentUser.team_id &&
+              (user.id === task.user_id || user.id === task.assignedTo)
+            );
+
+            // Hiển thị tasks có team_id (thuộc về một team nào đó)
+            const hasTeamId = task.team_id && task.team_id !== '';
+
+            // Directors hiển thị tất cả tasks có team_id hoặc shared
+            // Đơn giản hóa: Directors xem tất cả tasks trong team view
+            const shouldShow = isSharedWithTeam || (isDirector ? true : (hasTeamId || isFromTeamMember));
+
+            console.log(`  📋 Task "${task.title}": isSharedWithTeam=${isSharedWithTeam}, isDirector=${isDirector}, hasTeamId=${hasTeamId}, isFromTeamMember=${isFromTeamMember}, shouldShow=${shouldShow}`);
+
+            return shouldShow;
+          });
+          console.log('👥 Final team tasks for manager:', teamTasks.length);
+          return teamTasks;
         } else {
-          // Nhân viên: xem công việc được giao cho nhóm
-          return regularTasks.filter(
-            (task) => task.isSharedWithTeam && task.team_id === currentUser?.team_id,
-          );
+          // Nhân viên: xem công việc của nhóm mình
+          const teamTasks = sourceData.filter((task) => {
+            const isSharedWithTeam = task.isSharedWithTeam;
+            const isFromSameTeam = currentUser?.team_id && (
+              task.team_id === currentUser.team_id ||
+              users.some(user =>
+                user.team_id === currentUser.team_id &&
+                (user.id === task.user_id || user.id === task.assignedTo)
+              )
+            );
+
+            const shouldShow = isSharedWithTeam || isFromSameTeam;
+
+            console.log(`  📋 Task "${task.title}": isSharedWithTeam=${isSharedWithTeam}, isFromSameTeam=${isFromSameTeam}, shouldShow=${shouldShow}`);
+
+            return shouldShow;
+          });
+          console.log('👥 Final team tasks for employee:', teamTasks.length);
+          return teamTasks;
         }
       case 'individual':
         if (isManager) {
@@ -345,18 +391,22 @@ export default function TaskManagementView({
           console.log('🏢 Using managerTasks for department view:', managerTasks);
           return managerTasks;
         }
-        // Fallback: Công việc chung của cả phòng từ regularTasks
-        console.log('🏢 Filtering department tasks from regularTasks:', regularTasks.length);
+        // Fallback: Hiển thị tất cả công việc của phòng (không cần flag shared)
+        console.log('🏢 Showing all department tasks from regularTasks:', regularTasks.length);
         const departmentTasks = regularTasks.filter((task) => {
+          // Hiển thị tất cả công việc của phòng, bao gồm:
+          // 1. Công việc được chia sẻ
+          // 2. Công việc của các thành viên trong phòng
           const isShared = task.isShared;
           const isSharedWithTeam = task.isSharedWithTeam;
+          const isFromDepartment = true; // Tạm thời hiển thị tất cả
 
-          // Hiển thị tất cả công việc được chia sẻ (cả phòng và nhóm)
-          const shouldShow = isShared || isSharedWithTeam;
+          const shouldShow = isShared || isSharedWithTeam || isFromDepartment;
 
           console.log(`  📋 Task "${task.title}":`);
           console.log(`    isShared: ${isShared}`);
           console.log(`    isSharedWithTeam: ${isSharedWithTeam}`);
+          console.log(`    isFromDepartment: ${isFromDepartment}`);
           console.log(`    shouldShow: ${shouldShow}`);
 
           return shouldShow;
@@ -384,7 +434,7 @@ export default function TaskManagementView({
     }
   }, [baseTasks.length, selectedView]);
 
-  const tasks = localTasks;
+  // Sẽ được định nghĩa sau khi filterTasks được khai báo
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
@@ -478,11 +528,86 @@ export default function TaskManagementView({
     }
   }, [viewLevel]);
 
-  // Hàm lấy tên người dùng
-  const getUserName = (userId: string) => {
-    const user = users.find((u) => u.id === userId);
-    return user ? user.name : 'Không xác định';
+  // Hàm lấy tên người dùng từ nhiều nguồn
+  const getUserName = (task: any) => {
+    // Ưu tiên: user_name -> tìm trong users array bằng user_id -> assignedTo -> fallback
+    if (task.user_name && task.user_name !== 'Không xác định') {
+      return task.user_name;
+    }
+
+    // Tìm trong users array bằng user_id (người tạo task)
+    if (task.user_id && users && users.length > 0) {
+      const user = users.find(u => u.id === task.user_id);
+      if (user && user.name) {
+        return user.name;
+      }
+    }
+
+    // Tìm trong users array bằng assignedTo (người được giao)
+    if (task.assignedTo && users && users.length > 0) {
+      const user = users.find(u => u.id === task.assignedTo);
+      if (user && user.name) {
+        return user.name;
+      }
+    }
+
+    // Fallback về assignedTo nếu không phải ID
+    if (task.assignedTo && task.assignedTo !== 'Không xác định' && !task.assignedTo.includes('-')) {
+      return task.assignedTo;
+    }
+
+    return 'Chưa xác định';
   };
+
+  // Hàm filter tasks theo các tiêu chí
+  const filterTasks = (tasks: any[]) => {
+    return tasks.filter(task => {
+      // Filter theo thời gian
+      if (filters.timeRange !== 'all') {
+        const taskDate = new Date(task.date);
+        const now = new Date();
+        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfQuarter = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+        switch (filters.timeRange) {
+          case 'week':
+            if (taskDate < startOfWeek) return false;
+            break;
+          case 'month':
+            if (taskDate < startOfMonth) return false;
+            break;
+          case 'quarter':
+            if (taskDate < startOfQuarter) return false;
+            break;
+          case 'year':
+            if (taskDate < startOfYear) return false;
+            break;
+        }
+      }
+
+      // Filter theo trạng thái
+      if (filters.status !== 'all' && task.status !== filters.status) {
+        return false;
+      }
+
+      // Filter theo loại công việc
+      if (filters.type !== 'all' && task.type !== filters.type) {
+        return false;
+      }
+
+      // Filter theo mức độ ưu tiên
+      if (filters.priority !== 'all' && task.priority !== filters.priority) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  // Áp dụng filters cho tasks
+  const tasks = filterTasks(localTasks);
 
   // Hàm lấy initials từ tên
   const getInitials = (name: string) => {
@@ -733,7 +858,14 @@ export default function TaskManagementView({
 
               {/* Action buttons - responsive */}
               <div className="flex items-center space-x-1 sm:space-x-2">
-                <button className="p-1 sm:p-1.5 lg:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`p-1 sm:p-1.5 lg:p-2 transition-all duration-200 rounded-lg ${
+                    showFilters
+                      ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
                   <Filter className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
                 </button>
               </div>
@@ -751,6 +883,97 @@ export default function TaskManagementView({
                   onTeamChange={setSelectedTeam}
                   onMemberChange={setSelectedMember}
                 />
+              </div>
+            )}
+
+            {/* Task Filters Panel */}
+            {showFilters && (
+              <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+                  {/* Thời gian */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Thời gian</label>
+                    <select
+                      value={filters.timeRange}
+                      onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="all">Tất cả</option>
+                      <option value="week">Tuần này</option>
+                      <option value="month">Tháng này</option>
+                      <option value="quarter">Quý này</option>
+                      <option value="year">Năm này</option>
+                    </select>
+                  </div>
+
+                  {/* Trạng thái */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Trạng thái</label>
+                    <select
+                      value={filters.status}
+                      onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="all">Tất cả</option>
+                      <option value="not_started">Chưa bắt đầu</option>
+                      <option value="in_progress">Đang làm</option>
+                      <option value="completed">Hoàn thành</option>
+                      <option value="paused">Tạm dừng</option>
+                    </select>
+                  </div>
+
+                  {/* Loại công việc */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Loại công việc</label>
+                    <select
+                      value={filters.type}
+                      onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="all">Tất cả</option>
+                      <option value="kts_new">KTS mới</option>
+                      <option value="kts_old">KTS cũ</option>
+                      <option value="kh_cdt_new">KH/CĐT mới</option>
+                      <option value="kh_cdt_old">KH/CĐT cũ</option>
+                      <option value="sbg_new">SBG mới</option>
+                      <option value="sbg_old">SBG cũ</option>
+                      <option value="partner_new">Đối tác mới</option>
+                      <option value="partner_old">Đối tác cũ</option>
+                      <option value="other">Công việc khác</option>
+                    </select>
+                  </div>
+
+                  {/* Mức độ ưu tiên */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Ưu tiên</label>
+                    <select
+                      value={filters.priority}
+                      onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
+                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="all">Tất cả</option>
+                      <option value="low">Thấp</option>
+                      <option value="normal">Bình thường</option>
+                      <option value="high">Cao</option>
+                      <option value="urgent">Khẩn cấp</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Reset filters button */}
+                <div className="mt-3 flex justify-end">
+                  <button
+                    onClick={() => setFilters({
+                      timeRange: 'all',
+                      status: 'all',
+                      type: 'all',
+                      priority: 'all'
+                    })}
+                    className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors"
+                  >
+                    Xóa bộ lọc
+                  </button>
+                </div>
               </div>
             )}
 
@@ -844,7 +1067,7 @@ export default function TaskManagementView({
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span className="truncate">{getUserName(task.assignedTo)}</span>
+                    <span className="truncate">{getUserName(task)}</span>
                     <span className="flex-shrink-0">{formatDate(task.date)}</span>
                   </div>
                 </div>
@@ -944,8 +1167,8 @@ export default function TaskManagementView({
                       </div>
                     </td>
                     <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 hidden md:table-cell">
-                      <span className="text-sm text-gray-900 truncate" title={getUserName(task.assignedTo)}>
-                        {getUserName(task.assignedTo)}
+                      <span className="text-sm text-gray-900 truncate" title={getUserName(task)}>
+                        {getUserName(task)}
                       </span>
                     </td>
                     <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-sm text-gray-900">
