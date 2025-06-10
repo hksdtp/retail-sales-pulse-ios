@@ -194,21 +194,22 @@
     transform: translateY(0) translateX(0) rotate(0deg);
   }
   20% {
-    transform: translateY(-8px) translateX(8px) rotate(1deg);
+    transform: translateY(-4px) translateX(4px) rotate(0.5deg);
   }
   40% {
-    transform: translateY(-3px) translateX(-3px) rotate(-0.5deg);
+    transform: translateY(-2px) translateX(-2px) rotate(-0.25deg);
   }
   60% {
-    transform: translateY(5px) translateX(3px) rotate(0.5deg);
+    transform: translateY(3px) translateX(2px) rotate(0.25deg);
   }
   80% {
-    transform: translateY(8px) translateX(-5px) rotate(-1deg);
+    transform: translateY(4px) translateX(-3px) rotate(-0.5deg);
   }
 }
 
 .animate-float {
-  animation: float 30s ease-in-out infinite;
+  animation: float 20s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-gradient-animation {
@@ -220,15 +221,15 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* Chuyển đổi mượt mà */
+/* Chuyển đổi mượt mà - optimized for testing */
 .opacity-30 {
   opacity: 0.3;
-  transition: all 0.4s ease;
+  transition: all 0.2s ease;
 }
 
 .opacity-60 {
   opacity: 0.6;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }
 
 /* Hiệu ứng cho phòng ban không được chọn */

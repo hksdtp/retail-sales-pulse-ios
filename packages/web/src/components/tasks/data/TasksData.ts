@@ -1,4 +1,68 @@
 import { Task } from '../types/TaskTypes';
 
-// Dữ liệu trống - sẵn sàng cho dữ liệu thật
-export const tasks: Task[] = [];
+// Dữ liệu mẫu cho demo mobile
+export const tasks: Task[] = [
+  {
+    id: 'task_mobile_1',
+    title: 'Liên hệ khách hàng mới',
+    description: 'Gọi điện cho khách hàng ABC để tư vấn sản phẩm',
+    type: 'customer_contact',
+    status: 'pending',
+    priority: 'high',
+    date: new Date().toISOString().split('T')[0],
+    time: '09:00',
+    progress: 0,
+    assignedTo: 'user_1',
+    user_id: 'user_1',
+    user_name: 'Khổng Đức Mạnh',
+    teamId: 'team_1',
+    location: 'Hà Nội',
+    created_at: new Date().toISOString(),
+    isNew: false,
+    isShared: false,
+    isSharedWithTeam: false,
+    extraAssignees: ''
+  },
+  {
+    id: 'task_mobile_2',
+    title: 'Cập nhật báo cáo tuần',
+    description: 'Hoàn thành báo cáo doanh số tuần này',
+    type: 'report',
+    status: 'in_progress',
+    priority: 'normal',
+    date: new Date().toISOString().split('T')[0],
+    time: '14:00',
+    progress: 60,
+    assignedTo: 'user_1',
+    user_id: 'user_1',
+    user_name: 'Khổng Đức Mạnh',
+    teamId: 'team_1',
+    location: 'Hà Nội',
+    created_at: new Date().toISOString(),
+    isNew: false,
+    isShared: false,
+    isSharedWithTeam: false,
+    extraAssignees: ''
+  },
+  {
+    id: 'task_mobile_3',
+    title: 'Họp nhóm hàng tuần',
+    description: 'Tham gia họp nhóm để thảo luận kế hoạch',
+    type: 'meeting',
+    status: 'completed',
+    priority: 'normal',
+    date: new Date().toISOString().split('T')[0],
+    time: '10:30',
+    progress: 100,
+    assignedTo: 'user_1',
+    user_id: 'user_1',
+    user_name: 'Khổng Đức Mạnh',
+    teamId: 'team_1',
+    location: 'Hà Nội',
+    created_at: new Date().toISOString(),
+    isNew: false,
+    isShared: false,
+    isSharedWithTeam: false,
+    extraAssignees: ''
+  }
+];

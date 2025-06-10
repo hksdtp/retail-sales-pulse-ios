@@ -1,6 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import './styles/dialog-fixes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom scrollbar styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8);
+}
+
+/* Task form dialog animations */
+.task-form-dialog {
+  animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Enhanced animations with hardware acceleration */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.95, 0.95, 1);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
 @layer base {
   :root {
@@ -90,7 +188,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sf-pro;
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     font-feature-settings: 'ss01', 'ss02', 'ss03';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -189,6 +288,20 @@
   }
 }
 
+/* iOS-style shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
 /* Animation for background gradient */
 @keyframes gradient-animation {
   0% {
@@ -229,16 +342,7 @@
   animation: float 20s linear infinite;
 }
 
-/* Shimmer effect */
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
 
-.animate-shimmer {
-  animation: shimmer 1.5s infinite;
-}
 
 /* Modal Styles - Fix positioning issues */
 .modal-overlay,
@@ -311,6 +415,27 @@ body.modal-open {
     .bottom-nav-mobile {
         display: flex !important;
     }
+
+    /* Mobile-specific task styles */
+    .task-card {
+        margin-bottom: 0.75rem !important;
+        padding: 0.75rem !important;
+    }
+
+    .task-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Improve mobile button spacing */
+    .mobile-button-group {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+
+    .mobile-button-group > button {
+        width: 100% !important;
+    }
 }
 
 @media (min-width: 769px) {
@@ -327,15 +452,19 @@ body.modal-open {
     }
 }
 
-/* Sidebar animations */
+/* Optimized sidebar animations with hardware acceleration */
 .sidebar-desktop {
-    transition: width 0.3s ease-in-out;
     overflow: visible !important;
+    transform: translateZ(0); /* Force hardware acceleration */
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
-/* Smooth transitions for main content */
+/* Optimized main content transitions */
 main {
-    transition: margin-left 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+    transform: translateZ(0); /* Force hardware acceleration */
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 /* Account popover positioning */
@@ -345,4 +474,252 @@ main {
 
 [data-radix-popover-content] {
     z-index: 1000 !important;
+}
+
+/* Notification Center - Proper positioning */
+div[data-notification="center"] {
+    z-index: 99999 !important;
+    position: fixed !important;
+}
+
+/* Notification panel styling */
+.notification-panel,
+.notification-center-panel {
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Mobile responsive notification positioning */
+@media (max-width: 640px) {
+    div[data-notification="center"],
+    body > [data-notification="center"] {
+        top: 70px !important;
+        right: 8px !important;
+        left: 8px !important;
+        width: auto !important;
+        max-width: calc(100vw - 16px) !important;
+    }
+}
+
+/* Ensure notification is always on top */
+div[data-notification="center"],
+.notification-panel,
+.notification-center-panel {
+    z-index: 99999 !important;
+    position: fixed !important;
+}
+
+/* Prevent cards from having higher z-index than notifications */
+.bg-white\/95,
+.bg-white\/90,
+.bg-white\/80,
+div[class*="Card"],
+div[class*="card"],
+.macos-card,
+.ios-card {
+    z-index: auto !important;
+    position: relative !important;
+}
+
+/* Force notification to be above everything */
+body > div:has([data-notification="center"]),
+div:has([data-notification="center"]) {
+    z-index: 99999 !important;
+}
+
+/* Ensure main content doesn't interfere */
+main,
+main > div,
+.p-4,
+.p-6,
+.space-y-8,
+.grid {
+    z-index: 0 !important;
+    position: relative !important;
+}
+
+/* Force all content containers to have low z-index */
+.flex-1,
+.overflow-y-auto,
+.min-h-screen,
+div[class*="bg-gradient"],
+div[class*="backdrop-blur"] {
+    z-index: 0 !important;
+}
+
+/* Override table sticky headers and cells that might interfere */
+table th[style*="position: sticky"],
+table td[style*="position: sticky"],
+th[style*="zIndex"],
+td[style*="zIndex"] {
+    z-index: 5 !important;
+}
+
+/* Force all tables and their content to have low z-index */
+table,
+thead,
+tbody,
+tr,
+th,
+td {
+    z-index: auto !important;
+}
+
+/* Ultimate notification override - force above everything */
+[data-notification="center"] {
+    z-index: 999999 !important;
+    position: fixed !important;
+}
+
+/* Ensure notification backdrop is also high */
+div[class*="fixed"][class*="inset-0"]:has(+ [data-notification="center"]) {
+    z-index: 999998 !important;
+}
+
+/* Portal notification styles - Ultimate override */
+body > [data-notification="center"] {
+    z-index: 2147483647 !important;
+    position: fixed !important;
+}
+
+/* Portal backdrop styles */
+body > div[style*="z-index: 2147483646"] {
+    z-index: 2147483646 !important;
+    position: fixed !important;
+}
+
+/* Task Detail Modal - Force above everything except notifications */
+div[style*="z-index: 999999"] {
+    z-index: 999999 !important;
+    position: fixed !important;
+}
+
+/* Task Detail Modal Backdrop */
+div[style*="z-index: 999998"] {
+    z-index: 999998 !important;
+    position: fixed !important;
+}
+
+/* Force all task list content to have lower z-index */
+.space-y-6,
+.space-y-4,
+table,
+thead,
+tbody,
+tr,
+th,
+td,
+.table-header,
+.task-list,
+.task-group,
+.task-card {
+    z-index: 1 !important;
+    position: relative !important;
+}
+
+/* Fix dropdown styling in TaskDetailPanel */
+.task-detail-panel select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important;
+}
+
+.task-detail-panel select option {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+    padding: 8px 12px !important;
+    font-weight: 500 !important;
+}
+
+/* Hide default dropdown arrows on all browsers */
+.task-detail-panel select::-ms-expand {
+    display: none;
+}
+
+/* Custom dropdown arrow styling */
+.task-detail-panel .relative svg {
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Account Settings Dialog - Force above everything */
+[data-radix-dialog-overlay] {
+    z-index: 999999 !important;
+    position: fixed !important;
+}
+
+[data-radix-dialog-content] {
+    z-index: 999999 !important;
+    position: fixed !important;
+}
+
+/* Ensure dialog portal is above sidebar */
+div[data-radix-portal] {
+    z-index: 999999 !important;
+}
+
+/* Fix for select dropdown in dialog */
+[data-radix-select-content] {
+    z-index: 1000000 !important;
+    position: fixed !important;
+}
+
+[data-radix-popper-content-wrapper] {
+    z-index: 1000000 !important;
+}
+
+/* Ensure select trigger is clickable in dialog */
+[data-radix-select-trigger] {
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Fix dialog overlay pointer events */
+[data-radix-dialog-overlay] {
+    pointer-events: auto !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+[data-radix-dialog-content] {
+    pointer-events: auto !important;
+    background: white !important;
+    border: none !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Task Form Dialog specific fixes */
+[data-radix-dialog-content] {
+    background: white !important;
+    opacity: 1 !important;
+    filter: none !important;
+    z-index: 10000 !important;
+    position: fixed !important;
+    visibility: visible !important;
+    display: grid !important;
+}
+
+[data-radix-dialog-overlay] {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(2px) !important;
+    z-index: 9999 !important;
+    position: fixed !important;
+    visibility: visible !important;
+}
+
+/* Force dialog portal to be visible */
+[data-radix-portal] {
+    z-index: 10001 !important;
+    position: fixed !important;
+}
+
+/* Ensure dialog is always on top */
+div[data-radix-dialog-content] {
+    z-index: 10000 !important;
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }

@@ -25,6 +25,7 @@ const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) 
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
           className="text-2xl md:text-3xl font-bold text-[#2d3436] tracking-wide"
+          data-testid="page-title"
         >
           {title}
         </motion.h1>
@@ -43,7 +44,7 @@ const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.3 }}
-        className="mt-4 md:mt-0 flex items-center space-x-3"
+        className="mt-4 md:mt-0 flex items-center space-x-3 relative"
       >
         {/* Notification Center */}
         <NotificationCenter onTaskClick={onTaskClick || (() => {})} />

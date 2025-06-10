@@ -1,8 +1,9 @@
 import { Briefcase, Calendar, Clock, FilePen, FileText, UserRound, Users } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, memo, useMemo, useCallback } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/context/AuthContext';
 
 import { Task } from '../types/TaskTypes';
 import TaskActionMenu from './TaskActionMenu';
@@ -14,17 +15,52 @@ interface TaskCardProps {
   task: Task;
   getTeamName?: (teamId: string) => string;
   getAssigneeName?: (userId: string) => string;
+  onTaskClick?: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({
+const TaskCard: React.FC<TaskCardProps> = memo(({
   task,
   getTeamName = () => 'Không xác định',
   getAssigneeName = () => 'Không xác định',
+  onTaskClick,
 }) => {
+  const { users } = useAuth();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Xử lý hiển thị loại công việc với màu sắc khác nhau
-  const getTaskTypeBadge = () => {
+  // Memoized function để lấy tên người dùng từ nhiều nguồn
+  const userName = useMemo(() => {
+    // Ưu tiên: user_name -> tìm trong users array -> assignedTo -> fallback
+    if (task.user_name && task.user_name !== 'Không xác định') {
+      return task.user_name;
+    }
+
+    // Tìm trong users array bằng user_id
+    if (task.user_id && users && users.length > 0) {
+      const user = users.find(u => u.id === task.user_id);
+      if (user && user.name) {
+        return user.name;
+      }
+    }
+
+    // Tìm trong users array bằng assignedTo
+    if (task.assignedTo && users && users.length > 0) {
+      const user = users.find(u => u.id === task.assignedTo);
+      if (user && user.name) {
+        return user.name;
+      }
+    }
+
+    // Fallback về assignedTo nếu không phải ID
+    if (task.assignedTo && task.assignedTo !== 'Không xác định' && !task.assignedTo.includes('-')) {
+      return task.assignedTo;
+    }
+
+    return 'Chưa xác định';
+  }, [task.user_name, task.user_id, task.assignedTo, users]);
+
+
+  // Memoized task type badge
+  const taskTypeBadge = useMemo(() => {
     let label = '';
     let className = '';
 
@@ -72,10 +108,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
         {label}
       </Badge>
     );
-  };
+  }, [task.type]);
 
-  // Triển khai hiển thị trạng thái công việc với màu sắc đặc trưng
-  const getTaskStatusBadge = () => {
+  // Memoized task status badge
+  const taskStatusBadge = useMemo(() => {
     switch (task.status) {
       case 'todo':
         return (
@@ -116,7 +152,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
       default:
         return <Badge variant="outline">{task.status}</Badge>;
     }
-  };
+  }, [task.status]);
 
   // Hiển thị nhãn công việc mới
   const getNewBadge = () => {
@@ -126,23 +162,36 @@ const TaskCard: React.FC<TaskCardProps> = ({
     return null;
   };
 
-  // Mở chức năng chỉnh sửa (sẽ được hoàn thiện sau)
-  const handleEdit = () => {
+  // Memoized callbacks
+  const handleEdit = useCallback(() => {
     // Hiện tại chỉ hiển thị thông báo đơn giản
     alert(`Chỉnh sửa công việc: ${task.title}`);
     // setEditDialogOpen(true);
-  };
+  }, [task.title]);
+
+  const handleCardClick = useCallback(() => {
+    if (onTaskClick) {
+      onTaskClick(task);
+    }
+  }, [onTaskClick, task]);
+
+  const handleActionMenuClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 relative">
-      <div className="absolute top-3 right-3">
+    <div
+      className="bg-white rounded-xl p-5 shadow-md border border-gray-200/50 relative hover:shadow-lg transition-all duration-200 hover:scale-[1.02] cursor-pointer macos-card"
+      onClick={handleCardClick}
+    >
+      <div className="absolute top-4 right-4" onClick={handleActionMenuClick}>
         <TaskActionMenu task={task} onEdit={handleEdit} />
       </div>
 
       <div className="flex flex-col h-full">
         {/* Phần header với tiêu đề */}
-        <div className="mb-3 pr-8">
-          <h3 className="text-sm font-semibold text-gray-800 flex-1">{task.title}</h3>
+        <div className="mb-4 pr-8">
+          <h3 className="text-base font-semibold text-gray-800 leading-tight line-clamp-2">{task.title}</h3>
         </div>
 
         {/* Phần trạng thái */}
@@ -151,45 +200,45 @@ const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         {/* Phần mô tả */}
-        <div className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description}</div>
+        <div className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">{task.description}</div>
 
         {/* Phần thông tin về ngày, nhóm, người thực hiện */}
-        <div className="mt-auto space-y-2 text-xs">
+        <div className="mt-auto space-y-3 text-sm">
           <div className="mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-1">{getTaskTypeBadge()}</span>
+            <span className="flex items-center gap-1">{taskTypeBadge}</span>
             <div className="flex space-x-2">
-              {getTaskStatusBadge()}
+              {taskStatusBadge}
               {task.isNew && <Badge className="bg-green-500">Mới</Badge>}
             </div>
           </div>
-          <div className="flex items-center text-gray-500">
-            <Calendar className="h-3.5 w-3.5 mr-1.5" />
-            <span>{task.date}</span>
+          <div className="flex items-center text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
+            <Calendar className="h-4 w-4 mr-2 text-blue-500" />
+            <span className="font-medium">{task.date}</span>
             {task.time && (
               <>
-                <Clock className="h-3.5 w-3.5 mx-1.5" />
-                <span>{task.time}</span>
+                <Clock className="h-4 w-4 mx-2 text-green-500" />
+                <span className="font-medium">{task.time}</span>
               </>
             )}
           </div>
 
-          <div className="flex items-center text-gray-500">
-            <Users className="h-3.5 w-3.5 mr-1.5" />
-            <span>{getTeamName(task.teamId)}</span>
+          <div className="flex items-center text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
+            <Users className="h-4 w-4 mr-2 text-purple-500" />
+            <span className="font-medium">{getTeamName(task.teamId)}</span>
           </div>
 
-          <div className="flex items-center text-gray-500">
-            <UserRound className="h-3.5 w-3.5 mr-1.5" />
-            <span>{getAssigneeName(task.assignedTo)}</span>
+          <div className="flex items-center text-gray-600 bg-gray-50 rounded-lg px-3 py-2">
+            <UserRound className="h-4 w-4 mr-2 text-orange-500" />
+            <span className="font-medium">{userName}</span>
           </div>
 
           {/* Hiển thị tiến độ */}
-          <div className="pt-2">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs text-gray-500">Tiến độ:</span>
-              <span className="text-xs font-medium">{task.progress}%</span>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-600 font-medium">Tiến độ:</span>
+              <span className="text-sm font-bold text-blue-600">{task.progress}%</span>
             </div>
-            <Progress value={task.progress} className="h-1.5" />
+            <Progress value={task.progress} className="h-2" />
           </div>
         </div>
       </div>
@@ -205,5 +254,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
     </div>
   );
 };
+
+});
 
 export default TaskCard;

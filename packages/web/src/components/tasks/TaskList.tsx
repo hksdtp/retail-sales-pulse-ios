@@ -7,9 +7,11 @@ import { useAuth } from '@/context/AuthContext';
 import { TaskFilters } from '@/context/TaskContext';
 import { useTaskData } from '@/hooks/use-task-data';
 
+import TaskDetailPanel from './TaskDetailPanel';
 import TaskEmptyState from './task-components/TaskEmptyState';
 import TaskFilter from './task-components/TaskFilter';
 import TaskGroup from './task-components/TaskGroup';
+import { TaskSkeletonList } from './task-components/TaskSkeleton';
 import { filterTasksByUserRole, groupTasks } from './task-utils/TaskFilters';
 import { Task, TaskListProps } from './types/TaskTypes';
 
@@ -18,6 +20,8 @@ const TaskList = ({ location, teamId }: TaskListProps) => {
   const { tasks, isLoading, refreshTasks, filterTasks } = useTaskData();
   const [showFilters, setShowFilters] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showTaskDetail, setShowTaskDetail] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<TaskFilters>({
     dateRange: 'all',
     status: '',
@@ -55,15 +59,32 @@ const TaskList = ({ location, teamId }: TaskListProps) => {
     return user ? user.name : 'Không xác định';
   };
 
-  // Hiển thị thông báo nếu đang tải dữ liệu
+  // Hiển thị skeleton khi đang tải dữ liệu
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="relative">
-          <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-spin"></div>
-          <div className="absolute top-0 left-0 w-8 h-8 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            disabled
+          >
+            Hiển thị bộ lọc
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            disabled
+          >
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            Đang tải...
+          </Button>
         </div>
-        <span className="ml-3 text-gray-600 font-medium">Đang tải dữ liệu công việc...</span>
+
+        <TaskSkeletonList count={5} />
       </div>
     );
   }
@@ -142,8 +163,36 @@ const TaskList = ({ location, teamId }: TaskListProps) => {
           tasks={tasks}
           getTeamName={getTeamName}
           getAssigneeName={getAssigneeName}
+          onTaskClick={(task) => {
+            setSelectedTask(task);
+            setShowTaskDetail(true);
+          }}
         />
       ))}
+
+      {/* Task Detail Panel */}
+      <TaskDetailPanel
+        task={selectedTask}
+        isOpen={showTaskDetail}
+        onClose={() => {
+          setShowTaskDetail(false);
+          setSelectedTask(null);
+        }}
+        onEdit={(updatedTask) => {
+          console.log('Task updated:', updatedTask);
+          // Refresh tasks to get latest data
+          refreshTasks();
+          setShowTaskDetail(false);
+          setSelectedTask(null);
+        }}
+        onDelete={(taskId) => {
+          console.log('Task deleted:', taskId);
+          // Refresh tasks to get latest data
+          refreshTasks();
+          setShowTaskDetail(false);
+          setSelectedTask(null);
+        }}
+      />
     </div>
   );
 };

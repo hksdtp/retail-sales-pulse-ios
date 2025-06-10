@@ -31,6 +31,7 @@ export interface Task {
     | 'other';
   date: string;
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
+  priority?: 'high' | 'normal' | 'low';
   progress: number;
   isNew: boolean;
   location: string;

@@ -8,6 +8,7 @@ import {
   login as loginAPI,
   updateUser as updateUserAPI,
 } from '@/services/api';
+import { isTestEnvironment, setupTestAuth, getTestUser, getTestAuthToken } from '@/utils/testUtils';
 import {
   mockLogin,
   mockGetUsers,
@@ -144,21 +145,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Load users and teams
         await loadUsersAndTeams();
 
-        // Check for stored user and token
-        const storedUser = localStorage.getItem('currentUser');
-        const storedToken = localStorage.getItem('authToken');
+        // Check for test environment and setup test auth if needed
+        if (isTestEnvironment()) {
+          console.log('🧪 Test environment detected, setting up test auth...');
+          setupTestAuth();
+          const testUser = getTestUser();
+          const testToken = getTestAuthToken();
+          setCurrentUser(testUser);
+          setAuthToken(testToken);
+          setIsFirstLogin(false);
+          console.log('🧪 Test user authenticated:', testUser.name);
+        } else {
+          // Check for stored user and token
+          const storedUser = localStorage.getItem('currentUser');
+          const storedToken = localStorage.getItem('authToken');
 
-        if (storedUser && storedToken) {
-          try {
-            const user = JSON.parse(storedUser);
-            setCurrentUser(user);
-            setAuthToken(storedToken);
-            setIsFirstLogin(!user.password_changed);
-            console.log('Restored user session from localStorage');
-          } catch (error) {
-            console.error('Error parsing stored user data:', error);
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('authToken');
+          if (storedUser && storedToken) {
+            try {
+              const user = JSON.parse(storedUser);
+              setCurrentUser(user);
+              setAuthToken(storedToken);
+              setIsFirstLogin(!user.password_changed);
+              console.log('Restored user session from localStorage');
+            } catch (error) {
+              console.error('Error parsing stored user data:', error);
+              localStorage.removeItem('currentUser');
+              localStorage.removeItem('authToken');
+            }
           }
         }
       } catch (error) {

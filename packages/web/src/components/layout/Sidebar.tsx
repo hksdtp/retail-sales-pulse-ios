@@ -39,25 +39,22 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     onCollapseChange?.(newCollapsed);
   };
 
-  // Auto-hide/show logic
+  // Auto-hide/show logic với animation mượt mà
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
     setIsHovered(true);
-    if (isCollapsed) {
-      onCollapseChange?.(false); // Temporarily expand for hover
-    }
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    // Delay before collapsing to avoid flickering
+    // Delay ngắn hơn để responsive hơn
     hoverTimeoutRef.current = setTimeout(() => {
-      if (isCollapsed && !isDropdownOpen) {
-        onCollapseChange?.(true); // Collapse back
+      if (!isDropdownOpen) {
+        setIsHovered(false);
       }
-    }, 300);
+    }, 150);
   };
 
   // Determine if sidebar should be visually expanded
@@ -135,11 +132,12 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     <>
       <div
         ref={sidebarRef}
-        className={cn(
-          "sidebar-desktop fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-in-out overflow-hidden",
-          "border-r border-gray-200 shadow-lg bg-white",
-          isVisuallyExpanded ? "w-64" : "w-16"
-        )}
+        className="sidebar-desktop fixed left-0 top-0 h-full z-40 border-r border-gray-200 shadow-lg bg-white overflow-hidden"
+        style={{
+          width: isVisuallyExpanded ? '256px' : '64px',
+          transition: 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'width',
+        }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -153,16 +151,16 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 className="w-6 h-6 object-contain"
               />
             </div>
-            <span
-              className={cn(
-                "font-bold text-gray-900 whitespace-nowrap transition-all duration-300 ease-in-out",
-                isVisuallyExpanded
-                  ? "opacity-100 translate-x-0 max-w-none delay-75"
-                  : "opacity-0 -translate-x-2 max-w-0 overflow-hidden delay-0"
-              )}
+            <div
+              className="overflow-hidden transition-all duration-250 ease-out"
+              style={{
+                width: isVisuallyExpanded ? '160px' : '0px',
+                opacity: isVisuallyExpanded ? 1 : 0,
+                transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
+              }}
             >
-              Phòng Kinh Doanh
-            </span>
+              <span className="font-bold text-gray-900 whitespace-nowrap">Phòng Kinh Doanh</span>
+            </div>
           </div>
 
           {isVisuallyExpanded && (
@@ -205,16 +203,16 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 "w-5 h-5 flex-shrink-0",
                 isActive(item.url) && "text-ios-blue"
               )} />
-              <span
-                className={cn(
-                  "font-medium whitespace-nowrap transition-all duration-300 ease-in-out",
-                  isVisuallyExpanded
-                    ? "opacity-100 translate-x-0 max-w-none delay-75"
-                    : "opacity-0 -translate-x-2 max-w-0 overflow-hidden delay-0"
-                )}
+              <div
+                className="overflow-hidden transition-all duration-250 ease-out"
+                style={{
+                  width: isVisuallyExpanded ? '140px' : '0px',
+                  opacity: isVisuallyExpanded ? 1 : 0,
+                  transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
+                }}
               >
-                {item.title}
-              </span>
+                <span className="font-medium whitespace-nowrap">{item.title}</span>
+              </div>
 
               {/* Tooltip for collapsed state */}
               {!isVisuallyExpanded && (
@@ -251,12 +249,12 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               )}
             </div>
             <div
-              className={cn(
-                "flex-1 text-left min-w-0 transition-all duration-300 ease-in-out",
-                isVisuallyExpanded
-                  ? "opacity-100 translate-x-0 max-w-none delay-75"
-                  : "opacity-0 -translate-x-2 max-w-0 overflow-hidden delay-0"
-              )}
+              className="overflow-hidden transition-all duration-250 ease-out flex-1 text-left min-w-0"
+              style={{
+                width: isVisuallyExpanded ? '140px' : '0px',
+                opacity: isVisuallyExpanded ? 1 : 0,
+                transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
+              }}
             >
               <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">
                 {currentUser?.name}

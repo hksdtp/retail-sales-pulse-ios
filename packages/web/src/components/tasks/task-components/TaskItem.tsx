@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { useAuth } from '@/context/AuthContext';
 
 import {
   getLocationName,
@@ -19,6 +20,39 @@ interface TaskItemProps {
 }
 
 const TaskItem = ({ task, getTeamName, getAssigneeName }: TaskItemProps) => {
+  const { users } = useAuth();
+
+  // Function để lấy tên người dùng từ nhiều nguồn
+  const getUserName = (task: any) => {
+    // Ưu tiên: user_name -> tìm trong users array -> assignedTo -> fallback
+    if (task.user_name && task.user_name !== 'Không xác định') {
+      return task.user_name;
+    }
+
+    // Tìm trong users array bằng user_id
+    if (task.user_id && users && users.length > 0) {
+      const user = users.find(u => u.id === task.user_id);
+      if (user && user.name) {
+        return user.name;
+      }
+    }
+
+    // Tìm trong users array bằng assignedTo
+    if (task.assignedTo && users && users.length > 0) {
+      const user = users.find(u => u.id === task.assignedTo);
+      if (user && user.name) {
+        return user.name;
+      }
+    }
+
+    // Fallback về assignedTo nếu không phải ID
+    if (task.assignedTo && task.assignedTo !== 'Không xác định' && !task.assignedTo.includes('-')) {
+      return task.assignedTo;
+    }
+
+    return 'Chưa xác định';
+  };
+
   return (
     <TableRow key={task.id} className="cursor-pointer hover:bg-muted/50">
       <TableCell>
@@ -65,7 +99,7 @@ const TaskItem = ({ task, getTeamName, getAssigneeName }: TaskItemProps) => {
       <TableCell>
         <div className="flex items-center gap-1.5">
           <User size={14} />
-          <span>{getAssigneeName(task.assignedTo)}</span>
+          <span>{getUserName(task)}</span>
         </div>
       </TableCell>
     </TableRow>

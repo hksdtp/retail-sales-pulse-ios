@@ -96,6 +96,7 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     const newTaskData = {
       ...taskData,
       progress: taskData.progress || 0,
+      priority: taskData.priority || 'normal',
       user_id: currentUser.id,
       user_name: currentUser.name,
       team_id: currentUser.team_id || '',

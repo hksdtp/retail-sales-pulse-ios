@@ -69,6 +69,7 @@ const formSchema = z.object({
   status: z.enum(['todo', 'in-progress', 'on-hold', 'completed'], {
     required_error: 'Vui lòng chọn trạng thái',
   }),
+  priority: z.enum(['high', 'normal', 'low']).default('normal'),
   date: z.string().min(1, {
     message: 'Vui lòng chọn ngày',
   }),
@@ -109,6 +110,7 @@ const TaskEditDialog: React.FC<TaskEditDialogProps> = ({ open, onOpenChange, tas
       description: task.description,
       type: task.type,
       status: task.status,
+      priority: task.priority || 'normal',
       date: task.date,
       time: task.time || '',
       assignedTo: task.assignedTo,
@@ -280,6 +282,44 @@ const TaskEditDialog: React.FC<TaskEditDialogProps> = ({ open, onOpenChange, tas
                             {status.label}
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-xs font-medium" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[#2d3436] font-medium">Mức độ ưu tiên</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-11 bg-white/70 backdrop-blur-sm border-gray-200/50 rounded-xl focus:border-[#6c5ce7] focus:ring-[#6c5ce7]/20">
+                          <SelectValue placeholder="Chọn mức độ ưu tiên" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white/95 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden">
+                        <SelectItem value="high">
+                          <span className="flex items-center">
+                            <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                            Cao
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="normal">
+                          <span className="flex items-center">
+                            <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                            Bình thường
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="low">
+                          <span className="flex items-center">
+                            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                            Thấp
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-xs font-medium" />

@@ -25,8 +25,17 @@ class TaskKpiService {
   public getKpiDataForUser(currentUser: User | null, tasks: Task[] = []): TaskKpiData[] {
     if (!currentUser) return this.getDefaultKpiData();
 
-    const isDirector = currentUser.role === 'retail_director';
+    // Cập nhật logic phân quyền để sync với DashboardSyncService
+    const isDirector = currentUser.role === 'director' || currentUser.name === 'Khổng Đức Mạnh';
     const isTeamLeader = currentUser.role === 'team_leader';
+
+    console.log('🔄 TaskKpiService - User permissions:', {
+      user: currentUser.name,
+      role: currentUser.role,
+      isDirector,
+      isTeamLeader,
+      tasksCount: tasks.length
+    });
 
     if (isDirector) {
       return this.getDirectorKpiData(tasks);
@@ -162,7 +171,8 @@ class TaskKpiService {
     // Lấy dữ liệu doanh số cá nhân từ ReportsDataService
     const employee = reportsDataService.getEmployeeById(currentUser.id);
     const salesData = employee ? employee.sales : 0;
-    const salesInMillions = Math.round(salesData / 1000000);
+    const salesInBillions = (salesData / 1000000000).toFixed(2);
+    const planInBillions = employee ? (employee.plan / 1000000000).toFixed(2) : '0.00';
 
     return [
       {
@@ -188,10 +198,10 @@ class TaskKpiService {
       },
       {
         title: 'Doanh số cá nhân',
-        value: `${salesInMillions}tr`,
-        oldValue: `${employee ? Math.round(employee.plan / 1000000) : 0}tr`,
-        change: employee ? employee.rate - 100 : 0,
-        data: Array(10).fill(0).map(() => ({ value: salesInMillions * (0.8 + Math.random() * 0.4) }))
+        value: `${salesInBillions}B`,
+        oldValue: `${planInBillions}B (KH)`,
+        change: employee ? Math.round(employee.rate - 100) : 0,
+        data: Array(10).fill(0).map(() => ({ value: parseFloat(salesInBillions) * (0.8 + Math.random() * 0.4) }))
       }
     ];
   }
@@ -220,9 +230,9 @@ class TaskKpiService {
         data: Array(10).fill(0).map(() => ({ value: 0 }))
       },
       {
-        title: 'Doanh số',
-        value: '0tr',
-        oldValue: '0tr',
+        title: 'Doanh số cá nhân',
+        value: '0.00B',
+        oldValue: '0.00B (KH)',
         change: 0,
         data: Array(10).fill(0).map(() => ({ value: 0 }))
       }

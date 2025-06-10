@@ -1,10 +1,12 @@
 import {
   Activity,
+  AlertCircle,
   Bell,
   Briefcase,
   Building,
   Building2,
   Calendar,
+  CheckCircle,
   CheckSquare,
   ChevronDown,
   ChevronRight,
@@ -30,7 +32,9 @@ import {
   MessageSquare,
   MoreVertical,
   Package,
+  Pause,
   PieChart,
+  Play,
   Plus,
   Printer,
   RefreshCw,
@@ -44,12 +48,14 @@ import {
   UserCheck,
   Users,
   X,
+  Zap,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '@/context/AuthContext';
 import { useManagerTaskData } from '@/hooks/use-manager-task-data';
 import { useTaskData } from '@/hooks/use-task-data';
+import { useIsMobile } from '@/hooks/use-mobile';
 import notificationService from '@/services/notificationService';
 
 import LoadingScreen from '@/components/ui/LoadingScreen';
@@ -102,6 +108,21 @@ const priorityFlow = {
   high: 'low',
 };
 
+// Mapping icon cho trạng thái
+const statusIcons = {
+  'todo': Circle,
+  'in-progress': Play,
+  'on-hold': Pause,
+  'completed': CheckCircle,
+};
+
+// Mapping icon cho mức độ ưu tiên
+const priorityIcons = {
+  high: Zap,
+  normal: AlertCircle,
+  low: Circle,
+};
+
 // Mapping loại công việc với icon
 const typeMapping = {
   partner_new: { code: 'ĐT', icon: Users },
@@ -147,6 +168,7 @@ export default function TaskManagementView({
   onCreateTask,
 }: TaskManagementViewProps) {
   const { currentUser, users, teams } = useAuth();
+  const isMobile = useIsMobile();
   const [selectedMenu, setSelectedMenu] = useState('Việc tôi làm');
   const [expandedSections, setExpandedSections] = useState({
     'HỘP TIN': true,
@@ -162,6 +184,7 @@ export default function TaskManagementView({
   const [localTasks, setLocalTasks] = useState<any[]>([]);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // States cho Member View Filters
   const [selectedLocation, setSelectedLocation] = useState('all');
@@ -471,6 +494,21 @@ export default function TaskManagementView({
       .slice(0, 2);
   };
 
+  // Hàm refresh cho pull-to-refresh
+  const handleRefresh = async () => {
+    try {
+      if (regularTaskData?.refreshTasks) {
+        await regularTaskData.refreshTasks();
+      }
+      if (managerTaskData?.refreshTasks) {
+        await managerTaskData.refreshTasks();
+      }
+    } catch (error) {
+      console.error('Error refreshing tasks:', error);
+      throw error; // Re-throw để PullToRefresh có thể handle error
+    }
+  };
+
   // Format ngày
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -733,105 +771,90 @@ export default function TaskManagementView({
         <div className="relative z-10">
           {/* Mobile Card View */}
           <div className="block sm:hidden">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                onClick={() => {
-                  setSelectedTask(task);
-                  setShowTaskDetail(true);
-                }}
-                className="border-b border-gray-200 p-3 hover:bg-gray-50 cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center flex-1 min-w-0">
-                    <div
-                      className={`w-6 h-6 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-2 flex-shrink-0`}
-                    >
-                      {React.createElement(typeMapping[task.type]?.icon || Circle, {
-                        className: 'w-3 h-3',
-                      })}
+            {isLoading ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p>Đang tải...</p>
+              </div>
+            ) : tasks.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="text-4xl mb-4">📝</div>
+                <p>Chưa có công việc nào</p>
+              </div>
+            ) : (
+              tasks.map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => {
+                    setSelectedTask(task);
+                    setShowTaskDetail(true);
+                  }}
+                  className="border-b border-gray-200 p-3 hover:bg-gray-50 cursor-pointer"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center flex-1 min-w-0">
+                      <div
+                        className={`w-6 h-6 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-2 flex-shrink-0`}
+                      >
+                        {React.createElement(typeMapping[task.type]?.icon || Circle, {
+                          className: 'w-3 h-3',
+                        })}
+                      </div>
+                      <h3 className="font-medium text-gray-900 text-sm truncate">{task.title}</h3>
                     </div>
-                    <h3 className="font-medium text-gray-900 text-sm truncate">{task.title}</h3>
                   </div>
-                  <div className="flex items-center space-x-1 ml-2 flex-shrink-0">
+
+                  <div className="flex items-center space-x-2 mb-2">
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
-                        alert(`Chỉnh sửa công việc: ${task.title}`);
-                      }}
-                      className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                    >
-                      <Edit className="w-3 h-3" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (confirm(`Bạn có chắc muốn xóa công việc "${task.title}"?`)) {
-                          setLocalTasks((prev) => prev.filter((t) => t.id !== task.id));
+                        if (canEditTask(task)) {
+                          handleStatusChange(e, task.id, task.status);
                         }
                       }}
-                      className="p-1 text-red-600 hover:bg-red-50 rounded"
+                      disabled={!canEditTask(task)}
+                      className={`p-1 rounded-full text-white transition-all duration-200 ${statusColors[task.status]} ${
+                        canEditTask(task)
+                          ? 'cursor-pointer hover:scale-105'
+                          : 'cursor-not-allowed'
+                      }`}
                     >
-                      <Trash2 className="w-3 h-3" />
+                      {React.createElement(statusIcons[task.status] || Circle, {
+                        className: 'w-2.5 h-2.5',
+                      })}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (canEditTask(task)) {
+                          handlePriorityChange(e, task.id, task.priority || 'normal');
+                        }
+                      }}
+                      disabled={!canEditTask(task)}
+                      className={`p-1 rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} ${
+                        canEditTask(task)
+                          ? 'cursor-pointer hover:scale-105'
+                          : 'cursor-not-allowed'
+                      }`}
+                    >
+                      {React.createElement(priorityIcons[task.priority || 'normal'] || Circle, {
+                        className: 'w-2.5 h-2.5',
+                      })}
                     </button>
                   </div>
-                </div>
 
-                <div className="flex items-center space-x-2 mb-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (canEditTask(task)) {
-                        handleStatusChange(e, task.id, task.status);
-                      }
-                    }}
-                    disabled={!canEditTask(task)}
-                    className={`px-2 py-1 text-xs rounded-full text-white transition-all duration-200 ${statusColors[task.status]} ${
-                      canEditTask(task)
-                        ? 'cursor-pointer hover:scale-105'
-                        : 'cursor-not-allowed'
-                    }`}
-                    title={canEditTask(task) ? `Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
-                  >
-                    {statusMapping[task.status]}
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (canEditTask(task)) {
-                        handlePriorityChange(e, task.id, task.priority || 'normal');
-                      }
-                    }}
-                    disabled={!canEditTask(task)}
-                    className={`px-2 py-1 text-xs rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} ${
-                      canEditTask(task)
-                        ? 'cursor-pointer hover:scale-105'
-                        : 'cursor-not-allowed'
-                    }`}
-                    title={canEditTask(task) ? `Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
-                  >
-                    {priorityMapping[task.priority || 'normal']}
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center">
-                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold mr-1">
-                      {getInitials(getUserName(task.assignedTo))}
-                    </div>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
                     <span className="truncate">{getUserName(task.assignedTo)}</span>
+                    <span className="flex-shrink-0">{formatDate(task.date)}</span>
                   </div>
-                  <span className="flex-shrink-0">{formatDate(task.date)}</span>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Desktop Table View */}
           <div className="hidden sm:block overflow-x-auto">
-            <table className="w-full table-fixed">
+            <table className="w-full table-fixed" data-testid="tasks-table">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="text-left px-3 sm:px-4 lg:px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider w-2/5">
@@ -888,14 +911,16 @@ export default function TaskManagementView({
                             }
                           }}
                           disabled={!canEditTask(task)}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full text-white transition-all duration-200 whitespace-nowrap ${statusColors[task.status]} ${
+                          className={`inline-flex p-1.5 rounded-full text-white transition-all duration-200 ${statusColors[task.status]} ${
                             canEditTask(task)
                               ? 'cursor-pointer transform hover:scale-105 active:scale-95'
                               : 'cursor-not-allowed'
                           }`}
-                          title={canEditTask(task) ? `Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
+                          title={canEditTask(task) ? `${statusMapping[task.status]} - Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
                         >
-                          {statusMapping[task.status] || 'Chưa bắt đầu'}
+                          {React.createElement(statusIcons[task.status] || Circle, {
+                            className: 'w-3 h-3',
+                          })}
                         </button>
                         <button
                           onClick={(e) => {
@@ -905,26 +930,23 @@ export default function TaskManagementView({
                             }
                           }}
                           disabled={!canEditTask(task)}
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full transition-all duration-200 whitespace-nowrap ${priorityColors[task.priority || 'normal']} ${
+                          className={`inline-flex p-1.5 rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} ${
                             canEditTask(task)
                               ? 'cursor-pointer transform hover:scale-105 active:scale-95'
                               : 'cursor-not-allowed'
                           }`}
-                          title={canEditTask(task) ? `Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
+                          title={canEditTask(task) ? `${priorityMapping[task.priority || 'normal']} - Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
                         >
-                          {priorityMapping[task.priority || 'normal'] || 'Bình thường'}
+                          {React.createElement(priorityIcons[task.priority || 'normal'] || Circle, {
+                            className: 'w-3 h-3',
+                          })}
                         </button>
                       </div>
                     </td>
                     <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 hidden md:table-cell">
-                      <div className="flex items-center min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold mr-2 flex-shrink-0">
-                          {getInitials(getUserName(task.assignedTo))}
-                        </div>
-                        <span className="text-sm text-gray-900 truncate" title={getUserName(task.assignedTo)}>
-                          {getUserName(task.assignedTo)}
-                        </span>
-                      </div>
+                      <span className="text-sm text-gray-900 truncate" title={getUserName(task.assignedTo)}>
+                        {getUserName(task.assignedTo)}
+                      </span>
                     </td>
                     <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-sm text-gray-900">
                       <span className="whitespace-nowrap">{formatDate(task.date)}</span>
@@ -936,7 +958,8 @@ export default function TaskManagementView({
                             e.preventDefault();
                             e.stopPropagation();
                             console.log('🔵 EDIT BUTTON CLICKED!', task);
-                            alert(`Chỉnh sửa công việc: ${task.title}`);
+                            setSelectedTask(task);
+                            setShowTaskDetail(true);
                           }}
                           onMouseDown={(e) => {
                             e.stopPropagation();
@@ -944,18 +967,49 @@ export default function TaskManagementView({
                           }}
                           className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
                           title="Chỉnh sửa"
+                          data-testid="task-edit-button"
                           type="button"
                         >
                           <Edit className="w-4 h-4 pointer-events-none" />
                         </button>
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             console.log('🔴 DELETE BUTTON CLICKED!', task.id);
-                            if (confirm(`Bạn có chắc muốn xóa công việc "${task.title}"?`)) {
+
+                            if (!canEditTask(task)) {
+                              alert('Bạn không có quyền xóa công việc này!');
+                              return;
+                            }
+
+                            if (confirm(`Bạn có chắc muốn xóa công việc "${task.title}"?\n\nHành động này không thể hoàn tác.`)) {
+                              // Cập nhật UI ngay lập tức để responsive
                               setLocalTasks((prev) => prev.filter((t) => t.id !== task.id));
-                              alert('Đã xóa công việc!');
+
+                              try {
+                                // Gọi API để sync với server (background)
+                                const response = await fetch(`https://us-central1-appqlgd.cloudfunctions.net/api/tasks/${task.id}`, {
+                                  method: 'DELETE',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                });
+
+                                const result = await response.json();
+                                console.log('🔄 Delete API response:', result);
+
+                                if (result.success) {
+                                  console.log('✅ Task deleted successfully from server');
+                                  alert('Đã xóa công việc thành công!');
+                                } else {
+                                  console.error('❌ Delete API failed, but UI already updated');
+                                  // UI đã được cập nhật, chỉ log lỗi
+                                }
+                              } catch (error) {
+                                console.error('❌ Error deleting task from server:', error);
+                                // UI đã được cập nhật, chỉ log lỗi
+                              }
                             }
                           }}
                           onMouseDown={(e) => {
@@ -964,6 +1018,7 @@ export default function TaskManagementView({
                           }}
                           className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
                           title="Xóa"
+                          data-testid="task-delete-button"
                           type="button"
                         >
                           <Trash2 className="w-4 h-4 pointer-events-none" />
@@ -1029,29 +1084,71 @@ export default function TaskManagementView({
               return;
             }
 
-            // Cập nhật task trong localTasks
+            // Cập nhật task trong localTasks ngay lập tức
             setLocalTasks((prev) =>
               prev.map((task) =>
                 task.id === updatedTask.id
-                  ? { ...task, ...updatedTask, updated_at: new Date().toISOString() }
+                  ? {
+                      ...task,
+                      ...updatedTask,
+                      updated_at: new Date().toISOString(),
+                      // Đảm bảo progress được cập nhật từ checklist
+                      progress: updatedTask.progress || task.progress
+                    }
                   : task,
               ),
             );
-            // Cập nhật selectedTask để reflect changes
-            setSelectedTask(updatedTask);
+            // Cập nhật selectedTask để reflect changes trong modal
+            setSelectedTask({
+              ...updatedTask,
+              updated_at: new Date().toISOString()
+            });
             console.log('✅ Task updated successfully and synced with API!');
           } catch (error) {
             console.error('❌ Error updating task:', error);
             alert('Lỗi khi lưu công việc. Vui lòng thử lại!');
           }
         }}
-        onDelete={(taskId) => {
+        onDelete={async (taskId) => {
           console.log('Delete task from detail panel:', taskId);
-          if (confirm(`Bạn có chắc muốn xóa công việc này?`)) {
-            setLocalTasks((prev) => prev.filter((t) => t.id !== taskId));
-            setShowTaskDetail(false);
-            setSelectedTask(null);
-            alert('Đã xóa công việc!');
+
+          const taskToDelete = localTasks.find(t => t.id === taskId);
+          if (!taskToDelete) return;
+
+          if (!canEditTask(taskToDelete)) {
+            alert('Bạn không có quyền xóa công việc này!');
+            return;
+          }
+
+          // Cập nhật UI ngay lập tức để responsive
+          setLocalTasks((prev) => prev.filter((t) => t.id !== taskId));
+          setShowTaskDetail(false);
+          setSelectedTask(null);
+
+          try {
+            console.log('🔄 Starting delete process for task:', taskId);
+
+            // Gọi API để sync với server (background)
+            const response = await fetch(`https://us-central1-appqlgd.cloudfunctions.net/api/tasks/${taskId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+
+            const result = await response.json();
+            console.log('🔄 Delete API response:', result);
+
+            if (result.success) {
+              console.log('✅ Task deleted successfully from server');
+              alert('Đã xóa công việc thành công!');
+            } else {
+              console.error('❌ Delete API failed, but UI already updated');
+              // UI đã được cập nhật, chỉ log lỗi
+            }
+          } catch (error) {
+            console.error('❌ Error deleting task from server:', error);
+            // UI đã được cập nhật, chỉ log lỗi
           }
         }}
       />

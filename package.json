@@ -9,7 +9,15 @@
   "scripts": {
     "build": "cd packages/web && bun run build",
     "dev": "cd packages/web && bun run dev",
-    "preview": "cd packages/web && bun run preview"
+    "preview": "cd packages/web && bun run preview",
+    "mcp:interactive": "node mcp-interactive.js",
+    "mcp:aug": "node mcp-servers/augment-mcp.js",
+    "mcp:plw": "node mcp-servers/playwright-mcp.js",
+    "aug": "node mcp-servers/augment-mcp.js",
+    "plw": "node mcp-servers/playwright-mcp.js",
+    "open": "open http://localhost:8088",
+    "start": "concurrently \"npm run dev\" \"npm run plw\"",
+    "start:all": "concurrently \"npm run dev\" \"npm run plw\" \"npm run aug\""
   },
   "devDependencies": {
     "prettier": "^3.5.3",
@@ -20,5 +28,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/inspector": "^0.14.0"
   }
 }

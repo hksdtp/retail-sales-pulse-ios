@@ -316,6 +316,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
               </div>
 
               <select
+                data-testid="user-selector"
                 value={selectedUser?.id || ''}
                 onChange={(e) => {
                   const user = users.find((u) => u.id === e.target.value);
@@ -345,6 +346,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
             </div>
             <Input
               id="password"
+              data-testid="password-input"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -359,10 +361,12 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         {/* Nút đăng nhập */}
         <motion.button
           type="submit"
-          className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+          data-testid="login-submit-button"
+          className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
           disabled={isSubmitting || !selectedUser || !password}
-          whileHover={{ scale: isSubmitting || !selectedUser || !password ? 1 : 1.02 }}
-          whileTap={{ scale: isSubmitting || !selectedUser || !password ? 1 : 0.98 }}
+          whileHover={{ scale: isSubmitting || !selectedUser || !password ? 1 : 1.01 }}
+          whileTap={{ scale: isSubmitting || !selectedUser || !password ? 1 : 0.99 }}
+          transition={{ duration: 0.1, ease: "easeInOut" }}
         >
           {isSubmitting ? (
             <>

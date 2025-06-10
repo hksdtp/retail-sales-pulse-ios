@@ -28,6 +28,7 @@ export interface Task {
     | 'inventory'
     | 'other';
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
+  priority?: 'high' | 'normal' | 'low';
   date: string;
   time: string;
   progress: number;

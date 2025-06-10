@@ -23,17 +23,18 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
 
       {/* Main Content */}
-      <main className={cn(
-        "flex-1 flex flex-col overflow-hidden relative z-10 transition-all duration-300",
-        // Desktop: normal sidebar = 256px (ml-64), collapsed = 64px (ml-16)
-        // Mobile: always no margin (sidebar is hidden)
-        "sm:ml-0 md:ml-64",
-        isSidebarCollapsed && "md:ml-16"
-      )}>
+      <main
+        className="flex-1 flex flex-col overflow-hidden relative z-0 ml-0 md:ml-64 pb-16 md:pb-0"
+        style={{
+          marginLeft: typeof window !== 'undefined' && window.innerWidth >= 768 ? (isSidebarCollapsed ? '64px' : '256px') : '0px',
+          transition: 'margin-left 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'margin-left',
+        }}
+      >
         {/* macOS style subtle top bar shine */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/50 dark:bg-white/10"></div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="flex-1 overflow-y-auto p-3 md:p-6">
           {children}
         </div>
       </main>

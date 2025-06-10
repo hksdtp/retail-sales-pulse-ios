@@ -25,7 +25,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Main Content */}
       <main className={cn(
-        "flex-1 flex flex-col overflow-hidden relative z-10 transition-all duration-300",
+        "flex-1 flex flex-col overflow-hidden relative z-0 transition-all duration-300",
         "ml-64 md:ml-64 sm:ml-0",
         isSidebarCollapsed && "md:ml-16"
       )}>

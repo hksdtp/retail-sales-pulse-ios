@@ -125,7 +125,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
   if (!shouldShowNotifications) return null;
 
   return (
-    <div className="relative">
+    <>
       {/* Notification Bell */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -143,13 +143,17 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
         )}
       </button>
 
-      {/* Notification Panel */}
-      <AnimatePresence>
-        {isOpen && (
+      {/* Notification Panel - Using Portal */}
+      {isOpen && createPortal(
+        <AnimatePresence>
           <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-[9998]"
+            {/* Backdrop - Invisible, only for click detection */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0"
+              style={{ zIndex: 2147483646, background: 'transparent' }}
               onClick={() => setIsOpen(false)}
             />
 
@@ -158,7 +162,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"
+              className="fixed top-16 right-4 w-80 sm:w-96 md:right-6 lg:right-8 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-96 overflow-hidden"
+              style={{ zIndex: 2147483647 }}
               data-notification="center"
             >
               {/* Header */}
@@ -261,9 +266,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
 
             </motion.div>
           </>
-        )}
-      </AnimatePresence>
-    </div>
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
   );
 };
 

@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import Reports from './pages/Reports';
 import Tasks from './pages/Tasks';
+import TaskFormDemo from './components/tasks/TaskFormDemo';
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,14 @@ const App = () => (
                     element={
                       <ProtectedRoute>
                         <Employees />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/task-form-demo"
+                    element={
+                      <ProtectedRoute>
+                        <TaskFormDemo />
                       </ProtectedRoute>
                     }
                   />

@@ -284,24 +284,15 @@ body.modal-open {
     }
 }
 
-/* Notification Center - High priority but not max */
-div:has(h3:contains("Thông báo")),
-div:has(span:contains("mới")),
-div[class*="notification"],
-div[data-notification] {
-    z-index: 9999 !important;
+/* Notification Center - Proper positioning */
+div[data-notification="center"] {
+    z-index: 60 !important;
+    position: absolute !important;
 }
 
-/* Notification backdrop */
-div[class*="notification"] + div[class*="backdrop"],
-div[style*="z-index: 999999"] {
-    z-index: 9999998 !important;
-}
-
-/* Force notification panel positioning */
+/* Notification panel styling */
 .notification-panel,
 .notification-center-panel {
-    z-index: 9999 !important;
     background: white !important;
     border-radius: 12px !important;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
@@ -444,4 +435,41 @@ main {
 /* Tooltip styles for collapsed sidebar */
 .sidebar-desktop .group:hover .absolute {
     z-index: 9999;
+}
+
+/* Notification Center - Force highest z-index */
+div[data-notification="center"] {
+    z-index: 99999 !important;
+    position: fixed !important;
+}
+
+/* Ensure main content doesn't interfere with notifications */
+main,
+main > div,
+.p-4,
+.p-6,
+.space-y-8,
+.grid,
+.flex-1,
+.overflow-y-auto {
+    z-index: 0 !important;
+    position: relative !important;
+}
+
+/* Override table sticky headers and cells that might interfere */
+table th[style*="position: sticky"],
+table td[style*="position: sticky"],
+th[style*="zIndex"],
+td[style*="zIndex"] {
+    z-index: 5 !important;
+}
+
+/* Force all tables and their content to have low z-index */
+table,
+thead,
+tbody,
+tr,
+th,
+td {
+    z-index: auto !important;
 }

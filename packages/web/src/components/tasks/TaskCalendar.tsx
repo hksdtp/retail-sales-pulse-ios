@@ -1,29 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Plus, Clock, MapPin, Users, Edit, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface CalendarTask {
   id: string;
   title: string;
-  type: 'partner' | 'architect' | 'client' | 'quote';
+  type: 'partner' | 'architect' | 'client' | 'quote' | 'meeting' | 'site_visit' | 'report' | 'training';
   time: string;
+  endTime?: string;
+  location?: string;
+  participants?: string[];
+  priority?: 'high' | 'medium' | 'low';
+  status?: 'pending' | 'in_progress' | 'completed';
 }
 
-// Sample data for demonstration
+// Enhanced sample data for demonstration
 const tasksByDate: Record<string, CalendarTask[]> = {
-  '2025-05-05': [
-    { id: '1', title: 'Gặp đối tác ABC', type: 'partner', time: '10:30' },
-    { id: '3', title: 'Khảo sát công trình Y', type: 'client', time: '14:00' },
+  '2025-01-15': [
+    {
+      id: '1',
+      title: 'Họp review dự án Q1',
+      type: 'meeting',
+      time: '09:00',
+      endTime: '11:00',
+      location: 'Phòng họp A',
+      participants: ['Lương Việt Anh', 'Lê Khánh Duy'],
+      priority: 'high',
+      status: 'pending'
+    },
+    {
+      id: '2',
+      title: 'Gặp đối tác ABC',
+      type: 'partner',
+      time: '14:30',
+      endTime: '16:00',
+      location: 'Văn phòng đối tác',
+      participants: ['Phạm Thị Hương'],
+      priority: 'medium',
+      status: 'pending'
+    },
   ],
-  '2025-05-06': [{ id: '4', title: 'Làm việc với KTS Nguyễn', type: 'architect', time: '09:00' }],
-  '2025-05-07': [{ id: '5', title: 'Chờ phản hồi báo giá', type: 'quote', time: '15:00' }],
-  '2025-05-12': [{ id: '2', title: 'Báo giá dự án X', type: 'quote', time: '11:00' }],
+  '2025-01-16': [
+    {
+      id: '3',
+      title: 'Khảo sát địa điểm mới',
+      type: 'site_visit',
+      time: '14:00',
+      endTime: '17:00',
+      location: 'Quận Cầu Giấy, Hà Nội',
+      participants: ['Phạm Thị Hương', 'Nguyễn Thị Thảo'],
+      priority: 'medium',
+      status: 'in_progress'
+    }
+  ],
+  '2025-01-17': [
+    {
+      id: '4',
+      title: 'Báo cáo tiến độ tháng',
+      type: 'report',
+      time: '10:30',
+      endTime: '12:00',
+      location: 'Online',
+      participants: ['Khổng Đức Mạnh'],
+      priority: 'high',
+      status: 'completed'
+    }
+  ],
+  '2025-01-18': [
+    {
+      id: '5',
+      title: 'Đào tạo kỹ năng bán hàng',
+      type: 'training',
+      time: '08:30',
+      endTime: '17:30',
+      location: 'Phòng đào tạo',
+      participants: ['Lê Tiến Quân', 'Quản Thu Hà'],
+      priority: 'medium',
+      status: 'pending'
+    }
+  ],
 };
 
 const getTypeColor = (type: string) => {
   switch (type) {
+    case 'meeting':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'partner':
       return 'bg-ios-blue text-white';
     case 'architect':
@@ -32,8 +98,60 @@ const getTypeColor = (type: string) => {
       return 'bg-ios-orange text-white';
     case 'quote':
       return 'bg-ios-yellow text-black';
+    case 'site_visit':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'report':
+      return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    case 'training':
+      return 'bg-green-100 text-green-800 border-green-200';
     default:
       return 'bg-gray-200 text-gray-800';
+  }
+};
+
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case 'meeting': return '🤝';
+    case 'partner': return '🤝';
+    case 'architect': return '🏗️';
+    case 'client': return '👥';
+    case 'quote': return '💰';
+    case 'site_visit': return '🏗️';
+    case 'report': return '📊';
+    case 'training': return '📚';
+    default: return '📋';
+  }
+};
+
+const getTypeText = (type: string) => {
+  switch (type) {
+    case 'meeting': return 'Họp';
+    case 'partner': return 'Đối tác';
+    case 'architect': return 'KTS';
+    case 'client': return 'Khách hàng';
+    case 'quote': return 'Báo giá';
+    case 'site_visit': return 'Khảo sát';
+    case 'report': return 'Báo cáo';
+    case 'training': return 'Đào tạo';
+    default: return 'Khác';
+  }
+};
+
+const getPriorityColor = (priority?: string) => {
+  switch (priority) {
+    case 'high': return 'bg-red-100 text-red-800 border-red-200';
+    case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'low': return 'bg-green-100 text-green-800 border-green-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+const getStatusColor = (status?: string) => {
+  switch (status) {
+    case 'completed': return 'bg-green-100 text-green-800 border-green-200';
+    case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 };
 
@@ -46,7 +164,7 @@ const formatDateKey = (date: Date | undefined): string => {
 };
 
 const TaskCalendar = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date('2025-05-05'));
+  const [date, setDate] = useState<Date | undefined>(new Date('2025-01-15'));
 
   // Function to determine if a date has tasks
   const isDayWithTask = (day: Date) => {
@@ -68,10 +186,19 @@ const TaskCalendar = () => {
     });
   };
 
+  const handleTaskAction = (taskId: string, action: 'edit' | 'delete') => {
+    console.log(`${action} task:`, taskId);
+    // Implement task actions here
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-1">
-        <Card className="shadow-sm">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Calendar */}
+      <div className="lg:col-span-1">
+        <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold text-gray-800">Lịch kế hoạch</CardTitle>
+          </CardHeader>
           <CardContent className="p-0">
             <Calendar
               mode="single"
@@ -85,7 +212,9 @@ const TaskCalendar = () => {
                 hasTasks: {
                   fontWeight: 'bold',
                   textDecoration: 'underline',
-                  textDecorationColor: '#0A84FF',
+                  textDecorationColor: '#3b82f6',
+                  backgroundColor: '#dbeafe',
+                  borderRadius: '6px',
                 },
               }}
             />
@@ -93,42 +222,107 @@ const TaskCalendar = () => {
         </Card>
       </div>
 
-      <div className="md:col-span-2">
-        <h3 className="font-medium mb-4">{formatDisplayDate(date)}</h3>
+      {/* Tasks for selected date */}
+      <div className="lg:col-span-2">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold text-gray-800">{formatDisplayDate(date)}</h3>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Thêm kế hoạch
+          </Button>
+        </div>
 
         {selectedDateTasks.length > 0 ? (
-          <div className="space-y-3">
-            {selectedDateTasks.map((task) => (
-              <Card
+          <div className="space-y-4">
+            {selectedDateTasks.map((task, index) => (
+              <motion.div
                 key={task.id}
-                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center">
-                        <span className="font-medium text-lg mr-3">{task.time}</span>
-                        <h4 className="font-medium">{task.title}</h4>
+                <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-2xl">{getTypeIcon(task.type)}</span>
+                          <div>
+                            <h4 className="font-semibold text-lg text-gray-900">{task.title}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Clock className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm text-gray-600">
+                                {task.time} {task.endTime && `- ${task.endTime}`}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <Badge className={getTypeColor(task.type)}>
+                            {getTypeText(task.type)}
+                          </Badge>
+                          {task.priority && (
+                            <Badge className={getPriorityColor(task.priority)}>
+                              {task.priority === 'high' ? 'Cao' : task.priority === 'medium' ? 'Trung bình' : 'Thấp'}
+                            </Badge>
+                          )}
+                          {task.status && (
+                            <Badge className={getStatusColor(task.status)}>
+                              {task.status === 'completed' ? 'Hoàn thành' :
+                               task.status === 'in_progress' ? 'Đang thực hiện' : 'Chờ thực hiện'}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {task.location && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>{task.location}</span>
+                          </div>
+                        )}
+
+                        {task.participants && task.participants.length > 0 && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Users className="w-4 h-4" />
+                            <span>{task.participants.join(', ')}</span>
+                          </div>
+                        )}
                       </div>
-                      <Badge className={`${getTypeColor(task.type)} mt-2`}>
-                        {task.type === 'partner'
-                          ? 'Đối tác'
-                          : task.type === 'architect'
-                            ? 'KTS'
-                            : task.type === 'client'
-                              ? 'Khách hàng'
-                              : 'Báo giá'}
-                      </Badge>
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleTaskAction(task.id, 'edit')}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleTaskAction(task.id, 'delete')}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         ) : (
-          <Card className="border border-dashed shadow-none">
-            <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-              <p className="text-muted-foreground">Không có công việc nào vào ngày này</p>
+          <Card className="border-2 border-dashed border-gray-300 bg-gray-50/50">
+            <CardContent className="p-12 text-center">
+              <div className="text-6xl mb-4">📅</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Không có kế hoạch</h3>
+              <p className="text-gray-500 mb-4">Chưa có kế hoạch nào được lên lịch cho ngày này</p>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Tạo kế hoạch mới
+              </Button>
             </CardContent>
           </Card>
         )}

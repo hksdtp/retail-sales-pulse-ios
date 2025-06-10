@@ -139,11 +139,12 @@ export const mockLogin = async (email: string, password: string): Promise<{
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  // Simple password check first
-  if (password !== '123456' && password !== 'password') {
+  // Simple password check first - accept multiple password formats
+  const validPasswords = ['123456', 'password', 'password123'];
+  if (!validPasswords.includes(password)) {
     return {
       success: false,
-      error: 'Mật khẩu không đúng. Thử: 123456 hoặc password',
+      error: 'Mật khẩu không đúng. Thử: 123456, password, hoặc password123',
     };
   }
 

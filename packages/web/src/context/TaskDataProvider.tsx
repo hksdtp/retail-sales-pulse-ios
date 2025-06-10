@@ -179,6 +179,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         ...task,
         type: validType,
         status: validStatus,
+        priority: task.priority || 'normal',
         progress: typeof task.progress === 'number' ? task.progress : 0,
         isNew: task.isNew === true,
         teamId: task.teamId || task.team_id || '',
@@ -206,6 +207,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         date: String(task.date || new Date().toISOString()),
         type: validType,
         status: validStatus,
+        priority: task.priority || 'normal',
         progress: typeof task.progress === 'number' ? task.progress : 0,
         isNew: Boolean(task.isNew),
         isShared: Boolean(task.isShared),
@@ -277,12 +279,12 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
         }
 
-        rawTasksData = [];
-        // Không lưu gì cả, giữ trống hoàn toàn
+        // Import dữ liệu mẫu cho demo
+        const { tasks: sampleTasks } = await import('../components/tasks/data/TasksData');
 
-        // PRODUCTION MODE: Không load dữ liệu từ API/Firebase
-        console.log('🚀 PRODUCTION MODE: Bắt đầu với dữ liệu trống, không load từ API/Firebase');
-        rawTasksData = [];
+        // DEMO MODE: Sử dụng dữ liệu mẫu cho mobile demo
+        console.log('🚀 DEMO MODE: Sử dụng dữ liệu mẫu cho mobile demo');
+        rawTasksData = sampleTasks;
 
         // === START: LOGIC LỌC PHÂN QUYỀN MỚI SỬ DỤNG CONFIG ===
         let filteredTasksForRole: Task[] = [];
@@ -497,6 +499,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       type: task.type,
       date: task.date,
       status: task.status,
+      priority: task.priority || 'normal',
       progress: typeof task.progress === 'number' ? task.progress : 0,
       isNew: true,
       location: task.location || currentUser?.location || '',

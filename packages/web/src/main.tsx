@@ -6,5 +6,6 @@ import App from './App.tsx';
 import './index.css';
 import './styles/login-theme.css';
 import './styles/macos.css';
+import './utils/dialog-centering-fix.js';
 
 createRoot(document.getElementById('root')!).render(<App />);

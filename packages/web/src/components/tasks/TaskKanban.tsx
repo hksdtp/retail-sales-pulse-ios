@@ -127,16 +127,18 @@ const TaskKanban = ({ location = 'all', teamId = 'all' }: TaskKanbanProps) => {
   const hasAnyTasks = filteredColumns.some((column) => column.tasks.length > 0);
 
   if (isLoading) {
+    const { TaskSkeletonList } = require('./task-components/TaskSkeleton');
     return (
-      <Card className="border border-dashed shadow-none">
-        <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-          <div className="relative mb-4">
-            <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-spin"></div>
-            <div className="absolute top-0 left-0 w-8 h-8 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
-          </div>
-          <p className="text-muted-foreground font-medium">Đang tải dữ liệu công việc...</p>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {['Cần làm', 'Đang làm', 'Hoàn thành'].map((columnTitle) => (
+          <Card key={columnTitle} className="macos-card">
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-4">{columnTitle}</h3>
+              <TaskSkeletonList count={3} />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     );
   }
 
