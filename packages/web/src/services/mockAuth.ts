@@ -111,10 +111,6 @@ export const emailAliases: Record<string, string> = {
   // Phùng Thị Thuỳ Vân
   'thuyvan': 'thuyvan@example.com',
   'van': 'thuyvan@example.com',
-
-  // Quản Thu Hà
-  'thuha': 'thuha@example.com',
-  'ha': 'thuha@example.com',
 };
 
 // Mock teams data - sẽ sử dụng teams từ API/Firebase thay vì mock
@@ -358,6 +354,8 @@ export const mockGetUsers = async (): Promise<{
       status: 'active',
       password_changed: true,
     },
+    // === CHI NHÁNH HÀ NỘI ===
+    // NHÓM 1 - Lương Việt Anh
     {
       id: 'Ue4vzSj1KDg4vZyXwlHJ', // Real API ID
       name: 'Lương Việt Anh',
@@ -385,6 +383,20 @@ export const mockGetUsers = async (): Promise<{
       password_changed: true,
     },
     {
+      id: 'qgM8ogYQwu0T5zJUesfn', // Real API ID
+      name: 'Quản Thu Hà',
+      email: 'thuha@example.com',
+      role: 'employee',
+      team_id: '1',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Nhân viên',
+      status: 'active',
+      password_changed: true,
+    },
+    // NHÓM 2 - Nguyễn Thị Thảo
+    {
       id: 'MO7N4Trk6mASlHpIcjME', // Real API ID
       name: 'Nguyễn Thị Thảo',
       email: 'thao.nguyen@example.com',
@@ -410,6 +422,7 @@ export const mockGetUsers = async (): Promise<{
       status: 'active',
       password_changed: true,
     },
+    // NHÓM 3 - Trịnh Thị Bốn
     {
       id: '6',
       name: 'Trịnh Thị Bốn',
@@ -423,10 +436,11 @@ export const mockGetUsers = async (): Promise<{
       status: 'active',
       password_changed: true,
     },
+    // NHÓM 4 - Lê Tiến Quân
     {
-      id: '7',
-      name: 'Phạm Thị Hương',
-      email: 'huong.pham@example.com',
+      id: 'quan_hn_leader',
+      name: 'Lê Tiến Quân',
+      email: 'quan@example.com',
       role: 'team_leader',
       team_id: '4',
       location: 'Hà Nội',
@@ -436,12 +450,28 @@ export const mockGetUsers = async (): Promise<{
       status: 'active',
       password_changed: true,
     },
+    // NHÓM 5 - Phạm Thị Hương
+    {
+      id: '7',
+      name: 'Phạm Thị Hương',
+      email: 'huong.pham@example.com',
+      role: 'team_leader',
+      team_id: '5',
+      location: 'Hà Nội',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+      position: 'Trưởng nhóm',
+      status: 'active',
+      password_changed: true,
+    },
+    // === CHI NHÁNH TP.HCM ===
+    // NHÓM 1 - Nguyễn Thị Nga
     {
       id: '8',
       name: 'Nguyễn Thị Nga',
       email: 'nga.nguyen@example.com',
       role: 'team_leader',
-      team_id: '5',
+      team_id: '6', // NHÓM 1 HCM
       location: 'Hồ Chí Minh',
       department: 'Bán lẻ',
       department_type: 'retail',
@@ -454,7 +484,7 @@ export const mockGetUsers = async (): Promise<{
       name: 'Hà Nguyễn Thanh Tuyền',
       email: 'tuyen.ha@example.com',
       role: 'employee',
-      team_id: '5',
+      team_id: '6', // NHÓM 1 HCM
       location: 'Hồ Chí Minh',
       department: 'Bán lẻ',
       department_type: 'retail',
@@ -462,12 +492,13 @@ export const mockGetUsers = async (): Promise<{
       status: 'active',
       password_changed: true,
     },
+    // NHÓM 2 - Nguyễn Ngọc Việt Khanh
     {
       id: '10',
       name: 'Nguyễn Ngọc Việt Khanh',
       email: 'vietkhanh@example.com',
       role: 'team_leader',
-      team_id: '6',
+      team_id: '7', // NHÓM 2 HCM
       location: 'Hồ Chí Minh',
       department: 'Bán lẻ',
       department_type: 'retail',
@@ -480,24 +511,11 @@ export const mockGetUsers = async (): Promise<{
       name: 'Phùng Thị Thuỳ Vân',
       email: 'thuyvan@example.com',
       role: 'employee',
-      team_id: '6',
+      team_id: '7', // NHÓM 2 HCM
       location: 'Hồ Chí Minh',
       department: 'Bán lẻ',
       department_type: 'retail',
       position: 'Nhân viên',
-      status: 'active',
-      password_changed: true,
-    },
-    {
-      id: 'qgM8ogYQwu0T5zJUesfn', // Real API ID
-      name: 'Quản Thu Hà',
-      email: 'thuha@example.com',
-      role: 'employee',
-      team_id: '1',
-      location: 'Hà Nội',
-      department: 'Bán lẻ',
-      department_type: 'retail',
-      position: 'Nhân viên sale',
       status: 'active',
       password_changed: true,
     },
@@ -519,57 +537,68 @@ export const mockGetTeams = async (): Promise<{
 
   // Tạo danh sách teams thật từ hệ thống
   const realTeams: MockTeam[] = [
+    // === HÀ NỘI ===
     {
       id: '1',
-      name: 'NHÓM 1 - VIỆT ANH',
-      leader_id: '2',
+      name: 'NHÓM 1',
+      leader_id: 'Ue4vzSj1KDg4vZyXwlHJ', // Lương Việt Anh
       location: 'Hà Nội',
-      description: 'Nhóm bán lẻ do Lương Việt Anh làm trưởng nhóm',
+      description: 'Nhóm 1 Hà Nội - Lương Việt Anh',
       department: 'Bán lẻ',
       department_type: 'retail',
     },
     {
       id: '2',
-      name: 'NHÓM 2 - THẢO',
-      leader_id: '4',
+      name: 'NHÓM 2',
+      leader_id: 'MO7N4Trk6mASlHpIcjME', // Nguyễn Thị Thảo
       location: 'Hà Nội',
-      description: 'Nhóm bán lẻ do Nguyễn Thị Thảo làm trưởng nhóm',
+      description: 'Nhóm 2 Hà Nội - Nguyễn Thị Thảo',
       department: 'Bán lẻ',
       department_type: 'retail',
     },
     {
       id: '3',
       name: 'NHÓM 3',
-      leader_id: '6',
+      leader_id: '6', // Trịnh Thị Bốn
       location: 'Hà Nội',
-      description: 'Nhóm bán lẻ do Trịnh Thị Bốn làm trưởng nhóm',
+      description: 'Nhóm 3 Hà Nội - Trịnh Thị Bốn',
       department: 'Bán lẻ',
       department_type: 'retail',
     },
     {
       id: '4',
       name: 'NHÓM 4',
-      leader_id: '7',
+      leader_id: 'quan_hn_leader', // Lê Tiến Quân
       location: 'Hà Nội',
-      description: 'Nhóm bán lẻ do Phạm Thị Hương làm trưởng nhóm',
+      description: 'Nhóm 4 Hà Nội - Lê Tiến Quân',
       department: 'Bán lẻ',
       department_type: 'retail',
     },
     {
       id: '5',
+      name: 'NHÓM 5',
+      leader_id: '7', // Phạm Thị Hương
+      location: 'Hà Nội',
+      description: 'Nhóm 5 Hà Nội - Phạm Thị Hương',
+      department: 'Bán lẻ',
+      department_type: 'retail',
+    },
+    // === TP.HCM ===
+    {
+      id: '6',
       name: 'NHÓM 1',
-      leader_id: '8',
+      leader_id: '8', // Nguyễn Thị Nga
       location: 'Hồ Chí Minh',
-      description: 'Nhóm bán lẻ HCM do Nguyễn Thị Nga làm trưởng nhóm',
+      description: 'Nhóm 1 TP.HCM - Nguyễn Thị Nga',
       department: 'Bán lẻ',
       department_type: 'retail',
     },
     {
-      id: '6',
+      id: '7',
       name: 'NHÓM 2',
-      leader_id: '10',
+      leader_id: '10', // Nguyễn Ngọc Việt Khanh
       location: 'Hồ Chí Minh',
-      description: 'Nhóm bán lẻ HCM do Nguyễn Ngọc Việt Khanh làm trưởng nhóm',
+      description: 'Nhóm 2 TP.HCM - Nguyễn Ngọc Việt Khanh',
       department: 'Bán lẻ',
       department_type: 'retail',
     },

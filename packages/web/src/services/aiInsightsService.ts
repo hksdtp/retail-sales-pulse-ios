@@ -38,7 +38,7 @@ class AIInsightsService {
     return AIInsightsService.instance;
   }
 
-  // Dữ liệu thực từ Google Sheets
+  // Dữ liệu thực từ báo cáo Excel 2025
   private realData = {
     hanoi: {
       monthly: {
@@ -47,12 +47,12 @@ class AIInsightsService {
         rates: [-1.06, 30.57, 43.16, 66.27, 73.25, 0]
       },
       employees: [
-        { name: 'Phạm Thị Hương', rate: 21.81, sales: 1.31, trend: 'up' },
-        { name: 'Lương Việt Anh', rate: 17.68, sales: 1.15, trend: 'stable' },
-        { name: 'Nguyễn Thị Thảo', rate: 16.74, sales: 1.09, trend: 'up' },
-        { name: 'Lê Khánh Duy', rate: 13.65, sales: 0.48, trend: 'stable' },
-        { name: 'Trịnh Thị Bốn', rate: 12.32, sales: 0.62, trend: 'down' },
-        { name: 'Lê Tiến Quân', rate: 0, sales: 0, trend: 'critical' }
+        { name: 'Phạm Thị Hương', rate: 21.81, sales: 1.309, trend: 'up' },
+        { name: 'Lương Việt Anh', rate: 17.68, sales: 1.149, trend: 'stable' },
+        { name: 'Nguyễn Thị Thảo', rate: 16.74, sales: 1.069, trend: 'up' },
+        { name: 'Lê Khánh Duy', rate: 13.65, sales: 0.454, trend: 'down' },
+        { name: 'Trịnh Thị Bốn', rate: 12.32, sales: 0.620, trend: 'down' },
+        { name: 'Lê Tiến Quân', rate: 0, sales: 0.415, trend: 'critical' }
       ]
     },
     hcm: {
@@ -62,11 +62,10 @@ class AIInsightsService {
         rates: [244.05, 140.69, 125.40, 52.06, 37.69, 0]
       },
       employees: [
-        { name: 'Nguyễn Thị Nga', rate: 44.49, sales: 2.67, trend: 'up' },
-        { name: 'Trần Thị Vân', rate: 35.93, sales: 2.16, trend: 'stable' },
-        { name: 'Lê Thị Tuyền', rate: 1.90, sales: 0.11, trend: 'critical' },
-        { name: 'Phạm Văn Đức', rate: 15.20, sales: 0.91, trend: 'stable' },
-        { name: 'Hoàng Thị Mai', rate: 12.80, sales: 0.77, trend: 'down' }
+        { name: 'Nguyễn Thị Nga', rate: 44.49, sales: 2.581, trend: 'up' },
+        { name: 'Phùng Thị Thuỳ Vân', rate: 35.93, sales: 1.078, trend: 'stable' },
+        { name: 'Nguyễn Ngọc Việt Khanh', rate: 20.21, sales: 1.112, trend: 'stable' },
+        { name: 'Hà Nguyễn Thanh Tuyền', rate: 1.90, sales: 0.038, trend: 'critical' }
       ]
     }
   };
@@ -191,7 +190,7 @@ class AIInsightsService {
   private generateRecommendations() {
     return {
       immediate: [
-        'Can thiệp ngay với Lê Tiến Quân và Lê Thị Tuyền',
+        'Can thiệp ngay với Lê Tiến Quân và Hà Nguyễn Thanh Tuyền',
         'Phân tích nguyên nhân suy giảm tại HCM',
         'Tăng cường support cho đội ngũ yếu'
       ],
@@ -209,8 +208,10 @@ class AIInsightsService {
   }
 
   private generateSummary(): string {
-    return `AI phân tích 9.65 tỷ doanh số 5 tháng: Hà Nội tăng trưởng mạnh (+73.25%) nhưng HCM suy giảm (-37.69%). 
-    Có 2 trường hợp khẩn cấp cần can thiệp và 3 top performers có thể làm mentor. 
+    // Tính tổng doanh số thực từ báo cáo: HN (4.84 tỷ) + HCM (4.81 tỷ) = 9.65 tỷ
+    const totalSales = 9.65;
+    return `AI phân tích ${totalSales} tỷ doanh số 5 tháng: Hà Nội tăng trưởng mạnh (+73.25%) nhưng HCM suy giảm (-37.69%).
+    Có 2 trường hợp khẩn cấp cần can thiệp (Lê Tiến Quân 0%, Hà Nguyễn Thanh Tuyền 1.9%) và 3 top performers có thể làm mentor.
     Dự báo cần tăng tốc 40% để đạt kế hoạch năm.`;
   }
 

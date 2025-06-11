@@ -1,8 +1,9 @@
-import { Camera, Check, Eye, EyeOff, Lock, Save, Settings, User, X } from 'lucide-react';
+import { Camera, Check, Eye, EyeOff, Lock, Save, Settings, User, X, Bell, BellOff, Mail, MessageSquare, Calendar, Shield } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { FirebaseService } from '@/services/FirebaseService';
@@ -18,8 +19,20 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
   const { toast } = useToast();
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'avatar'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'avatar' | 'notifications'>('profile');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Notification settings
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    pushNotifications: true,
+    taskReminders: true,
+    meetingAlerts: true,
+    salesUpdates: false,
+    systemAlerts: true,
+    weeklyReports: true,
+    performanceAlerts: true,
+  });
 
   // Profile edit states
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -264,8 +277,8 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
         onClick={onClose}
       />
 
-      {/* Modal Content */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      {/* Modal Content - Larger Panel */}
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-6xl w-full mx-4 max-h-[95vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
           <div className="flex items-center justify-between">
@@ -292,11 +305,12 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
               { id: 'profile', label: 'Thông tin', icon: User },
               { id: 'password', label: 'Mật khẩu', icon: Lock },
               { id: 'avatar', label: 'Ảnh đại diện', icon: Camera },
+              { id: 'notifications', label: 'Thông báo', icon: Bell },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 flex items-center justify-center px-4 py-4 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                     : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
@@ -310,7 +324,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="p-8 overflow-y-auto max-h-[70vh]">
           {/* Profile Tab */}
           {activeTab === 'profile' && (
             <div className="space-y-4">
@@ -672,6 +686,234 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Notifications Tab */}
+          {activeTab === 'notifications' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Cài đặt thông báo</h3>
+                <div className="flex items-center text-sm text-gray-500">
+                  <Bell className="w-4 h-4 mr-1" />
+                  Quản lý thông báo của bạn
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Email & Push Notifications */}
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <Mail className="w-5 h-5 mr-2 text-blue-600" />
+                      Thông báo cơ bản
+                    </h4>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Email thông báo</label>
+                          <p className="text-xs text-gray-500">Nhận thông báo qua email</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.emailNotifications}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, emailNotifications: checked }))
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Push notifications</label>
+                          <p className="text-xs text-gray-500">Thông báo đẩy trên thiết bị</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.pushNotifications}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, pushNotifications: checked }))
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Cảnh báo hệ thống</label>
+                          <p className="text-xs text-gray-500">Thông báo quan trọng từ hệ thống</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.systemAlerts}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, systemAlerts: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Work & Tasks */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <MessageSquare className="w-5 h-5 mr-2 text-green-600" />
+                      Công việc & Nhiệm vụ
+                    </h4>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Nhắc nhở công việc</label>
+                          <p className="text-xs text-gray-500">Nhắc nhở deadline và task quan trọng</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.taskReminders}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, taskReminders: checked }))
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Cảnh báo cuộc họp</label>
+                          <p className="text-xs text-gray-500">Thông báo trước cuộc họp 15 phút</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.meetingAlerts}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, meetingAlerts: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sales & Performance */}
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <Calendar className="w-5 h-5 mr-2 text-purple-600" />
+                      Doanh số & Hiệu suất
+                    </h4>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Cập nhật doanh số</label>
+                          <p className="text-xs text-gray-500">Thông báo khi có cập nhật doanh số</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.salesUpdates}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, salesUpdates: checked }))
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Báo cáo tuần</label>
+                          <p className="text-xs text-gray-500">Báo cáo hiệu suất hàng tuần</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.weeklyReports}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, weeklyReports: checked }))
+                          }
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Cảnh báo hiệu suất</label>
+                          <p className="text-xs text-gray-500">Thông báo khi hiệu suất thay đổi</p>
+                        </div>
+                        <Switch
+                          checked={notificationSettings.performanceAlerts}
+                          onCheckedChange={(checked) =>
+                            setNotificationSettings(prev => ({ ...prev, performanceAlerts: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-xl border border-orange-100">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <Shield className="w-5 h-5 mr-2 text-orange-600" />
+                      Hành động nhanh
+                    </h4>
+
+                    <div className="space-y-3">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left hover:bg-orange-50 border-orange-200"
+                        onClick={() => {
+                          setNotificationSettings({
+                            emailNotifications: true,
+                            pushNotifications: true,
+                            taskReminders: true,
+                            meetingAlerts: true,
+                            salesUpdates: true,
+                            systemAlerts: true,
+                            weeklyReports: true,
+                            performanceAlerts: true,
+                          });
+                          toast({
+                            title: "Đã bật tất cả thông báo",
+                            description: "Tất cả thông báo đã được kích hoạt",
+                          });
+                        }}
+                      >
+                        <Bell className="w-4 h-4 mr-2" />
+                        Bật tất cả thông báo
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left hover:bg-gray-50 border-gray-200"
+                        onClick={() => {
+                          setNotificationSettings({
+                            emailNotifications: false,
+                            pushNotifications: false,
+                            taskReminders: false,
+                            meetingAlerts: false,
+                            salesUpdates: false,
+                            systemAlerts: true, // Keep system alerts on for safety
+                            weeklyReports: false,
+                            performanceAlerts: false,
+                          });
+                          toast({
+                            title: "Đã tắt hầu hết thông báo",
+                            description: "Chỉ giữ lại cảnh báo hệ thống quan trọng",
+                          });
+                        }}
+                      >
+                        <BellOff className="w-4 h-4 mr-2" />
+                        Tắt hầu hết thông báo
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end pt-6 border-t border-gray-200">
+                <Button
+                  onClick={() => {
+                    // Here you would save notification settings to backend
+                    toast({
+                      title: "Đã lưu cài đặt",
+                      description: "Cài đặt thông báo đã được cập nhật thành công",
+                    });
+                  }}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Lưu cài đặt thông báo
+                </Button>
+              </div>
             </div>
           )}
         </div>

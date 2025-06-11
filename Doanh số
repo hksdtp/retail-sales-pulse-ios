@@ -1352,12 +1352,12 @@
                         rate: 17.68,
                         monthly: [-4.6, 406.8, 250.3, 229.5, 267.1, 0]
                     },
-                    { 
-                        name: 'Lê Khánh Duy', 
-                        target: 3.5, 
-                        actual: 0.478, 
+                    {
+                        name: 'Lê Khánh Duy',
+                        target: 3.32,
+                        actual: 0.454,
                         rate: 13.65,
-                        monthly: [-3.4, 12.6, 0, 425.3, 43.2, 0]
+                        monthly: [-27.3, 12.6, 6.2, 425.3, 43.2, 0]
                     },
                     { 
                         name: 'Nguyễn Thị Thảo', 
@@ -1380,12 +1380,12 @@
                         rate: 12.32,
                         monthly: [-43.9, 26.3, 212.1, 10.5, 410.8, 0]
                     },
-                    { 
-                        name: 'Lê Tiến Quân', 
-                        target: 3.5, 
-                        actual: 0, 
+                    {
+                        name: 'Lê Tiến Quân',
+                        target: 4.15,
+                        actual: 0.415,
                         rate: 0,
-                        monthly: [0, 0, 0, 0, 0, 0]
+                        monthly: [6.4, 4.2, 4.2, 6.5, 395.1, 0]
                     },
                     { 
                         name: 'Phạm Thị Hương', 
@@ -1400,13 +1400,13 @@
                         name: 'Nhóm 1 - Việt Anh',
                         total: 1.627,
                         rate: 9.17,
-                        members: ['Lương Việt Anh', 'Lê Khánh Duy', 'Nhân viên A']
+                        members: ['Lương Việt Anh', 'Lê Khánh Duy']
                     },
                     {
-                        name: 'Nhóm 2 - Thảo', 
+                        name: 'Nhóm 2 - Thảo',
                         total: 1.292,
                         rate: 11.35,
-                        members: ['Nguyễn Thị Thảo', 'Nguyễn Mạnh Linh', 'Nhân viên B']
+                        members: ['Nguyễn Thị Thảo', 'Nguyễn Mạnh Linh']
                     },
                     {
                         name: 'Nhóm 3 - Bốn',
@@ -1484,13 +1484,13 @@
                         name: 'Nhóm 1 - Nga',
                         total: 2.619,
                         rate: 29.42,
-                        members: ['Nguyễn Thị Nga', 'Hà Nguyễn Thanh Tuyền', 'Nhân viên A']
+                        members: ['Nguyễn Thị Nga', 'Hà Nguyễn Thanh Tuyền']
                     },
                     {
-                        name: 'Nhóm 2 - Việt Khanh', 
+                        name: 'Nhóm 2 - Việt Khanh',
                         total: 2.190,
                         rate: 24.06,
-                        members: ['Nguyễn Ngọc Việt Khanh', 'Phùng Thị Thuỳ Vân', 'Nhân viên B']
+                        members: ['Nguyễn Ngọc Việt Khanh', 'Phùng Thị Thuỳ Vân']
                     }
                 ]
             }

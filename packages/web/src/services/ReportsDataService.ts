@@ -5,6 +5,7 @@ export interface EmployeePerformance {
   name: string;
   role: string;
   location: string;
+  team?: string;
   avatar: string;
   sales: number;
   deals: number;
@@ -51,125 +52,249 @@ class ReportsDataService {
 
   private initializeData() {
     this.employeeData = [
+      // === TRƯỞNG PHÒNG ===
       {
-        id: 'nga_hcm',
-        name: 'Nguyễn Thị Nga',
-        role: 'Nhân viên',
-        location: 'HCM',
-        avatar: 'N',
-        sales: 2580000000,
-        deals: 25,
-        completion: 135,
-        contribution: 53.67,
-        badge: 'excellent',
-        trend: '📈 Xuất sắc nhất',
-        monthlyData: ['T1: +520tr', 'T2: +480tr', 'T3: +650tr', 'T4: +580tr', 'T5: +350tr'],
-        notes: ['🏆 Top performer', '📈 Tăng trưởng ổn định', '💪 Vượt mục tiêu 135%'],
-        plan: 1900000000,
-        rate: 135.8
-      },
-      {
-        id: 'huong_hn',
-        name: 'Phạm Thị Hương',
-        role: 'Nhân viên',
+        id: 'ducmanh',
+        name: 'Khổng Đức Mạnh',
+        role: 'Trưởng phòng',
         location: 'Hà Nội',
-        avatar: 'H',
-        sales: 1310000000,
-        deals: 20,
-        completion: 125,
-        contribution: 27.01,
+        team: 'QUẢN LÝ',
+        avatar: 'KDM',
+        sales: 0, // Trưởng phòng quản lý - không có doanh số
+        deals: 0,
+        completion: 0,
+        contribution: 0,
         badge: 'excellent',
-        trend: '📈 Rất ổn định',
-        monthlyData: ['T1: +0.9tr', 'T2: 0tr', 'T3: +74tr', 'T4: +504.1tr', 'T5: +729.4tr'],
-        notes: ['👍 Hiệu suất tốt', '🚀 Đỉnh cao T5: 729.4tr', '📈 Xu hướng tăng'],
-        plan: 1050000000,
-        rate: 124.8
+        trend: '👨‍💼 Quản lý điều hành',
+        monthlyData: ['Quản lý', 'Điều hành', 'Giám sát', 'Hỗ trợ', 'Phát triển', 'Đào tạo'],
+        notes: ['👨‍💼 Trưởng phòng quản lý', '📊 Giám sát toàn bộ hoạt động', '🎯 Hỗ trợ đội ngũ sales'],
+        plan: 0, // Không có kế hoạch doanh số
+        rate: 0
       },
+      // === HÀ NỘI - NHÓM 1 ===
       {
-        id: 'anh_hn',
+        id: 'vietanh_hn',
         name: 'Lương Việt Anh',
-        role: 'Nhóm trưởng',
+        role: 'Trưởng nhóm',
         location: 'Hà Nội',
-        avatar: 'A',
-        sales: 1150000000,
-        deals: 18,
-        completion: 120,
-        contribution: 23.73,
-        badge: 'good',
-        trend: '📈 Rất ổn định',
-        monthlyData: ['T1: -4.6tr', 'T2: +406.8tr', 'T3: +250.3tr', 'T4: +229.5tr', 'T5: +267.1tr'],
-        notes: ['👍 Hiệu suất tốt', '📉 1 tháng âm', '📈 Xu hướng tăng'],
-        plan: 960000000,
-        rate: 119.8
-      },
-      {
-        id: 'thao_hn',
-        name: 'Nguyễn Thị Thảo',
-        role: 'Nhân viên',
-        location: 'Hà Nội',
-        avatar: 'T',
-        sales: 1090000000,
-        deals: 16,
+        team: 'NHÓM 1',
+        avatar: 'LVA',
+        sales: 1149179104, // 1.149 tỷ từ Google Sheets HN
+        deals: 25,
         completion: 118,
-        contribution: 22.49,
+        contribution: 17.68,
         badge: 'good',
-        trend: '📊 Bùng nổ T5',
-        monthlyData: ['T1: +45tr', 'T2: +120tr', 'T3: +180tr', 'T4: +200tr', 'T5: +545tr'],
-        notes: ['📈 Xu hướng tăng', '🚀 Bùng nổ T5', '💪 Tiềm năng cao'],
-        plan: 920000000,
-        rate: 118.5
+        trend: '📈 Ổn định tăng trưởng',
+        monthlyData: ['T1: -4.6tr', 'T2: +406.8tr', 'T3: +250.3tr', 'T4: +229.5tr', 'T5: +267.1tr', 'T6: 0tr'],
+        notes: ['👍 Hiệu suất tốt', '📈 Xu hướng tăng dần', '💪 Đạt 17.68% kế hoạch'],
+        plan: 6500000000, // Kế hoạch năm 2025
+        rate: 17.68
       },
       {
         id: 'duy_hn',
         name: 'Lê Khánh Duy',
         role: 'Nhân viên',
         location: 'Hà Nội',
-        avatar: 'D',
-        sales: 480000000,
-        deals: 12,
+        team: 'NHÓM 1',
+        avatar: 'LKD',
+        sales: 477722922, // 477.7 triệu từ Google Sheets HN (cập nhật chính xác)
+        deals: 15,
         completion: 85,
-        contribution: 9.91,
+        contribution: 13.65,
         badge: 'average',
-        trend: '📊 Ổn định',
-        monthlyData: ['T1: -3.4tr', 'T2: +12.6tr', 'T3: 0tr', 'T4: +425.3tr', 'T5: +43.2tr'],
-        notes: ['📉 1 tháng âm', '📈 Xu hướng tăng', '⚠️ Cần cải thiện'],
-        plan: 560000000,
-        rate: 85.7
+        trend: '📉 Cần cải thiện',
+        monthlyData: ['T1: -27.3tr', 'T2: +12.6tr', 'T3: +6.2tr', 'T4: +425.3tr', 'T5: +43.2tr', 'T6: 0tr'],
+        notes: ['📉 Chỉ đạt 13.65% kế hoạch', '⚠️ Cần hỗ trợ', '🎯 Cần cải thiện'],
+        plan: 3500000000, // Kế hoạch năm 2025 từ Google Sheets
+        rate: 13.65
       },
       {
-        id: 'bon_hcm',
-        name: 'Trịnh Thị Bốn',
-        role: 'Nhân viên',
-        location: 'HCM',
-        avatar: 'B',
-        sales: 620000000,
-        deals: 10,
-        completion: 78,
-        contribution: 12.81,
-        badge: 'average',
-        trend: '📊 Không ổn định',
-        monthlyData: ['T1: +80tr', 'T2: +150tr', 'T3: +90tr', 'T4: +200tr', 'T5: +100tr'],
-        notes: ['📊 Biến động', '⚠️ Cần ổn định', '💪 Có tiềm năng'],
-        plan: 800000000,
-        rate: 77.5
-      },
-      {
-        id: 'quan_hn',
-        name: 'Lê Tiến Quân',
+        id: 'thuha_hn',
+        name: 'Quản Thu Hà',
         role: 'Nhân viên',
         location: 'Hà Nội',
-        avatar: 'Q',
-        sales: 0,
+        team: 'NHÓM 1',
+        avatar: 'QTH',
+        sales: 0, // Nhân viên mới - chưa có số liệu
         deals: 0,
         completion: 0,
         contribution: 0,
-        badge: 'poor',
-        trend: 'Chưa có dữ liệu',
-        monthlyData: ['T1: 0tr', 'T2: 0tr', 'T3: 0tr', 'T4: 0tr', 'T5: 0tr'],
-        notes: ['⚠️ Cần can thiệp ngay', '📞 Liên hệ khẩn cấp'],
-        plan: 500000000,
+        badge: 'average',
+        trend: '🆕 Nhân viên mới',
+        monthlyData: ['Mới vào', 'Đào tạo', 'Học hỏi', 'Thực tập', 'Phát triển', 'Chuẩn bị'],
+        notes: ['🆕 Nhân viên mới', '📚 Đang trong quá trình đào tạo', '🎯 Chuẩn bị bắt đầu'],
+        plan: 0, // Chưa có kế hoạch
         rate: 0
-      }
+      },
+      // === HÀ NỘI - NHÓM 2 ===
+      {
+        id: 'thao_hn',
+        name: 'Nguyễn Thị Thảo',
+        role: 'Trưởng nhóm',
+        location: 'Hà Nội',
+        team: 'NHÓM 2',
+        avatar: 'NTT',
+        sales: 1068283526, // 1.069 tỷ từ báo cáo
+        deals: 22,
+        completion: 110,
+        contribution: 16.74,
+        badge: 'good',
+        trend: '📈 Tăng trưởng ổn định',
+        monthlyData: ['T1: +9.2tr', 'T2: -2.5tr', 'T3: +189.1tr', 'T4: +146.8tr', 'T5: +629.2tr', 'T6: 0tr'],
+        notes: ['📈 Đạt 16.74% kế hoạch', '💪 Hiệu suất tốt', '🎯 Xu hướng tăng'],
+        plan: 6380000000, // Kế hoạch năm 2025
+        rate: 16.74
+      },
+      {
+        id: 'manhlinh_hn',
+        name: 'Nguyễn Mạnh Linh',
+        role: 'Nhân viên',
+        location: 'Hà Nội',
+        team: 'NHÓM 2',
+        avatar: 'NML',
+        sales: 193078534, // Từ Google Sheets: 193.078.534 VND
+        deals: 13,
+        completion: 88,
+        contribution: 5.52,
+        badge: 'average',
+        trend: '📈 Cải thiện dần',
+        monthlyData: ['T1: +15.2tr', 'T2: 0tr', 'T3: +6.2tr', 'T4: +193.1tr', 'T5: 0tr', 'T6: 0tr'],
+        notes: ['📈 Xu hướng tăng', '💪 Có tiến bộ', '⚠️ Cần hỗ trợ thêm'],
+        plan: 3500000000, // Kế hoạch năm 2025
+        rate: 5.52
+      },
+      // === HÀ NỘI - NHÓM 3 ===
+      {
+        id: 'bon_hn',
+        name: 'Trịnh Thị Bốn',
+        role: 'Trưởng nhóm',
+        location: 'Hà Nội',
+        team: 'NHÓM 3',
+        avatar: 'TTB',
+        sales: 619765056, // 619.8 triệu từ báo cáo
+        deals: 18,
+        completion: 90,
+        contribution: 12.32,
+        badge: 'average',
+        trend: '📉 Cần cải thiện',
+        monthlyData: ['T1: +203.6tr', 'T2: +203.8tr', 'T3: +212.1tr', 'T4: +10.5tr', 'T5: +414.7tr', 'T6: 0tr'],
+        notes: ['📉 Chỉ đạt 12.32% kế hoạch', '⚠️ Cần hỗ trợ', '🎯 Cần cải thiện'],
+        plan: 5030000000, // Kế hoạch năm 2025
+        rate: 12.32
+      },
+      // === HÀ NỘI - NHÓM 4 ===
+      {
+        id: 'quan_hn',
+        name: 'Lê Tiến Quân',
+        role: 'Trưởng nhóm',
+        location: 'Hà Nội',
+        team: 'NHÓM 4',
+        avatar: 'LTQ',
+        sales: 414702365, // 414.7 triệu từ báo cáo
+        deals: 12,
+        completion: 75,
+        contribution: 0,
+        badge: 'poor',
+        trend: '🚨 Cần hỗ trợ khẩn cấp',
+        monthlyData: ['T1: +6.4tr', 'T2: +4.2tr', 'T3: +4.2tr', 'T4: +6.5tr', 'T5: +395.1tr', 'T6: 0tr'],
+        notes: ['🚨 0% kế hoạch', '⚠️ Cần hỗ trợ khẩn cấp', '📉 Hiệu suất thấp'],
+        plan: 4150000000, // Kế hoạch năm 2025
+        rate: 0
+      },
+      // === HÀ NỘI - NHÓM 5 ===
+      {
+        id: 'huong_hn',
+        name: 'Phạm Thị Hương',
+        role: 'Trưởng nhóm',
+        location: 'Hà Nội',
+        team: 'NHÓM 5',
+        avatar: 'PTH',
+        sales: 1308392338, // 1.309 tỷ từ báo cáo
+        deals: 28,
+        completion: 120,
+        contribution: 21.81,
+        badge: 'excellent',
+        trend: '🏆 Xuất sắc nhất HN',
+        monthlyData: ['T1: +920tr', 'T2: 0tr', 'T3: +60.3tr', 'T4: +382.3tr', 'T5: +728.4tr', 'T6: 0tr'],
+        notes: ['🏆 Top performer Hà Nội', '📈 Đạt 21.81% kế hoạch', '💪 Hiệu suất xuất sắc'],
+        plan: 6000000000, // Kế hoạch năm 2025
+        rate: 21.81
+      },
+      // === TP.HCM - NHÓM 1 ===
+      {
+        id: 'nga_hcm',
+        name: 'Nguyễn Thị Nga',
+        role: 'Trưởng nhóm',
+        location: 'HCM',
+        team: 'NHÓM 1',
+        avatar: 'NTN',
+        sales: 2580541759, // 2.581 tỷ từ Google Sheets HCM
+        deals: 35,
+        completion: 145,
+        contribution: 44.49,
+        badge: 'excellent',
+        trend: '🏆 Top performer toàn hệ thống',
+        monthlyData: ['T1: +1092.5tr', 'T2: +167.6tr', 'T3: +716.7tr', 'T4: -9.7tr', 'T5: +613.5tr', 'T6: 0tr'],
+        notes: ['🏆 Top performer toàn hệ thống', '📈 Đạt 44.49% kế hoạch', '💪 Hiệu suất xuất sắc'],
+        plan: 5800000000, // Kế hoạch năm 2025 từ Google Sheets
+        rate: 44.49
+      },
+      {
+        id: 'tuyen_hcm',
+        name: 'Hà Nguyễn Thanh Tuyền',
+        role: 'Nhân viên',
+        location: 'HCM',
+        team: 'NHÓM 1',
+        avatar: 'HNT',
+        sales: 179585750, // 179.6 triệu từ Google Sheets HCM (cập nhật chính xác)
+        deals: 8,
+        completion: 75,
+        contribution: 8.98,
+        badge: 'poor',
+        trend: '🚨 Cần hỗ trợ khẩn cấp',
+        monthlyData: ['T1: +141.8tr', 'T2: 0tr', 'T3: +37.8tr', 'T4: 0tr', 'T5: 0tr', 'T6: 0tr'],
+        notes: ['🚨 Chỉ đạt 8.98% kế hoạch', '⚠️ Cần hỗ trợ khẩn cấp', '📉 Hiệu suất rất thấp'],
+        plan: 2000000000, // Kế hoạch năm 2025 từ Google Sheets
+        rate: 8.98
+      },
+      // === TP.HCM - NHÓM 2 ===
+      {
+        id: 'khanh_hcm',
+        name: 'Nguyễn Ngọc Việt Khanh',
+        role: 'Trưởng nhóm',
+        location: 'HCM',
+        team: 'NHÓM 2',
+        avatar: 'NNV',
+        sales: 1859111510, // 1.859 tỷ từ Google Sheets HCM (cập nhật chính xác)
+        deals: 25,
+        completion: 110,
+        contribution: 33.80,
+        badge: 'excellent',
+        trend: '📈 Hiệu suất xuất sắc',
+        monthlyData: ['T1: +368.1tr', 'T2: +746.9tr', 'T3: +292.5tr', 'T4: +451.2tr', 'T5: +0.4tr', 'T6: 0tr'],
+        notes: ['📈 Đạt 33.80% kế hoạch', '💪 Hiệu suất xuất sắc', '🎯 Xu hướng ổn định'],
+        plan: 5500000000, // Kế hoạch năm 2025 từ Google Sheets
+        rate: 33.80
+      },
+      {
+        id: 'thuyvan_hcm',
+        name: 'Phùng Thị Thuỳ Vân',
+        role: 'Nhân viên',
+        location: 'HCM',
+        team: 'NHÓM 2',
+        avatar: 'PTT',
+        sales: 330974134, // 331.0 triệu từ Google Sheets HCM (cập nhật chính xác)
+        deals: 22,
+        completion: 115,
+        contribution: 11.03,
+        badge: 'average',
+        trend: '📈 Cần cải thiện',
+        monthlyData: ['T1: +3.5tr', 'T2: 0tr', 'T3: +144.3tr', 'T4: +193.7tr', 'T5: -10.5tr', 'T6: 0tr'],
+        notes: ['📈 Đạt 11.03% kế hoạch', '⚠️ Cần cải thiện', '🎯 Có tiềm năng'],
+        plan: 3000000000, // Kế hoạch năm 2025 từ Google Sheets
+        rate: 11.03
+      },
+
     ];
   }
 
@@ -182,8 +307,14 @@ class ReportsDataService {
   }
 
   public getEmployeesByLocation(location: string): EmployeePerformance[] {
-    return this.employeeData.filter(emp => 
+    return this.employeeData.filter(emp =>
       emp.location.toLowerCase() === location.toLowerCase()
+    );
+  }
+
+  public getEmployeesByTeam(team: string): EmployeePerformance[] {
+    return this.employeeData.filter(emp =>
+      emp.team?.toLowerCase() === team.toLowerCase()
     );
   }
 
@@ -215,11 +346,12 @@ class ReportsDataService {
         hcm: { sales: hcmSales, employees: hcmEmployees.length }
       },
       monthlyTrend: [
-        { month: 'Tháng 1', sales: 1442500000, target: 2650000000 }, // Hà Nội: -21.8tr, HCM: 1464.3tr
-        { month: 'Tháng 2', sales: 1357800000, target: 2100000000 }, // Hà Nội: 443.3tr, HCM: 914.5tr
-        { month: 'Tháng 3', sales: 1968100000, target: 2750000000 }, // Hà Nội: 776.8tr, HCM: 1191.3tr
-        { month: 'Tháng 4', sales: 2192700000, target: 3570000000 }, // Hà Nội: 1557.5tr, HCM: 635.2tr
-        { month: 'Tháng 5', sales: 2690600000, target: 4450000000 }  // Hà Nội: 2087.6tr, HCM: 603.0tr
+        { month: 'Tháng 1', sales: 1300000000, target: 2650000000 }, // Từ Google Sheets 2025
+        { month: 'Tháng 2', sales: 430000000, target: 2100000000 },  // Từ Google Sheets 2025
+        { month: 'Tháng 3', sales: 1500000000, target: 2750000000 }, // Từ Google Sheets 2025
+        { month: 'Tháng 4', sales: 1330000000, target: 3570000000 }, // Từ Google Sheets 2025
+        { month: 'Tháng 5', sales: 1450000000, target: 4450000000 }, // Từ Google Sheets 2025
+        { month: 'Tháng 6', sales: 4300000000, target: 5140000000 }  // Từ Google Sheets 2025
       ]
     };
   }

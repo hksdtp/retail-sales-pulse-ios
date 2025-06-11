@@ -20,24 +20,30 @@ import { reportsDataService } from '@/services/ReportsDataService';
 const getRevenueData = () => {
   const metrics = reportsDataService.getDashboardMetrics();
 
-  return {
+  // Tính toán dữ liệu thực từ báo cáo
+  const realData = {
+    // Dữ liệu tuần: Không có trong báo cáo, sử dụng 0
     weekly: [
-      { name: 'T2', revenue: 2400000000, target: 2800000000 },
-      { name: 'T3', revenue: 1398000000, target: 2200000000 },
-      { name: 'T4', revenue: 9800000000, target: 7000000000 },
-      { name: 'T5', revenue: 3908000000, target: 4000000000 },
-      { name: 'T6', revenue: 4800000000, target: 4200000000 },
-      { name: 'T7', revenue: 3800000000, target: 3500000000 },
-      { name: 'CN', revenue: 4300000000, target: 4100000000 },
+      { name: 'T2', revenue: 0, target: 0 },
+      { name: 'T3', revenue: 0, target: 0 },
+      { name: 'T4', revenue: 0, target: 0 },
+      { name: 'T5', revenue: 0, target: 0 },
+      { name: 'T6', revenue: 0, target: 0 },
+      { name: 'T7', revenue: 0, target: 0 },
+      { name: 'CN', revenue: 0, target: 0 },
     ],
+    // Dữ liệu tháng từ báo cáo thực tế
     monthly: metrics.monthlyTrend,
+    // Dữ liệu quý từ báo cáo thực tế năm 2025
     quarterly: [
-      { name: 'Q1', revenue: 72300000000, target: 70000000000 },
-      { name: 'Q2', revenue: 74800000000, target: 74000000000 },
-      { name: 'Q3', revenue: 81200000000, target: 78000000000 },
-      { name: 'Q4', revenue: 82900000000, target: 85000000000 },
+      { name: 'Q1 2025', revenue: 3230000000, target: 7500000000 }, // T1+T2+T3: 1.3+0.43+1.5 tỷ
+      { name: 'Q2 2025', revenue: 7080000000, target: 13160000000 }, // T4+T5+T6: 1.33+1.45+4.3 tỷ
+      { name: 'Q3 2025', revenue: 0, target: 15420000000 }, // Chưa có dữ liệu
+      { name: 'Q4 2025', revenue: 0, target: 18420000000 }, // Chưa có dữ liệu
     ],
   };
+
+  return realData;
 };
 
 type PeriodType = 'weekly' | 'monthly' | 'quarterly';

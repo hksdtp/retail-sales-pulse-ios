@@ -40,6 +40,7 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { User as UserType } from '@/types/user';
+import OrganizationChart from '@/components/organization/OrganizationChart';
 
 const Employees = () => {
   const { users, teams, currentUser } = useAuth();
@@ -277,225 +278,30 @@ const Employees = () => {
           </CardContent>
         </Card>
         {/* Organizational Chart Display */}
+        <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-lg">
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Cấu trúc tổ chức</h2>
+              <p className="text-gray-600">Sơ đồ tổ chức phòng kinh doanh bán lẻ</p>
+            </div>
 
-        {/* Organizational Chart */}
-        {filteredUsers.length > 0 ? (
-          <div className="space-y-8">
-            {/* Director Level */}
-            {filteredUsers.filter(user => user.role === 'retail_director').map((director, index) => (
-              <motion.div
-                key={director.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="relative"
-              >
-                {/* Director Card */}
-                <div className="flex justify-center mb-8">
-                  <Card className="shadow-2xl border-0 bg-gradient-to-br from-purple-50 to-blue-50 backdrop-blur-lg hover:shadow-3xl transition-all duration-300 w-80">
-                    <CardContent className="p-8">
-                      <div className="flex flex-col items-center text-center">
-                        <div className="relative mb-6">
-                          <Avatar className="w-24 h-24 ring-4 ring-purple-200 shadow-lg">
-                            <AvatarImage src={director.avatar} alt={director.name} />
-                            <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white text-2xl font-bold">
-                              {director.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-2 shadow-lg">
-                            <span className="text-lg">👑</span>
-                          </div>
-                        </div>
+            {filteredUsers.length > 0 ? (
+              <OrganizationChart
+                users={filteredUsers}
+                teams={teams}
+                onEmployeeAction={handleEmployeeAction}
+              />
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Không có nhân viên nào phù hợp với bộ lọc</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-                        <h2 className="font-bold text-2xl text-gray-900 mb-2">{director.name}</h2>
-                        <Badge className="bg-purple-100 text-purple-800 border-purple-200 mb-4 px-4 py-2 text-sm font-semibold">
-                          {getRoleName(director.role)}
-                        </Badge>
-
-                        <div className="space-y-2 w-full text-sm text-gray-600 mb-4">
-                          <div className="flex items-center justify-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            <span>{getLocationName(director.location)}</span>
-                          </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <Mail className="w-4 h-4" />
-                            <span>{director.email}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2 w-full">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 hover:bg-purple-50 hover:border-purple-300"
-                            onClick={() => handleEmployeeAction(director, 'view')}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            Xem
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEmployeeAction(director, 'contact')}
-                            className="hover:bg-blue-50 hover:border-blue-300"
-                          >
-                            <Mail className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Connecting Line to Team Leaders */}
-                <div className="flex justify-center mb-8">
-                  <div className="w-px h-12 bg-gradient-to-b from-purple-300 to-blue-300"></div>
-                </div>
-
-                {/* Team Leaders Level */}
-                <div className="relative">
-                  {/* Horizontal connecting line */}
-                  <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent"></div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                    {filteredUsers.filter(user => user.role === 'team_leader').map((teamLeader, tlIndex) => {
-                      const teamMembers = filteredUsers.filter(
-                        user => user.team_id === teamLeader.team_id && user.role === 'employee'
-                      );
-
-                      return (
-                        <motion.div
-                          key={teamLeader.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 + tlIndex * 0.1 }}
-                          className="relative"
-                        >
-                          {/* Vertical connecting line from horizontal line */}
-                          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-px h-6 bg-blue-300"></div>
-
-                          {/* Team Leader Card */}
-                          <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-lg hover:shadow-xl transition-all duration-300 mb-6">
-                            <CardContent className="p-6">
-                              <div className="flex flex-col items-center text-center">
-                                <Avatar className="w-16 h-16 mb-4 ring-2 ring-blue-200 shadow-md">
-                                  <AvatarImage src={teamLeader.avatar} alt={teamLeader.name} />
-                                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-lg font-semibold">
-                                    {teamLeader.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                  </AvatarFallback>
-                                </Avatar>
-
-                                <h3 className="font-semibold text-lg text-gray-900 mb-1">{teamLeader.name}</h3>
-                                <Badge className="bg-blue-100 text-blue-800 border-blue-200 mb-3">
-                                  {getRoleName(teamLeader.role)}
-                                </Badge>
-
-                                <div className="text-sm text-gray-600 mb-3">
-                                  <div className="flex items-center justify-center gap-2 mb-1">
-                                    <Building className="w-4 h-4" />
-                                    <span>{getTeamName(teamLeader.team_id || '')}</span>
-                                  </div>
-                                  <div className="flex items-center justify-center gap-2">
-                                    <Users className="w-4 h-4" />
-                                    <span>{teamMembers.length} thành viên</span>
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-2 w-full">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex-1 hover:bg-blue-50"
-                                    onClick={() => handleEmployeeAction(teamLeader, 'view')}
-                                  >
-                                    <Eye className="w-4 h-4 mr-1" />
-                                    Xem
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleEmployeeAction(teamLeader, 'contact')}
-                                  >
-                                    <Mail className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-
-                          {/* Team Members */}
-                          {teamMembers.length > 0 && (
-                            <div className="relative">
-                              {/* Connecting line to team members */}
-                              <div className="flex justify-center mb-4">
-                                <div className="w-px h-6 bg-blue-200"></div>
-                              </div>
-
-                              <div className="space-y-3 pl-4 border-l-2 border-blue-100">
-                                {teamMembers.map((member, memberIndex) => (
-                                  <motion.div
-                                    key={member.id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 + memberIndex * 0.05 }}
-                                    className="relative"
-                                  >
-                                    {/* Horizontal connecting line */}
-                                    <div className="absolute left-0 top-1/2 w-4 h-px bg-blue-200"></div>
-
-                                    <Card className="shadow-md border-0 bg-white/90 backdrop-blur-sm hover:shadow-lg transition-all duration-300 ml-4">
-                                      <CardContent className="p-4">
-                                        <div className="flex items-center gap-3">
-                                          <Avatar className="w-12 h-12 ring-1 ring-gray-200">
-                                            <AvatarImage src={member.avatar} alt={member.name} />
-                                            <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-600 text-white font-medium">
-                                              {member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                            </AvatarFallback>
-                                          </Avatar>
-
-                                          <div className="flex-1 min-w-0">
-                                            <h4 className="font-medium text-gray-900 truncate">{member.name}</h4>
-                                            <p className="text-sm text-gray-500 truncate">{member.email}</p>
-                                            {member.position && (
-                                              <p className="text-xs text-gray-400 truncate">{member.position}</p>
-                                            )}
-                                          </div>
-
-                                          <div className="flex gap-1">
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={() => handleEmployeeAction(member, 'view')}
-                                              className="hover:bg-gray-100"
-                                            >
-                                              <Eye className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={() => handleEmployeeAction(member, 'contact')}
-                                              className="hover:bg-blue-50"
-                                            >
-                                              <Mail className="w-4 h-4" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
+        {/* Empty State */}
+        {filteredUsers.length === 0 && (
           <Card className="border-2 border-dashed border-gray-300 bg-gray-50/50">
             <CardContent className="p-12 text-center">
               <div className="text-6xl mb-4">👥</div>
