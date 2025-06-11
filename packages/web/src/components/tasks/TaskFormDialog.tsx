@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -74,6 +74,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const canAssignToOthers = currentUser && canAssignTasks(currentUser.role);
 
@@ -334,7 +335,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-6 px-6 -mx-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        <div className="py-6 px-6 -mx-6 max-h-[60vh] overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-8">
             {/* Tiêu đề */}
             <div className="group">
@@ -684,6 +685,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
+                    ref={searchInputRef}
                     placeholder="Tìm kiếm và thêm người..."
                     value={userSearchQuery}
                     onChange={(e) => {
@@ -691,18 +693,37 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                       setShowUserDropdown(e.target.value.length > 0);
                     }}
                     onFocus={() => setShowUserDropdown(userSearchQuery.length > 0)}
+                    onBlur={() => {
+                      // Delay hiding to allow click on dropdown items
+                      setTimeout(() => setShowUserDropdown(false), 150);
+                    }}
                     className="w-full h-10 pl-10 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm"
                   />
                 </div>
 
-                {/* User dropdown */}
+                {/* User dropdown - Fixed positioning */}
                 {showUserDropdown && filteredUsersForTagging.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto">
+                  <div
+                    className="fixed bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto min-w-[300px]"
+                    style={{
+                      zIndex: 99999,
+                      top: searchInputRef.current ?
+                        searchInputRef.current.getBoundingClientRect().bottom + window.scrollY + 4 : 0,
+                      left: searchInputRef.current ?
+                        searchInputRef.current.getBoundingClientRect().left + window.scrollX : 0,
+                      width: searchInputRef.current ?
+                        searchInputRef.current.getBoundingClientRect().width : 300,
+                      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                      backdropFilter: 'blur(8px)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)'
+                    }}
+                  >
                     {filteredUsersForTagging.slice(0, 5).map(user => (
                       <button
                         key={user.id}
                         type="button"
                         onClick={() => addUserToShared(user.id)}
+                        onMouseDown={(e) => e.preventDefault()} // Prevent input blur
                         className="w-full p-3 text-left hover:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
                       >
                         <div className="flex items-center gap-3">
