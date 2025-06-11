@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -36,8 +36,7 @@ interface TaskFormData {
   date: string;
   time?: string;
   assignedTo?: string;
-  isShared?: boolean;
-  isSharedWithTeam?: boolean;
+  visibility: 'personal' | 'team' | 'public';
 }
 
 interface TaskFormDialogProps {
@@ -66,8 +65,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     date: new Date().toISOString().split('T')[0], // Default to today
     time: '',
     assignedTo: currentUser?.id || '',
-    isShared: false,
-    isSharedWithTeam: false,
+    visibility: 'personal',
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -95,8 +93,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         date: today.toISOString().split('T')[0],
         time: '',
         assignedTo: currentUser?.id || '',
-        isShared: false,
-        isSharedWithTeam: false,
+        visibility: 'personal',
       });
       setSelectedDate(today);
     }
@@ -104,7 +101,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date) {
+    if (!formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date || !formData.visibility) {
       toast({
         title: 'Lỗi',
         description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
@@ -125,8 +122,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         date: formData.date,
         time: formData.time,
         assignedTo: formData.assignedTo,
-        isShared: formData.isShared,
-        isSharedWithTeam: formData.isSharedWithTeam,
+        visibility: formData.visibility,
         priority: formData.priority,
       });
 
@@ -264,8 +260,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     },
     high: {
       label: 'Cao',
-      color: 'bg-red-100 text-red-800 border-red-200',
+      color: 'bg-orange-100 text-orange-800 border-orange-200',
       icon: ArrowUp,
+      dotColor: 'bg-orange-500'
+    },
+    urgent: {
+      label: 'Khẩn cấp',
+      color: 'bg-red-100 text-red-800 border-red-200',
+      icon: AlertTriangle,
       dotColor: 'bg-red-500'
     }
   };
@@ -338,42 +340,49 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               />
             </div>
 
-            {/* Loại công việc */}
+            {/* Loại công việc - Grid Layout */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
+              <label className="block text-sm font-semibold text-gray-800 mb-4">
                 Loại công việc <span className="text-red-500 ml-1">*</span>
               </label>
-              <Select name="type" value={formData.type} onValueChange={(value) => handleInputChange('type', value)} required>
-                <SelectTrigger className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm">
-                  <SelectValue placeholder="Chọn loại công việc">
-                    {formData.type && (
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${taskTypeConfig[formData.type as keyof typeof taskTypeConfig]?.dotColor || 'bg-gray-400'}`}></div>
-                        <span className="font-medium">{taskTypeConfig[formData.type as keyof typeof taskTypeConfig]?.label}</span>
-                      </div>
-                    )}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
-                  {Object.entries(taskTypeConfig).map(([key, config]) => {
-                    const IconComponent = config.icon;
-                    return (
-                      <SelectItem
-                        key={key}
-                        value={key}
-                        className="rounded-xl mb-1 hover:bg-gray-50 transition-all duration-150 cursor-pointer group"
-                      >
-                        <div className="flex items-center gap-3 py-1">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${config.color} transition-all duration-200 group-hover:scale-105`}>
-                            <IconComponent className="w-4 h-4" />
-                          </div>
-                          <span className="font-medium text-gray-800">{config.label}</span>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {Object.entries(taskTypeConfig).map(([key, config]) => {
+                  const IconComponent = config.icon;
+                  const isSelected = formData.type === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => handleInputChange('type', key)}
+                      className={`
+                        relative p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                        ${isSelected
+                          ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/20'
+                          : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                        }
+                      `}
+                    >
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                          isSelected ? 'bg-blue-500 text-white' : config.color
+                        }`}>
+                          <IconComponent className="w-5 h-5" />
                         </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+                        <span className={`text-sm font-medium ${
+                          isSelected ? 'text-blue-700' : 'text-gray-800'
+                        }`}>
+                          {config.label}
+                        </span>
+                      </div>
+                      {isSelected && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Trạng thái và Ưu tiên */}
@@ -562,44 +571,121 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
             )}
 
-            {/* Chia sẻ */}
-            {formType === 'team' && (
-              <div className="group">
-                <div className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl border border-blue-100/50 backdrop-blur-sm">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-4">
-                    Tùy chọn chia sẻ
-                  </h4>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4 p-3 bg-white/60 rounded-xl border border-white/50 hover:bg-white/80 transition-all duration-200">
-                      <input
-                        type="checkbox"
-                        id="shareWithAll"
-                        checked={formData.isShared || false}
-                        onChange={(e) => handleInputChange('isShared', e.target.checked)}
-                        className="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2 transition-all duration-150"
-                      />
-                      <label htmlFor="shareWithAll" className="text-sm font-medium text-gray-800 cursor-pointer flex-1">
-                        Chia sẻ với tất cả nhân viên
-                        <span className="block text-xs text-gray-500 mt-1">Công việc sẽ hiển thị cho toàn bộ tổ chức</span>
-                      </label>
+            {/* Phạm vi chia sẻ công việc */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-800 mb-4">
+                Công việc này sẽ chia sẻ cho ai? <span className="text-red-500 ml-1">*</span>
+              </label>
+              <div className="space-y-3">
+                {/* Cá nhân */}
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('visibility', 'personal')}
+                  className={`
+                    w-full p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left
+                    ${formData.visibility === 'personal'
+                      ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/20'
+                      : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                    }
+                  `}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                      formData.visibility === 'personal' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      <User className="w-5 h-5" />
                     </div>
-                    <div className="flex items-center space-x-4 p-3 bg-white/60 rounded-xl border border-white/50 hover:bg-white/80 transition-all duration-200">
-                      <input
-                        type="checkbox"
-                        id="shareWithTeam"
-                        checked={formData.isSharedWithTeam || false}
-                        onChange={(e) => handleInputChange('isSharedWithTeam', e.target.checked)}
-                        className="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2 transition-all duration-150"
-                      />
-                      <label htmlFor="shareWithTeam" className="text-sm font-medium text-gray-800 cursor-pointer flex-1">
-                        Chia sẻ với nhóm của tôi
-                        <span className="block text-xs text-gray-500 mt-1">Công việc chỉ hiển thị cho thành viên trong nhóm</span>
-                      </label>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-semibold ${
+                          formData.visibility === 'personal' ? 'text-blue-700' : 'text-gray-800'
+                        }`}>
+                          Cho Cá nhân
+                        </span>
+                        {formData.visibility === 'personal' && (
+                          <CheckCircle className="w-5 h-5 text-blue-500" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Chỉ người tạo công việc thấy - Trưởng nhóm và Trưởng Phòng vẫn thấy - Công việc này sẽ không xuất hiện trong tab nhóm
+                      </p>
                     </div>
                   </div>
-                </div>
+                </button>
+
+                {/* Nhóm */}
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('visibility', 'team')}
+                  className={`
+                    w-full p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left
+                    ${formData.visibility === 'team'
+                      ? 'border-green-500 bg-green-50 shadow-lg shadow-green-500/20'
+                      : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                    }
+                  `}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                      formData.visibility === 'team' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      <UserCheck className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-semibold ${
+                          formData.visibility === 'team' ? 'text-green-700' : 'text-gray-800'
+                        }`}>
+                          Cho Nhóm
+                        </span>
+                        {formData.visibility === 'team' && (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Chỉ nhóm của người thực hiện thấy được công việc - Trưởng nhóm, các thành viên trong nhóm và trưởng phòng vẫn thấy công việc
+                      </p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Chung */}
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('visibility', 'public')}
+                  className={`
+                    w-full p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left
+                    ${formData.visibility === 'public'
+                      ? 'border-purple-500 bg-purple-50 shadow-lg shadow-purple-500/20'
+                      : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                    }
+                  `}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                      formData.visibility === 'public' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      <Globe className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-semibold ${
+                          formData.visibility === 'public' ? 'text-purple-700' : 'text-gray-800'
+                        }`}>
+                          Cho Chung
+                        </span>
+                        {formData.visibility === 'public' && (
+                          <CheckCircle className="w-5 h-5 text-purple-500" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Toàn bộ nhân viên của Phòng Bán lẻ đều thấy công việc này
+                      </p>
+                    </div>
+                  </div>
+                </button>
               </div>
-            )}
+            </div>
           </form>
         </div>
 
@@ -616,7 +702,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date}
+            disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date || !formData.visibility}
             className="px-8 py-3 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {isSubmitting ? (

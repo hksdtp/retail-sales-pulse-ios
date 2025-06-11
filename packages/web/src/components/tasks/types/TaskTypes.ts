@@ -31,7 +31,7 @@ export interface Task {
     | 'other';
   date: string;
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
-  priority?: 'high' | 'normal' | 'low';
+  priority?: 'urgent' | 'high' | 'normal' | 'low';
   progress: number;
   isNew: boolean;
   location: string;
@@ -42,6 +42,7 @@ export interface Task {
   team_id?: string;
   created_at: string;
   time?: string;
+  visibility?: 'personal' | 'team' | 'public';
   isShared?: boolean;
   isSharedWithTeam?: boolean;
   [key: string]: string | number | boolean | undefined | null;
