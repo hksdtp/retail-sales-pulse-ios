@@ -62,6 +62,7 @@ import LoadingScreen from '@/components/ui/LoadingScreen';
 import MemberTaskSelector from './MemberTaskSelector';
 import MemberViewFilters from './MemberViewFilters';
 import TaskDetailPanel from './TaskDetailPanel';
+import TaskSearchBar from './TaskSearchBar';
 import { getStatusColor, getTypeName } from './task-utils/TaskFormatters';
 import { Task } from './types/TaskTypes';
 
@@ -192,6 +193,7 @@ export default function TaskManagementView({
     type: 'all',
     priority: 'all'
   });
+  const [searchQuery, setSearchQuery] = useState('');
 
   // States cho Member View Filters
   const [selectedLocation, setSelectedLocation] = useState('all');
@@ -562,6 +564,18 @@ export default function TaskManagementView({
   // Hàm filter tasks theo các tiêu chí
   const filterTasks = (tasks: any[]) => {
     return tasks.filter(task => {
+      // Filter theo search query
+      if (searchQuery && searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase().trim();
+        const titleMatch = task.title?.toLowerCase().includes(query);
+        const descriptionMatch = task.description?.toLowerCase().includes(query);
+        const userMatch = getUserName(task).toLowerCase().includes(query);
+
+        if (!titleMatch && !descriptionMatch && !userMatch) {
+          return false;
+        }
+      }
+
       // Filter theo thời gian
       if (filters.timeRange !== 'all') {
         const taskDate = new Date(task.date);
@@ -587,14 +601,37 @@ export default function TaskManagementView({
         }
       }
 
-      // Filter theo trạng thái
-      if (filters.status !== 'all' && task.status !== filters.status) {
-        return false;
+      // Filter theo trạng thái - map values từ TaskSearchBar
+      if (filters.status !== 'all') {
+        const statusMap = {
+          'todo': 'todo',
+          'in-progress': 'in-progress',
+          'on-hold': 'on-hold',
+          'completed': 'completed'
+        };
+        const mappedStatus = statusMap[filters.status as keyof typeof statusMap];
+        if (mappedStatus && task.status !== mappedStatus) {
+          return false;
+        }
       }
 
-      // Filter theo loại công việc
-      if (filters.type !== 'all' && task.type !== filters.type) {
-        return false;
+      // Filter theo loại công việc - map values từ TaskSearchBar
+      if (filters.type !== 'all') {
+        const typeMap = {
+          'architect_new': 'architect_new',
+          'architect_old': 'architect_old',
+          'client_new': 'client_new',
+          'client_old': 'client_old',
+          'quote_new': 'quote_new',
+          'quote_old': 'quote_old',
+          'partner_new': 'partner_new',
+          'partner_old': 'partner_old',
+          'other': 'other'
+        };
+        const mappedType = typeMap[filters.type as keyof typeof typeMap];
+        if (mappedType && task.type !== mappedType) {
+          return false;
+        }
       }
 
       // Filter theo mức độ ưu tiên
@@ -988,6 +1025,22 @@ export default function TaskManagementView({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Task Search Bar */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <TaskSearchBar
+            onSearch={setSearchQuery}
+            onFilterChange={(taskFilters) => {
+              setFilters({
+                timeRange: taskFilters.dateRange,
+                status: taskFilters.status,
+                type: taskFilters.type,
+                priority: taskFilters.priority
+              });
+            }}
+            placeholder="Tìm kiếm công việc theo tiêu đề, mô tả..."
+          />
         </div>
 
         {/* Content - responsive */}

@@ -170,12 +170,29 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     handleInputChange('sharedWith', formData.sharedWith.filter(id => id !== userId));
   };
 
-  const filteredUsersForTagging = users.filter(user =>
-    user.id !== currentUser?.id && // Exclude current user
-    !formData.sharedWith.includes(user.id) && // Exclude already selected users
-    (user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-     user.email?.toLowerCase().includes(userSearchQuery.toLowerCase()))
-  );
+  const filteredUsersForTagging = users.filter(user => {
+    // Exclude current user
+    if (user.id === currentUser?.id) return false;
+
+    // Exclude already selected users
+    if (formData.sharedWith.includes(user.id)) return false;
+
+    // Only include users from retail department
+    const isRetailUser = user.department_type === 'retail' ||
+                        user.department === 'retail' ||
+                        user.role?.includes('retail') ||
+                        user.location; // Fallback: users with location are likely retail
+
+    if (!isRetailUser) return false;
+
+    // Search filter
+    if (userSearchQuery.length === 0) return true;
+
+    const query = userSearchQuery.toLowerCase();
+    return user.name.toLowerCase().includes(query) ||
+           user.email?.toLowerCase().includes(query) ||
+           user.location?.toLowerCase().includes(query);
+  });
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -689,10 +706,17 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     placeholder="Tìm kiếm và thêm người..."
                     value={userSearchQuery}
                     onChange={(e) => {
-                      setUserSearchQuery(e.target.value);
-                      setShowUserDropdown(e.target.value.length > 0);
+                      const query = e.target.value;
+                      setUserSearchQuery(query);
+                      const shouldShow = query.length > 0 && filteredUsersForTagging.length > 0;
+                      setShowUserDropdown(shouldShow);
+                      console.log('🔍 Search query:', query, 'shouldShow:', shouldShow, 'filteredUsers:', filteredUsersForTagging.length);
                     }}
-                    onFocus={() => setShowUserDropdown(userSearchQuery.length > 0)}
+                    onFocus={() => {
+                      const shouldShow = userSearchQuery.length > 0 && filteredUsersForTagging.length > 0;
+                      setShowUserDropdown(shouldShow);
+                      console.log('🎯 Focus - shouldShow:', shouldShow, 'query:', userSearchQuery, 'users:', filteredUsersForTagging.length);
+                    }}
                     onBlur={() => {
                       // Delay hiding to allow click on dropdown items
                       setTimeout(() => setShowUserDropdown(false), 150);
@@ -701,21 +725,15 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                   />
                 </div>
 
-                {/* User dropdown - Fixed positioning */}
+                {/* User dropdown - Simplified positioning */}
                 {showUserDropdown && filteredUsersForTagging.length > 0 && (
                   <div
-                    className="fixed bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto min-w-[300px]"
+                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto"
                     style={{
                       zIndex: 99999,
-                      top: searchInputRef.current ?
-                        searchInputRef.current.getBoundingClientRect().bottom + window.scrollY + 4 : 0,
-                      left: searchInputRef.current ?
-                        searchInputRef.current.getBoundingClientRect().left + window.scrollX : 0,
-                      width: searchInputRef.current ?
-                        searchInputRef.current.getBoundingClientRect().width : 300,
                       boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                       backdropFilter: 'blur(8px)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)'
+                      backgroundColor: 'rgba(255, 255, 255, 0.98)'
                     }}
                   >
                     {filteredUsersForTagging.slice(0, 5).map(user => (
