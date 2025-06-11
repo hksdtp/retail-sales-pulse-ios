@@ -113,16 +113,30 @@ class DashboardSyncService {
       // Director: xem tất cả tasks
       return tasks;
     } else if (permissions.canViewTeam) {
-      // Team leader: xem tasks của team (cùng location) + cá nhân
-      return tasks.filter(task => 
-        task.location === user.location || 
-        task.userId === user.id || 
-        (task.assignedUsers && task.assignedUsers.includes(user.id))
-      );
+      // Team leader: chỉ xem tasks của team cụ thể mà họ quản lý + cá nhân
+      return tasks.filter(task => {
+        // Tasks cá nhân
+        if (task.userId === user.id || (task.assignedUsers && task.assignedUsers.includes(user.id))) {
+          return true;
+        }
+
+        // Tasks của team cụ thể mà user này quản lý
+        // Kiểm tra team_id thay vì location để đảm bảo chỉ xem team của mình
+        if (task.teamId && user.team_id && task.teamId === user.team_id) {
+          return true;
+        }
+
+        // Fallback: nếu không có teamId, dùng location nhưng chỉ cho team leader của location đó
+        if (!task.teamId && task.location === user.location && user.role === 'team_leader') {
+          return true;
+        }
+
+        return false;
+      });
     } else {
       // Employee: chỉ xem tasks cá nhân
-      return tasks.filter(task => 
-        task.userId === user.id || 
+      return tasks.filter(task =>
+        task.userId === user.id ||
         (task.assignedUsers && task.assignedUsers.includes(user.id))
       );
     }

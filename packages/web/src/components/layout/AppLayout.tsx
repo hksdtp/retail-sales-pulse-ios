@@ -5,6 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,13 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const isMobile = useIsMobile();
+
+  // Enable swipe navigation on mobile
+  useSwipeNavigation({
+    threshold: 60,
+    velocity: 0.3,
+    preventScroll: true
+  });
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
@@ -40,7 +48,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <div className={cn(
             "flex-1 overflow-y-auto overflow-x-hidden",
             "p-3 md:p-6",
-            isMobile && "pb-28 safe-area-inset-bottom"
+            isMobile && "pb-40 safe-area-inset-bottom"
           )}>
             {children}
           </div>

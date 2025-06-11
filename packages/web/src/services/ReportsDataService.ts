@@ -215,11 +215,11 @@ class ReportsDataService {
         hcm: { sales: hcmSales, employees: hcmEmployees.length }
       },
       monthlyTrend: [
-        { month: 'Tháng 1', sales: 21400000000, target: 22000000000 },
-        { month: 'Tháng 2', sales: 24500000000, target: 24000000000 },
-        { month: 'Tháng 3', sales: 26400000000, target: 25000000000 },
-        { month: 'Tháng 4', sales: 28300000000, target: 26000000000 },
-        { month: 'Tháng 5', sales: 30200000000, target: 28000000000 }
+        { month: 'Tháng 1', sales: 1442500000, target: 2650000000 }, // Hà Nội: -21.8tr, HCM: 1464.3tr
+        { month: 'Tháng 2', sales: 1357800000, target: 2100000000 }, // Hà Nội: 443.3tr, HCM: 914.5tr
+        { month: 'Tháng 3', sales: 1968100000, target: 2750000000 }, // Hà Nội: 776.8tr, HCM: 1191.3tr
+        { month: 'Tháng 4', sales: 2192700000, target: 3570000000 }, // Hà Nội: 1557.5tr, HCM: 635.2tr
+        { month: 'Tháng 5', sales: 2690600000, target: 4450000000 }  // Hà Nội: 2087.6tr, HCM: 603.0tr
       ]
     };
   }

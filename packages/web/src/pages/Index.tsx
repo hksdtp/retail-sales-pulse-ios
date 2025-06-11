@@ -23,11 +23,12 @@ const Index = () => {
 
   // Handlers cho các button actions
   const handleViewDetailedReports = () => {
-    // Kiểm tra quyền truy cập reports
-    if (currentUser?.name === 'Khổng Đức Mạnh' || currentUser?.role === 'team_leader') {
-      navigate('/reports');
+    // Kiểm tra quyền truy cập reports với AI insights
+    if (currentUser?.name === 'Khổng Đức Mạnh' || currentUser?.role === 'team_leader' || currentUser?.role === 'employee') {
+      // Tất cả người dùng đều có thể xem báo cáo chi tiết, nhưng dữ liệu sẽ được lọc theo quyền hạn
+      navigate('/detailed-reports');
     } else {
-      alert('Bạn không có quyền truy cập báo cáo chi tiết. Chỉ quản lý và trưởng nhóm mới có thể xem báo cáo.');
+      alert('Bạn không có quyền truy cập báo cáo chi tiết.');
     }
   };
 

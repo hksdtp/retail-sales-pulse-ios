@@ -82,9 +82,9 @@ const Login = () => {
               >
                 <div className="w-16 h-16 mx-auto bg-white rounded-2xl shadow-lg flex items-center justify-center">
                   <img
-                    src="/logo.webp"
-                    alt="Logo"
-                    className="w-12 h-12 object-contain filter drop-shadow-lg"
+                    src="/ict1.png"
+                    alt="ICT Logo"
+                    className="w-16 h-16 object-cover rounded-2xl shadow-lg"
                   />
                 </div>
               </motion.div>

@@ -150,13 +150,15 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10 dark:border-white/5 min-h-[72px]">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-              <PieChart className="w-4 h-4 text-white" />
-            </div>
+            <img
+              src="/ict1.png"
+              alt="ICT Logo"
+              className="w-10 h-10 object-cover rounded-xl shadow-md flex-shrink-0"
+            />
             <div
-              className="overflow-hidden transition-all duration-250 ease-out"
+              className="overflow-hidden transition-all duration-300 ease-out"
               style={{
-                width: isVisuallyExpanded ? '160px' : '0px',
+                width: isVisuallyExpanded ? '180px' : '0px',
                 opacity: isVisuallyExpanded ? 1 : 0,
                 transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
               }}
@@ -193,11 +195,11 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               key={item.title}
               to={item.url}
               className={cn(
-                "flex items-center rounded-xl transition-all duration-200 relative group px-3 py-3",
+                "flex items-center rounded-xl transition-all duration-300 ease-out relative group px-3 py-3",
                 !isVisuallyExpanded ? "justify-center" : "space-x-3",
                 isActive(item.url)
-                  ? "text-ios-blue bg-blue-50 shadow-md border border-blue-200 scale-105 z-10"
-                  : "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:scale-105 hover:border hover:border-blue-100 hover:z-10 hover:-translate-y-0.5"
+                  ? "text-ios-blue bg-blue-50 shadow-md border border-blue-200 transform scale-[1.02] z-10"
+                  : "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:transform hover:scale-[1.02] hover:border hover:border-blue-100 hover:z-10"
               )}
               title={!isVisuallyExpanded ? item.title : undefined}
             >
@@ -206,11 +208,11 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 isActive(item.url) && "text-ios-blue"
               )} />
               <div
-                className="overflow-hidden transition-all duration-250 ease-out"
+                className="overflow-hidden transition-all duration-300 ease-out"
                 style={{
-                  width: isVisuallyExpanded ? '140px' : '0px',
+                  width: isVisuallyExpanded ? '150px' : '0px',
                   opacity: isVisuallyExpanded ? 1 : 0,
-                  transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
+                  transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-8px)',
                 }}
               >
                 <span className="font-medium whitespace-nowrap">{item.title}</span>
@@ -230,9 +232,9 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         <div className="p-4 border-t border-white/10 dark:border-white/5 relative" ref={dropdownRef}>
           <button
             className={cn(
-              "w-full flex items-center rounded-xl transition-all duration-200 relative group px-3 py-3",
+              "w-full flex items-center rounded-xl transition-all duration-300 ease-out relative group px-3 py-3",
               !isVisuallyExpanded ? "justify-center" : "space-x-3",
-              "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:scale-105 hover:border hover:border-blue-100 hover:-translate-y-0.5"
+              "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:transform hover:scale-[1.02] hover:border hover:border-blue-100"
             )}
             onClick={() => {
               console.log('Avatar clicked, current state:', isDropdownOpen);
@@ -251,11 +253,11 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               )}
             </div>
             <div
-              className="overflow-hidden transition-all duration-250 ease-out flex-1 text-left min-w-0"
+              className="overflow-hidden transition-all duration-300 ease-out flex-1 text-left min-w-0"
               style={{
-                width: isVisuallyExpanded ? '140px' : '0px',
+                width: isVisuallyExpanded ? '150px' : '0px',
                 opacity: isVisuallyExpanded ? 1 : 0,
-                transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-10px)',
+                transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-8px)',
               }}
             >
               <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">

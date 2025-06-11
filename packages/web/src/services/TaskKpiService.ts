@@ -96,8 +96,25 @@ class TaskKpiService {
   }
 
   private getTeamLeaderKpiData(currentUser: User, tasks: Task[]): TaskKpiData[] {
-    // Tổng KPI nhóm - lọc tasks của nhóm (cùng location)
-    const teamTasks = tasks.filter(task => task.location === currentUser.location);
+    // Tổng KPI nhóm - lọc tasks của team cụ thể mà team leader quản lý
+    const teamTasks = tasks.filter(task => {
+      // Tasks cá nhân của team leader
+      if (task.userId === currentUser.id || (task.assignedUsers && task.assignedUsers.includes(currentUser.id))) {
+        return true;
+      }
+
+      // Tasks của team cụ thể mà user này quản lý
+      if (task.teamId && currentUser.team_id && task.teamId === currentUser.team_id) {
+        return true;
+      }
+
+      // Fallback: nếu không có teamId, dùng location nhưng chỉ cho team leader của location đó
+      if (!task.teamId && task.location === currentUser.location && currentUser.role === 'team_leader') {
+        return true;
+      }
+
+      return false;
+    });
     const completedTasks = teamTasks.filter(task => task.status === 'completed');
 
     // Tổng các loại công việc mới của nhóm
@@ -245,8 +262,22 @@ class TaskKpiService {
     // Áp dụng filter theo phân quyền
     if (role === 'employee' && userId) {
       filteredTasks = tasks.filter(task => task.user_id === userId);
-    } else if (role === 'team_leader' && location) {
-      filteredTasks = tasks.filter(task => task.location === location);
+    } else if (role === 'team_leader' && userId) {
+      // Team leader chỉ xem tasks của team cụ thể mà họ quản lý
+      filteredTasks = tasks.filter(task => {
+        // Tasks cá nhân
+        if (task.userId === userId || (task.assignedUsers && task.assignedUsers.includes(userId))) {
+          return true;
+        }
+
+        // Tasks của team cụ thể (cần có team_id của user để so sánh)
+        // Tạm thời dùng location làm fallback
+        if (location && task.location === location) {
+          return true;
+        }
+
+        return false;
+      });
     }
     // Director thấy tất cả
 

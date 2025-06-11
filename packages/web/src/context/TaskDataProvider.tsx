@@ -7,6 +7,7 @@ import { Task } from '../components/tasks/types/TaskTypes';
 import { useToast } from '../hooks/use-toast';
 import { FirebaseService } from '../services/FirebaseService';
 import { googleSheetsService } from '../services/GoogleSheetsService';
+import { pushNotificationService } from '../services/pushNotificationService';
 import { mockTasks, saveMockTasksToLocalStorage } from '../utils/mockData';
 import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskDataContextType, TaskFilters } from './TaskContext';
@@ -453,6 +454,11 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         // Cập nhật state với dữ liệu đã lọc
         setTasks(filteredTasksForRole);
+
+        // Check for push notifications
+        if (currentUser?.id) {
+          pushNotificationService.checkTaskNotifications(filteredTasksForRole, currentUser.id);
+        }
       } catch (error) {
         console.error('Lỗi khi khởi tạo dữ liệu công việc:', error);
         toast({

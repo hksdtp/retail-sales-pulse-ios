@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -50,6 +50,21 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
   });
 
   const [newParticipant, setNewParticipant] = useState('');
+
+  // Auto-fill current date when modal opens
+  useEffect(() => {
+    if (isOpen && !formData.startDate) {
+      const today = new Date();
+      const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const currentTime = today.toTimeString().slice(0, 5); // HH:MM format
+
+      setFormData(prev => ({
+        ...prev,
+        startDate: todayString,
+        startTime: currentTime
+      }));
+    }
+  }, [isOpen]);
 
   // Mock danh sách nhân viên
   const availableEmployees = [
@@ -172,7 +187,7 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center">
         {/* Backdrop */}
         <motion.div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -184,7 +199,7 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
 
         {/* Modal */}
         <motion.div
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4"
+          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 mb-20"
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}

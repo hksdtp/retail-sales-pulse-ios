@@ -16,11 +16,20 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import AccountSettings from '@/components/account/AccountSettings';
 
+
+// Haptic feedback utility
+const triggerHapticFeedback = () => {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(50); // Light haptic feedback
+  }
+};
+
 const BottomNavigation = () => {
   const location = useLocation();
   const { currentUser, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const menuItems = [{
@@ -49,6 +58,8 @@ const BottomNavigation = () => {
     return location.pathname === path;
   };
 
+
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -68,34 +79,42 @@ const BottomNavigation = () => {
     setIsDropdownOpen(false);
   };
 
+
+
   return (
     <>
       <div className="bottom-nav-mobile fixed bottom-0 left-0 right-0 z-[9999] macos-glass border-t border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70 safe-area-inset-bottom">
-        <div className="flex items-center justify-between px-2 py-2 pb-safe">
+        <div className="grid grid-cols-6 gap-1 px-1 py-2 pb-safe">
           {menuItems.map((item) => (
             <Link
               key={item.title}
               to={item.url}
+              onClick={triggerHapticFeedback}
               className={cn(
-                "flex flex-col items-center justify-center px-1 py-2 text-xs font-medium rounded-xl transition-all duration-200 flex-1 min-h-[56px] mx-0.5",
+                "relative flex flex-col items-center justify-center px-1 py-2 text-xs font-medium rounded-xl transition-all duration-200 min-h-[60px] w-full",
                 isActive(item.url)
                   ? "text-ios-blue bg-white/90 shadow-md border border-blue-100/50 scale-105"
                   : "text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5"
               )}
             >
-              <item.icon className={cn("h-4 w-4 mb-1 flex-shrink-0", isActive(item.url) && "text-ios-blue")} />
-              <span className="text-[7px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{item.title}</span>
+              <div className="relative">
+                <item.icon className={cn("h-5 w-5 mb-1 flex-shrink-0", isActive(item.url) && "text-ios-blue")} />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{item.title}</span>
             </Link>
           ))}
 
           {/* Account Menu */}
-          <div className="relative flex-1 mx-0.5" ref={dropdownRef}>
+          <div className="relative" ref={dropdownRef}>
             <button
-              className="flex flex-col items-center justify-center px-1 py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5 rounded-xl transition-all duration-200 w-full min-h-[56px]"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex flex-col items-center justify-center px-1 py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5 rounded-xl transition-all duration-200 min-h-[60px] w-full"
+              onClick={() => {
+                triggerHapticFeedback();
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
             >
-              <User className="h-4 w-4 mb-1 flex-shrink-0" />
-              <span className="text-[7px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">Tài khoản</span>
+              <User className="h-5 w-5 mb-1 flex-shrink-0" />
+              <span className="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">Tài khoản</span>
             </button>
 
             {/* Dropdown Menu */}

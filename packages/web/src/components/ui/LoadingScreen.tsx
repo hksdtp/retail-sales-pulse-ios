@@ -33,8 +33,10 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 200 }}
             >
-              <motion.div
-                className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white shadow-lg flex items-center justify-center"
+              <motion.img
+                src="/ict1.png"
+                alt="ICT Logo"
+                className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-xl object-cover"
                 animate={{
                   rotate: [0, 360],
                   scale: [1, 1.05, 1]
@@ -43,13 +45,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                   rotate: { duration: 3, repeat: Infinity, ease: "linear" },
                   scale: { duration: 2, repeat: Infinity, repeatType: "reverse" }
                 }}
-              >
-                <img
-                  src="/logo.webp"
-                  alt="Logo"
-                  className="w-10 h-10 object-contain"
-                />
-              </motion.div>
+              />
               
               <motion.h2
                 className="text-xl font-bold text-gray-800 mb-1"

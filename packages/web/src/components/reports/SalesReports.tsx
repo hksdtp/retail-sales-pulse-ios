@@ -48,17 +48,17 @@ const SalesReports = () => {
       <div style={styles.container}>
         <div style={styles.header}>
           <h1 style={{fontSize: '2.5rem', margin: '0 0 10px 0', fontWeight: '700'}}>
-            📊 Dashboard Doanh Số Tổng Hợp
+            📊 Báo Cáo Doanh Số Phòng Kinh Doanh Bán Lẻ
           </h1>
           <p style={{fontSize: '1.1rem', opacity: 0.9, margin: '0 0 25px 0'}}>
-            BP Bán Lẻ - Cập nhật: 09/06/2025 | Dữ liệu thực tế 5 tháng đầu năm 2024
+            Phòng Kinh Doanh - Cập nhật: 11/06/2025 | Dữ liệu thực tế 5 tháng đầu năm 2025
           </p>
           <div style={{display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap'}}>
             <button
               style={{...styles.tabButton, ...(selectedBranch === 'executive' ? styles.activeTab : {})}}
               onClick={() => setSelectedBranch('executive')}
             >
-              📋 Executive Summary
+              📋 Tổng Quan Điều Hành (Executive Summary)
             </button>
             <button
               style={{...styles.tabButton, ...(selectedBranch === 'hanoi' ? styles.activeTab : {})}}
@@ -86,13 +86,13 @@ const SalesReports = () => {
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px'}}>
               <div style={styles.card}>
                 <div style={{fontSize: '2.2rem', fontWeight: '700', color: '#2c3e50', marginBottom: '8px'}}>
-                  📋 Executive Summary
+                  📋 Tổng Quan Điều Hành
                 </div>
                 <div style={{fontSize: '1rem', color: '#7f8c8d', marginBottom: '12px'}}>
-                  Tổng quan hệ thống 11 nhân viên
+                  Báo cáo tổng hợp 11 nhân viên - 2 chi nhánh
                 </div>
                 <div style={{fontSize: '0.9rem', fontWeight: '600', color: '#27ae60'}}>
-                  Dashboard ra quyết định executive
+                  Hỗ trợ ra quyết định chiến lược
                 </div>
               </div>
               <div style={styles.card}>
@@ -100,10 +100,10 @@ const SalesReports = () => {
                   9,65 tỷ
                 </div>
                 <div style={{fontSize: '1rem', color: '#7f8c8d', marginBottom: '12px'}}>
-                  Tổng doanh số 2 phòng
+                  Tổng doanh số thực tế 5 tháng (Hà Nội + HCM)
                 </div>
-                <div style={{fontSize: '0.9rem', fontWeight: '600', color: '#27ae60'}}>
-                  HN: 50.2% | HCM: 49.8% - Cân bằng hoàn hảo
+                <div style={{fontSize: '0.9rem', fontWeight: '600', color: '#e74c3c'}}>
+                  22,4% kế hoạch năm (43,1 tỷ) - Cần tăng tốc
                 </div>
               </div>
               <div style={styles.card}>

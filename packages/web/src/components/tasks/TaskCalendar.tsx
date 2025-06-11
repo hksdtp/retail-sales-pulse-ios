@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { personalPlanService } from '@/services/personalPlanService';
+import { useAuth } from '@/context/AuthContext';
 
 interface CalendarTask {
   id: string;
@@ -19,72 +21,7 @@ interface CalendarTask {
   status?: 'pending' | 'in_progress' | 'completed';
 }
 
-// Enhanced sample data for demonstration
-const tasksByDate: Record<string, CalendarTask[]> = {
-  '2025-01-15': [
-    {
-      id: '1',
-      title: 'Họp review dự án Q1',
-      type: 'meeting',
-      time: '09:00',
-      endTime: '11:00',
-      location: 'Phòng họp A',
-      participants: ['Lương Việt Anh', 'Lê Khánh Duy'],
-      priority: 'high',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      title: 'Gặp đối tác ABC',
-      type: 'partner',
-      time: '14:30',
-      endTime: '16:00',
-      location: 'Văn phòng đối tác',
-      participants: ['Phạm Thị Hương'],
-      priority: 'medium',
-      status: 'pending'
-    },
-  ],
-  '2025-01-16': [
-    {
-      id: '3',
-      title: 'Khảo sát địa điểm mới',
-      type: 'site_visit',
-      time: '14:00',
-      endTime: '17:00',
-      location: 'Quận Cầu Giấy, Hà Nội',
-      participants: ['Phạm Thị Hương', 'Nguyễn Thị Thảo'],
-      priority: 'medium',
-      status: 'in_progress'
-    }
-  ],
-  '2025-01-17': [
-    {
-      id: '4',
-      title: 'Báo cáo tiến độ tháng',
-      type: 'report',
-      time: '10:30',
-      endTime: '12:00',
-      location: 'Online',
-      participants: ['Khổng Đức Mạnh'],
-      priority: 'high',
-      status: 'completed'
-    }
-  ],
-  '2025-01-18': [
-    {
-      id: '5',
-      title: 'Đào tạo kỹ năng bán hàng',
-      type: 'training',
-      time: '08:30',
-      endTime: '17:30',
-      location: 'Phòng đào tạo',
-      participants: ['Lê Tiến Quân', 'Quản Thu Hà'],
-      priority: 'medium',
-      status: 'pending'
-    }
-  ],
-};
+
 
 const getTypeColor = (type: string) => {
   switch (type) {
@@ -163,8 +100,124 @@ const formatDateKey = (date: Date | undefined): string => {
   return `${year}-${month}-${day}`;
 };
 
-const TaskCalendar = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date('2025-01-15'));
+interface TaskCalendarProps {
+  onCreatePlan?: () => void;
+}
+
+const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
+  const { currentUser } = useAuth();
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [plans, setPlans] = useState<any[]>([]);
+
+  // Migrate old plans to current date
+  const migrateOldPlansToToday = (plans: any[]) => {
+    const today = new Date();
+    const todayString = formatDateKey(today);
+    const currentYear = today.getFullYear();
+
+    return plans.map(plan => {
+      const planDate = new Date(plan.startDate);
+      const planYear = planDate.getFullYear();
+
+      // If plan is from previous months/years, move to today
+      if (planYear < currentYear || planDate < today) {
+        return {
+          ...plan,
+          startDate: todayString,
+          endDate: plan.endDate ? todayString : plan.endDate
+        };
+      }
+
+      return plan;
+    });
+  };
+
+  // Load plans from service
+  useEffect(() => {
+    if (currentUser) {
+      const userPlans = personalPlanService.getUserPlans(currentUser.id);
+      const migratedPlans = migrateOldPlansToToday(userPlans);
+
+      // Save migrated plans back if there were changes
+      if (JSON.stringify(userPlans) !== JSON.stringify(migratedPlans)) {
+        // Clear old data and save migrated data
+        personalPlanService.clearUserData(currentUser.id);
+        migratedPlans.forEach(plan => {
+          personalPlanService.addPlan(currentUser.id, {
+            title: plan.title,
+            description: plan.description,
+            type: plan.type,
+            status: plan.status,
+            priority: plan.priority,
+            startDate: plan.startDate,
+            endDate: plan.endDate,
+            startTime: plan.startTime,
+            endTime: plan.endTime,
+            location: plan.location,
+            notes: plan.notes,
+            participants: plan.participants,
+            creator: plan.creator
+          });
+        });
+        console.log('✅ Đã migrate kế hoạch cũ về ngày hiện tại');
+      }
+
+      setPlans(migratedPlans);
+    }
+  }, [currentUser]);
+
+  // Convert plans to tasks by date format
+  const tasksByDate: Record<string, CalendarTask[]> = {};
+
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date();
+  const todayKey = formatDateKey(today);
+
+  // Add static demo data for today
+  tasksByDate[todayKey] = [
+    {
+      id: '1',
+      title: 'Họp review dự án Q1',
+      type: 'meeting',
+      time: '09:00',
+      endTime: '11:00',
+      location: 'Phòng họp A',
+      participants: ['Lương Việt Anh', 'Lê Khánh Duy'],
+      priority: 'high',
+      status: 'pending'
+    },
+    {
+      id: '2',
+      title: 'Gặp đối tác ABC',
+      type: 'partner',
+      time: '14:30',
+      endTime: '16:00',
+      location: 'Văn phòng đối tác',
+      participants: ['Phạm Thị Hương'],
+      priority: 'medium',
+      status: 'pending'
+    },
+  ];
+
+  // Add plans from service
+  plans.forEach((plan) => {
+    const dateKey = plan.startDate;
+    if (!tasksByDate[dateKey]) {
+      tasksByDate[dateKey] = [];
+    }
+
+    tasksByDate[dateKey].push({
+      id: plan.id,
+      title: plan.title,
+      type: plan.type,
+      time: plan.startTime,
+      endTime: plan.endTime,
+      location: plan.location,
+      participants: plan.participants,
+      priority: plan.priority,
+      status: plan.status
+    });
+  });
 
   // Function to determine if a date has tasks
   const isDayWithTask = (day: Date) => {
@@ -226,10 +279,6 @@ const TaskCalendar = () => {
       <div className="lg:col-span-2">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-gray-800">{formatDisplayDate(date)}</h3>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Thêm kế hoạch
-          </Button>
         </div>
 
         {selectedDateTasks.length > 0 ? (
@@ -319,7 +368,10 @@ const TaskCalendar = () => {
               <div className="text-6xl mb-4">📅</div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Không có kế hoạch</h3>
               <p className="text-gray-500 mb-4">Chưa có kế hoạch nào được lên lịch cho ngày này</p>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button
+                onClick={onCreatePlan}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Tạo kế hoạch mới
               </Button>

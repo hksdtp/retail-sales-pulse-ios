@@ -20,6 +20,8 @@ import NotFound from './pages/NotFound';
 import Reports from './pages/Reports';
 import Tasks from './pages/Tasks';
 import TaskFormDemo from './components/tasks/TaskFormDemo';
+import AIDemo from './pages/AIDemo';
+import DetailedReports from './pages/DetailedReports';
 
 const queryClient = new QueryClient();
 
@@ -105,6 +107,22 @@ const App = () => (
                     element={
                       <ProtectedRoute>
                         <TaskFormDemo />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/ai-demo"
+                    element={
+                      <ProtectedRoute>
+                        <AIDemo />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/detailed-reports"
+                    element={
+                      <ProtectedRoute>
+                        <DetailedReports />
                       </ProtectedRoute>
                     }
                   />

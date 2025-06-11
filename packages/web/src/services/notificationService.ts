@@ -1,4 +1,19 @@
 import { Notification } from '@/components/notifications/NotificationCenter';
+import { personalPlanService } from './personalPlanService';
+
+export interface NotificationBadge {
+  count: number;
+  type: 'info' | 'warning' | 'error' | 'success';
+  urgent?: boolean;
+}
+
+export interface MenuNotifications {
+  dashboard: NotificationBadge | null;
+  tasks: NotificationBadge | null;
+  calendar: NotificationBadge | null;
+  curtainDesign: NotificationBadge | null;
+  employees: NotificationBadge | null;
+}
 
 class NotificationService {
   private readonly STORAGE_KEY = 'notifications';
@@ -236,6 +251,62 @@ class NotificationService {
 
     // Nhân viên không xem thông báo
     return [];
+  }
+
+  // Get menu notifications for badges
+  getMenuNotifications(userId: string): MenuNotifications {
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+
+    // Get pending tasks from localStorage (simplified for now)
+    const pendingTasks: any[] = []; // TODO: Implement task service
+    const overdueTasks: any[] = [];
+
+    // Get today's plans
+    const todayPlans = personalPlanService.getUserPlans(userId).filter(plan =>
+      plan.startDate === todayString
+    );
+
+    // Get urgent plans (high priority)
+    const urgentPlans = todayPlans.filter(plan => plan.priority === 'high');
+
+    return {
+      dashboard: null, // Dashboard doesn't need badges
+
+      tasks: pendingTasks.length > 0 ? {
+        count: overdueTasks.length > 0 ? overdueTasks.length : pendingTasks.length,
+        type: overdueTasks.length > 0 ? 'error' : 'info',
+        urgent: overdueTasks.length > 0
+      } : null,
+
+      calendar: todayPlans.length > 0 ? {
+        count: urgentPlans.length > 0 ? urgentPlans.length : todayPlans.length,
+        type: urgentPlans.length > 0 ? 'warning' : 'info',
+        urgent: urgentPlans.length > 0
+      } : null,
+
+      curtainDesign: null, // No notifications for design tool
+
+      employees: null // No notifications for employees page
+    };
+  }
+
+  getBadgeColor(badge: NotificationBadge): string {
+    switch (badge.type) {
+      case 'error':
+        return 'bg-red-500';
+      case 'warning':
+        return 'bg-orange-500';
+      case 'success':
+        return 'bg-green-500';
+      case 'info':
+      default:
+        return 'bg-blue-500';
+    }
+  }
+
+  shouldPulse(badge: NotificationBadge): boolean {
+    return badge.urgent || badge.type === 'error';
   }
 
   // Tạo thông báo test (cho development)
