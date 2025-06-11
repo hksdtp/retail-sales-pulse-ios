@@ -43,6 +43,7 @@ export interface Task {
   created_at: string;
   time?: string;
   visibility?: 'personal' | 'team' | 'public';
+  sharedWith?: string[];
   isShared?: boolean;
   isSharedWithTeam?: boolean;
   [key: string]: string | number | boolean | undefined | null;

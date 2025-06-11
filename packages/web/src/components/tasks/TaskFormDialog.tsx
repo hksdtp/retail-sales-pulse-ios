@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe } from 'lucide-react';
+import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -37,6 +37,7 @@ interface TaskFormData {
   time?: string;
   assignedTo?: string;
   visibility: 'personal' | 'team' | 'public';
+  sharedWith: string[];
 }
 
 interface TaskFormDialogProps {
@@ -66,10 +67,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     time: '',
     assignedTo: currentUser?.id || '',
     visibility: 'personal',
+    sharedWith: [],
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   const canAssignToOthers = currentUser && canAssignTasks(currentUser.role);
 
@@ -94,6 +98,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         time: '',
         assignedTo: currentUser?.id || '',
         visibility: 'personal',
+        sharedWith: [],
       });
       setSelectedDate(today);
     }
@@ -124,6 +129,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         assignedTo: formData.assignedTo,
         visibility: formData.visibility,
         priority: formData.priority,
+        sharedWith: formData.sharedWith,
       });
 
       toast({
@@ -146,9 +152,29 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     }
   };
 
-  const handleInputChange = (field: keyof TaskFormData, value: string | boolean) => {
+  const handleInputChange = (field: keyof TaskFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  // User tagging functions
+  const addUserToShared = (userId: string) => {
+    if (!formData.sharedWith.includes(userId)) {
+      handleInputChange('sharedWith', [...formData.sharedWith, userId]);
+    }
+    setUserSearchQuery('');
+    setShowUserDropdown(false);
+  };
+
+  const removeUserFromShared = (userId: string) => {
+    handleInputChange('sharedWith', formData.sharedWith.filter(id => id !== userId));
+  };
+
+  const filteredUsersForTagging = users.filter(user =>
+    user.id !== currentUser?.id && // Exclude current user
+    !formData.sharedWith.includes(user.id) && // Exclude already selected users
+    (user.name.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+     user.email?.toLowerCase().includes(userSearchQuery.toLowerCase()))
+  );
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -340,12 +366,12 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               />
             </div>
 
-            {/* Loại công việc - Grid Layout */}
+            {/* Loại công việc - Pill Layout */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-4">
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
                 Loại công việc <span className="text-red-500 ml-1">*</span>
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {Object.entries(taskTypeConfig).map(([key, config]) => {
                   const IconComponent = config.icon;
                   const isSelected = formData.type === key;
@@ -355,29 +381,19 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                       type="button"
                       onClick={() => handleInputChange('type', key)}
                       className={`
-                        relative p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                        inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                         ${isSelected
-                          ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/20'
-                          : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                          ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                          : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
                         }
                       `}
                     >
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                          isSelected ? 'bg-blue-500 text-white' : config.color
-                        }`}>
-                          <IconComponent className="w-5 h-5" />
-                        </div>
-                        <span className={`text-sm font-medium ${
-                          isSelected ? 'text-blue-700' : 'text-gray-800'
-                        }`}>
-                          {config.label}
-                        </span>
-                      </div>
+                      <IconComponent className="w-4 h-4" />
+                      <span className="text-sm font-medium whitespace-nowrap">
+                        {config.label}
+                      </span>
                       {isSelected && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                          <CheckCircle className="w-4 h-4 text-white" />
-                        </div>
+                        <CheckCircle className="w-4 h-4" />
                       )}
                     </button>
                   );
@@ -573,117 +589,138 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
             {/* Phạm vi chia sẻ công việc */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-4">
-                Công việc này sẽ chia sẻ cho ai? <span className="text-red-500 ml-1">*</span>
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
+                Phạm vi chia sẻ <span className="text-red-500 ml-1">*</span>
               </label>
-              <div className="space-y-3">
-                {/* Cá nhân */}
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => handleInputChange('visibility', 'personal')}
                   className={`
-                    w-full p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left
+                    inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'personal'
-                      ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-500/20'
-                      : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                      ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                      : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
                     }
                   `}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                      formData.visibility === 'personal' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      <User className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-semibold ${
-                          formData.visibility === 'personal' ? 'text-blue-700' : 'text-gray-800'
-                        }`}>
-                          Cho Cá nhân
-                        </span>
-                        {formData.visibility === 'personal' && (
-                          <CheckCircle className="w-5 h-5 text-blue-500" />
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Chỉ người tạo công việc thấy - Trưởng nhóm và Trưởng Phòng vẫn thấy - Công việc này sẽ không xuất hiện trong tab nhóm
-                      </p>
-                    </div>
-                  </div>
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">Cá nhân</span>
+                  {formData.visibility === 'personal' && <CheckCircle className="w-4 h-4" />}
                 </button>
 
-                {/* Nhóm */}
                 <button
                   type="button"
                   onClick={() => handleInputChange('visibility', 'team')}
                   className={`
-                    w-full p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left
+                    inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'team'
-                      ? 'border-green-500 bg-green-50 shadow-lg shadow-green-500/20'
-                      : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                      ? 'border-green-500 bg-green-500 text-white shadow-lg shadow-green-500/20'
+                      : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
                     }
                   `}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                      formData.visibility === 'team' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      <UserCheck className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-semibold ${
-                          formData.visibility === 'team' ? 'text-green-700' : 'text-gray-800'
-                        }`}>
-                          Cho Nhóm
-                        </span>
-                        {formData.visibility === 'team' && (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Chỉ nhóm của người thực hiện thấy được công việc - Trưởng nhóm, các thành viên trong nhóm và trưởng phòng vẫn thấy công việc
-                      </p>
-                    </div>
-                  </div>
+                  <UserCheck className="w-4 h-4" />
+                  <span className="text-sm font-medium">Nhóm</span>
+                  {formData.visibility === 'team' && <CheckCircle className="w-4 h-4" />}
                 </button>
 
-                {/* Chung */}
                 <button
                   type="button"
                   onClick={() => handleInputChange('visibility', 'public')}
                   className={`
-                    w-full p-4 rounded-xl border-2 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] text-left
+                    inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'public'
-                      ? 'border-purple-500 bg-purple-50 shadow-lg shadow-purple-500/20'
-                      : 'border-gray-200 bg-white/80 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                      ? 'border-purple-500 bg-purple-500 text-white shadow-lg shadow-purple-500/20'
+                      : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
                     }
                   `}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                      formData.visibility === 'public' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      <Globe className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`font-semibold ${
-                          formData.visibility === 'public' ? 'text-purple-700' : 'text-gray-800'
-                        }`}>
-                          Cho Chung
-                        </span>
-                        {formData.visibility === 'public' && (
-                          <CheckCircle className="w-5 h-5 text-purple-500" />
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Toàn bộ nhân viên của Phòng Bán lẻ đều thấy công việc này
-                      </p>
-                    </div>
-                  </div>
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">Chung</span>
+                  {formData.visibility === 'public' && <CheckCircle className="w-4 h-4" />}
                 </button>
+              </div>
+            </div>
+
+            {/* Chia sẻ với người cụ thể */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
+                Chia sẻ với người cụ thể (tùy chọn)
+              </label>
+
+              {/* Selected users */}
+              {formData.sharedWith.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {formData.sharedWith.map(userId => {
+                    const user = users.find(u => u.id === userId);
+                    if (!user) return null;
+                    return (
+                      <div
+                        key={userId}
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full border border-blue-200"
+                      >
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-medium text-white">
+                            {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium">{user.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeUserFromShared(userId)}
+                          className="w-4 h-4 rounded-full bg-blue-200 hover:bg-blue-300 flex items-center justify-center transition-colors duration-150"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* User search input */}
+              <div className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Input
+                    placeholder="Tìm kiếm và thêm người..."
+                    value={userSearchQuery}
+                    onChange={(e) => {
+                      setUserSearchQuery(e.target.value);
+                      setShowUserDropdown(e.target.value.length > 0);
+                    }}
+                    onFocus={() => setShowUserDropdown(userSearchQuery.length > 0)}
+                    className="w-full h-10 pl-10 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm"
+                  />
+                </div>
+
+                {/* User dropdown */}
+                {showUserDropdown && filteredUsersForTagging.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto">
+                    {filteredUsersForTagging.slice(0, 5).map(user => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => addUserToShared(user.id)}
+                        className="w-full p-3 text-left hover:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium text-white">
+                              {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">{user.name}</div>
+                            <div className="text-sm text-gray-500">{user.email || user.location}</div>
+                          </div>
+                          <UserPlus className="w-4 h-4 text-gray-400" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </form>
