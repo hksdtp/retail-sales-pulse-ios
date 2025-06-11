@@ -1,5 +1,5 @@
 import { Notification } from '@/components/notifications/NotificationCenter';
-import { personalPlanService } from './personalPlanService';
+import { personalPlanService } from './PersonalPlanService';
 
 export interface NotificationBadge {
   count: number;
