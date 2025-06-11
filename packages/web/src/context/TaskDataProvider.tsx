@@ -280,12 +280,9 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
         }
 
-        // Import dữ liệu mẫu cho demo
-        const { tasks: sampleTasks } = await import('../components/tasks/data/TasksData');
-
-        // DEMO MODE: Sử dụng dữ liệu mẫu cho mobile demo
-        console.log('🚀 DEMO MODE: Sử dụng dữ liệu mẫu cho mobile demo');
-        rawTasksData = sampleTasks;
+        // PRODUCTION MODE: Bắt đầu với dữ liệu trống
+        console.log('🚀 PRODUCTION MODE: Bắt đầu dự án mới - không có dữ liệu mẫu');
+        rawTasksData = [];
 
         // === START: LOGIC LỌC PHÂN QUYỀN MỚI SỬ DỤNG CONFIG ===
         let filteredTasksForRole: Task[] = [];
