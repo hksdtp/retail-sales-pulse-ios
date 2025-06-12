@@ -6,7 +6,6 @@ import {
   Building,
   Building2,
   Calendar,
-  CheckCircle,
   CheckSquare,
   ChevronDown,
   ChevronRight,
@@ -32,9 +31,7 @@ import {
   MessageSquare,
   MoreVertical,
   Package,
-  Pause,
   PieChart,
-  Play,
   Plus,
   Printer,
   RefreshCw,
@@ -113,12 +110,12 @@ const priorityFlow = {
   urgent: 'low',
 };
 
-// Mapping icon cho trạng thái
-const statusIcons = {
-  'todo': Circle,
-  'in-progress': Play,
-  'on-hold': Pause,
-  'completed': CheckCircle,
+// Mapping text cho trạng thái (thay thế icon)
+const statusText = {
+  'todo': 'CHỜ',
+  'in-progress': 'LÀMM',
+  'on-hold': 'DỪNG',
+  'completed': 'XONG',
 };
 
 // Mapping icon cho mức độ ưu tiên
@@ -1171,9 +1168,9 @@ export default function TaskManagementView({
                           : 'cursor-not-allowed'
                       }`}
                     >
-                      {React.createElement(statusIcons[task.status] || Circle, {
-                        className: 'w-2.5 h-2.5',
-                      })}
+                      <span className="text-[10px] font-bold">
+                        {statusText[task.status] || 'CHỜ'}
+                      </span>
                     </button>
                     <button
                       onClick={(e) => {
@@ -1270,9 +1267,9 @@ export default function TaskManagementView({
                           }`}
                           title={canEditTask(task) ? `${statusMapping[task.status]} - Click để chuyển sang: ${statusMapping[statusFlow[task.status as keyof typeof statusFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi trạng thái'}
                         >
-                          {React.createElement(statusIcons[task.status] || Circle, {
-                            className: 'w-3 h-3',
-                          })}
+                          <span className="text-xs font-bold">
+                            {statusText[task.status] || 'CHỜ'}
+                          </span>
                         </button>
                         <button
                           onClick={(e) => {

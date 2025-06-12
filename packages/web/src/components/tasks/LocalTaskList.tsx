@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  Edit, 
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Edit,
   Trash2,
-  CheckCircle,
-  PlayCircle,
   AlertCircle
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -124,20 +122,22 @@ const LocalTaskList: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'in-progress': return <PlayCircle className="w-4 h-4" />;
-      case 'todo': return <Clock className="w-4 h-4" />;
-      default: return <AlertCircle className="w-4 h-4" />;
+      case 'completed': return 'XONG';
+      case 'in-progress': return 'LÀMM';
+      case 'todo': return 'CHỜ';
+      case 'on-hold': return 'DỪNG';
+      default: return 'CHỜ';
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusFullText = (status: string) => {
     switch (status) {
       case 'completed': return 'Hoàn thành';
       case 'in-progress': return 'Đang thực hiện';
       case 'todo': return 'Chờ thực hiện';
+      case 'on-hold': return 'Tạm dừng';
       default: return 'Không xác định';
     }
   };
@@ -221,8 +221,8 @@ const LocalTaskList: React.FC = () => {
                     <span className="text-2xl">{getTypeIcon(task.type)}</span>
                     <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
                     <Badge className={getStatusColor(task.status)}>
-                      {getStatusIcon(task.status)}
-                      <span className="ml-1">{getStatusText(task.status)}</span>
+                      <span className="text-xs font-bold mr-1">{getStatusText(task.status)}</span>
+                      <span>{getStatusFullText(task.status)}</span>
                     </Badge>
                     {task.priority && (
                       <Badge className={getPriorityColor(task.priority)}>

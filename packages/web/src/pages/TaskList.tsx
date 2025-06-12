@@ -17,8 +17,6 @@ import {
   ArrowUpDown,
   Calendar,
   CheckCircle,
-  CheckCircle2,
-  Clock,
   Edit,
   Filter,
   MoreHorizontal,
@@ -294,28 +292,35 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
     return statusMapping[status] || 'Không xác định';
   };
 
-  const getStatusColor = (status: string): string => {
-    const colorMapping: Record<string, string> = {
-      'todo': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-      'in-progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-      'on-hold': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-      'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    };
-    return colorMapping[status] || '';
-  };
 
-  const getStatusIcon = (status: string) => {
+
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'todo':
-        return <Clock className="h-5 w-5 text-gray-500" />;
+        return 'CHỜ';
       case 'in-progress':
-        return <Clock className="h-5 w-5 text-yellow-500" />;
+        return 'LÀMM';
       case 'on-hold':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
+        return 'DỪNG';
       case 'completed':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return 'XONG';
       default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
+        return 'CHỜ';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'todo':
+        return 'text-gray-500 bg-gray-100';
+      case 'in-progress':
+        return 'text-blue-500 bg-blue-100';
+      case 'on-hold':
+        return 'text-red-500 bg-red-100';
+      case 'completed':
+        return 'text-green-500 bg-green-100';
+      default:
+        return 'text-gray-500 bg-gray-100';
     }
   };
 
@@ -730,7 +735,11 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                 onClick={() => setSelectedTask(task)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 mt-1">{getStatusIcon(task.status)}</div>
+                  <div className="flex-shrink-0 mt-1">
+                    <span className={`inline-flex items-center justify-center w-12 h-6 rounded-full text-xs font-bold ${getStatusColor(task.status)}`}>
+                      {getStatusText(task.status)}
+                    </span>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <h3 className="text-base font-medium text-gray-900 dark:text-gray-100 truncate">
