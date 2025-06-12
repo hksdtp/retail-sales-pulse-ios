@@ -134,6 +134,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   };
 
   const priorityMapping = {
+    urgent: 'Khẩn cấp',
     high: 'Cao',
     normal: 'Bình thường',
     low: 'Thấp',
@@ -159,6 +160,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   };
 
   const priorityColors = {
+    urgent: 'bg-red-600',
     high: 'bg-red-500',
     normal: 'bg-yellow-500',
     low: 'bg-green-500',
@@ -306,6 +308,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                         onChange={(e) => setEditedTask((prev) => ({ ...prev, priority: e.target.value }))}
                         className={`pl-3 pr-8 py-1.5 text-xs font-semibold rounded-full text-white border-none focus:outline-none cursor-pointer appearance-none ${priorityColors[editedTask?.priority || task.priority || 'normal']}`}
                       >
+                        <option value="urgent">Khẩn cấp</option>
                         <option value="high">Cao</option>
                         <option value="normal">Bình thường</option>
                         <option value="low">Thấp</option>

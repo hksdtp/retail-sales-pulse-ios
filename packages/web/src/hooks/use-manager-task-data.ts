@@ -129,6 +129,39 @@ export const useManagerTaskData = (
 
       console.log(`🔍 Raw tasks data for ${viewLevel}:`, tasksData);
 
+      // Load auto-synced tasks từ localStorage và merge
+      if (viewLevel === 'personal' || viewLevel === 'individual') {
+        console.log('📋 Loading auto-synced tasks from localStorage...');
+        try {
+          const taskKey = `user_tasks_${currentUser.id}`;
+          const storedTasks = localStorage.getItem(taskKey);
+          const autoSyncedTasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
+          console.log(`📋 Found ${autoSyncedTasks.length} auto-synced tasks for user ${currentUser.id}`);
+
+          if (autoSyncedTasks.length > 0) {
+            console.log(`🔄 Merging ${autoSyncedTasks.length} auto-synced tasks with ${tasksData.length} API tasks`);
+
+            // Merge auto-synced tasks, tránh duplicate
+            autoSyncedTasks.forEach(autoTask => {
+              const isDuplicate = tasksData.some(apiTask =>
+                apiTask.title === autoTask.title && apiTask.date === autoTask.date
+              );
+
+              if (!isDuplicate) {
+                tasksData.push(autoTask);
+                console.log(`✅ Added auto-synced task: ${autoTask.title}`);
+              } else {
+                console.log(`⏭️ Skipped duplicate task: ${autoTask.title}`);
+              }
+            });
+
+            console.log(`📊 Final task count after merge: ${tasksData.length}`);
+          }
+        } catch (error) {
+          console.error('❌ Error loading auto-synced tasks:', error);
+        }
+      }
+
       // Nếu là individual view và có chọn member cụ thể, API đã filter rồi
       // Không cần filter thêm ở frontend
       if (viewLevel === 'individual' && selectedMemberId) {

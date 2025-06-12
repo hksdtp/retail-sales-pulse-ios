@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Clock, MapPin, Users, Edit, Trash2 } from 'lucide-react';
 
@@ -109,18 +109,21 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [plans, setPlans] = useState<any[]>([]);
 
-  // Migrate old plans to current date
+  // Migrate old plans to current date (only for very old plans)
   const migrateOldPlansToToday = (plans: any[]) => {
     const today = new Date();
     const todayString = formatDateKey(today);
     const currentYear = today.getFullYear();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
 
     return plans.map(plan => {
       const planDate = new Date(plan.startDate);
       const planYear = planDate.getFullYear();
 
-      // If plan is from previous months/years, move to today
-      if (planYear < currentYear || planDate < today) {
+      // Only migrate plans that are more than 1 month old or from previous years
+      if (planYear < currentYear || planDate < oneMonthAgo) {
+        console.log(`🔄 Migrating old plan "${plan.title}" from ${plan.startDate} to ${todayString}`);
         return {
           ...plan,
           startDate: todayString,
@@ -133,13 +136,17 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
   };
 
   // Load plans from service
-  useEffect(() => {
+  const loadPlans = useCallback(() => {
     if (currentUser) {
+      console.log('🔄 Loading plans for user:', currentUser.id);
       const userPlans = personalPlanService.getUserPlans(currentUser.id);
+      console.log('📋 Found plans:', userPlans.length, userPlans);
+
       const migratedPlans = migrateOldPlansToToday(userPlans);
 
       // Save migrated plans back if there were changes
       if (JSON.stringify(userPlans) !== JSON.stringify(migratedPlans)) {
+        console.log('🔄 Plans need migration, saving migrated data...');
         // Clear old data and save migrated data
         personalPlanService.clearUserData(currentUser.id);
         migratedPlans.forEach(plan => {
@@ -162,9 +169,23 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
         console.log('✅ Đã migrate kế hoạch cũ về ngày hiện tại');
       }
 
+      console.log(`📋 Setting ${migratedPlans.length} plans in TaskCalendar state`);
       setPlans(migratedPlans);
     }
-  }, [currentUser]);
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    loadPlans();
+  }, [loadPlans]);
+
+  // Expose loadPlans for external refresh - always available
+  useEffect(() => {
+    (window as any).refreshCalendarPlans = loadPlans;
+    console.log('🔄 Exposed refreshCalendarPlans function');
+    return () => {
+      delete (window as any).refreshCalendarPlans;
+    };
+  }, [loadPlans]);
 
   // Convert plans to tasks by date format
   const tasksByDate: Record<string, CalendarTask[]> = {};
@@ -173,35 +194,13 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
   const today = new Date();
   const todayKey = formatDateKey(today);
 
-  // Add static demo data for today
-  tasksByDate[todayKey] = [
-    {
-      id: '1',
-      title: 'Họp review dự án Q1',
-      type: 'meeting',
-      time: '09:00',
-      endTime: '11:00',
-      location: 'Phòng họp A',
-      participants: ['Lương Việt Anh', 'Lê Khánh Duy'],
-      priority: 'high',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      title: 'Gặp đối tác ABC',
-      type: 'partner',
-      time: '14:30',
-      endTime: '16:00',
-      location: 'Văn phòng đối tác',
-      participants: ['Phạm Thị Hương'],
-      priority: 'medium',
-      status: 'pending'
-    },
-  ];
+  // Không thêm dữ liệu mẫu - sẵn sàng cho dữ liệu thật
 
   // Add plans from service
+  console.log(`📅 Converting ${plans.length} plans to calendar tasks`);
   plans.forEach((plan) => {
     const dateKey = plan.startDate;
+    console.log(`📅 Adding plan "${plan.title}" to date ${dateKey}`);
     if (!tasksByDate[dateKey]) {
       tasksByDate[dateKey] = [];
     }
@@ -218,6 +217,8 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
       status: plan.status
     });
   });
+
+  console.log('📅 Tasks by date:', Object.keys(tasksByDate).length, 'dates with tasks');
 
   // Function to determine if a date has tasks
   const isDayWithTask = (day: Date) => {

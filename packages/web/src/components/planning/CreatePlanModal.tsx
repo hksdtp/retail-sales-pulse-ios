@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { User } from '@/types/user';
 import { personalPlanService } from '@/services/PersonalPlanService';
+import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
 
 interface CreatePlanModalProps {
   isOpen: boolean;
@@ -83,17 +84,21 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
   ];
 
   const planTypes = [
-    { value: 'meeting', label: '🤝 Họp', description: 'Cuộc họp, thảo luận' },
-    { value: 'site_visit', label: '🏗️ Khảo sát', description: 'Khảo sát địa điểm, dự án' },
-    { value: 'report', label: '📊 Báo cáo', description: 'Báo cáo, thuyết trình' },
-    { value: 'training', label: '📚 Đào tạo', description: 'Đào tạo, học tập' },
-    { value: 'client_meeting', label: '👥 Gặp khách hàng', description: 'Gặp gỡ khách hàng' },
-    { value: 'other', label: '📋 Khác', description: 'Kế hoạch khác' }
+    { value: 'partner_new', label: '🤝 Đối tác mới', description: 'Làm việc với đối tác mới' },
+    { value: 'partner_old', label: '🤝 Đối tác cũ', description: 'Làm việc với đối tác cũ' },
+    { value: 'architect_new', label: '🏗️ KTS mới', description: 'Làm việc với kiến trúc sư mới' },
+    { value: 'architect_old', label: '🏗️ KTS cũ', description: 'Làm việc với kiến trúc sư cũ' },
+    { value: 'client_new', label: '👥 Khách hàng mới', description: 'Gặp gỡ khách hàng mới' },
+    { value: 'client_old', label: '👥 Khách hàng cũ', description: 'Gặp gỡ khách hàng cũ' },
+    { value: 'quote_new', label: '💰 Báo giá mới', description: 'Báo giá cho dự án mới' },
+    { value: 'quote_old', label: '💰 Báo giá cũ', description: 'Theo dõi báo giá cũ' },
+    { value: 'other', label: '📋 Công việc khác', description: 'Công việc khác' }
   ];
 
   const priorities = [
-    { value: 'high', label: 'Cao', color: 'bg-red-100 text-red-800 border-red-200' },
-    { value: 'medium', label: 'Trung bình', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    { value: 'urgent', label: 'Khẩn cấp', color: 'bg-red-100 text-red-800 border-red-200' },
+    { value: 'high', label: 'Cao', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { value: 'normal', label: 'Bình thường', color: 'bg-blue-100 text-blue-800 border-blue-200' },
     { value: 'low', label: 'Thấp', color: 'bg-green-100 text-green-800 border-green-200' }
   ];
 
@@ -121,7 +126,7 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
@@ -142,7 +147,7 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
         description: formData.description,
         type: formData.type as any,
         status: 'pending',
-        priority: formData.priority as any || 'medium',
+        priority: formData.priority as any || 'normal',
         startDate: formData.startDate,
         endDate: formData.endDate || formData.startDate,
         startTime: formData.startTime,
@@ -154,6 +159,7 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
       });
 
       console.log('✅ Đã tạo kế hoạch cá nhân:', newPlan.title);
+      console.log('📋 Plan data:', newPlan);
 
       // Reset form và đóng modal
       setFormData({
@@ -174,6 +180,26 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
       if (onPlanCreated) {
         onPlanCreated();
       }
+
+      // Force refresh calendar plans
+      if ((window as any).refreshCalendarPlans) {
+        (window as any).refreshCalendarPlans();
+      }
+
+      // Force refresh plan list if exists
+      if ((window as any).refreshPlanList) {
+        (window as any).refreshPlanList();
+      }
+
+      // Trigger auto-sync ngay lập tức
+      console.log('🚀 Triggering immediate auto-sync after plan creation...');
+      autoPlanSyncService.manualSync(currentUser.id)
+        .then(() => {
+          console.log('✅ Auto-sync completed after plan creation');
+        })
+        .catch((error) => {
+          console.error('❌ Error in auto-sync after plan creation:', error);
+        });
 
       onClose();
       alert('Tạo kế hoạch thành công!');

@@ -17,6 +17,7 @@ import Kpi from './pages/Kpi';
 import Login from './pages/Login';
 import MobileTest from './pages/MobileTest';
 import NotFound from './pages/NotFound';
+
 import Reports from './pages/Reports';
 import Tasks from './pages/Tasks';
 import TaskFormDemo from './components/tasks/TaskFormDemo';
@@ -41,6 +42,14 @@ const App = () => (
                     path="/"
                     element={
                       <ProtectedRoute>
+                        <Tasks />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
                         <Index />
                       </ProtectedRoute>
                     }
@@ -61,6 +70,7 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+
                   <Route
                     path="/curtain-design"
                     element={

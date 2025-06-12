@@ -1,4 +1,4 @@
-import { Download, Plus, Trash2, UserRound, Users } from 'lucide-react';
+import { Download, Plus, Trash2, UserRound, Users, RefreshCw } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -34,6 +34,7 @@ import { useTaskData } from '../hooks/use-task-data';
 import { useToast } from '../hooks/use-toast';
 import { FirebaseService } from '../services/FirebaseService';
 import TaskList from './TaskList';
+
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -193,6 +194,45 @@ const Tasks = () => {
     }
   }, []);
 
+  // Listen for auto-sync events
+  useEffect(() => {
+    const handleTasksUpdated = (event: CustomEvent) => {
+      console.log('📡 Tasks page received tasks-updated event:', event.detail);
+
+      // Force refresh tasks
+      console.log('🔄 Tasks page refreshing due to auto-sync...');
+      setTaskUpdateTrigger((prev) => prev + 1);
+
+      // Show toast notification
+      if (event.detail?.taskTitle) {
+        toast({
+          title: '🎉 Công việc mới được đồng bộ',
+          description: `Kế hoạch "${event.detail.taskTitle}" đã được tự động chuyển thành công việc`,
+        });
+      }
+    };
+
+    const handleTasksRefreshed = (event: CustomEvent) => {
+      console.log('📡 Tasks page received tasks-refreshed event:', event.detail);
+
+      // Additional UI refresh
+      console.log('🔄 Tasks page additional refresh due to tasks-refreshed event...');
+      setTaskUpdateTrigger((prev) => prev + 1);
+    };
+
+    // Add event listeners
+    window.addEventListener('tasks-updated', handleTasksUpdated as EventListener);
+    window.addEventListener('tasks-refreshed', handleTasksRefreshed as EventListener);
+    console.log('📡 Tasks page added event listeners');
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('tasks-updated', handleTasksUpdated as EventListener);
+      window.removeEventListener('tasks-refreshed', handleTasksRefreshed as EventListener);
+      console.log('📡 Tasks page removed event listeners');
+    };
+  }, [toast]);
+
   // Xác định vị trí và tiêu đề phù hợp với vai trò
   const locationName = currentUser?.location === 'hanoi' ? 'Hà Nội' : 'Hồ Chí Minh';
 
@@ -243,6 +283,24 @@ const Tasks = () => {
               </Button>
             </ExportDialog>
 
+            {/* Manual refresh button for testing */}
+            <Button
+              variant="outline"
+              size="icon"
+              title="Làm mới dữ liệu"
+              className="text-green-600 border-green-200 bg-green-50"
+              onClick={() => {
+                console.log('🔄 Manual refresh triggered');
+                setTaskUpdateTrigger((prev) => prev + 1);
+                toast({
+                  title: '🔄 Đang làm mới',
+                  description: 'Dữ liệu công việc đang được cập nhật...',
+                });
+              }}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+
             {/* Nút tạo công việc gộp */}
             <Button
               className="flex items-center gap-2 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"
@@ -269,7 +327,7 @@ const Tasks = () => {
       </div>
 
       <div>
-        {/* Hiển thị giao diện mới cho danh sách công việc */}
+        {/* Giao diện quản lý công việc thống nhất */}
         <ErrorBoundary>
           <TaskManagementView
             viewLevel={viewLevel}

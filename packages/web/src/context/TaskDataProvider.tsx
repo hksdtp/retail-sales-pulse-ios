@@ -11,6 +11,7 @@ import { pushNotificationService } from '../services/pushNotificationService';
 import { mockTasks, saveMockTasksToLocalStorage } from '../utils/mockData';
 import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskDataContextType, TaskFilters } from './TaskContext';
+import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
 
 // Các helper function để làm việc với FirebaseService
 const isFirebaseConfigured = () => FirebaseService.isConfigured();
@@ -147,6 +148,20 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  // Lấy auto-synced tasks từ localStorage
+  const getAutoSyncedTasks = (userId: string): Task[] => {
+    try {
+      const taskKey = `user_tasks_${userId}`;
+      const storedTasks = localStorage.getItem(taskKey);
+      const tasks = storedTasks ? JSON.parse(storedTasks) : [];
+      console.log(`📋 Loaded ${tasks.length} auto-synced tasks for user ${userId}`);
+      return tasks;
+    } catch (error) {
+      console.error('Lỗi khi đọc auto-synced tasks từ localStorage:', error);
+      return [];
+    }
+  };
+
   // Chuyển đổi dữ liệu cũ sang format mới khi cần
   const migrateOldData = () => {
     try {
@@ -231,7 +246,17 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Kiểm tra nếu type hợp lệ
   const isValidTaskType = (type: string): type is Task['type'] => {
-    return ['meeting', 'call', 'task', 'report', 'other'].includes(type);
+    return [
+      'partner_new',
+      'partner_old',
+      'architect_new',
+      'architect_old',
+      'client_new',
+      'client_old',
+      'quote_new',
+      'quote_old',
+      'other'
+    ].includes(type);
   };
 
   // Kiểm tra nếu status hợp lệ
@@ -253,10 +278,37 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         // Kiểm tra xem có dữ liệu thô trong localStorage không
         const localRawTasks = getRawTasks();
 
-        // PRODUCTION MODE: Xóa tất cả và bắt đầu trống
-        console.log('🗑️ PRODUCTION MODE: Xóa tất cả dữ liệu và bắt đầu trống...');
+        // PRODUCTION MODE: Xóa dữ liệu cũ nhưng giữ lại auto-synced tasks
+        console.log('🗑️ PRODUCTION MODE: Xóa dữ liệu cũ nhưng giữ auto-synced tasks...');
+
+        // Backup auto-synced tasks trước khi clear
+        const autoSyncedTasks: { [key: string]: string } = {};
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('user_tasks_')) {
+            autoSyncedTasks[key] = localStorage.getItem(key) || '';
+          }
+        });
+
+        // Backup personal plans
+        const personalPlans: { [key: string]: string } = {};
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('personal_plans_')) {
+            personalPlans[key] = localStorage.getItem(key) || '';
+          }
+        });
+
         localStorage.clear(); // Xóa toàn bộ localStorage
         sessionStorage.clear(); // Xóa session storage
+
+        // Restore auto-synced tasks và personal plans
+        Object.entries(autoSyncedTasks).forEach(([key, value]) => {
+          if (value) localStorage.setItem(key, value);
+        });
+        Object.entries(personalPlans).forEach(([key, value]) => {
+          if (value) localStorage.setItem(key, value);
+        });
+
+        console.log('✅ Restored auto-synced tasks and personal plans after clear');
 
         // Xóa tất cả dữ liệu từ API nếu có
         if (isFirebaseConfigured()) {
@@ -280,9 +332,18 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
         }
 
-        // PRODUCTION MODE: Bắt đầu với dữ liệu trống
-        console.log('🚀 PRODUCTION MODE: Bắt đầu dự án mới - không có dữ liệu mẫu');
+        // PRODUCTION MODE: Bắt đầu với dữ liệu trống nhưng load auto-synced tasks
+        console.log('🚀 PRODUCTION MODE: Bắt đầu dự án mới - load auto-synced tasks');
         rawTasksData = [];
+
+        // Load auto-synced tasks nếu có user đăng nhập
+        if (currentUser?.id) {
+          const autoSyncedTasks = getAutoSyncedTasks(currentUser.id);
+          if (autoSyncedTasks.length > 0) {
+            console.log(`📋 Merging ${autoSyncedTasks.length} auto-synced tasks into rawTasksData`);
+            rawTasksData = [...rawTasksData, ...autoSyncedTasks];
+          }
+        }
 
         // === START: LOGIC LỌC PHÂN QUYỀN MỚI SỬ DỤNG CONFIG ===
         let filteredTasksForRole: Task[] = [];
@@ -535,6 +596,15 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       // Lưu vào bộ nhớ đã lọc
       saveFilteredTasks(updatedTasks);
 
+      // Lưu vào user_tasks localStorage để tương thích với auto-sync
+      if (currentUser?.id) {
+        const taskKey = `user_tasks_${currentUser.id}`;
+        const existingUserTasks = JSON.parse(localStorage.getItem(taskKey) || '[]');
+        const updatedUserTasks = [...existingUserTasks, newTask];
+        localStorage.setItem(taskKey, JSON.stringify(updatedUserTasks));
+        console.log(`📋 Saved task to user_tasks_${currentUser.id} for auto-sync compatibility`);
+      }
+
       // Lưu vào Firebase nếu đã cấu hình
       if (isFirebaseConfigured()) {
         try {
@@ -665,8 +735,12 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         updates.extraAssignees = JSON.stringify(updates.extraAssignees);
       }
 
-      // Tạo bản sao cập nhật
-      const updatedTask = { ...taskToUpdate, ...updates };
+      // Tạo bản sao cập nhật với updated_at
+      const updatedTask = {
+        ...taskToUpdate,
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
       const updatedTasks = [...tasks];
       updatedTasks[taskIndex] = updatedTask;
 
@@ -821,11 +895,50 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         LogLevel.BASIC,
       );
 
+      // ALWAYS load auto-synced tasks từ localStorage
+      if (currentUser?.id) {
+        console.log('📋 Loading auto-synced tasks from localStorage...');
+        try {
+          const taskKey = `user_tasks_${currentUser.id}`;
+          const storedTasks = localStorage.getItem(taskKey);
+          const autoSyncedTasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
+          console.log(`📋 Found ${autoSyncedTasks.length} auto-synced tasks for user ${currentUser.id}`);
+
+          if (autoSyncedTasks.length > 0) {
+            console.log(`🔄 Merging ${autoSyncedTasks.length} auto-synced tasks with ${rawTasksData.length} API tasks`);
+
+            // Merge auto-synced tasks, tránh duplicate
+            autoSyncedTasks.forEach(autoTask => {
+              const isDuplicate = rawTasksData.some(apiTask =>
+                apiTask.title === autoTask.title && apiTask.date === autoTask.date
+              );
+
+              if (!isDuplicate) {
+                rawTasksData.push(autoTask);
+                console.log(`✅ Added auto-synced task: ${autoTask.title}`);
+              } else {
+                console.log(`⏭️ Skipped duplicate task: ${autoTask.title}`);
+              }
+            });
+
+            console.log(`📊 Final task count after merge: ${rawTasksData.length} (${autoSyncedTasks.length} auto-synced merged)`);
+          } else {
+            console.log('📋 No auto-synced tasks found');
+          }
+        } catch (error) {
+          console.error('❌ Error loading auto-synced tasks:', error);
+        }
+      } else {
+        console.log('⚠️ No current user ID for loading auto-synced tasks');
+      }
+
       // Lưu dữ liệu đã lọc
       saveFilteredTasks(rawTasksData);
 
       // Cập nhật state
       setTasks(rawTasksData);
+
+      console.log(`✅ Tasks refreshed successfully: ${rawTasksData.length} total tasks`);
     } catch (error) {
       console.error('Lỗi khi làm mới dữ liệu công việc:', error);
       toast({
@@ -917,6 +1030,12 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [filters, setFilters] = useState<TaskFilters>({});
 
+  // Sync filteredTasks với tasks khi tasks thay đổi
+  useEffect(() => {
+    console.log(`🔄 Syncing filteredTasks with tasks: ${tasks.length} tasks`);
+    setFilteredTasks(tasks);
+  }, [tasks]);
+
   // Hàm lấy task theo ID
   const getTaskById = (id: string) => {
     return tasks.find((task) => task.id === id);
@@ -938,6 +1057,71 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
     isLoading,
     filters,
   };
+
+  // Inject TaskDataContext vào AutoPlanSyncService
+  useEffect(() => {
+    if (contextValue && currentUser) {
+      console.log('🔗 Injecting TaskDataContext into AutoPlanSyncService...');
+      autoPlanSyncService.setTaskDataContext(contextValue);
+      console.log('🔗 TaskDataContext injected successfully');
+
+      // Trigger một lần sync sau khi inject
+      console.log('⚡ Triggering initial sync after context injection...');
+      autoPlanSyncService.manualSync(currentUser.id).then(syncedCount => {
+        console.log(`🎯 Initial sync after injection: ${syncedCount} tasks synced`);
+
+        // Force refresh TaskDataProvider sau khi sync
+        if (syncedCount > 0) {
+          console.log('🔄 Forcing TaskDataProvider refresh after sync...');
+          refreshTasks();
+        }
+      }).catch(error => {
+        console.error('❌ Error in initial sync after injection:', error);
+      });
+    }
+  }, [contextValue, currentUser]);
+
+  // Listen for custom events từ auto-sync
+  useEffect(() => {
+    const handleTasksUpdated = (event: CustomEvent) => {
+      console.log('📡 TaskDataProvider received tasks-updated event:', event.detail);
+
+      // IMMEDIATE refresh - không delay
+      console.log('🔄 IMMEDIATE refresh due to auto-sync event...');
+      refreshTasks().then(() => {
+        console.log('✅ TaskDataProvider refreshed successfully after auto-sync event');
+
+        // Trigger additional UI updates
+        window.dispatchEvent(new CustomEvent('tasks-refreshed', {
+          detail: { source: 'TaskDataProvider-refresh', originalEvent: event.detail }
+        }));
+
+        console.log('📡 Dispatched tasks-refreshed event from TaskDataProvider');
+      }).catch(error => {
+        console.error('❌ Error refreshing tasks in TaskDataProvider:', error);
+      });
+
+      // Show toast notification
+      if (event.detail?.taskTitle) {
+        console.log(`✅ Auto-synced task: ${event.detail.taskTitle}`);
+
+        toast({
+          title: '🎉 Kế hoạch đã được đồng bộ',
+          description: `"${event.detail.taskTitle}" đã được chuyển thành công việc`,
+        });
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('tasks-updated', handleTasksUpdated as EventListener);
+    console.log('📡 TaskDataProvider added tasks-updated event listener');
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('tasks-updated', handleTasksUpdated as EventListener);
+      console.log('📡 TaskDataProvider removed tasks-updated event listener');
+    };
+  }, [refreshTasks, toast]);
 
   return <TaskDataContext.Provider value={contextValue}>{children}</TaskDataContext.Provider>;
 };

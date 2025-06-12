@@ -2,6 +2,8 @@
 
 import { chromium } from 'playwright';
 import express from 'express';
+import cors from 'cors';
+import { McpServer } from '@playwright/mcp';
 import path from 'path';
 
 class PlaywrightMCP {
@@ -11,10 +13,13 @@ class PlaywrightMCP {
     this.context = null;
     this.app = express();
     this.port = 3001;
+    this.mcpPort = 8080;
+    this.mcpServer = null;
     this.setupRoutes();
   }
 
   setupRoutes() {
+    this.app.use(cors());
     this.app.use(express.json());
     
     this.app.get('/status', (req, res) => {
@@ -23,6 +28,24 @@ class PlaywrightMCP {
         browser: this.browser ? 'connected' : 'disconnected',
         page: this.page ? 'active' : 'inactive'
       });
+    });
+
+    // Endpoint để mở dự án trực tiếp
+    this.app.get('/open-project', async (req, res) => {
+      try {
+        const { url = 'http://localhost:8088' } = req.query;
+        if (!this.page) {
+          await this.launchBrowser();
+        }
+        await this.page.goto(url);
+        res.json({ 
+          success: true, 
+          message: `Đã mở dự án tại ${url}`,
+          browserStatus: 'active'
+        });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
     });
 
     this.app.post('/launch', async (req, res) => {
@@ -127,16 +150,31 @@ class PlaywrightMCP {
 
   async start() {
     try {
+      // Khởi động HTTP API server
       this.server = this.app.listen(this.port, () => {
-        console.log(`🎭 Playwright MCP Server running on port ${this.port}`);
+        console.log(`🎭 Playwright MCP HTTP Server running on port ${this.port}`);
         console.log(`📊 Status: http://localhost:${this.port}/status`);
       });
 
-      // Auto-launch browser and open project
+      // Khởi động MCP Server
+      this.mcpServer = new McpServer();
+      await this.mcpServer.start({
+        port: this.mcpPort,
+        browserInstances: 1,
+        showBrowser: true,
+        launchOptions: {
+          headless: false,
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        }
+      });
+
+      console.log(`🎭 Playwright MCP Protocol Server running on port ${this.mcpPort}`);
+
+      // Auto-launch browser và mở project
       await this.launchBrowser();
-      
-      // Navigate to local development server
-      const projectUrl = 'http://localhost:8088'; // Project's actual port
+
+      // Điều hướng đến local development server
+      const projectUrl = 'http://localhost:8088'; // Port thực tế của project
       console.log(`🌐 Opening project at ${projectUrl}`);
       await this.page.goto(projectUrl);
       
@@ -148,10 +186,18 @@ class PlaywrightMCP {
 
   async stop() {
     await this.closeBrowser();
+
+    if (this.mcpServer) {
+      await this.mcpServer.stop();
+      console.log('🛑 Playwright MCP Protocol Server stopped');
+    }
+
     if (this.server) {
       this.server.close();
+      console.log('🛑 Playwright MCP HTTP Server stopped');
     }
-    console.log('🛑 Playwright MCP Server stopped');
+
+    console.log('🛑 All Playwright MCP Servers stopped');
   }
 }
 

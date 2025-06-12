@@ -64,6 +64,7 @@ import MemberViewFilters from './MemberViewFilters';
 import TaskDetailPanel from './TaskDetailPanel';
 import TaskSearchBar from './TaskSearchBar';
 import { getStatusColor, getTypeName } from './task-utils/TaskFormatters';
+import { sortTasks } from './task-utils/TaskFilters';
 import { Task } from './types/TaskTypes';
 
 // Mapping trạng thái theo form nhập công việc
@@ -91,12 +92,14 @@ const statusFlow = {
 
 // Mapping mức độ ưu tiên
 const priorityMapping = {
+  urgent: 'Khẩn cấp',
   high: 'Cao',
   normal: 'Bình thường',
   low: 'Thấp',
 };
 
 const priorityColors = {
+  urgent: 'bg-red-600 hover:bg-red-700 text-white',
   high: 'bg-red-500 hover:bg-red-600 text-white',
   normal: 'bg-yellow-500 hover:bg-yellow-600 text-white',
   low: 'bg-green-500 hover:bg-green-600 text-white',
@@ -106,7 +109,8 @@ const priorityColors = {
 const priorityFlow = {
   low: 'normal',
   normal: 'high',
-  high: 'low',
+  high: 'urgent',
+  urgent: 'low',
 };
 
 // Mapping icon cho trạng thái
@@ -119,6 +123,7 @@ const statusIcons = {
 
 // Mapping icon cho mức độ ưu tiên
 const priorityIcons = {
+  urgent: Zap,
   high: Zap,
   normal: AlertCircle,
   low: Circle,
@@ -187,6 +192,7 @@ export default function TaskManagementView({
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Force refresh trigger
   const [filters, setFilters] = useState({
     timeRange: 'all',
     status: 'all',
@@ -388,32 +394,27 @@ export default function TaskManagementView({
         }
         return [];
       case 'department':
-        // Công việc chung của cả phòng: sử dụng managerTasks nếu có, fallback về regularTasks
-        if (managerTasks.length > 0) {
-          console.log('🏢 Using managerTasks for department view:', managerTasks);
-          return managerTasks;
-        }
-        // Fallback: Hiển thị tất cả công việc của phòng (không cần flag shared)
-        console.log('🏢 Showing all department tasks from regularTasks:', regularTasks.length);
-        const departmentTasks = regularTasks.filter((task) => {
-          // Hiển thị tất cả công việc của phòng, bao gồm:
-          // 1. Công việc được chia sẻ
-          // 2. Công việc của các thành viên trong phòng
-          const isShared = task.isShared;
-          const isSharedWithTeam = task.isSharedWithTeam;
-          const isFromDepartment = true; // Tạm thời hiển thị tất cả
+        // Công việc chung của cả phòng - đơn giản hóa logic
+        console.log('🏢 Department view - Available data:');
+        console.log('  - managerTasks:', managerTasks.length);
+        console.log('  - regularTasks:', regularTasks.length);
 
-          const shouldShow = isShared || isSharedWithTeam || isFromDepartment;
+        // Ưu tiên sử dụng managerTasks nếu có
+        const sourceTasksForDept = managerTasks.length > 0 ? managerTasks : regularTasks;
+        console.log('🏢 Using source:', managerTasks.length > 0 ? 'managerTasks' : 'regularTasks');
 
-          console.log(`  📋 Task "${task.title}":`);
-          console.log(`    isShared: ${isShared}`);
-          console.log(`    isSharedWithTeam: ${isSharedWithTeam}`);
-          console.log(`    isFromDepartment: ${isFromDepartment}`);
-          console.log(`    shouldShow: ${shouldShow}`);
+        // Lọc công việc chung của phòng - hiển thị tất cả tasks từ API department endpoint
+        const departmentTasks = sourceTasksForDept.filter((task) => {
+          // Nếu API trả về tasks cho department view, nghĩa là đã được filter ở backend
+          // Chỉ cần hiển thị tất cả tasks từ department API endpoint
+          const shouldShow = true; // API đã filter rồi
+
+          console.log(`  ✅ Including department task: "${task.title}" (from API department endpoint)`);
 
           return shouldShow;
         });
-        console.log('🏢 Final department tasks:', departmentTasks.length);
+
+        console.log('🏢 Final department tasks count:', departmentTasks.length);
         return departmentTasks;
       default:
         return regularTasks.filter(
@@ -426,15 +427,18 @@ export default function TaskManagementView({
 
   // Cập nhật localTasks khi baseTasks thay đổi, nhưng giữ lại các thay đổi local
   useEffect(() => {
-    console.log('🔄 Updating localTasks with baseTasks:', baseTasks);
+    console.log('🔄 Updating localTasks with baseTasks:', baseTasks.length);
     console.log('🔍 Current selectedView:', selectedView);
-    console.log('🔍 regularTaskData:', regularTaskData);
-    console.log('🔍 managerTaskData:', managerTaskData);
-    // Chỉ cập nhật nếu localTasks chưa có dữ liệu hoặc khác biệt về số lượng
+    console.log('🔍 regularTaskData tasks:', regularTaskData?.tasks?.length || 0);
+    console.log('🔍 managerTaskData tasks:', managerTaskData?.tasks?.length || 0);
+
+    // Cập nhật localTasks với baseTasks mới
+    // Chỉ dựa vào length và selectedView để tránh infinite loop
     if (localTasks.length === 0 || localTasks.length !== baseTasks.length) {
+      console.log('🔄 Setting localTasks to baseTasks:', baseTasks.length);
       setLocalTasks([...baseTasks]);
     }
-  }, [baseTasks.length, selectedView]);
+  }, [baseTasks.length, selectedView, regularTaskData?.tasks?.length, managerTaskData?.tasks?.length, refreshTrigger]);
 
   // Sẽ được định nghĩa sau khi filterTasks được khai báo
 
@@ -529,6 +533,77 @@ export default function TaskManagementView({
       setSelectedMember(null);
     }
   }, [viewLevel]);
+
+  // Listen for auto-sync events và refresh tasks
+  useEffect(() => {
+    const handleTasksUpdated = (event: CustomEvent) => {
+      console.log('📡 TaskManagementView received tasks-updated event:', event.detail);
+
+      // Force refresh both regular and manager task data
+      console.log('🔄 TaskManagementView refreshing due to auto-sync...');
+      if (regularTaskData?.refreshTasks) {
+        regularTaskData.refreshTasks().then(() => {
+          console.log('✅ Regular tasks refreshed in TaskManagementView');
+
+          // Force update localTasks after refresh
+          setTimeout(() => {
+            console.log('🔄 Force refresh triggered by auto-sync');
+            // Trigger re-render by updating refreshTrigger
+            setRefreshTrigger(prev => prev + 1);
+          }, 200);
+        }).catch(error => {
+          console.error('❌ Error refreshing regular tasks:', error);
+        });
+      }
+
+      if (managerTaskData?.refreshTasks) {
+        managerTaskData.refreshTasks().then(() => {
+          console.log('✅ Manager tasks refreshed in TaskManagementView');
+
+          // Force update localTasks after refresh
+          setTimeout(() => {
+            console.log('🔄 Force refresh triggered by manager auto-sync');
+            // Trigger re-render by updating refreshTrigger
+            setRefreshTrigger(prev => prev + 1);
+          }, 200);
+        }).catch(error => {
+          console.error('❌ Error refreshing manager tasks:', error);
+        });
+      }
+    };
+
+    const handleTasksRefreshed = (event: CustomEvent) => {
+      console.log('📡 TaskManagementView received tasks-refreshed event:', event.detail);
+
+      // Additional refresh for UI consistency
+      console.log('🔄 TaskManagementView additional refresh due to tasks-refreshed event...');
+      setTimeout(() => {
+        if (regularTaskData?.refreshTasks) {
+          regularTaskData.refreshTasks();
+        }
+        if (managerTaskData?.refreshTasks) {
+          managerTaskData.refreshTasks();
+        }
+
+        // Force update localTasks immediately
+        console.log('🔄 Force refresh triggered by tasks-refreshed event');
+        // Trigger re-render by updating refreshTrigger
+        setRefreshTrigger(prev => prev + 1);
+      }, 100);
+    };
+
+    // Add event listeners
+    window.addEventListener('tasks-updated', handleTasksUpdated as EventListener);
+    window.addEventListener('tasks-refreshed', handleTasksRefreshed as EventListener);
+    console.log('📡 TaskManagementView added auto-sync event listeners');
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('tasks-updated', handleTasksUpdated as EventListener);
+      window.removeEventListener('tasks-refreshed', handleTasksRefreshed as EventListener);
+      console.log('📡 TaskManagementView removed auto-sync event listeners');
+    };
+  }, [regularTaskData, managerTaskData]);
 
   // Hàm lấy tên người dùng từ nhiều nguồn
   const getUserName = (task: any) => {
@@ -643,8 +718,9 @@ export default function TaskManagementView({
     });
   };
 
-  // Áp dụng filters cho tasks
-  const tasks = filterTasks(localTasks);
+  // Áp dụng filters cho tasks và sắp xếp
+  const filteredTasks = filterTasks(localTasks);
+  const tasks = sortTasks(filteredTasks);
 
   // Hàm lấy initials từ tên
   const getInitials = (name: string) => {

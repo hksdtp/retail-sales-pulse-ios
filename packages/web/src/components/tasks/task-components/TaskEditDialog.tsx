@@ -50,22 +50,9 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: 'Mô tả phải có ít nhất 10 ký tự',
   }),
-  type: z.enum(
-    [
-      'partner_new',
-      'partner_old',
-      'architect_new',
-      'architect_old',
-      'client_new',
-      'client_old',
-      'quote_new',
-      'quote_old',
-      'other',
-    ],
-    {
-      required_error: 'Vui lòng chọn loại công việc',
-    },
-  ),
+  type: z.enum(['other'], {
+    required_error: 'Vui lòng chọn loại công việc',
+  }),
   status: z.enum(['todo', 'in-progress', 'on-hold', 'completed'], {
     required_error: 'Vui lòng chọn trạng thái',
   }),
@@ -179,7 +166,7 @@ const TaskEditDialog: React.FC<TaskEditDialogProps> = ({ open, onOpenChange, tas
     { value: 'client_old', label: 'Khách hàng cũ' },
     { value: 'quote_new', label: 'Báo giá mới' },
     { value: 'quote_old', label: 'Báo giá cũ' },
-    { value: 'other', label: 'Khác' },
+    { value: 'other', label: 'Công việc khác' },
   ];
 
   // Trạng thái công việc

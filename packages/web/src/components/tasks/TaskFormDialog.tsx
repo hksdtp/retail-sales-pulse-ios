@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search } from 'lucide-react';
+import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search, Building, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -204,29 +204,11 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   // Task type configurations with colors and icons
   const taskTypeConfig = {
-    architect_new: {
-      label: 'KTS mới',
-      color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      icon: Users,
-      gradient: 'from-emerald-50 to-emerald-100'
-    },
-    architect_old: {
-      label: 'KTS cũ',
-      color: 'bg-emerald-50 text-emerald-700 border-emerald-150',
-      icon: Users,
-      gradient: 'from-emerald-25 to-emerald-75'
-    },
-    client_new: {
-      label: 'KH/CĐT mới',
-      color: 'bg-blue-100 text-blue-800 border-blue-200',
+    other: {
+      label: 'Công việc khác',
+      color: 'bg-gray-100 text-gray-800 border-gray-200',
       icon: Briefcase,
-      gradient: 'from-blue-50 to-blue-100'
-    },
-    client_old: {
-      label: 'KH/CĐT cũ',
-      color: 'bg-blue-50 text-blue-700 border-blue-150',
-      icon: Briefcase,
-      gradient: 'from-blue-25 to-blue-75'
+      gradient: 'from-gray-50 to-gray-100'
     },
     quote_new: {
       label: 'SBG mới',
@@ -248,14 +230,50 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     },
     partner_old: {
       label: 'Đối tác cũ',
-      color: 'bg-orange-50 text-orange-700 border-orange-150',
+      color: 'bg-orange-100 text-orange-800 border-orange-200',
       icon: FilePen,
-      gradient: 'from-orange-25 to-orange-75'
+      gradient: 'from-orange-50 to-orange-100'
+    },
+    architect_new: {
+      label: 'KTS mới',
+      color: 'bg-blue-100 text-blue-800 border-blue-200',
+      icon: Building,
+      gradient: 'from-blue-50 to-blue-100'
+    },
+    architect_old: {
+      label: 'KTS cũ',
+      color: 'bg-blue-100 text-blue-800 border-blue-200',
+      icon: Building,
+      gradient: 'from-blue-50 to-blue-100'
+    },
+    client_new: {
+      label: 'Khách hàng mới',
+      color: 'bg-green-100 text-green-800 border-green-200',
+      icon: Users,
+      gradient: 'from-green-50 to-green-100'
+    },
+    client_old: {
+      label: 'Khách hàng cũ',
+      color: 'bg-green-100 text-green-800 border-green-200',
+      icon: Users,
+      gradient: 'from-green-50 to-green-100'
+    },
+    quote_new: {
+      label: 'Báo giá mới',
+      color: 'bg-purple-100 text-purple-800 border-purple-200',
+      icon: DollarSign,
+      gradient: 'from-purple-50 to-purple-100'
+    },
+    quote_old: {
+      label: 'Báo giá cũ',
+      color: 'bg-purple-100 text-purple-800 border-purple-200',
+      icon: DollarSign,
+      gradient: 'from-purple-50 to-purple-100'
     },
     other: {
       label: 'Công việc khác',
       color: 'bg-gray-100 text-gray-800 border-gray-200',
-      icon: Clock,
+      icon: FileText,
       gradient: 'from-gray-50 to-gray-100'
     }
   };

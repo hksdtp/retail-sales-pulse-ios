@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Filter, Calendar, Clock, User, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -58,9 +58,15 @@ const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [searchQuery, onSearch]);
 
-  // Notify parent when filters change
+  // Notify parent when filters change - use ref to prevent infinite loop
+  const prevFiltersRef = useRef<TaskFilters>();
+
   useEffect(() => {
-    onFilterChange(filters);
+    // Only call onFilterChange if filters actually changed
+    if (prevFiltersRef.current && JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters)) {
+      onFilterChange(filters);
+    }
+    prevFiltersRef.current = filters;
   }, [filters, onFilterChange]);
 
   const handleFilterChange = (key: keyof TaskFilters, value: string | Date) => {

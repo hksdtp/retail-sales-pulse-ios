@@ -5,9 +5,9 @@ export interface PersonalPlan {
   userId: string;
   title: string;
   description: string;
-  type: 'meeting' | 'site_visit' | 'report' | 'training' | 'client_meeting' | 'other';
+  type: 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'report' | 'training' | 'meeting' | 'inventory' | 'other';
   status: 'pending' | 'in_progress' | 'completed' | 'overdue';
-  priority: 'high' | 'medium' | 'low';
+  priority: 'urgent' | 'high' | 'normal' | 'low';
   startDate: string;
   endDate: string;
   startTime: string;
@@ -21,6 +21,9 @@ export interface PersonalPlan {
   reminderTime?: string;
   isRecurring?: boolean;
   recurringPattern?: 'daily' | 'weekly' | 'monthly';
+  // Thêm fields để tương thích với Task
+  visibility?: 'personal' | 'team' | 'public';
+  sharedWith?: string[];
 }
 
 export interface PersonalPlanStats {

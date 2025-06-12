@@ -3,6 +3,42 @@ import { Team, User } from '@/types/user';
 
 import { Task } from '../types/TaskTypes';
 
+// Hàm sắp xếp tasks theo thời gian và mức độ ưu tiên
+export const sortTasks = (tasks: Task[]): Task[] => {
+  return tasks.sort((a, b) => {
+    // Lấy thời gian mới nhất (updated_at hoặc created_at)
+    const getLatestTime = (task: Task) => {
+      const updatedAt = task.updated_at || task.created_at;
+      const createdAt = task.created_at;
+      return new Date(updatedAt || createdAt).getTime();
+    };
+
+    const timeA = getLatestTime(a);
+    const timeB = getLatestTime(b);
+
+    // Sắp xếp theo thời gian giảm dần (mới nhất trước)
+    const timeDiff = timeB - timeA;
+
+    // Nếu khác nhau hơn 1 phút, sắp xếp theo thời gian
+    if (Math.abs(timeDiff) > 60000) {
+      return timeDiff;
+    }
+
+    // Nếu cùng thời gian (trong vòng 1 phút), sắp xếp theo priority
+    const priorityWeight = {
+      urgent: 4,
+      high: 3,
+      normal: 2,
+      low: 1
+    };
+
+    const priorityA = priorityWeight[a.priority as keyof typeof priorityWeight] || 2;
+    const priorityB = priorityWeight[b.priority as keyof typeof priorityWeight] || 2;
+
+    return priorityB - priorityA; // Priority cao hơn trước
+  });
+};
+
 export const filterTasksByUserRole = (
   tasks: Task[],
   currentUser: User | null,
@@ -39,6 +75,9 @@ export const filterTasksByUserRole = (
 
 // Tạo danh sách nhóm công việc theo thời gian và trạng thái
 export const groupTasks = (filteredTasks: Task[]) => {
+  // Sắp xếp tasks trước khi nhóm
+  const sortedTasks = sortTasks(filteredTasks);
+
   // Lấy ngày hiện tại để so sánh
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Reset thời gian về 00:00:00
@@ -71,7 +110,7 @@ export const groupTasks = (filteredTasks: Task[]) => {
   };
 
   // Phân loại công việc vào các nhóm
-  filteredTasks.forEach((task) => {
+  sortedTasks.forEach((task) => {
     // Phân loại theo trạng thái
     if (task.status === 'todo') {
       groupedTasks['Cần làm'].push(task);

@@ -16,6 +16,7 @@ import {
   mockUpdateUser
 } from '@/services/mockAuth';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
+import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -166,6 +167,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setCurrentUser(user);
               setAuthToken(storedToken);
               setIsFirstLogin(!user.password_changed);
+
+              // Start auto plan sync for restored user
+              autoPlanSyncService.startAutoSync(user.id);
+              console.log('🔄 Started auto plan sync for restored user:', user.name);
+
               console.log('Restored user session from localStorage');
             } catch (error) {
               console.error('Error parsing stored user data:', error);
@@ -223,6 +229,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('Login successful for user:', user.name);
 
+      // Start auto plan sync service
+      autoPlanSyncService.startAutoSync(user.id);
+      console.log('🔄 Started auto plan sync for user:', user.name);
+
       toast({
         title: 'Đăng nhập thành công',
         description: `Chào mừng ${user.name}!`,
@@ -246,6 +256,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     console.log('Logging out user');
+
+    // Stop auto plan sync service
+    autoPlanSyncService.stopAutoSync();
+    console.log('⏹️ Stopped auto plan sync');
+
     setCurrentUser(null);
     setAuthToken(null);
     setIsFirstLogin(false);

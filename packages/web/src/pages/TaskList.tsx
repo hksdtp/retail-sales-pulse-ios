@@ -31,6 +31,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { useNavigate } from 'react-router-dom';
 
+import { sortTasks } from '../components/tasks/task-utils/TaskFilters';
 import { Task, TaskFilters } from '../components/tasks/types/TaskTypes';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -204,13 +205,15 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
 
       console.log('DEBUG: Trước khi sắp xếp: Số task =', result.length);
 
-      result.sort((a, b) => {
-        const dateA = new Date(a.created_at || a.date).getTime();
-        const dateB = new Date(b.created_at || b.date).getTime();
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-      });
+      // Áp dụng logic sắp xếp mới: thời gian + priority
+      const sortedResult = sortTasks(result);
 
-      setLocalFilteredTasks(result);
+      // Nếu user muốn đảo ngược thứ tự, thì reverse
+      if (sortOrder === 'asc') {
+        sortedResult.reverse();
+      }
+
+      setLocalFilteredTasks(sortedResult);
       console.log('Số lượng công việc sau khi lọc:', result.length);
     } catch (error) {
       console.error('Lỗi khi lọc tasks:', error);

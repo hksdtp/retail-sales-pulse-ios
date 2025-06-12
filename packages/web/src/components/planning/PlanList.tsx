@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Search,
-  Filter,
   Calendar,
   Clock,
   Users,
@@ -15,9 +13,8 @@ import {
   PlayCircle
 } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -25,54 +22,159 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { User } from '@/types/user';
 import { personalPlanService, PersonalPlan } from '@/services/PersonalPlanService';
+import { planTaskSyncService } from '@/services/PlanTaskSyncService';
+import PlanSearchBar from './PlanSearchBar';
 
 interface PlanListProps {
   currentUser: User | null;
 }
 
 const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    status: 'all',
+    type: 'all',
+    priority: 'all',
+    dateRange: 'all'
+  });
   const [plans, setPlans] = useState<PersonalPlan[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<PersonalPlan[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Load dữ liệu cá nhân của user
-  useEffect(() => {
+  const loadPlans = useCallback(() => {
     if (!currentUser?.id) return;
 
+    console.log('🔄 Loading plans for user:', currentUser.id);
     const userPlans = personalPlanService.getUserPlans(currentUser.id);
     setPlans(userPlans);
 
-    console.log(`📋 Loaded ${userPlans.length} personal plans for ${currentUser.name}`);
+    console.log(`📋 Loaded ${userPlans.length} personal plans for ${currentUser.name}`, userPlans);
   }, [currentUser?.id]);
+
+  useEffect(() => {
+    loadPlans();
+  }, [loadPlans]);
+
+  // Expose loadPlans for external refresh - always available
+  useEffect(() => {
+    (window as any).refreshPlanList = loadPlans;
+    console.log('🔄 Exposed refreshPlanList function');
+    return () => {
+      delete (window as any).refreshPlanList;
+    };
+  }, [loadPlans]);
 
   // Lọc kế hoạch khi có thay đổi
   useEffect(() => {
     if (!currentUser?.id) return;
 
-    const filtered = personalPlanService.filterPlans(currentUser.id, {
-      status: statusFilter,
-      type: typeFilter,
-      priority: priorityFilter,
-      search: searchTerm
-    });
+    let filtered = plans;
+
+    // Filter by search query
+    if (searchQuery && searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(plan =>
+        plan.title.toLowerCase().includes(query) ||
+        plan.description.toLowerCase().includes(query) ||
+        plan.location?.toLowerCase().includes(query)
+      );
+    }
+
+    // Filter by status
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(plan => plan.status === filters.status);
+    }
+
+    // Filter by type
+    if (filters.type !== 'all') {
+      filtered = filtered.filter(plan => plan.type === filters.type);
+    }
+
+    // Filter by priority
+    if (filters.priority !== 'all') {
+      filtered = filtered.filter(plan => plan.priority === filters.priority);
+    }
+
+    // Filter by date range
+    if (filters.dateRange !== 'all') {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      filtered = filtered.filter(plan => {
+        const planDate = new Date(plan.startDate);
+
+        switch (filters.dateRange) {
+          case 'today':
+            return planDate.toDateString() === today.toDateString();
+          case 'tomorrow':
+            return planDate.toDateString() === tomorrow.toDateString();
+          case 'week':
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            return planDate >= weekStart && planDate <= weekEnd;
+          case 'month':
+            return planDate.getMonth() === today.getMonth() &&
+                   planDate.getFullYear() === today.getFullYear();
+          default:
+            return true;
+        }
+      });
+    }
 
     setFilteredPlans(filtered);
-  }, [currentUser?.id, searchTerm, statusFilter, typeFilter, priorityFilter, plans]);
+  }, [currentUser?.id, searchQuery, filters, plans]);
+
+  // Sync plans to tasks
+  const handleSyncPlansToTasks = async () => {
+    if (!currentUser?.id) return;
+
+    setIsSyncing(true);
+    try {
+      const result = await planTaskSyncService.syncBidirectional(currentUser.id);
+
+      if (result.plansToTasks > 0) {
+        alert(`✅ Đã đồng bộ ${result.plansToTasks} kế hoạch thành công việc!`);
+      } else {
+        alert('ℹ️ Không có kế hoạch nào cần đồng bộ.');
+      }
+
+      if (result.errors.length > 0) {
+        console.error('Sync errors:', result.errors);
+        alert(`⚠️ Có ${result.errors.length} lỗi trong quá trình đồng bộ. Xem console để biết chi tiết.`);
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      alert('❌ Lỗi khi đồng bộ kế hoạch. Vui lòng thử lại!');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Sync individual plan to task
+  const handleSyncPlanToTask = async (plan: PersonalPlan) => {
+    if (!currentUser?.id) return;
+
+    try {
+      const success = await planTaskSyncService.syncPlanToTask(plan, currentUser.id);
+      if (success) {
+        alert(`✅ Đã đồng bộ kế hoạch "${plan.title}" thành công việc!`);
+      } else {
+        alert('❌ Lỗi khi đồng bộ kế hoạch. Vui lòng thử lại!');
+      }
+    } catch (error) {
+      console.error('Sync plan error:', error);
+      alert('❌ Lỗi khi đồng bộ kế hoạch. Vui lòng thử lại!');
+    }
+  };
 
   // Xử lý actions cho kế hoạch
-  const handlePlanAction = (planId: string, action: 'view' | 'edit' | 'delete') => {
+  const handlePlanAction = (planId: string, action: 'view' | 'edit' | 'delete' | 'sync') => {
     if (!currentUser?.id) return;
 
     switch (action) {
@@ -88,10 +190,17 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
         if (confirm('Bạn có chắc chắn muốn xóa kế hoạch này?')) {
           const success = personalPlanService.deletePlan(currentUser.id, planId);
           if (success) {
+            console.log('✅ Đã xóa kế hoạch:', planId);
             // Reload plans
-            const updatedPlans = personalPlanService.getUserPlans(currentUser.id);
-            setPlans(updatedPlans);
+            loadPlans();
+            alert('Đã xóa kế hoạch thành công!');
           }
+        }
+        break;
+      case 'sync':
+        const plan = plans.find(p => p.id === planId);
+        if (plan) {
+          handleSyncPlanToTask(plan);
         }
         break;
     }
@@ -138,94 +247,54 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'meeting': return '🤝';
-      case 'site_visit': return '🏗️';
-      case 'report': return '📊';
-      case 'training': return '📚';
+      case 'partner_new': return '🤝';
+      case 'partner_old': return '🤝';
+      case 'architect_new': return '🏗️';
+      case 'architect_old': return '🏗️';
+      case 'client_new': return '👥';
+      case 'client_old': return '👥';
+      case 'quote_new': return '💰';
+      case 'quote_old': return '💰';
       default: return '📋';
     }
   };
 
   const getTypeText = (type: string) => {
     switch (type) {
-      case 'meeting': return 'Họp';
-      case 'site_visit': return 'Khảo sát';
-      case 'report': return 'Báo cáo';
-      case 'training': return 'Đào tạo';
-      default: return 'Khác';
+      case 'partner_new': return 'Đối tác mới';
+      case 'partner_old': return 'Đối tác cũ';
+      case 'architect_new': return 'KTS mới';
+      case 'architect_old': return 'KTS cũ';
+      case 'client_new': return 'Khách hàng mới';
+      case 'client_old': return 'Khách hàng cũ';
+      case 'quote_new': return 'Báo giá mới';
+      case 'quote_old': return 'Báo giá cũ';
+      default: return 'Công việc khác';
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-blue-600" />
-            Bộ lọc và tìm kiếm
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Tìm kiếm kế hoạch..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                <SelectItem value="pending">Chờ thực hiện</SelectItem>
-                <SelectItem value="in_progress">Đang thực hiện</SelectItem>
-                <SelectItem value="completed">Hoàn thành</SelectItem>
-                <SelectItem value="overdue">Quá hạn</SelectItem>
-              </SelectContent>
-            </Select>
+      {/* Search Bar */}
+      <PlanSearchBar
+        onSearch={setSearchQuery}
+        onFilterChange={setFilters}
+        placeholder="Tìm kiếm kế hoạch theo tiêu đề, mô tả, địa điểm..."
+      />
 
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Loại kế hoạch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả loại</SelectItem>
-                <SelectItem value="meeting">Họp</SelectItem>
-                <SelectItem value="site_visit">Khảo sát</SelectItem>
-                <SelectItem value="report">Báo cáo</SelectItem>
-                <SelectItem value="training">Đào tạo</SelectItem>
-                <SelectItem value="client_meeting">Gặp khách hàng</SelectItem>
-                <SelectItem value="other">Khác</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Results Summary */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-gray-600 flex items-center gap-4">
+          <span>📊 Hiển thị {filteredPlans.length} / {plans.length} kế hoạch</span>
+          {filteredPlans.length !== plans.length && (
+            <span className="text-blue-600">🔍 Đã lọc</span>
+          )}
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Độ ưu tiên" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả độ ưu tiên</SelectItem>
-                <SelectItem value="high">Cao</SelectItem>
-                <SelectItem value="medium">Trung bình</SelectItem>
-                <SelectItem value="low">Thấp</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="text-sm text-gray-600 flex items-center">
-              📊 Hiển thị {filteredPlans.length} / {plans.length} kế hoạch
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="text-sm text-gray-500">
+          ⏰ Kế hoạch sẽ tự động chuyển thành công việc khi đến hạn
+        </div>
+      </div>
 
       {/* Plans List */}
       <div className="space-y-4">
@@ -291,6 +360,7 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
                         <Edit className="w-4 h-4 mr-2" />
                         Chỉnh sửa
                       </DropdownMenuItem>
+
                       <DropdownMenuItem
                         className="text-red-600"
                         onClick={() => handlePlanAction(plan.id, 'delete')}

@@ -24,10 +24,6 @@ export interface Task {
     | 'client_old'
     | 'quote_new'
     | 'quote_old'
-    | 'report'
-    | 'training'
-    | 'meeting'
-    | 'inventory'
     | 'other';
   date: string;
   status: 'todo' | 'in-progress' | 'on-hold' | 'completed';
@@ -41,6 +37,7 @@ export interface Task {
   user_name?: string;
   team_id?: string;
   created_at: string;
+  updated_at?: string;
   time?: string;
   visibility?: 'personal' | 'team' | 'public';
   sharedWith?: string[];

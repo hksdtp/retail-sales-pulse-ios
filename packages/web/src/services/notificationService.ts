@@ -137,6 +137,7 @@ class NotificationService {
       low: 'Thấp',
       normal: 'Bình thường',
       high: 'Cao',
+      urgent: 'Khẩn cấp',
     };
 
     const notification: Notification = {

@@ -11,12 +11,17 @@ export const isTestEnvironment = () => {
 };
 
 export const getTestUser = () => ({
-  id: 'test-user-001',
+  id: '1', // Match với user ID trong localStorage
   name: 'Khổng Đức Mạnh',
   email: 'manh@company.com',
-  role: 'director' as const,
+  role: 'retail_director' as const,
+  team_id: '0',
   team: 'Phòng Kinh Doanh',
-  location: 'Hà Nội' as const,
+  department: 'retail',
+  department_type: 'retail',
+  location: 'hanoi',
+  position: 'Trưởng phòng kinh doanh bán lẻ',
+  status: 'active',
   password_changed: true,
 });
 
