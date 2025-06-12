@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { User } from '@/types/user';
 import { personalPlanService, PersonalPlan, PersonalPlanStats } from '@/services/PersonalPlanService';
+import PlanSyncStatus from './PlanSyncStatus';
 
 interface PlanningDashboardProps {
   currentUser: User | null;
@@ -201,11 +202,20 @@ const PlanningDashboard: React.FC<PlanningDashboardProps> = ({ currentUser }) =>
         </Card>
       </motion.div>
 
-      {/* Upcoming Plans */}
+      {/* Plan Sync Status */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <PlanSyncStatus />
+      </motion.div>
+
+      {/* Upcoming Plans */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
       >
         <Card>
           <CardHeader>
@@ -216,30 +226,38 @@ const PlanningDashboard: React.FC<PlanningDashboardProps> = ({ currentUser }) =>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {upcomingPlans.map((plan, index) => (
-                <motion.div
-                  key={plan.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                  whileHover={{ scale: 1.02 }}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-2xl">{getTypeIcon(plan.type)}</div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">{plan.title}</h4>
-                      <p className="text-sm text-gray-500">
-                        {plan.startDate} • {plan.startTime}
-                        {plan.location && ` • ${plan.location}`}
-                      </p>
+              {upcomingPlans.length > 0 ? (
+                upcomingPlans.map((plan, index) => (
+                  <motion.div
+                    key={plan.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    whileHover={{ scale: 1.02 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl">{getTypeIcon(plan.type)}</div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">{plan.title}</h4>
+                        <p className="text-sm text-gray-500">
+                          {plan.startDate} • {plan.startTime}
+                          {plan.location && ` • ${plan.location}`}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <Badge className={getPriorityColor(plan.priority)}>
-                    {plan.priority === 'high' ? 'Cao' : plan.priority === 'medium' ? 'Trung bình' : 'Thấp'}
-                  </Badge>
-                </motion.div>
-              ))}
+                    <Badge className={getPriorityColor(plan.priority)}>
+                      {plan.priority === 'high' ? 'Cao' : plan.priority === 'medium' ? 'Trung bình' : 'Thấp'}
+                    </Badge>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>Không có kế hoạch sắp tới</p>
+                  <p className="text-sm">Tạo kế hoạch mới để bắt đầu</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

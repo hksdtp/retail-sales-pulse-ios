@@ -8,6 +8,7 @@ import { useToast } from '../hooks/use-toast';
 import { FirebaseService } from '../services/FirebaseService';
 import { googleSheetsService } from '../services/GoogleSheetsService';
 import { pushNotificationService } from '../services/pushNotificationService';
+import { planToTaskSyncService } from '../services/PlanToTaskSyncService';
 import { mockTasks, saveMockTasksToLocalStorage } from '../utils/mockData';
 import { useAuth } from './AuthContext';
 import { TaskDataContext, TaskDataContextType, TaskFilters } from './TaskContext';
@@ -531,6 +532,33 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     initialize();
 
+    // Khởi tạo PlanToTaskSyncService
+    if (currentUser?.id) {
+      console.log('🚀 Khởi tạo PlanToTaskSyncService cho user:', currentUser.name);
+      planToTaskSyncService.startAutoSync(1); // Check mỗi 1 phút
+
+      // Listen for plan-to-task conversion events
+      const handlePlanToTaskConversion = (event: CustomEvent) => {
+        const { task } = event.detail;
+        console.log('📋 Nhận được task mới từ plan conversion:', task.title);
+
+        // Thêm task mới vào danh sách hiện tại
+        setTasks(prevTasks => {
+          const updatedTasks = [...prevTasks, task];
+          saveFilteredTasks(updatedTasks);
+          return updatedTasks;
+        });
+
+        // Hiển thị thông báo
+        toast({
+          title: '📋 Kế hoạch đã chuyển thành công việc',
+          description: `"${task.title}" đã được tự động thêm vào danh sách công việc`,
+        });
+      };
+
+      window.addEventListener('planToTaskConverted', handlePlanToTaskConversion as EventListener);
+    }
+
     // Thiết lập đồng bộ định kỳ mỗi 30 giây
     const syncInterval = setInterval(() => {
       if (isFirebaseConfigured() && !isLoading) {
@@ -538,7 +566,12 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       }
     }, 30000); // 30 giây
 
-    return () => clearInterval(syncInterval);
+    return () => {
+      clearInterval(syncInterval);
+      // Cleanup plan-to-task sync service
+      planToTaskSyncService.stopAutoSync();
+      window.removeEventListener('planToTaskConverted', handlePlanToTaskConversion as EventListener);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast, currentUser, users, teams]);
 
