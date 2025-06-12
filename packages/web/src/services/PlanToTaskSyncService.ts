@@ -39,7 +39,7 @@ class PlanToTaskSyncService {
   }
 
   // Khởi tạo service với auto-sync
-  public startAutoSync(intervalMinutes: number = 5): void {
+  public startAutoSync(intervalMinutes: number = 1): void {
     if (this.isRunning) {
       console.log('PlanToTaskSyncService đã đang chạy');
       return;
