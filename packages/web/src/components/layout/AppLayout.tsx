@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BottomNavigation from './BottomNavigation';
+import PlanToTaskNotification from '@/components/notifications/PlanToTaskNotification';
+import PlanToTaskDebug from '@/components/debug/PlanToTaskDebug';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
@@ -13,7 +16,13 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [showPlanNotification, setShowPlanNotification] = useState(false);
+  const [notificationData, setNotificationData] = useState<{
+    planTitle: string;
+    taskTitle: string;
+  } | null>(null);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   // Enable swipe navigation on mobile
   useSwipeNavigation({
@@ -21,6 +30,35 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     velocity: 0.3,
     preventScroll: true
   });
+
+  // Listen for plan-to-task conversion events
+  useEffect(() => {
+    const handlePlanToTaskConversion = (event: CustomEvent) => {
+      const { task, plan } = event.detail;
+      console.log('🔔 AppLayout nhận được plan-to-task conversion:', { task, plan });
+
+      setNotificationData({
+        planTitle: plan.title,
+        taskTitle: task.title
+      });
+      setShowPlanNotification(true);
+    };
+
+    window.addEventListener('planToTaskConverted', handlePlanToTaskConversion as EventListener);
+
+    return () => {
+      window.removeEventListener('planToTaskConverted', handlePlanToTaskConversion as EventListener);
+    };
+  }, []);
+
+  const handleCloseNotification = () => {
+    setShowPlanNotification(false);
+    setNotificationData(null);
+  };
+
+  const handleViewTask = () => {
+    navigate('/tasks');
+  };
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
@@ -60,6 +98,20 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       <Toaster />
       <Sonner />
+
+      {/* Plan to Task Notification */}
+      {notificationData && (
+        <PlanToTaskNotification
+          isVisible={showPlanNotification}
+          planTitle={notificationData.planTitle}
+          taskTitle={notificationData.taskTitle}
+          onClose={handleCloseNotification}
+          onViewTask={handleViewTask}
+        />
+      )}
+
+      {/* Debug Component (Development only) */}
+      <PlanToTaskDebug />
     </div>
   );
 };
