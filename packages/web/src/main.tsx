@@ -7,5 +7,6 @@ import './index.css';
 import './styles/login-theme.css';
 import './styles/macos.css';
 import './utils/dialog-centering-fix.js';
+import './utils/testPlanToTaskSync';
 
 createRoot(document.getElementById('root')!).render(<App />);

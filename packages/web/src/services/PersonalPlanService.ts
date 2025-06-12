@@ -60,17 +60,21 @@ class PersonalPlanService {
     try {
       const storageKey = this.getUserStorageKey(userId);
       const storedPlans = localStorage.getItem(storageKey);
-      
+
       if (!storedPlans) {
         return [];
       }
 
       const plans = JSON.parse(storedPlans) as PersonalPlan[];
-      
+
       // Cập nhật trạng thái overdue cho các kế hoạch quá hạn
+      const now = new Date();
       const updatedPlans = plans.map(plan => {
-        if (plan.status !== 'completed' && new Date(plan.endDate) < new Date()) {
-          return { ...plan, status: 'overdue' as const };
+        if (plan.status !== 'completed') {
+          const endDateTime = new Date(`${plan.endDate}T${plan.endTime}`);
+          if (endDateTime < now) {
+            return { ...plan, status: 'overdue' as const };
+          }
         }
         return plan;
       });
@@ -85,6 +89,23 @@ class PersonalPlanService {
       console.error('Lỗi khi lấy kế hoạch của user:', error);
       return [];
     }
+  }
+
+  // Lấy kế hoạch đã đến hạn cần chuyển thành task
+  public getDuePlans(userId: string): PersonalPlan[] {
+    const plans = this.getUserPlans(userId);
+    const now = new Date();
+
+    return plans.filter(plan => {
+      // Chỉ lấy plans có status pending hoặc in_progress
+      if (plan.status === 'completed' || plan.status === 'overdue') {
+        return false;
+      }
+
+      // Kiểm tra đã đến thời gian bắt đầu
+      const startDateTime = new Date(`${plan.startDate}T${plan.startTime}`);
+      return startDateTime <= now;
+    });
   }
 
   // Lưu kế hoạch của user
