@@ -214,8 +214,37 @@ export default function TaskManagementView({
     currentUser?.role === 'retail_director' ||
     currentUser?.role === 'project_director';
 
-  // Dữ liệu trống - sẵn sàng cho dữ liệu thật
-  const mockTasks: any[] = [];
+  // Mock data để test individual member view
+  const mockTasks: any[] = [
+    {
+      id: 'task-1',
+      title: 'Công việc của Phạm Thị Hương',
+      description: 'Test task for Phạm Thị Hương',
+      assignedTo: 'pham-thi-huong-id',
+      user_id: 'manager-id',
+      status: 'in-progress',
+      priority: 'high',
+      type: 'customer_new',
+      team_id: 'team-5',
+      department_type: 'retail',
+      created_at: new Date().toISOString(),
+      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'task-2',
+      title: 'Công việc khác của Phạm Thị Hương',
+      description: 'Another test task',
+      assignedTo: 'pham-thi-huong-id',
+      user_id: 'pham-thi-huong-id',
+      status: 'todo',
+      priority: 'normal',
+      type: 'partner_new',
+      team_id: 'team-5',
+      department_type: 'retail',
+      created_at: new Date().toISOString(),
+      due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
 
   // Xác định member ID để truyền cho hook
   const getSelectedMemberForHook = () => {
@@ -407,14 +436,20 @@ export default function TaskManagementView({
             const isCreatedByMember = memberIds.includes(task.user_id || '');
             const shouldInclude = isAssignedToMember || isCreatedByMember;
 
-            if (shouldInclude) {
-              console.log(`  ✅ Including task "${task.title}" - assignedTo: ${task.assignedTo}, user_id: ${task.user_id}`);
-            }
+            console.log(`  📋 Task "${task.title}":`, {
+              assignedTo: task.assignedTo,
+              user_id: task.user_id,
+              memberIds,
+              isAssignedToMember,
+              isCreatedByMember,
+              shouldInclude
+            });
 
             return shouldInclude;
           });
 
           console.log('  - Final member tasks count:', memberTasks.length);
+          console.log('  - Member tasks:', memberTasks.map(t => ({ title: t.title, assignedTo: t.assignedTo, user_id: t.user_id })));
           return memberTasks;
         }
         console.log('  - Not a manager, returning empty array');

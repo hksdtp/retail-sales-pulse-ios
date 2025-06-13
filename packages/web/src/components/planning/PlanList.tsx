@@ -26,6 +26,7 @@ import { User } from '@/types/user';
 import { personalPlanService, PersonalPlan } from '@/services/PersonalPlanService';
 import { planTaskSyncService } from '@/services/PlanTaskSyncService';
 import PlanSearchBar from './PlanSearchBar';
+import EditPlanModal from './EditPlanModal';
 
 interface PlanListProps {
   currentUser: User | null;
@@ -42,6 +43,8 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
   const [plans, setPlans] = useState<PersonalPlan[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<PersonalPlan[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<PersonalPlan | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Load dữ liệu cá nhân của user
   const loadPlans = useCallback(() => {
@@ -183,8 +186,11 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
         // TODO: Implement view plan modal
         break;
       case 'edit':
-        console.log('Edit plan:', planId);
-        // TODO: Implement edit plan modal
+        const planToEdit = plans.find(p => p.id === planId);
+        if (planToEdit) {
+          setEditingPlan(planToEdit);
+          setIsEditModalOpen(true);
+        }
         break;
       case 'delete':
         if (confirm('Bạn có chắc chắn muốn xóa kế hoạch này?')) {
@@ -204,6 +210,13 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
         }
         break;
     }
+  };
+
+  // Handle plan updated
+  const handlePlanUpdated = () => {
+    loadPlans();
+    setIsEditModalOpen(false);
+    setEditingPlan(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -386,6 +399,18 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Plan Modal */}
+      <EditPlanModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingPlan(null);
+        }}
+        plan={editingPlan}
+        currentUser={currentUser}
+        onPlanUpdated={handlePlanUpdated}
+      />
     </div>
   );
 };

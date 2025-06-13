@@ -553,24 +553,36 @@
   background-color: hsl(25 95% 70%) !important;
 }
 
+.dark .bg-blue-500 {
+  background-color: hsl(217 91% 65%) !important;
+}
+
 .dark .bg-blue-400 {
   background-color: hsl(217 91% 70%) !important;
+}
+
+.dark .bg-green-500 {
+  background-color: hsl(142 76% 55%) !important;
 }
 
 .dark .bg-green-400 {
   background-color: hsl(142 76% 60%) !important;
 }
 
+.dark .bg-gray-500 {
+  background-color: hsl(215 20% 60%) !important;
+}
+
 .dark .bg-gray-400 {
   background-color: hsl(215 20% 65%) !important;
 }
 
-.dark .bg-amber-400 {
-  background-color: hsl(43 96% 65%) !important;
-}
-
 .dark .bg-amber-500 {
   background-color: hsl(43 96% 60%) !important;
+}
+
+.dark .bg-amber-400 {
+  background-color: hsl(43 96% 65%) !important;
 }
 
 /* Enhanced dark theme for task type colors */
