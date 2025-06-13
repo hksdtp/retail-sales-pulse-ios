@@ -258,26 +258,22 @@ const Tasks = () => {
 
   return (
     <AppLayout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Quản lý công việc</h1>
-
-        <div className="flex items-center space-x-3">
-          {/* Notification Center */}
-          <NotificationCenter
-            onTaskClick={(taskId) => {
-              console.log('Clicked on task:', taskId);
-              // TODO: Implement task navigation
-              alert(`Mở công việc: ${taskId}`);
-            }}
-          />
-
+      <PageHeader
+        title={headerTitle}
+        subtitle={subtitle}
+        onTaskClick={(taskId) => {
+          console.log('Clicked on task:', taskId);
+          // TODO: Implement task navigation
+          alert(`Mở công việc: ${taskId}`);
+        }}
+        actions={
           <div className="flex space-x-2">
             <ExportDialog>
               <Button
                 variant="outline"
                 size="icon"
                 title="Xuất dữ liệu"
-                className="text-blue-600 border-blue-200 bg-blue-50"
+                className="text-blue-600 border-blue-200 bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:bg-blue-900/20"
               >
                 <Download className="h-4 w-4" />
               </Button>
@@ -288,7 +284,7 @@ const Tasks = () => {
               variant="outline"
               size="icon"
               title="Làm mới dữ liệu"
-              className="text-green-600 border-green-200 bg-green-50"
+              className="text-green-600 border-green-200 bg-green-50 dark:text-green-400 dark:border-green-700 dark:bg-green-900/20"
               onClick={() => {
                 console.log('🔄 Manual refresh triggered');
                 setTaskUpdateTrigger((prev) => prev + 1);
@@ -323,8 +319,8 @@ const Tasks = () => {
               <span>Tạo công việc</span>
             </Button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div>
         {/* Giao diện quản lý công việc thống nhất */}

@@ -935,9 +935,9 @@ export default function TaskManagementView({
 
   return (
     <>
-      <div className="bg-white rounded-none sm:rounded-2xl shadow-lg border-0 sm:border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-none sm:rounded-2xl shadow-lg border-0 sm:border border-gray-100 dark:border-gray-700 overflow-hidden">
         {/* Header với view buttons - responsive */}
-        <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+        <div className="border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
           <div className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">
             {/* View buttons - responsive layout */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
@@ -955,7 +955,7 @@ export default function TaskManagementView({
                     className={`flex items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm lg:text-base font-medium transition-all duration-300 transform hover:scale-105 ${
                       viewLevel === btn.value
                         ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200'
                     }`}
                   >
                     <btn.icon className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 mr-1 sm:mr-1.5 lg:mr-2" />

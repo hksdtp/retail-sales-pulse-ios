@@ -44,7 +44,7 @@ const SalesReports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div style={styles.container}>
         <div style={styles.header}>
           <h1 style={{fontSize: '2.5rem', margin: '0 0 10px 0', fontWeight: '700'}}>

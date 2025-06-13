@@ -132,11 +132,11 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 5.9% 10%;
     --sidebar-primary: 212 100% 52%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent: 240 4.8% 97%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
@@ -171,13 +171,13 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 240 5.9% 8%;
+    --sidebar-foreground: 240 4.8% 96%;
+    --sidebar-primary: 217.2 91.2% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 240 3.7% 12%;
+    --sidebar-accent-foreground: 240 4.8% 96%;
+    --sidebar-border: 240 3.7% 18%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -445,6 +445,115 @@ main {
     transform: translateZ(0); /* Force hardware acceleration */
     backface-visibility: hidden;
     perspective: 1000px;
+}
+
+/* Enhanced light mode sidebar styling */
+.sidebar-desktop {
+  font-feature-settings: 'ss01', 'ss02', 'ss03';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force light mode styles */
+:root:not(.dark) .sidebar-desktop {
+  background-color: white !important;
+  color: rgb(17, 24, 39) !important;
+  border-color: rgb(229, 231, 235) !important;
+}
+
+:root:not(.dark) .sidebar-desktop .border-gray-200 {
+  border-color: rgb(229, 231, 235) !important;
+}
+
+/* Debug: Ensure light theme is applied */
+html:not(.dark) body {
+  background-color: white !important;
+}
+
+html:not(.dark) .sidebar-desktop {
+  background-color: white !important;
+  color: rgb(17, 24, 39) !important;
+}
+
+/* Ensure text is dark in light mode */
+html:not(.dark) .text-gray-900 {
+  color: rgb(17, 24, 39) !important;
+}
+
+html:not(.dark) .text-gray-700 {
+  color: rgb(55, 65, 81) !important;
+}
+
+html:not(.dark) .text-gray-600 {
+  color: rgb(75, 85, 99) !important;
+}
+
+/* Global dark mode fixes */
+.dark {
+  color-scheme: dark;
+}
+
+.dark * {
+  border-color: hsl(240 3.7% 25%);
+}
+
+.dark body {
+  background-color: hsl(240 5.9% 10%) !important;
+  color: hsl(240 4.8% 95.9%) !important;
+}
+
+/* Force dark backgrounds for all white elements */
+.dark .bg-white,
+.dark [style*="background-color: white"],
+.dark [style*="background-color: rgb(255, 255, 255)"] {
+  background-color: hsl(240 5.9% 10%) !important;
+  color: hsl(240 4.8% 95.9%) !important;
+}
+
+/* Fix main content area */
+.dark main {
+  background-color: hsl(240 5.9% 10%) !important;
+  color: hsl(240 4.8% 95.9%) !important;
+}
+
+/* Fix all containers */
+.dark .container,
+.dark .max-w-7xl,
+.dark .max-w-6xl,
+.dark .max-w-5xl,
+.dark .max-w-4xl {
+  background-color: transparent !important;
+}
+
+/* Improved text contrast for light mode */
+.text-gray-700 {
+  color: hsl(215 25% 27%);
+}
+
+.text-gray-600 {
+  color: hsl(215 20% 35%);
+}
+
+.text-gray-500 {
+  color: hsl(215 16% 47%);
+}
+
+/* Better hover effects for light mode */
+.hover\:bg-white\/60:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.hover\:bg-white\/50:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Enhanced iOS blue contrast */
+.text-ios-blue {
+  color: #0066CC;
+}
+
+.hover\:text-ios-blue:hover {
+  color: #0052A3;
 }
 
 /* Mobile responsive styles */
