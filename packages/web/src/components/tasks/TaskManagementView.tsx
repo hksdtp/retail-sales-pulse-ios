@@ -346,67 +346,122 @@ export default function TaskManagementView({
           return teamTasks;
         }
       case 'individual':
+        console.log('👤 Individual view - Debug info:');
+        console.log('  - isManager:', isManager);
+        console.log('  - currentUser role:', currentUser?.role);
+        console.log('  - selectedMemberId:', selectedMemberId);
+        console.log('  - selectedMember:', selectedMember);
+        console.log('  - users count:', users.length);
+        console.log('  - regularTasks count:', regularTasks.length);
+
         if (isManager) {
           // Manager: xem công việc của thành viên với filters
           let filteredUsers = users.filter((user) => {
             if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
-              return user.department_type === currentUser.department_type && user.id !== currentUser.id;
+              const match = user.department_type === currentUser.department_type && user.id !== currentUser.id;
+              console.log(`  - User ${user.name}: department_type=${user.department_type}, match=${match}`);
+              return match;
             } else if (currentUser?.role === 'team_leader') {
-              return user.team_id === currentUser.team_id && user.id !== currentUser.id;
+              const match = user.team_id === currentUser.team_id && user.id !== currentUser.id;
+              console.log(`  - User ${user.name}: team_id=${user.team_id}, match=${match}`);
+              return match;
             }
             return false;
           });
+
+          console.log('  - Initial filtered users:', filteredUsers.map(u => u.name));
 
           // Áp dụng filters cho directors
           if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
             // Filter theo location
             if (selectedLocation !== 'all') {
               filteredUsers = filteredUsers.filter(user => user.location === selectedLocation);
+              console.log(`  - After location filter (${selectedLocation}):`, filteredUsers.map(u => u.name));
             }
 
             // Filter theo team
             if (selectedTeam !== 'all') {
               filteredUsers = filteredUsers.filter(user => user.team_id === selectedTeam);
+              console.log(`  - After team filter (${selectedTeam}):`, filteredUsers.map(u => u.name));
             }
 
             // Filter theo member cụ thể
             if (selectedMember) {
               filteredUsers = filteredUsers.filter(user => user.id === selectedMember);
+              console.log(`  - After member filter (${selectedMember}):`, filteredUsers.map(u => u.name));
             }
           } else {
             // Team leader: sử dụng selectedMemberId từ props
             if (selectedMemberId) {
               filteredUsers = filteredUsers.filter(user => user.id === selectedMemberId);
+              console.log(`  - After selectedMemberId filter (${selectedMemberId}):`, filteredUsers.map(u => u.name));
             }
           }
 
           const memberIds = filteredUsers.map(user => user.id);
+          console.log('  - Final member IDs to search for:', memberIds);
 
           // Lấy tất cả công việc của các thành viên được filter
-          return regularTasks.filter((task) => {
+          const memberTasks = regularTasks.filter((task) => {
             const isAssignedToMember = memberIds.includes(task.assignedTo || '');
             const isCreatedByMember = memberIds.includes(task.user_id || '');
-            return isAssignedToMember || isCreatedByMember;
+            const shouldInclude = isAssignedToMember || isCreatedByMember;
+
+            if (shouldInclude) {
+              console.log(`  ✅ Including task "${task.title}" - assignedTo: ${task.assignedTo}, user_id: ${task.user_id}`);
+            }
+
+            return shouldInclude;
           });
+
+          console.log('  - Final member tasks count:', memberTasks.length);
+          return memberTasks;
         }
+        console.log('  - Not a manager, returning empty array');
         return [];
       case 'department':
-        // Công việc chung của cả phòng - đơn giản hóa logic
+        // Công việc chung của cả phòng - chỉ hiển thị shared/department tasks
         console.log('🏢 Department view - Available data:');
         console.log('  - managerTasks:', managerTasks.length);
         console.log('  - regularTasks:', regularTasks.length);
+        console.log('  - currentUser department:', currentUser?.department_type);
 
         // Ưu tiên sử dụng managerTasks nếu có
         const sourceTasksForDept = managerTasks.length > 0 ? managerTasks : regularTasks;
         console.log('🏢 Using source:', managerTasks.length > 0 ? 'managerTasks' : 'regularTasks');
 
-        // Lọc công việc chung của phòng - hiển thị tất cả tasks từ API department endpoint
+        // Lọc công việc chung của phòng - chỉ hiển thị tasks được đánh dấu là shared/department
         const departmentTasks = sourceTasksForDept.filter((task) => {
-          // Nếu API trả về tasks cho department view, nghĩa là đã được filter ở backend
-          // Chỉ cần hiển thị tất cả tasks từ department API endpoint
-          const shouldShow = true; // API đã filter rồi
+          // Kiểm tra các điều kiện để xác định task là department-wide
+          const isSharedWithDepartment = task.isShared === true || task.isSharedWithTeam === true;
+          const isDepartmentTask = task.department === currentUser?.department_type ||
+                                   task.department_type === currentUser?.department_type;
+          const isPublicVisibility = task.visibility === 'public';
+          const hasSharedFlag = task.shared === true || task.department_wide === true;
 
-          console.log(`  ✅ Including department task: "${task.title}" (from API department endpoint)`);
+          // Task được coi là department task nếu:
+          // 1. Được đánh dấu là shared hoặc public
+          // 2. Thuộc về department hiện tại
+          // 3. Có flag shared/department_wide
+          const shouldShow = isSharedWithDepartment || isPublicVisibility || hasSharedFlag ||
+                           (isDepartmentTask && (task.visibility === 'public' || task.isShared));
+
+          console.log(`  📋 Task "${task.title}":`, {
+            isShared: task.isShared,
+            isSharedWithTeam: task.isSharedWithTeam,
+            department: task.department,
+            department_type: task.department_type,
+            visibility: task.visibility,
+            shared: task.shared,
+            department_wide: task.department_wide,
+            shouldShow
+          });
+
+          if (shouldShow) {
+            console.log(`  ✅ Including department task: "${task.title}"`);
+          } else {
+            console.log(`  ❌ Excluding non-department task: "${task.title}"`);
+          }
 
           return shouldShow;
         });

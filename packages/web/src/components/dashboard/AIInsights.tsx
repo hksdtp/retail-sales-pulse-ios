@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Brain, 
-  TrendingUp, 
-  AlertTriangle, 
-  Target, 
+import {
+  Brain,
+  TrendingUp,
+  AlertTriangle,
+  Target,
   Lightbulb,
   ChevronRight,
   Sparkles,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { aiInsightsService, AIInsight, AIAnalysis } from '@/services/aiInsightsService';
 import { cn } from '@/lib/utils';
+import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 interface AIInsightsProps {
   className?: string;
@@ -100,9 +101,10 @@ const AIInsights: React.FC<AIInsightsProps> = ({ className }) => {
   }
 
   return (
-    <div className={cn("bg-white rounded-2xl border border-gray-200 overflow-hidden", className)}>
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
+    <AIDisabledOverlay className={className}>
+      <div className={cn("bg-white rounded-2xl border border-gray-200 overflow-hidden", className)}>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
         <div className="flex items-center space-x-3 mb-4">
           <div className="p-2 bg-white/20 rounded-xl">
             <Brain className="w-6 h-6" />
@@ -269,7 +271,8 @@ const AIInsights: React.FC<AIInsightsProps> = ({ className }) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </AIDisabledOverlay>
   );
 };
 

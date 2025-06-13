@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import AccountSettings from '@/components/account/AccountSettings';
+import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 interface SidebarProps {
   onCollapseChange?: (collapsed: boolean) => void;
@@ -102,7 +103,8 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     {
       title: "Thiết kế rèm AI",
       icon: Sparkles,
-      url: "/curtain-design"
+      url: "/curtain-design",
+      isAI: true // Mark as AI feature for disabling
     },
     {
       title: "Báo cáo",
@@ -190,42 +192,55 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
         {/* Navigation Menu */}
         <nav className="flex-1 p-4 space-y-2">
-          {filteredMenuItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.url}
-              className={cn(
-                "flex items-center rounded-xl transition-all duration-300 ease-out relative group px-3 py-3",
-                !isVisuallyExpanded ? "justify-center" : "space-x-3",
-                isActive(item.url)
-                  ? "text-ios-blue bg-blue-50 shadow-md border border-blue-200 transform scale-[1.02] z-10"
-                  : "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:transform hover:scale-[1.02] hover:border hover:border-blue-100 hover:z-10"
-              )}
-              title={!isVisuallyExpanded ? item.title : undefined}
-            >
-              <item.icon className={cn(
-                "w-5 h-5 flex-shrink-0",
-                isActive(item.url) && "text-ios-blue"
-              )} />
-              <div
-                className="overflow-hidden transition-all duration-300 ease-out"
-                style={{
-                  width: isVisuallyExpanded ? '150px' : '0px',
-                  opacity: isVisuallyExpanded ? 1 : 0,
-                  transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-8px)',
-                }}
+          {filteredMenuItems.map((item) => {
+            const linkContent = (
+              <Link
+                key={item.title}
+                to={item.url}
+                className={cn(
+                  "flex items-center rounded-xl transition-all duration-300 ease-out relative group px-3 py-3",
+                  !isVisuallyExpanded ? "justify-center" : "space-x-3",
+                  isActive(item.url)
+                    ? "text-ios-blue bg-blue-50 shadow-md border border-blue-200 transform scale-[1.02] z-10"
+                    : "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:transform hover:scale-[1.02] hover:border hover:border-blue-100 hover:z-10"
+                )}
+                title={!isVisuallyExpanded ? item.title : undefined}
               >
-                <span className="font-medium whitespace-nowrap">{item.title}</span>
-              </div>
-
-              {/* Tooltip for collapsed state */}
-              {!isVisuallyExpanded && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                  {item.title}
+                <item.icon className={cn(
+                  "w-5 h-5 flex-shrink-0",
+                  isActive(item.url) && "text-ios-blue"
+                )} />
+                <div
+                  className="overflow-hidden transition-all duration-300 ease-out"
+                  style={{
+                    width: isVisuallyExpanded ? '150px' : '0px',
+                    opacity: isVisuallyExpanded ? 1 : 0,
+                    transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-8px)',
+                  }}
+                >
+                  <span className="font-medium whitespace-nowrap">{item.title}</span>
                 </div>
-              )}
-            </Link>
-          ))}
+
+                {/* Tooltip for collapsed state */}
+                {!isVisuallyExpanded && (
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    {item.title}
+                  </div>
+                )}
+              </Link>
+            );
+
+            // Wrap AI features with disabled overlay
+            if (item.isAI) {
+              return (
+                <AIDisabledOverlay key={item.title} message="Tính năng AI tạm khóa">
+                  {linkContent}
+                </AIDisabledOverlay>
+              );
+            }
+
+            return linkContent;
+          })}
         </nav>
 
         {/* Account Section */}

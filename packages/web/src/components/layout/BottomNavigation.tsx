@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import AccountSettings from '@/components/account/AccountSettings';
+import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 
 // Haptic feedback utility
@@ -47,7 +48,8 @@ const BottomNavigation = () => {
   }, {
     title: "Rèm AI",
     icon: Sparkles,
-    url: "/curtain-design"
+    url: "/curtain-design",
+    isAI: true
   }, {
     title: "Nhân viên",
     icon: Users,
@@ -85,24 +87,37 @@ const BottomNavigation = () => {
     <>
       <div className="bottom-nav-mobile fixed bottom-0 left-0 right-0 z-[9999] macos-glass border-t border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70 safe-area-inset-bottom">
         <div className="grid grid-cols-6 gap-1 px-1 py-2 pb-safe">
-          {menuItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.url}
-              onClick={triggerHapticFeedback}
-              className={cn(
-                "relative flex flex-col items-center justify-center px-1 py-2 text-xs font-medium rounded-xl transition-all duration-200 min-h-[60px] w-full",
-                isActive(item.url)
-                  ? "text-ios-blue bg-white/90 shadow-md border border-blue-100/50 scale-105"
-                  : "text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5"
-              )}
-            >
-              <div className="relative">
-                <item.icon className={cn("h-5 w-5 mb-1 flex-shrink-0", isActive(item.url) && "text-ios-blue")} />
-              </div>
-              <span className="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{item.title}</span>
-            </Link>
-          ))}
+          {menuItems.map((item) => {
+            const linkContent = (
+              <Link
+                key={item.title}
+                to={item.url}
+                onClick={triggerHapticFeedback}
+                className={cn(
+                  "relative flex flex-col items-center justify-center px-1 py-2 text-xs font-medium rounded-xl transition-all duration-200 min-h-[60px] w-full",
+                  isActive(item.url)
+                    ? "text-ios-blue bg-white/90 shadow-md border border-blue-100/50 scale-105"
+                    : "text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5"
+                )}
+              >
+                <div className="relative">
+                  <item.icon className={cn("h-5 w-5 mb-1 flex-shrink-0", isActive(item.url) && "text-ios-blue")} />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{item.title}</span>
+              </Link>
+            );
+
+            // Wrap AI features with disabled overlay
+            if (item.isAI) {
+              return (
+                <AIDisabledOverlay key={item.title} message="AI tạm khóa">
+                  {linkContent}
+                </AIDisabledOverlay>
+              );
+            }
+
+            return linkContent;
+          })}
 
           {/* Account Menu */}
           <div className="relative" ref={dropdownRef}>
