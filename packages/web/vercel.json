@@ -5,6 +5,11 @@
     "NODE_ENV": "production"
   },
   "framework": "vite",
+  "functions": {
+    "packages/web/src/pages/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "headers": [
     {
       "source": "/assets/(.*)",

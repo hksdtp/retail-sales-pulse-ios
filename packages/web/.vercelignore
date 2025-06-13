@@ -1,0 +1,10 @@
+# Ignore files that might cause build issues
+**/file-upload/**
+**/app/**
+**/(dashboard)/**
+node_modules
+.git
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
