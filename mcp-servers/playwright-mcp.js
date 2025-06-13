@@ -3,7 +3,6 @@
 import { chromium } from 'playwright';
 import express from 'express';
 import cors from 'cors';
-import { McpServer } from '@playwright/mcp';
 import path from 'path';
 
 class PlaywrightMCP {
@@ -13,8 +12,6 @@ class PlaywrightMCP {
     this.context = null;
     this.app = express();
     this.port = 3001;
-    this.mcpPort = 8080;
-    this.mcpServer = null;
     this.setupRoutes();
   }
 
@@ -156,28 +153,21 @@ class PlaywrightMCP {
         console.log(`📊 Status: http://localhost:${this.port}/status`);
       });
 
-      // Khởi động MCP Server
-      this.mcpServer = new McpServer();
-      await this.mcpServer.start({
-        port: this.mcpPort,
-        browserInstances: 1,
-        showBrowser: true,
-        launchOptions: {
-          headless: false,
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        }
-      });
-
-      console.log(`🎭 Playwright MCP Protocol Server running on port ${this.mcpPort}`);
-
       // Auto-launch browser và mở project
       await this.launchBrowser();
 
       // Điều hướng đến local development server
       const projectUrl = 'http://localhost:8088'; // Port thực tế của project
       console.log(`🌐 Opening project at ${projectUrl}`);
-      await this.page.goto(projectUrl);
-      
+
+      try {
+        await this.page.goto(projectUrl);
+        console.log(`✅ Successfully opened ${projectUrl}`);
+      } catch (error) {
+        console.log(`⚠️  Could not open ${projectUrl} - development server may not be running`);
+        console.log(`💡 Start your development server first with: bun run dev`);
+      }
+
     } catch (error) {
       console.error('❌ Failed to start Playwright MCP:', error);
       process.exit(1);
@@ -187,17 +177,12 @@ class PlaywrightMCP {
   async stop() {
     await this.closeBrowser();
 
-    if (this.mcpServer) {
-      await this.mcpServer.stop();
-      console.log('🛑 Playwright MCP Protocol Server stopped');
-    }
-
     if (this.server) {
       this.server.close();
       console.log('🛑 Playwright MCP HTTP Server stopped');
     }
 
-    console.log('🛑 All Playwright MCP Servers stopped');
+    console.log('🛑 Playwright MCP Server stopped');
   }
 }
 

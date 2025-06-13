@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BottomNavigation from './BottomNavigation';
 import PlanToTaskNotification from '@/components/notifications/PlanToTaskNotification';
-import PlanToTaskDebug from '@/components/debug/PlanToTaskDebug';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
@@ -110,8 +109,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         />
       )}
 
-      {/* Debug Component (Development only) */}
-      <PlanToTaskDebug />
+
     </div>
   );
 };

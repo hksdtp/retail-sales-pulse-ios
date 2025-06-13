@@ -1,10 +1,12 @@
-import { Camera, Check, Eye, EyeOff, Lock, Save, Settings, User, X, Bell, BellOff, Mail, MessageSquare, Calendar, Shield } from 'lucide-react';
+import { Camera, Check, Eye, EyeOff, Lock, Save, Settings, User, X, Bell, BellOff, Mail, MessageSquare, Calendar, Shield, Palette, Sun, Moon, Monitor } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
 import { FirebaseService } from '@/services/FirebaseService';
 import passwordService from '@/services/passwordService';
@@ -17,9 +19,10 @@ interface AccountSettingsProps {
 const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) => {
   const { currentUser, changePassword, updateUser } = useAuth();
   const { toast } = useToast();
+  const { theme, actualTheme, setTheme } = useTheme();
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'avatar' | 'notifications'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'avatar' | 'notifications' | 'theme'>('profile');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Notification settings
@@ -305,6 +308,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
               { id: 'profile', label: 'Thông tin', icon: User },
               { id: 'password', label: 'Mật khẩu', icon: Lock },
               { id: 'avatar', label: 'Ảnh đại diện', icon: Camera },
+              { id: 'theme', label: 'Giao diện', icon: Palette },
               { id: 'notifications', label: 'Thông báo', icon: Bell },
             ].map((tab) => (
               <button
@@ -686,6 +690,211 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Theme Tab */}
+          {activeTab === 'theme' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cài đặt giao diện</h3>
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <Palette className="w-4 h-4 mr-1" />
+                  Tùy chỉnh giao diện ứng dụng
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Theme Selection */}
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <Palette className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
+                      Chế độ hiển thị
+                    </h4>
+
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                        Chọn chế độ hiển thị phù hợp với sở thích của bạn
+                      </p>
+
+                      {/* Theme Toggle Component */}
+                      <ThemeToggle variant="dropdown" />
+
+                      {/* Current Theme Info */}
+                      <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Chế độ hiện tại</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {theme === 'system'
+                                ? `Hệ thống (${actualTheme === 'dark' ? 'Tối' : 'Sáng'})`
+                                : theme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng'
+                              }
+                            </p>
+                          </div>
+                          <div className="flex items-center">
+                            {theme === 'system' ? (
+                              <Monitor className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                            ) : actualTheme === 'dark' ? (
+                              <Moon className="w-5 h-5 text-blue-500" />
+                            ) : (
+                              <Sun className="w-5 h-5 text-yellow-500" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Theme Benefits */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border border-green-100 dark:border-green-800">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <Sun className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                      Lợi ích của từng chế độ
+                    </h4>
+
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <Sun className="w-4 h-4 text-yellow-500 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Chế độ sáng</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Tốt cho môi trường sáng, dễ đọc ban ngày</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-3">
+                        <Moon className="w-4 h-4 text-blue-500 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Chế độ tối</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Giảm mỏi mắt, tiết kiệm pin, tốt cho ban đêm</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-3">
+                        <Monitor className="w-4 h-4 text-gray-500 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Theo hệ thống</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Tự động thay đổi theo cài đặt thiết bị</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Theme Preview */}
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-100 dark:border-purple-800">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <Eye className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
+                      Xem trước giao diện
+                    </h4>
+
+                    {/* Mini Preview */}
+                    <div className="space-y-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Retail Sales Pulse</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Dashboard</p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                          <div className="h-2 bg-blue-200 dark:bg-blue-800 rounded w-2/3"></div>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                        Giao diện sẽ thay đổi ngay lập tức khi bạn chọn chế độ khác
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 p-6 rounded-xl border border-orange-100 dark:border-orange-800">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                      <Settings className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" />
+                      Hành động nhanh
+                    </h4>
+
+                    <div className="space-y-3">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left hover:bg-orange-50 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+                        onClick={() => {
+                          setTheme('light');
+                          toast({
+                            title: "Đã chuyển sang chế độ sáng",
+                            description: "Giao diện đã được thay đổi thành chế độ sáng",
+                          });
+                        }}
+                      >
+                        <Sun className="w-4 h-4 mr-2" />
+                        Chuyển sang chế độ sáng
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
+                        onClick={() => {
+                          setTheme('dark');
+                          toast({
+                            title: "Đã chuyển sang chế độ tối",
+                            description: "Giao diện đã được thay đổi thành chế độ tối",
+                          });
+                        }}
+                      >
+                        <Moon className="w-4 h-4 mr-2" />
+                        Chuyển sang chế độ tối
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                        onClick={() => {
+                          setTheme('system');
+                          toast({
+                            title: "Đã chuyển sang chế độ hệ thống",
+                            description: "Giao diện sẽ tự động thay đổi theo cài đặt thiết bị",
+                          });
+                        }}
+                      >
+                        <Monitor className="w-4 h-4 mr-2" />
+                        Theo cài đặt hệ thống
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+                <Button
+                  onClick={() => {
+                    toast({
+                      title: "Đã lưu cài đặt giao diện",
+                      description: "Cài đặt giao diện đã được lưu thành công",
+                    });
+                  }}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Lưu cài đặt giao diện
+                </Button>
+              </div>
             </div>
           )}
 

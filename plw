@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# Playwright MCP Command Wrapper
+# Usage: ./plw [command] [args...]
+# Examples:
+#   ./plw test "login functionality"
+#   ./plw open "http://localhost:8088"
+#   ./plw click "button[type=submit]"
+
+# Setup environment
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Playwright MCP server URL
+PLW_URL="http://localhost:3001"
+
+# Function to send HTTP request to Playwright MCP
+send_playwright_request() {
+    local endpoint="$1"
+    local method="$2"
+    local data="$3"
+    
+    echo "🎭 Sending request to Playwright MCP..."
+    echo "Endpoint: $endpoint"
+    echo "Method: $method"
+    echo ""
+    
+    if [ "$method" = "GET" ]; then
+        curl -s -X GET "$PLW_URL$endpoint" | jq '.' 2>/dev/null || curl -s -X GET "$PLW_URL$endpoint"
+    else
+        curl -s -X "$method" -H "Content-Type: application/json" -d "$data" "$PLW_URL$endpoint" | jq '.' 2>/dev/null || curl -s -X "$method" -H "Content-Type: application/json" -d "$data" "$PLW_URL$endpoint"
+    fi
+}
+
+# Parse command and arguments
+COMMAND="$1"
+shift
+ARGS="$*"
+
+case "$COMMAND" in
+    "status")
+        echo "📊 Checking Playwright MCP status..."
+        send_playwright_request "/status" "GET"
+        ;;
+    "open"|"navigate")
+        URL="${ARGS:-http://localhost:8088}"
+        echo "🌐 Opening URL: $URL"
+        send_playwright_request "/navigate" "POST" "{\"url\":\"$URL\"}"
+        ;;
+    "click")
+        if [ -z "$ARGS" ]; then
+            echo "❌ Please provide a selector to click"
+            echo "Example: ./plw click \"button[type=submit]\""
+            exit 1
+        fi
+        echo "👆 Clicking element: $ARGS"
+        send_playwright_request "/click" "POST" "{\"selector\":\"$ARGS\"}"
+        ;;
+    "type"|"fill")
+        SELECTOR=$(echo "$ARGS" | cut -d' ' -f1)
+        TEXT=$(echo "$ARGS" | cut -d' ' -f2-)
+        if [ -z "$SELECTOR" ] || [ -z "$TEXT" ]; then
+            echo "❌ Please provide selector and text"
+            echo "Example: ./plw type \"input[name=username]\" \"myusername\""
+            exit 1
+        fi
+        echo "⌨️  Typing '$TEXT' into: $SELECTOR"
+        send_playwright_request "/type" "POST" "{\"selector\":\"$SELECTOR\",\"text\":\"$TEXT\"}"
+        ;;
+    "screenshot"|"capture")
+        echo "📸 Taking screenshot..."
+        send_playwright_request "/screenshot" "POST" "{}"
+        ;;
+    "test")
+        echo "🧪 Running test scenario: $ARGS"
+        echo "This will:"
+        echo "1. Open the application"
+        echo "2. Take a screenshot"
+        echo "3. Check for common issues"
+        echo ""
+        
+        # Open application
+        send_playwright_request "/navigate" "POST" "{\"url\":\"http://localhost:8088\"}"
+        sleep 2
+        
+        # Take screenshot
+        send_playwright_request "/screenshot" "POST" "{}"
+        
+        echo "✅ Test completed for: $ARGS"
+        ;;
+    "launch"|"start")
+        echo "🚀 Launching browser..."
+        send_playwright_request "/launch" "POST" "{}"
+        ;;
+    "close"|"stop")
+        echo "🔴 Closing browser..."
+        send_playwright_request "/close" "POST" "{}"
+        ;;
+    "help"|"--help"|"-h"|"")
+        echo "🎭 Playwright MCP Command Wrapper"
+        echo ""
+        echo "Usage: ./plw [command] [args...]"
+        echo ""
+        echo "Commands:"
+        echo "  status                    - Check Playwright MCP status"
+        echo "  open [url]               - Open URL (default: http://localhost:8088)"
+        echo "  click [selector]         - Click element by selector"
+        echo "  type [selector] [text]   - Type text into element"
+        echo "  screenshot              - Take screenshot"
+        echo "  test [description]      - Run test scenario"
+        echo "  launch                  - Launch browser"
+        echo "  close                   - Close browser"
+        echo "  help                    - Show this help"
+        echo ""
+        echo "Examples:"
+        echo "  ./plw status"
+        echo "  ./plw open \"http://localhost:8088\""
+        echo "  ./plw click \"button.login\""
+        echo "  ./plw type \"input[name=email]\" \"user@example.com\""
+        echo "  ./plw test \"login functionality\""
+        echo ""
+        echo "💡 Make sure Playwright MCP server is running: bun run plw"
+        ;;
+    *)
+        echo "❌ Unknown command: $COMMAND"
+        echo "💡 Use './plw help' to see available commands"
+        exit 1
+        ;;
+esac

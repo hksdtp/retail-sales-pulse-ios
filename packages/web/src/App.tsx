@@ -8,6 +8,7 @@ import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
 import { ApiTaskDataProvider } from './context/ApiTaskDataProvider';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Calendar from './pages/Calendar';
 import CurtainDesign from './pages/CurtainDesign';
 import Employees from './pages/Employees';
@@ -23,15 +24,17 @@ import Tasks from './pages/Tasks';
 import TaskFormDemo from './components/tasks/TaskFormDemo';
 import AIDemo from './pages/AIDemo';
 import DetailedReports from './pages/DetailedReports';
+import ThemeDemo from './pages/ThemeDemo';
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <FirebaseAutoSetupProvider>
-      <AuthProvider>
-        <ApiTaskDataProvider>
-          <TooltipProvider>
+    <ThemeProvider>
+      <FirebaseAutoSetupProvider>
+        <AuthProvider>
+          <ApiTaskDataProvider>
+            <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -136,13 +139,22 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/theme-demo"
+                    element={
+                      <ProtectedRoute>
+                        <ThemeDemo />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
-          </TooltipProvider>
-        </ApiTaskDataProvider>
-      </AuthProvider>
-    </FirebaseAutoSetupProvider>
+            </TooltipProvider>
+          </ApiTaskDataProvider>
+        </AuthProvider>
+      </FirebaseAutoSetupProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
