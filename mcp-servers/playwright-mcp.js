@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { chromium } from 'playwright';
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
+const { chromium } = require('playwright');
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
 
 class PlaywrightMCP {
   constructor() {

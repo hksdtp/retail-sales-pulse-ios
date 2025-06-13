@@ -16,7 +16,7 @@ class AugmentMCP {
   setupStdio() {
     // Setup MCP protocol over stdio
     process.stdin.setEncoding('utf8');
-    process.stdout.setEncoding('utf8');
+    // Note: process.stdout.setEncoding is not available in Bun, but stdout is already UTF-8 by default
     
     let buffer = '';
     
