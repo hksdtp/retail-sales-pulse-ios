@@ -1,6 +1,0 @@
-registry=https://registry.npmjs.org/
-auto-install-peers=true
-shamefully-hoist=true
-strict-peer-dependencies=false
-node-linker=hoisted
-prefer-frozen-lockfile=false

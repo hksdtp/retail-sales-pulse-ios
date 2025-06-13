@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "cd packages/web && pnpm build",
-  "devCommand": "cd packages/web && pnpm dev",
+  "buildCommand": "cd packages/web && npm run build",
+  "devCommand": "cd packages/web && npm run dev",
   "outputDirectory": "packages/web/dist",
-  "installCommand": "cd packages/web && pnpm install --no-frozen-lockfile --prefer-offline",
+  "installCommand": "cd packages/web && npm install --legacy-peer-deps",
   "env": {
     "NODE_ENV": "production"
   },
