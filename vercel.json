@@ -3,7 +3,7 @@
   "buildCommand": "cd packages/web && pnpm build",
   "devCommand": "cd packages/web && pnpm dev",
   "outputDirectory": "packages/web/dist",
-  "installCommand": "cd packages/web && pnpm install --ignore-scripts",
+  "installCommand": "cd packages/web && pnpm install --no-frozen-lockfile --prefer-offline",
   "env": {
     "NODE_ENV": "production"
   },
