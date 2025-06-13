@@ -231,11 +231,21 @@ class PlanToTaskSyncService {
   // Map plan type sang task type
   private mapPlanTypeToTaskType(planType: string): Task['type'] {
     const typeMap: Record<string, Task['type']> = {
+      'personal': 'other',
+      'team': 'other',
+      'department': 'other',
       'meeting': 'other',
-      'site_visit': 'client_new',
-      'report': 'other',
       'training': 'other',
-      'client_meeting': 'client_new',
+      'report': 'other',
+      'partner_new': 'partner_new',
+      'partner_old': 'partner_old',
+      'architect_new': 'architect_new',
+      'architect_old': 'architect_old',
+      'client_new': 'client_new',
+      'client_old': 'client_old',
+      'quote_new': 'quote_new',
+      'quote_old': 'quote_old',
+      'inventory': 'inventory',
       'other': 'other'
     };
 

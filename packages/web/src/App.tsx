@@ -45,7 +45,7 @@ const App = () => (
                     path="/"
                     element={
                       <ProtectedRoute>
-                        <Tasks />
+                        <Index />
                       </ProtectedRoute>
                     }
                   />

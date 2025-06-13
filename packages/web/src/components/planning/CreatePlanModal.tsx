@@ -38,13 +38,14 @@ interface CreatePlanModalProps {
 const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, currentUser, onPlanCreated }) => {
   const [formData, setFormData] = useState({
     title: '',
-    description: '',
     type: '',
-    priority: '',
     startDate: '',
     endDate: '',
-    startTime: '',
-    endTime: '',
+    // Optional fields with defaults
+    description: '',
+    priority: 'normal',
+    startTime: '09:00',
+    endTime: '17:00',
     location: '',
     notes: '',
     participants: [] as string[]
@@ -84,15 +85,13 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
   ];
 
   const planTypes = [
-    { value: 'partner_new', label: '🤝 Đối tác mới', description: 'Làm việc với đối tác mới' },
-    { value: 'partner_old', label: '🤝 Đối tác cũ', description: 'Làm việc với đối tác cũ' },
-    { value: 'architect_new', label: '🏗️ KTS mới', description: 'Làm việc với kiến trúc sư mới' },
-    { value: 'architect_old', label: '🏗️ KTS cũ', description: 'Làm việc với kiến trúc sư cũ' },
-    { value: 'client_new', label: '👥 Khách hàng mới', description: 'Gặp gỡ khách hàng mới' },
-    { value: 'client_old', label: '👥 Khách hàng cũ', description: 'Gặp gỡ khách hàng cũ' },
-    { value: 'quote_new', label: '💰 Báo giá mới', description: 'Báo giá cho dự án mới' },
-    { value: 'quote_old', label: '💰 Báo giá cũ', description: 'Theo dõi báo giá cũ' },
-    { value: 'other', label: '📋 Công việc khác', description: 'Công việc khác' }
+    { value: 'personal', label: '👤 Cá nhân', description: 'Kế hoạch cá nhân' },
+    { value: 'team', label: '👥 Nhóm', description: 'Kế hoạch nhóm/team' },
+    { value: 'department', label: '🏢 Toàn phòng', description: 'Kế hoạch toàn phòng ban' },
+    { value: 'meeting', label: '🤝 Họp', description: 'Cuộc họp nội bộ hoặc với khách hàng' },
+    { value: 'training', label: '📚 Đào tạo', description: 'Tham gia hoặc tổ chức đào tạo' },
+    { value: 'report', label: '📊 Báo cáo', description: 'Tạo và trình bày báo cáo' },
+    { value: 'other', label: '📝 Khác', description: 'Kế hoạch khác' }
   ];
 
   const priorities = [
@@ -129,9 +128,9 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!formData.title || !formData.type || !formData.startDate || !formData.startTime) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+    // Validation - chỉ cần 4 trường chính
+    if (!formData.title || !formData.type || !formData.startDate || !formData.endDate) {
+      alert('Vui lòng điền đầy đủ thông tin bắt buộc: Tiêu đề, Loại, Ngày bắt đầu, Ngày kết thúc');
       return;
     }
 
@@ -184,6 +183,11 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
       // Force refresh calendar plans
       if ((window as any).refreshCalendarPlans) {
         (window as any).refreshCalendarPlans();
+      }
+
+      // Force refresh ModernCalendar
+      if ((window as any).refreshModernCalendar) {
+        (window as any).refreshModernCalendar();
       }
 
       // Force refresh plan list if exists

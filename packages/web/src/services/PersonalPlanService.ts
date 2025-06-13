@@ -5,7 +5,7 @@ export interface PersonalPlan {
   userId: string;
   title: string;
   description: string;
-  type: 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'report' | 'training' | 'meeting' | 'inventory' | 'other';
+  type: 'personal' | 'team' | 'department' | 'partner_new' | 'partner_old' | 'architect_new' | 'architect_old' | 'client_new' | 'client_old' | 'quote_new' | 'quote_old' | 'report' | 'training' | 'meeting' | 'inventory' | 'other';
   status: 'pending' | 'in_progress' | 'completed' | 'overdue';
   priority: 'urgent' | 'high' | 'normal' | 'low';
   startDate: string;

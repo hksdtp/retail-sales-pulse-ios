@@ -31,9 +31,11 @@ interface TaskFormData {
   title: string;
   description: string;
   type: string;
+  types: string[]; // Multiple types support
   status: string;
   priority: string;
   date: string;
+  deadline: string;
   time?: string;
   assignedTo?: string;
   visibility: 'personal' | 'team' | 'public';
@@ -61,9 +63,11 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     title: '',
     description: '',
     type: '',
+    types: [], // Multiple types
     status: 'todo',
     priority: 'normal',
     date: new Date().toISOString().split('T')[0], // Default to today
+    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 7 days from now
     time: '',
     assignedTo: currentUser?.id || '',
     visibility: 'personal',
@@ -93,9 +97,11 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         title: '',
         description: '',
         type: '',
+        types: [],
         status: 'todo',
         priority: 'normal',
         date: today.toISOString().split('T')[0],
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         time: '',
         assignedTo: currentUser?.id || '',
         visibility: 'personal',
@@ -107,10 +113,10 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date || !formData.visibility) {
+    if (!formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.deadline || !formData.visibility) {
       toast({
         title: 'Lỗi',
-        description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
+        description: 'Vui lòng điền đầy đủ thông tin bắt buộc (ít nhất 1 loại công việc)',
         variant: 'destructive',
       });
       return;
@@ -122,10 +128,12 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       // Tạo task mới
       await addTask({
         title: formData.title,
-        description: formData.description,
+        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}`,
         type: formData.type,
+        types: formData.types, // Send multiple types
         status: formData.status as any,
         date: formData.date,
+        deadline: formData.deadline,
         time: formData.time,
         assignedTo: formData.assignedTo,
         visibility: formData.visibility,
@@ -155,6 +163,24 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleInputChange = (field: keyof TaskFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle multiple type selection
+  const handleTypeToggle = (typeKey: string) => {
+    setFormData(prev => {
+      const newTypes = prev.types.includes(typeKey)
+        ? prev.types.filter(t => t !== typeKey)
+        : [...prev.types, typeKey];
+
+      // Update primary type to first selected type
+      const primaryType = newTypes.length > 0 ? newTypes[0] : '';
+
+      return {
+        ...prev,
+        types: newTypes,
+        type: primaryType
+      };
+    });
   };
 
   // User tagging functions
@@ -337,7 +363,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="task-form-dialog w-full max-w-3xl max-h-[90vh] overflow-hidden bg-white shadow-2xl border-0 rounded-3xl animate-in fade-in-0 zoom-in-95 duration-300"
+        className="task-form-dialog w-full max-w-3xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900 shadow-2xl border-0 rounded-3xl animate-in fade-in-0 zoom-in-95 duration-300"
         style={{
           position: 'fixed',
           left: '50%',
@@ -345,13 +371,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           transform: 'translate(-50%, -50%)',
           margin: 0,
           zIndex: 10000,
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          background: 'var(--dialog-bg, linear-gradient(135deg, #ffffff 0%, #f8fafc 100%))',
           backdropFilter: 'blur(20px)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
         }}
       >
-        <DialogHeader className="pb-6 border-b border-gray-100/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 -mx-6 -mt-6 px-6 pt-6 rounded-t-3xl">
-          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-4">
+        <DialogHeader className="pb-6 border-b border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-6 -mt-6 px-6 pt-6 rounded-t-3xl">
+          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-200 hover:scale-105">
               <Plus className="w-6 h-6 text-white" />
             </div>
@@ -361,7 +387,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 {formType === 'team' && 'Giao công việc cho Nhóm'}
                 {formType === 'individual' && 'Giao công việc cho thành viên'}
               </span>
-              <DialogDescription className="text-gray-600 text-sm font-normal mt-1">
+              <DialogDescription className="text-gray-600 dark:text-gray-400 text-sm font-normal mt-1">
                 {formType === 'self' && 'Tạo công việc cá nhân và quản lý tiến độ hiệu quả'}
                 {formType === 'team' && 'Phân công công việc cho nhóm hoặc cá nhân bất kỳ trong tổ chức'}
                 {formType === 'individual' && 'Phân công công việc cho các thành viên trong nhóm của bạn'}
@@ -374,7 +400,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-8">
             {/* Tiêu đề */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                 Tiêu đề công việc <span className="text-red-500 ml-1">*</span>
               </label>
               <Input
@@ -382,7 +408,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 placeholder="Nhập tiêu đề công việc..."
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm"
+                className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 required
               />
             </div>
@@ -404,23 +430,24 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
             {/* Loại công việc - Pill Layout */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                 Loại công việc <span className="text-red-500 ml-1">*</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">(Có thể chọn nhiều)</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(taskTypeConfig).map(([key, config]) => {
                   const IconComponent = config.icon;
-                  const isSelected = formData.type === key;
+                  const isSelected = formData.types.includes(key);
                   return (
                     <button
                       key={key}
                       type="button"
-                      onClick={() => handleInputChange('type', key)}
+                      onClick={() => handleTypeToggle(key)}
                       className={`
                         inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                         ${isSelected
                           ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                          : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                          : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                         }
                       `}
                     >
@@ -435,6 +462,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                   );
                 })}
               </div>
+              {formData.types.length > 0 && (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                  <div className="text-sm text-blue-800 dark:text-blue-200">
+                    <strong>Đã chọn:</strong> {formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Trạng thái và Ưu tiên */}
@@ -515,24 +549,36 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             </div>
 
             {/* Thời gian */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                  Ngày tạo <span className="text-red-500 ml-1">*</span>
+                </label>
+                <div className="w-full h-12 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl flex items-center px-4 text-gray-700 dark:text-gray-300">
+                  <Calendar className="mr-3 h-4 w-4 text-gray-500" />
+                  <span className="font-medium">
+                    {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: vi })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                   Ngày thực hiện <span className="text-red-500 ml-1">*</span>
                 </label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm justify-start text-left font-normal"
+                      className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
                     >
                       <Calendar className="mr-3 h-4 w-4 text-gray-500" />
                       {selectedDate ? (
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
                           {format(selectedDate, 'EEEE, dd MMMM yyyy', { locale: vi })}
                         </span>
                       ) : (
-                        <span className="text-gray-500">Chọn ngày thực hiện</span>
+                        <span className="text-gray-500 dark:text-gray-400">Chọn ngày thực hiện</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -574,19 +620,37 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 mb-3">
-                  Thời gian (tùy chọn)
+                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                  Deadline <span className="text-red-500 ml-1">*</span>
                 </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
-                    name="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => handleInputChange('time', e.target.value)}
-                    className="w-full h-12 pl-10 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm"
+                    name="deadline"
+                    type="date"
+                    value={formData.deadline}
+                    onChange={(e) => handleInputChange('deadline', e.target.value)}
+                    className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100"
+                    required
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Thời gian */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                Thời gian (tùy chọn)
+              </label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Input
+                  name="time"
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => handleInputChange('time', e.target.value)}
+                  className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100"
+                />
               </div>
             </div>
 
@@ -796,7 +860,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || !formData.type || !formData.date || !formData.visibility}
+            disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.deadline || !formData.visibility}
             className="px-8 py-3 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {isSubmitting ? (

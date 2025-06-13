@@ -1,6 +1,5 @@
 import {
   Activity,
-
   Bell,
   Briefcase,
   Building,
@@ -9,7 +8,7 @@ import {
   CheckSquare,
   ChevronDown,
   ChevronRight,
-
+  Circle,
   Clock,
   Download,
   Edit,
@@ -45,7 +44,6 @@ import {
   UserCheck,
   Users,
   X,
-
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -1098,16 +1096,7 @@ export default function TaskManagementView({
 
               {/* Action buttons - responsive */}
               <div className="flex items-center space-x-1 sm:space-x-2">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`p-1 sm:p-1.5 lg:p-2 transition-all duration-200 rounded-lg ${
-                    showFilters
-                      ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <Filter className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-                </button>
+
               </div>
             </div>
 
@@ -1126,96 +1115,7 @@ export default function TaskManagementView({
               </div>
             )}
 
-            {/* Task Filters Panel */}
-            {showFilters && (
-              <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
-                  {/* Thời gian */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Thời gian</label>
-                    <select
-                      value={filters.timeRange}
-                      onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value }))}
-                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="all">Tất cả</option>
-                      <option value="week">Tuần này</option>
-                      <option value="month">Tháng này</option>
-                      <option value="quarter">Quý này</option>
-                      <option value="year">Năm này</option>
-                    </select>
-                  </div>
 
-                  {/* Trạng thái */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Trạng thái</label>
-                    <select
-                      value={filters.status}
-                      onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="all">Tất cả</option>
-                      <option value="not_started">Chưa bắt đầu</option>
-                      <option value="in_progress">Đang làm</option>
-                      <option value="completed">Hoàn thành</option>
-                      <option value="paused">Tạm dừng</option>
-                    </select>
-                  </div>
-
-                  {/* Loại công việc */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Loại công việc</label>
-                    <select
-                      value={filters.type}
-                      onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="all">Tất cả</option>
-                      <option value="kts_new">KTS mới</option>
-                      <option value="kts_old">KTS cũ</option>
-                      <option value="kh_cdt_new">KH/CĐT mới</option>
-                      <option value="kh_cdt_old">KH/CĐT cũ</option>
-                      <option value="sbg_new">SBG mới</option>
-                      <option value="sbg_old">SBG cũ</option>
-                      <option value="partner_new">Đối tác mới</option>
-                      <option value="partner_old">Đối tác cũ</option>
-                      <option value="other">Công việc khác</option>
-                    </select>
-                  </div>
-
-                  {/* Mức độ ưu tiên */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Ưu tiên</label>
-                    <select
-                      value={filters.priority}
-                      onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
-                      className="w-full text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="all">Tất cả</option>
-                      <option value="low">Thấp</option>
-                      <option value="normal">Bình thường</option>
-                      <option value="high">Cao</option>
-                      <option value="urgent">Khẩn cấp</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Reset filters button */}
-                <div className="mt-3 flex justify-end">
-                  <button
-                    onClick={() => setFilters({
-                      timeRange: 'all',
-                      status: 'all',
-                      type: 'all',
-                      priority: 'all'
-                    })}
-                    className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-colors"
-                  >
-                    Xóa bộ lọc
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Member Selector cho Team Leaders */}
             {currentUser?.role === 'team_leader' && viewLevel === 'individual' && (

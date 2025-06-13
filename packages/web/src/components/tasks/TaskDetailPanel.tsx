@@ -105,15 +105,11 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   useEffect(() => {
     if (task) {
       setEditedTask({ ...task });
-      // Khởi tạo checklist từ task data hoặc mặc định
+      // Khởi tạo checklist từ task data hoặc để trống
       if (task.checklist && Array.isArray(task.checklist)) {
         setChecklist(task.checklist);
       } else {
-        setChecklist([
-          { id: 1, text: 'Chuẩn bị tài liệu', completed: false },
-          { id: 2, text: 'Liên hệ khách hàng', completed: false },
-          { id: 3, text: 'Hoàn thiện báo cáo', completed: false },
-        ]);
+        setChecklist([]); // Bắt đầu với checklist trống
       }
       // Khởi tạo assigned users
       if (task.assignedUsers && Array.isArray(task.assignedUsers)) {
