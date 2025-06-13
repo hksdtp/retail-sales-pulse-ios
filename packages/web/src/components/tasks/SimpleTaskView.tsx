@@ -2,7 +2,6 @@ import {
   Activity,
   Calendar,
   CheckSquare,
-  Circle,
   Clock,
   Download,
   FileText,
@@ -10,6 +9,7 @@ import {
   List,
   MoreVertical,
   Package,
+  Square,
   Users,
 } from 'lucide-react';
 import React from 'react';
@@ -23,16 +23,16 @@ const statusMapping = {
 };
 
 const statusColors = {
-  'CẦN LÀM': 'bg-gray-500',
-  'ĐANG THỰC HIỆN': 'bg-blue-500',
-  'ĐÃ HOÀN THÀNH': 'bg-green-600',
+  'CẦN LÀM': 'bg-gray-500 dark:bg-gray-400',
+  'ĐANG THỰC HIỆN': 'bg-blue-500 dark:bg-blue-400',
+  'ĐÃ HOÀN THÀNH': 'bg-green-600 dark:bg-green-500',
 };
 
 const typeMapping = {
   client_new: { code: 'KH', icon: Users },
   quote_new: { code: 'BG', icon: Package },
   meeting: { code: 'HỌP', icon: FileText },
-  other: { code: 'KC', icon: Circle },
+  other: { code: 'KC', icon: Square },
 };
 
 const typeColors = {
@@ -134,7 +134,7 @@ export default function SimpleTaskView() {
                     <div
                       className={`w-8 h-8 rounded-lg ${typeColors[typeMapping[task.type]?.code || 'KC']} flex items-center justify-center mr-3`}
                     >
-                      {React.createElement(typeMapping[task.type]?.icon || Circle, {
+                      {React.createElement(typeMapping[task.type]?.icon || Square, {
                         className: 'w-4 h-4',
                       })}
                     </div>

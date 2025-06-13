@@ -153,17 +153,17 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   };
 
   const statusColors = {
-    'todo': 'bg-gray-400',
-    'in-progress': 'bg-blue-500',
-    'on-hold': 'bg-amber-400',
-    'completed': 'bg-green-500',
+    'todo': 'bg-gray-400 dark:bg-gray-500',
+    'in-progress': 'bg-blue-500 dark:bg-blue-400',
+    'on-hold': 'bg-amber-400 dark:bg-amber-500',
+    'completed': 'bg-green-500 dark:bg-green-400',
   };
 
   const priorityColors = {
-    urgent: 'bg-red-600',
-    high: 'bg-red-500',
-    normal: 'bg-yellow-500',
-    low: 'bg-green-500',
+    urgent: 'bg-red-600 dark:bg-red-500',
+    high: 'bg-orange-500 dark:bg-orange-400',
+    normal: 'bg-blue-500 dark:bg-blue-400',
+    low: 'bg-green-500 dark:bg-green-400',
   };
 
   const formatDate = (dateString: string) => {

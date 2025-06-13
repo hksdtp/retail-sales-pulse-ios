@@ -1,6 +1,6 @@
 import {
   Activity,
-  AlertCircle,
+
   Bell,
   Briefcase,
   Building,
@@ -9,7 +9,7 @@ import {
   CheckSquare,
   ChevronDown,
   ChevronRight,
-  Circle,
+
   Clock,
   Download,
   Edit,
@@ -45,7 +45,7 @@ import {
   UserCheck,
   Users,
   X,
-  Zap,
+
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -73,10 +73,10 @@ const statusMapping = {
 };
 
 const statusColors = {
-  'todo': 'bg-gray-500 hover:bg-gray-600 text-white',
-  'in-progress': 'bg-blue-500 hover:bg-blue-600 text-white',
-  'on-hold': 'bg-amber-500 hover:bg-amber-600 text-white',
-  'completed': 'bg-green-500 hover:bg-green-600 text-white',
+  'todo': 'bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-400 dark:hover:bg-gray-500',
+  'in-progress': 'bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500',
+  'on-hold': 'bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-400 dark:hover:bg-amber-500',
+  'completed': 'bg-green-500 hover:bg-green-600 text-white dark:bg-green-400 dark:hover:bg-green-500',
 };
 
 // Thứ tự chuyển trạng thái
@@ -96,10 +96,10 @@ const priorityMapping = {
 };
 
 const priorityColors = {
-  urgent: 'bg-red-600 hover:bg-red-700 text-white',
-  high: 'bg-red-500 hover:bg-red-600 text-white',
-  normal: 'bg-yellow-500 hover:bg-yellow-600 text-white',
-  low: 'bg-green-500 hover:bg-green-600 text-white',
+  urgent: 'bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600',
+  high: 'bg-orange-500 hover:bg-orange-600 text-white dark:bg-orange-400 dark:hover:bg-orange-500',
+  normal: 'bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500',
+  low: 'bg-green-500 hover:bg-green-600 text-white dark:bg-green-400 dark:hover:bg-green-500',
 };
 
 // Thứ tự chuyển mức độ ưu tiên
@@ -118,12 +118,12 @@ const statusText = {
   'completed': 'XONG',
 };
 
-// Mapping icon cho mức độ ưu tiên
-const priorityIcons = {
-  urgent: Zap,
-  high: Zap,
-  normal: AlertCircle,
-  low: Circle,
+// Mapping text cho mức độ ưu tiên (thay thế icon)
+const priorityText = {
+  urgent: 'KHẨN',
+  high: 'CAO',
+  normal: 'BT',
+  low: 'THẤP',
 };
 
 // Mapping loại công việc với icon
@@ -140,7 +140,7 @@ const typeMapping = {
   training: { code: 'DT', icon: Users },
   meeting: { code: 'HỌP', icon: MessageCircle },
   inventory: { code: 'TK', icon: Package },
-  other: { code: 'KC', icon: Circle },
+  other: { code: 'KC', icon: Square },
 };
 
 const typeColors = {
@@ -1180,15 +1180,15 @@ export default function TaskManagementView({
                         }
                       }}
                       disabled={!canEditTask(task)}
-                      className={`p-1 rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} ${
+                      className={`px-2 py-1 rounded-full transition-all duration-200 ${priorityColors[task.priority || 'normal']} ${
                         canEditTask(task)
                           ? 'cursor-pointer hover:scale-105'
                           : 'cursor-not-allowed'
                       }`}
                     >
-                      {React.createElement(priorityIcons[task.priority || 'normal'] || Circle, {
-                        className: 'w-2.5 h-2.5',
-                      })}
+                      <span className="text-[9px] font-bold">
+                        {priorityText[task.priority || 'normal'] || 'BT'}
+                      </span>
                     </button>
                   </div>
 
@@ -1286,9 +1286,9 @@ export default function TaskManagementView({
                           }`}
                           title={canEditTask(task) ? `${priorityMapping[task.priority || 'normal']} - Click để chuyển sang: ${priorityMapping[priorityFlow[(task.priority || 'normal') as keyof typeof priorityFlow]] || 'Không thể chuyển'}` : 'Bạn không có quyền thay đổi ưu tiên'}
                         >
-                          {React.createElement(priorityIcons[task.priority || 'normal'] || Circle, {
-                            className: 'w-3 h-3',
-                          })}
+                          <span className="text-xs font-bold">
+                            {priorityText[task.priority || 'normal'] || 'BT'}
+                          </span>
                         </button>
                       </div>
                     </td>

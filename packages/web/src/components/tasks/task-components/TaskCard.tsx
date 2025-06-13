@@ -117,7 +117,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(({
         return (
           <Badge
             variant="outline"
-            className="bg-gray-100 text-gray-800 border-gray-300 font-medium"
+            className="bg-gray-100 text-gray-800 border-gray-300 font-medium dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
           >
             Cần làm
           </Badge>
@@ -126,7 +126,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(({
         return (
           <Badge
             variant="outline"
-            className="bg-blue-100 text-blue-800 border-blue-300 font-medium"
+            className="bg-blue-100 text-blue-800 border-blue-300 font-medium dark:bg-blue-800 dark:text-blue-200 dark:border-blue-600"
           >
             Đang làm
           </Badge>
@@ -135,7 +135,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(({
         return (
           <Badge
             variant="outline"
-            className="bg-amber-100 text-amber-800 border-amber-300 font-medium"
+            className="bg-amber-100 text-amber-800 border-amber-300 font-medium dark:bg-amber-800 dark:text-amber-200 dark:border-amber-600"
           >
             Tạm hoãn
           </Badge>
@@ -144,7 +144,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(({
         return (
           <Badge
             variant="outline"
-            className="bg-emerald-100 text-emerald-800 border-emerald-300 font-medium"
+            className="bg-emerald-100 text-emerald-800 border-emerald-300 font-medium dark:bg-emerald-800 dark:text-emerald-200 dark:border-emerald-600"
           >
             Hoàn thành
           </Badge>
