@@ -18,8 +18,6 @@
       ]
     }
   ],
-  "installCommand": "pnpm install --no-frozen-lockfile",
-  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
