@@ -214,18 +214,18 @@ export default function TaskManagementView({
     currentUser?.role === 'retail_director' ||
     currentUser?.role === 'project_director';
 
-  // Mock data để test individual member view
+  // Mock data để test individual member view với real user IDs
   const mockTasks: any[] = [
     {
       id: 'task-1',
       title: 'Công việc của Phạm Thị Hương',
       description: 'Test task for Phạm Thị Hương',
-      assignedTo: 'pham-thi-huong-id',
-      user_id: 'manager-id',
+      assignedTo: '7', // Real ID của Phạm Thị Hương
+      user_id: 'Ve7sGRnMoRvT1E0VL5Ds', // Manager ID
       status: 'in-progress',
       priority: 'high',
       type: 'customer_new',
-      team_id: 'team-5',
+      team_id: '5',
       department_type: 'retail',
       created_at: new Date().toISOString(),
       due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
@@ -234,15 +234,43 @@ export default function TaskManagementView({
       id: 'task-2',
       title: 'Công việc khác của Phạm Thị Hương',
       description: 'Another test task',
-      assignedTo: 'pham-thi-huong-id',
-      user_id: 'pham-thi-huong-id',
+      assignedTo: '7', // Real ID của Phạm Thị Hương
+      user_id: '7', // Created by Phạm Thị Hương
       status: 'todo',
       priority: 'normal',
       type: 'partner_new',
-      team_id: 'team-5',
+      team_id: '5',
       department_type: 'retail',
       created_at: new Date().toISOString(),
       due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'task-3',
+      title: 'Lê Khánh Duy - Báo giá khách hàng ABC',
+      description: 'Chuẩn bị báo giá cho khách hàng ABC',
+      assignedTo: 'abtSSmK0p0oeOyy5YWGZ', // Real ID của Lê Khánh Duy
+      user_id: 'Ue4vzSj1KDg4vZyXwlHJ', // Assigned by Lương Việt Anh
+      status: 'in-progress',
+      priority: 'high',
+      type: 'quote_new',
+      team_id: '1',
+      department_type: 'retail',
+      created_at: new Date().toISOString(),
+      due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'task-4',
+      title: 'Nguyễn Mạnh Linh - Chăm sóc khách hàng VIP',
+      description: 'Follow up khách hàng VIP tháng này',
+      assignedTo: '76ui8I1vw3wiJLyvwFjq', // Real ID của Nguyễn Mạnh Linh
+      user_id: 'MO7N4Trk6mASlHpIcjME', // Assigned by Nguyễn Thị Thảo
+      status: 'todo',
+      priority: 'normal',
+      type: 'customer_care',
+      team_id: '2',
+      department_type: 'retail',
+      created_at: new Date().toISOString(),
+      due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
     }
   ];
 
@@ -270,6 +298,18 @@ export default function TaskManagementView({
     const regularTasks = regularTaskData?.tasks || [];
     const managerTasks = managerTaskData?.tasks || [];
 
+    // Combine với mock data để test
+    const allRegularTasks = [...regularTasks, ...mockTasks];
+    const allManagerTasks = [...managerTasks, ...mockTasks];
+
+    console.log('🔍 Data sources:', {
+      regularTasks: regularTasks.length,
+      managerTasks: managerTasks.length,
+      mockTasks: mockTasks.length,
+      allRegularTasks: allRegularTasks.length,
+      allManagerTasks: allManagerTasks.length
+    });
+
     switch (view) {
       case 'personal':
         // Công việc cá nhân: được giao trực tiếp cho user hoặc do user tạo
@@ -278,7 +318,7 @@ export default function TaskManagementView({
         console.log('  - regularTasks count:', regularTasks.length);
         console.log('  - regularTasks:', regularTasks);
 
-        const personalTasks = regularTasks.filter((task) => {
+        const personalTasks = allRegularTasks.filter((task) => {
           const currentUserId = currentUser?.id;
 
           // Kiểm tra nhiều cách match ID
@@ -322,9 +362,9 @@ export default function TaskManagementView({
         console.log('👥 Getting team tasks for user:', currentUser?.name, 'role:', currentUser?.role, 'team_id:', currentUser?.team_id);
         console.log('👥 Available data sources - managerTasks:', managerTasks.length, 'regularTasks:', regularTasks.length);
 
-        // Sử dụng managerTasks nếu có (từ API team view), fallback về regularTasks
-        const sourceData = managerTasks.length > 0 ? managerTasks : regularTasks;
-        console.log('👥 Using data source:', managerTasks.length > 0 ? 'managerTasks' : 'regularTasks', 'with', sourceData.length, 'tasks');
+        // Sử dụng managerTasks nếu có (từ API team view), fallback về regularTasks, bao gồm mock data
+        const sourceData = allManagerTasks.length > allRegularTasks.length ? allManagerTasks : allRegularTasks;
+        console.log('👥 Using data source:', allManagerTasks.length > allRegularTasks.length ? 'allManagerTasks' : 'allRegularTasks', 'with', sourceData.length, 'tasks');
 
         if (isManager) {
           // Manager: xem công việc của nhóm
@@ -431,7 +471,7 @@ export default function TaskManagementView({
           console.log('  - Final member IDs to search for:', memberIds);
 
           // Lấy tất cả công việc của các thành viên được filter
-          const memberTasks = regularTasks.filter((task) => {
+          const memberTasks = allRegularTasks.filter((task) => {
             const isAssignedToMember = memberIds.includes(task.assignedTo || '');
             const isCreatedByMember = memberIds.includes(task.user_id || '');
             const shouldInclude = isAssignedToMember || isCreatedByMember;
