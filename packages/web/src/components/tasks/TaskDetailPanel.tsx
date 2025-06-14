@@ -17,9 +17,9 @@ import {
 import React, { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
 import { useAuth } from '@/context/AuthContext';
 import { useTaskData } from '@/hooks/use-task-data';
-import { useScrollLock, useModalScrollHandler } from '@/hooks/use-scroll-lock';
 import notificationService from '@/services/notificationService';
 
 interface TaskDetailPanelProps {
@@ -47,10 +47,6 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   const [editedTask, setEditedTask] = useState(task);
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
   const [showUserSelector, setShowUserSelector] = useState(false);
-
-  // Sử dụng scroll lock hook
-  useScrollLock(isOpen);
-  const { handleModalScroll, handleModalTouchMove } = useModalScrollHandler();
 
   // Function để lấy tên người dùng từ nhiều nguồn
   const getUserName = (task: any) => {
@@ -179,42 +175,25 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   };
 
   return (
-    <>
-      {/* Enhanced Backdrop with stronger blur */}
-      {isOpen && (
-        <div
-          className="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-lg transition-all duration-500"
-          onClick={onClose}
-          onWheel={(e) => e.preventDefault()}
-          onTouchMove={(e) => e.preventDefault()}
-          style={{
-            zIndex: 999998,
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backdropFilter: 'blur(12px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-          }}
-        />
-      )}
-
-      {/* Panel - responsive */}
-      <div
-        className={`task-detail-panel fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-2xl transition-all duration-300 ease-out flex flex-col ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent
+        className="task-detail-panel w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white shadow-2xl border-0 rounded-2xl p-0 flex flex-col"
         style={{
-          zIndex: 999999,
+          position: 'fixed',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          margin: 0,
+          zIndex: 10000,
+          background: 'white',
+          backdropFilter: 'blur(20px)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           width: 'min(95vw, 800px)',
           height: 'min(85vh, 650px)',
-          borderRadius: '16px',
-          border: '1px solid rgba(0, 0, 0, 0.1)',
-          boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.25)',
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Header - compact */}
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-[16px]">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
               <FileText className="w-4 h-4 text-white" />
@@ -233,11 +212,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
         </div>
 
         {/* Content - Scrollable */}
-        <div
-          className="flex-1 overflow-y-auto min-h-0"
-          onWheel={handleModalScroll}
-          onTouchMove={handleModalTouchMove}
-        >
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Title & Status Section - compact */}
           <div className="p-4 bg-gray-50 border-b border-gray-200">
             <div className="relative mb-3">
@@ -574,7 +549,7 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
         </div>
 
         {/* Actions - compact */}
-        <div className="flex-shrink-0 border-t border-gray-200 p-3 bg-gray-50 rounded-b-[16px]">
+        <div className="flex-shrink-0 border-t border-gray-200 p-3 bg-gray-50 rounded-b-2xl">
           <div className="flex gap-2">
             <Button
               onClick={async (e) => {
@@ -689,8 +664,8 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             </Button>
           </div>
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };
 
