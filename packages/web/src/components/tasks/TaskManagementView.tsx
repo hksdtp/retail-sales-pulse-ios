@@ -277,8 +277,10 @@ export default function TaskManagementView({
     }
   ];
 
-  // Xác định member ID để truyền cho hook
-  const getSelectedMemberForHook = () => {
+
+
+  // Tính toán selectedMemberForHook một cách reactive
+  const selectedMemberForHook = React.useMemo(() => {
     if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
       console.log(`🔍 Director using selectedMember: ${selectedMember}`);
       return selectedMember; // Directors sử dụng selectedMember từ filters
@@ -286,12 +288,12 @@ export default function TaskManagementView({
       console.log(`🔍 Team leader using selectedMemberId: ${selectedMemberId}`);
       return selectedMemberId; // Team leaders sử dụng selectedMemberId từ props
     }
-  };
+  }, [currentUser?.role, selectedMember, selectedMemberId]);
 
   let regularTaskData, managerTaskData;
   try {
     regularTaskData = useTaskData();
-    managerTaskData = useManagerTaskData(viewLevel as any, getSelectedMemberForHook());
+    managerTaskData = useManagerTaskData(viewLevel as any, selectedMemberForHook);
   } catch (error) {
     console.error('Error with hooks, using mock data:', error);
     regularTaskData = { tasks: mockTasks };
