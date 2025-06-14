@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import AccountSettings from '@/components/account/AccountSettings';
+import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 
 // Haptic feedback utility
@@ -44,6 +45,11 @@ const BottomNavigation = () => {
     title: "Kế hoạch",
     icon: CalendarCheck,
     url: "/calendar"
+  }, {
+    title: "AI",
+    icon: Sparkles,
+    url: "/curtain-design",
+    isAI: true
   }, {
     title: "Nhân viên",
     icon: Users,
@@ -88,31 +94,45 @@ const BottomNavigation = () => {
                 to={item.url}
                 onClick={triggerHapticFeedback}
                 className={cn(
-                  "relative flex flex-col items-center justify-center w-16 py-2 text-xs font-medium rounded-xl transition-all duration-200",
+                  "relative flex flex-col items-center justify-center flex-1 py-2 text-xs font-medium rounded-xl transition-all duration-200 min-w-0",
                   isActive(item.url)
                     ? "text-ios-blue bg-white/90 shadow-md border border-blue-100/50 scale-105"
                     : "text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5"
                 )}
               >
-                <item.icon className={cn("h-4 w-4 mb-1 flex-shrink-0", isActive(item.url) && "text-ios-blue")} />
-                <span className="text-[9px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{item.title}</span>
+                <div className="relative">
+                  <item.icon className={cn("h-4 w-4 mb-1 flex-shrink-0", isActive(item.url) && "text-ios-blue")} />
+                  {item.isAI && (
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+                  )}
+                </div>
+                <span className="text-[8px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{item.title}</span>
               </Link>
             );
+
+            // Wrap AI features with disabled overlay
+            if (item.isAI) {
+              return (
+                <AIDisabledOverlay key={item.title} message="AI tạm khóa">
+                  {linkContent}
+                </AIDisabledOverlay>
+              );
+            }
 
             return linkContent;
           })}
 
           {/* Account Menu */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative flex-1 min-w-0" ref={dropdownRef}>
             <button
-              className="flex flex-col items-center justify-center w-16 py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5 rounded-xl transition-all duration-200"
+              className="flex flex-col items-center justify-center w-full py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5 rounded-xl transition-all duration-200"
               onClick={() => {
                 triggerHapticFeedback();
                 setIsDropdownOpen(!isDropdownOpen);
               }}
             >
               <User className="h-4 w-4 mb-1 flex-shrink-0" />
-              <span className="text-[9px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">Tài khoản</span>
+              <span className="text-[8px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">Tài khoản</span>
             </button>
 
             {/* Dropdown Menu */}

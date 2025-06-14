@@ -204,7 +204,20 @@ export default function TaskManagementView({
   // Debug log cho selectedMember changes
   useEffect(() => {
     console.log(`🔍 selectedMember changed to: ${selectedMember}`);
-  }, [selectedMember]);
+
+    // Debug user data khi selectedMember thay đổi
+    if (selectedMember) {
+      const selectedUser = users.find(u => u.id === selectedMember);
+      console.log(`👤 Selected user data:`, selectedUser);
+
+      // Tìm user với tên Phạm Thị Hương
+      const phamThiHuong = users.find(u => u.name === 'Phạm Thị Hương');
+      console.log(`🎯 Phạm Thị Hương user data:`, phamThiHuong);
+
+      // List all users for debugging
+      console.log(`👥 All users (${users.length}):`, users.map(u => ({ id: u.id, name: u.name, email: u.email })));
+    }
+  }, [selectedMember, users]);
 
   // Early return nếu chưa có currentUser
   if (!currentUser) {
@@ -219,19 +232,101 @@ export default function TaskManagementView({
 
   // Mock data để test individual member view với real user IDs
   const mockTasks: any[] = [
+    // Tasks assigned TO Phạm Thị Hương (mock ID)
     {
-      id: 'task-1',
-      title: 'Công việc của Phạm Thị Hương',
-      description: 'Test task for Phạm Thị Hương',
-      assignedTo: '7', // Real ID của Phạm Thị Hương
-      user_id: 'Ve7sGRnMoRvT1E0VL5Ds', // Manager ID
+      id: 'task-pth-1',
+      title: 'Liên hệ khách hàng mới - Phạm Thị Hương',
+      description: 'Task assigned to Phạm Thị Hương (mock ID)',
+      assignedTo: '7', // Mock ID của Phạm Thị Hương
+      user_id: 'Ve7sGRnMoRvT1E0VL5Ds', // Manager tạo task
+      user_name: 'Khổng Đức Mạnh',
       status: 'in-progress',
       priority: 'high',
       type: 'customer_new',
       team_id: '5',
+      teamId: '5',
+      location: 'hanoi',
       department_type: 'retail',
+      date: new Date().toISOString().split('T')[0],
+      time: '09:00',
+      progress: 30,
       created_at: new Date().toISOString(),
-      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      isNew: false,
+      isShared: false,
+      isSharedWithTeam: false,
+      extraAssignees: ''
+    },
+    // Tasks assigned TO Phạm Thị Hương (real API ID)
+    {
+      id: 'task-pth-2',
+      title: 'Báo cáo tuần - Phạm Thị Hương',
+      description: 'Task assigned to Phạm Thị Hương (real API ID)',
+      assignedTo: 'ACKzl2RISqrx5ca9QDM6', // Real API ID của Phạm Thị Hương
+      user_id: 'Ve7sGRnMoRvT1E0VL5Ds', // Manager tạo task
+      user_name: 'Khổng Đức Mạnh',
+      status: 'todo',
+      priority: 'normal',
+      type: 'report',
+      team_id: '4',
+      teamId: '4',
+      location: 'hanoi',
+      department_type: 'retail',
+      date: new Date().toISOString().split('T')[0],
+      time: '14:00',
+      progress: 0,
+      created_at: new Date().toISOString(),
+      isNew: false,
+      isShared: false,
+      isSharedWithTeam: false,
+      extraAssignees: ''
+    },
+    // Tasks created BY Phạm Thị Hương (mock ID)
+    {
+      id: 'task-pth-3',
+      title: 'Tự tạo task - Phạm Thị Hương',
+      description: 'Task created by Phạm Thị Hương (mock ID)',
+      assignedTo: '7', // Tự assign cho mình
+      user_id: '7', // Phạm Thị Hương tạo task
+      user_name: 'Phạm Thị Hương',
+      status: 'completed',
+      priority: 'low',
+      type: 'other',
+      team_id: '5',
+      teamId: '5',
+      location: 'hanoi',
+      department_type: 'retail',
+      date: new Date().toISOString().split('T')[0],
+      time: '16:00',
+      progress: 100,
+      created_at: new Date().toISOString(),
+      isNew: false,
+      isShared: false,
+      isSharedWithTeam: false,
+      extraAssignees: ''
+    },
+    // Tasks created BY Phạm Thị Hương (real API ID)
+    {
+      id: 'task-pth-4',
+      title: 'Họp nhóm - Phạm Thị Hương',
+      description: 'Task created by Phạm Thị Hương (real API ID)',
+      assignedTo: 'ACKzl2RISqrx5ca9QDM6', // Tự assign cho mình
+      user_id: 'ACKzl2RISqrx5ca9QDM6', // Phạm Thị Hương tạo task
+      user_name: 'Phạm Thị Hương',
+      status: 'in-progress',
+      priority: 'high',
+      type: 'meeting',
+      team_id: '4',
+      teamId: '4',
+      location: 'hanoi',
+      department_type: 'retail',
+      date: new Date().toISOString().split('T')[0],
+      time: '10:30',
+      progress: 50,
+      created_at: new Date().toISOString(),
+      isNew: false,
+      isShared: false,
+      isSharedWithTeam: false,
+      extraAssignees: ''
     },
     {
       id: 'task-2',
@@ -294,6 +389,22 @@ export default function TaskManagementView({
   try {
     regularTaskData = useTaskData();
     managerTaskData = useManagerTaskData(viewLevel as any, selectedMemberForHook);
+
+    // Thêm mock tasks vào data để test
+    if (regularTaskData?.tasks) {
+      regularTaskData.tasks = [...regularTaskData.tasks, ...mockTasks];
+    }
+    if (managerTaskData?.tasks) {
+      managerTaskData.tasks = [...managerTaskData.tasks, ...mockTasks];
+    }
+
+    console.log(`📊 Data sources:`, {
+      regularTasks: regularTaskData?.tasks?.length || 0,
+      managerTasks: managerTaskData?.tasks?.length || 0,
+      mockTasks: mockTasks.length,
+      selectedMemberForHook
+    });
+
   } catch (error) {
     console.error('Error with hooks, using mock data:', error);
     regularTaskData = { tasks: mockTasks };
@@ -514,14 +625,29 @@ export default function TaskManagementView({
             const isCreatedByMember = memberIds.includes(task.user_id || '');
             const shouldInclude = isAssignedToMember || isCreatedByMember;
 
-            console.log(`  📋 Task "${task.title}":`, {
-              assignedTo: task.assignedTo,
-              user_id: task.user_id,
-              memberIds,
-              isAssignedToMember,
-              isCreatedByMember,
-              shouldInclude
-            });
+            // Enhanced debug logging
+            if (task.title?.includes('Phạm Thị Hương') || task.assignedTo === '7' || task.assignedTo === 'ACKzl2RISqrx5ca9QDM6' || task.user_id === '7' || task.user_id === 'ACKzl2RISqrx5ca9QDM6') {
+              console.log(`  🎯 PHẠM THỊ HƯƠNG TASK "${task.title}":`, {
+                id: task.id,
+                assignedTo: task.assignedTo,
+                user_id: task.user_id,
+                user_name: task.user_name,
+                memberIds,
+                isAssignedToMember,
+                isCreatedByMember,
+                shouldInclude,
+                taskData: task
+              });
+            } else {
+              console.log(`  📋 Task "${task.title}":`, {
+                assignedTo: task.assignedTo,
+                user_id: task.user_id,
+                memberIds,
+                isAssignedToMember,
+                isCreatedByMember,
+                shouldInclude
+              });
+            }
 
             return shouldInclude;
           });

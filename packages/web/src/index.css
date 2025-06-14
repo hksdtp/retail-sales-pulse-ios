@@ -744,21 +744,22 @@ main {
 }
 
 .bottom-nav-mobile .flex {
-    gap: 0;
+    gap: 2px;
     align-items: stretch;
 }
 
-/* Ensure equal spacing for bottom nav items */
+/* Ensure equal spacing for bottom nav items - 6 items total */
 .bottom-nav-mobile a,
 .bottom-nav-mobile button {
-    min-width: 64px;
-    width: 64px;
+    min-width: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 6px 4px;
+    padding: 6px 2px;
+    max-width: calc(100% / 6);
 }
 
 /* Icon and text alignment */
@@ -767,9 +768,9 @@ main {
     flex-shrink: 0;
 }
 
-/* Text styling for bottom nav */
+/* Text styling for bottom nav - smaller for 6 items */
 .bottom-nav-mobile span {
-    font-size: 9px;
+    font-size: 8px;
     line-height: 1.1;
     text-align: center;
     white-space: nowrap;
