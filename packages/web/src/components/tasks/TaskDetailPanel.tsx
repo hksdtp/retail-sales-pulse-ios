@@ -19,6 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useTaskData } from '@/hooks/use-task-data';
+import { useScrollLock, useModalScrollHandler } from '@/hooks/use-scroll-lock';
 import notificationService from '@/services/notificationService';
 
 interface TaskDetailPanelProps {
@@ -46,6 +47,10 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   const [editedTask, setEditedTask] = useState(task);
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
   const [showUserSelector, setShowUserSelector] = useState(false);
+
+  // Sử dụng scroll lock hook
+  useScrollLock(isOpen);
+  const { handleModalScroll, handleModalTouchMove } = useModalScrollHandler();
 
   // Function để lấy tên người dùng từ nhiều nguồn
   const getUserName = (task: any) => {
@@ -178,8 +183,10 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
       {/* Enhanced Backdrop with stronger blur */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-lg transition-all duration-500"
+          className="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-lg transition-all duration-500"
           onClick={onClose}
+          onWheel={(e) => e.preventDefault()}
+          onTouchMove={(e) => e.preventDefault()}
           style={{
             zIndex: 999998,
             position: 'fixed',
@@ -226,7 +233,11 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div
+          className="flex-1 overflow-y-auto min-h-0"
+          onWheel={handleModalScroll}
+          onTouchMove={handleModalTouchMove}
+        >
           {/* Title & Status Section - compact */}
           <div className="p-4 bg-gray-50 border-b border-gray-200">
             <div className="relative mb-3">

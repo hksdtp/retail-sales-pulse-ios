@@ -1,0 +1,217 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list
+- region "Notifications alt+T"
+- main:
+  - heading "Quản lý công việc" [level=1]
+  - paragraph: Theo dõi và quản lý tất cả công việc của phòng kinh doanh bán lẻ
+  - button:
+    - img
+  - button "Xuất dữ liệu":
+    - img
+  - button "Làm mới dữ liệu":
+    - img
+  - button "Tạo công việc":
+    - img
+    - text: Tạo công việc
+  - button "Của tôi":
+    - img
+    - text: Của tôi
+  - button "Của nhóm":
+    - img
+    - text: Của nhóm
+  - button "Thành viên":
+    - img
+    - text: Thành viên
+  - button "Chung":
+    - img
+    - text: Chung
+  - img
+  - textbox "Tìm kiếm công việc theo tiêu đề, mô tả..."
+  - button "Bộ lọc":
+    - img
+    - text: Bộ lọc
+  - img
+  - heading "ĐÀO TẠO AI" [level=3]
+  - button "CHỜ"
+  - button "CAO"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "Xử lý đơn hàng Someser" [level=3]
+  - button "LÀMM"
+  - button "CAO"
+  - text: Nguyễn Thị Thảo 14/6/2025
+  - img
+  - heading "Báo giá chị Hiền Khai Sơn" [level=3]
+  - button "CHỜ"
+  - button "CAO"
+  - text: Nguyễn Thị Thảo 14/6/2025
+  - img
+  - heading "Lên đơn cắt nhà anh Dương Lò Đúc" [level=3]
+  - button "CHỜ"
+  - button "CAO"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "KH-CT ANH THÁI CHỊ TUYẾN OCEANPARK" [level=3]
+  - button "XONG"
+  - button "BT"
+  - text: Phạm Thị Hương 14/6/2025
+  - img
+  - heading "KTS-CHỊ DUYÊN THIẾT KẾ A+" [level=3]
+  - button "XONG"
+  - button "BT"
+  - text: Phạm Thị Hương 14/6/2025
+  - img
+  - heading "KH-CT CHỊ LINH-QUẢNG AN" [level=3]
+  - button "XONG"
+  - button "BT"
+  - text: Phạm Thị Hương 14/6/2025
+  - img
+  - heading "Gặp kh chị Linh, chị Dung Hải Phòng" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lương Việt Anh 14/6/2025
+  - img
+  - heading "Kết nối bên thiết kế Sunjinvietnam" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "Liên hệ chị Trang - Vinhome" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "Gặp a Mẫn M+" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lương Việt Anh 14/6/2025
+  - img
+  - heading "Chị Hà Hải Phòng" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Thị Thảo 14/6/2025
+  - img
+  - heading "Hỗ trợ nhân viên nhóm" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Thị Thảo 14/6/2025
+  - img
+  - heading "Học AI về SP Hunter" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "KH A Nga- Chị Hải" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "ĐT - CHỊ HƯƠNG TBVS VÀ CHỊ DIỆP CỬA NHÔM" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "Đi ctrinh a Long, a Quang, a Hưng ở Thanh Hoá cùng nhóm đối tác" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lương Việt Anh 14/6/2025
+  - img
+  - heading "KH- CHỊ HẰNG - ROYAL" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "KH C Nhung Lưu" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "Kh Chị Thủy- Mỹ Đình" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "ĐT- Gặp mặt" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "Liên Hệ với chị Phương-Vihome" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Thị Thảo 14/6/2025
+  - img
+  - heading "ĐT - EM VIỆT THANG MÁY OTIS" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "KH Chị Hà- Dương Nội" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "Liên hệ KTS Hiếu THHOME" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "Tham gia hội thảo Đệm Xinh" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lương Việt Anh 14/6/2025
+  - img
+  - heading "ĐT - EM MẠNH EVERYGOLF" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "KH Minh- NTT" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Lê Khánh Duy 14/6/2025
+  - img
+  - heading "KH-CT ANH TIẾN-XUÂN PHƯƠNG" [level=3]
+  - button "XONG"
+  - button "BT"
+  - text: Phạm Thị Hương 14/6/2025
+  - img
+  - heading "ĐT - CHỊ HUYỀN NỘI THẤT NORDIC" [level=3]
+  - button "CHỜ"
+  - button "BT"
+  - text: Nguyễn Mạnh Linh 14/6/2025
+  - img
+  - heading "KH-CT CHỊ THẢO-SOMMERSET" [level=3]
+  - button "XONG"
+  - button "BT"
+  - text: Phạm Thị Hương 14/6/2025
+  - button "Trước"
+  - button "1"
+  - button "Sau"
+- link "Dashboard":
+  - /url: /
+  - img
+  - text: Dashboard
+- link "Công việc":
+  - /url: /tasks
+  - img
+  - text: Công việc
+- link "Kế hoạch":
+  - /url: /calendar
+  - img
+  - text: Kế hoạch
+- link "Nhân viên":
+  - /url: /employees
+  - img
+  - text: Nhân viên
+- link "Tài khoản":
+  - /url: /account
+  - img
+  - text: Tài khoản
+- region "Notifications (F8)":
+  - list
+- region "Notifications alt+T"
+```

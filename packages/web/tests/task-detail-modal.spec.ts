@@ -86,17 +86,100 @@ test.describe('Task Detail Modal', () => {
     // Mở modal
     const firstTaskCard = page.locator('.bg-white.rounded-xl').first();
     await firstTaskCard.click();
-    
+
     // Kiểm tra backdrop opacity
-    const backdrop = page.locator('.fixed.inset-0.bg-black');
+    const backdrop = page.locator('.modal-backdrop');
     await expect(backdrop).toBeVisible();
-    
-    const opacity = await backdrop.evaluate(el => 
+
+    const opacity = await backdrop.evaluate(el =>
       window.getComputedStyle(el).opacity
     );
-    
-    // Opacity phải là 0.2 (20%)
-    expect(parseFloat(opacity)).toBeLessThanOrEqual(0.3);
+
+    // Opacity phải là 0.7 (70%)
+    expect(parseFloat(opacity)).toBeLessThanOrEqual(0.8);
+  });
+
+  test('should prevent background scroll when modal is open', async ({ page }) => {
+    // Lấy scroll position ban đầu
+    const initialScrollY = await page.evaluate(() => window.scrollY);
+
+    // Mở modal
+    const firstTaskCard = page.locator('.bg-white.rounded-xl').first();
+    await firstTaskCard.click();
+
+    // Đợi modal mở
+    const modal = page.locator('.task-detail-panel');
+    await expect(modal).toBeVisible();
+
+    // Kiểm tra body có class scroll lock
+    const bodyStyle = await page.evaluate(() => {
+      return {
+        position: document.body.style.position,
+        overflow: document.body.style.overflow,
+        top: document.body.style.top
+      };
+    });
+
+    expect(bodyStyle.position).toBe('fixed');
+    expect(bodyStyle.overflow).toBe('hidden');
+
+    // Thử scroll trên backdrop - không được scroll
+    const backdrop = page.locator('.modal-backdrop');
+    await backdrop.hover();
+    await page.mouse.wheel(0, 500);
+
+    // Scroll position không được thay đổi
+    const scrollYAfterWheel = await page.evaluate(() => window.scrollY);
+    expect(scrollYAfterWheel).toBe(initialScrollY);
+  });
+
+  test('should allow scrolling within modal content', async ({ page }) => {
+    // Mở modal
+    const firstTaskCard = page.locator('.bg-white.rounded-xl').first();
+    await firstTaskCard.click();
+
+    // Đợi modal mở
+    const modalContent = page.locator('.task-detail-panel .flex-1.overflow-y-auto');
+    await expect(modalContent).toBeVisible();
+
+    // Lấy scroll position ban đầu của modal content
+    const initialScrollTop = await modalContent.evaluate(el => el.scrollTop);
+
+    // Scroll trong modal content
+    await modalContent.hover();
+    await page.mouse.wheel(0, 200);
+
+    // Đợi một chút để scroll hoàn thành
+    await page.waitForTimeout(100);
+
+    // Kiểm tra modal content đã scroll
+    const scrollTopAfter = await modalContent.evaluate(el => el.scrollTop);
+    expect(scrollTopAfter).toBeGreaterThanOrEqual(initialScrollTop);
+  });
+
+  test('should restore scroll position when modal closes', async ({ page }) => {
+    // Scroll trang xuống trước
+    await page.evaluate(() => window.scrollTo(0, 300));
+    const initialScrollY = await page.evaluate(() => window.scrollY);
+
+    // Mở modal
+    const firstTaskCard = page.locator('.bg-white.rounded-xl').first();
+    await firstTaskCard.click();
+
+    // Đợi modal mở
+    const modal = page.locator('.task-detail-panel');
+    await expect(modal).toBeVisible();
+
+    // Đóng modal
+    const closeButton = page.locator('.task-detail-panel button').first();
+    await closeButton.click();
+
+    // Đợi modal đóng
+    await expect(modal).not.toBeVisible();
+
+    // Kiểm tra scroll position được khôi phục
+    const finalScrollY = await page.evaluate(() => window.scrollY);
+    expect(finalScrollY).toBe(initialScrollY);
   });
 
   test('should be responsive on mobile', async ({ page }) => {

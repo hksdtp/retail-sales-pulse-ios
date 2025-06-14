@@ -1111,6 +1111,49 @@ div[data-radix-dialog-content] {
 
 
 
+/* Modal Scroll Lock Styles */
+.modal-scroll-lock {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Task Detail Panel Scroll Containment */
+.task-detail-panel {
+    /* Ensure modal content can scroll independently */
+    contain: layout style paint;
+    isolation: isolate;
+}
+
+.task-detail-panel .flex-1.overflow-y-auto {
+    /* Smooth scrolling within modal */
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent scroll propagation on modal backdrop */
+.modal-backdrop {
+    touch-action: none;
+    overscroll-behavior: none;
+}
+
+/* Enhanced scroll containment for mobile */
+@media (max-width: 767px) {
+    .task-detail-panel {
+        /* Better touch handling on mobile */
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    .task-detail-panel .flex-1.overflow-y-auto {
+        /* Prevent elastic scrolling on iOS */
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 /* Hide on desktop */
 @media (min-width: 768px) {
     .bottom-nav-mobile {
