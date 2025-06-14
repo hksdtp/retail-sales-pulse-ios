@@ -1,3 +1,7 @@
+# MCP Servers (external repos)
+mcp-servers/
+playwright-mcp/
+
 # dependencies (bun install)
 node_modules
 
