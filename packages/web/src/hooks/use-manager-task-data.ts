@@ -162,10 +162,24 @@ export const useManagerTaskData = (
         }
       }
 
-      // Nếu là individual view và có chọn member cụ thể, API đã filter rồi
-      // Không cần filter thêm ở frontend
+      // Nếu là individual view và có chọn member cụ thể
       if (viewLevel === 'individual' && selectedMemberId) {
-        console.log(`👤 Individual view for member ${selectedMemberId}: ${tasksData.length} tasks`);
+        console.log(`👤 Individual view for member ${selectedMemberId}: ${tasksData.length} tasks before filtering`);
+
+        // Đảm bảo filter đúng tasks của member được chọn
+        // API có thể chưa filter đúng, nên filter thêm ở frontend
+        const memberTasks = tasksData.filter((task) => {
+          const isAssignedToMember = task.assignedTo === selectedMemberId;
+          const isCreatedByMember = task.user_id === selectedMemberId;
+          const shouldInclude = isAssignedToMember || isCreatedByMember;
+
+          console.log(`📋 Task "${task.title}": assignedTo=${task.assignedTo}, user_id=${task.user_id}, selectedMember=${selectedMemberId}, include=${shouldInclude}`);
+
+          return shouldInclude;
+        });
+
+        console.log(`👤 After filtering for member ${selectedMemberId}: ${memberTasks.length} tasks`);
+        tasksData = memberTasks;
       } else if (viewLevel === 'individual') {
         console.log(`👥 Individual view for all team members: ${tasksData.length} tasks`);
       }

@@ -86,7 +86,7 @@ const BottomNavigation = () => {
   return (
     <>
       <div className="bottom-nav-mobile fixed bottom-0 left-0 right-0 z-[9999] macos-glass border-t border-white/10 dark:border-white/5 shadow-lg backdrop-blur-xl bg-white/80 dark:bg-black/70 safe-area-inset-bottom">
-        <div className="grid grid-cols-6 gap-1 px-1 py-2 pb-safe">
+        <div className="flex justify-between items-stretch px-1 py-2 pb-safe min-h-[70px]">
           {menuItems.map((item) => {
             const linkContent = (
               <Link
@@ -94,7 +94,7 @@ const BottomNavigation = () => {
                 to={item.url}
                 onClick={triggerHapticFeedback}
                 className={cn(
-                  "relative flex flex-col items-center justify-center px-1 py-2 text-xs font-medium rounded-xl transition-all duration-200 min-h-[60px] w-full",
+                  "relative flex flex-col items-center justify-center flex-1 mx-0.5 py-2 text-xs font-medium rounded-xl transition-all duration-200",
                   isActive(item.url)
                     ? "text-ios-blue bg-white/90 shadow-md border border-blue-100/50 scale-105"
                     : "text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5"
@@ -120,9 +120,9 @@ const BottomNavigation = () => {
           })}
 
           {/* Account Menu */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative flex-1 mx-0.5" ref={dropdownRef}>
             <button
-              className="flex flex-col items-center justify-center px-1 py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5 rounded-xl transition-all duration-200 min-h-[60px] w-full"
+              className="flex flex-col items-center justify-center w-full py-2 text-xs font-medium text-gray-500 hover:text-ios-blue hover:bg-white/60 hover:scale-105 hover:-translate-y-0.5 rounded-xl transition-all duration-200"
               onClick={() => {
                 triggerHapticFeedback();
                 setIsDropdownOpen(!isDropdownOpen);

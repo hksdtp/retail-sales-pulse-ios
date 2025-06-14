@@ -591,12 +591,23 @@ html:not(.dark) .text-gray-600 {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
+/* Additional safe area classes */
+.safe-area-bottom {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.safe-area-bottom-large {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
 /* Mobile layout improvements */
 @media (max-width: 767px) {
     /* Ensure content doesn't get cut off */
     main {
         height: 100vh;
         height: 100dvh; /* Dynamic viewport height for mobile */
+        padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+        overflow-y: auto;
     }
 
     /* Better mobile spacing */
@@ -608,6 +619,14 @@ html:not(.dark) .text-gray-600 {
     .mobile-scroll {
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;
+    }
+
+    /* Ensure all page content has proper bottom padding */
+    .page-content,
+    .dashboard-content,
+    .task-content,
+    .calendar-content {
+        padding-bottom: calc(90px + env(safe-area-inset-bottom)) !important;
     }
 }
 
@@ -706,11 +725,13 @@ main {
 
 /* Bottom navigation optimizations */
 .bottom-nav-mobile {
-    min-height: 70px;
+    min-height: 80px;
+    max-height: 80px;
 }
 
 .bottom-nav-mobile .flex {
     gap: 0;
+    align-items: stretch;
 }
 
 /* Ensure equal spacing for bottom nav items */
@@ -722,13 +743,25 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 60px;
+    height: 100%;
+    padding: 8px 4px;
 }
 
 /* Icon and text alignment */
 .bottom-nav-mobile svg {
-    margin-bottom: 3px;
+    margin-bottom: 4px;
     flex-shrink: 0;
+}
+
+/* Text styling for bottom nav */
+.bottom-nav-mobile span {
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .bottom-nav-mobile span {

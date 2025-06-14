@@ -201,6 +201,11 @@ export default function TaskManagementView({
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
 
+  // Debug log cho selectedMember changes
+  useEffect(() => {
+    console.log(`🔍 selectedMember changed to: ${selectedMember}`);
+  }, [selectedMember]);
+
   // Early return nếu chưa có currentUser
   if (!currentUser) {
     return <LoadingScreen message="Đang khởi tạo dữ liệu người dùng..." />;
@@ -275,8 +280,10 @@ export default function TaskManagementView({
   // Xác định member ID để truyền cho hook
   const getSelectedMemberForHook = () => {
     if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+      console.log(`🔍 Director using selectedMember: ${selectedMember}`);
       return selectedMember; // Directors sử dụng selectedMember từ filters
     } else {
+      console.log(`🔍 Team leader using selectedMemberId: ${selectedMemberId}`);
       return selectedMemberId; // Team leaders sử dụng selectedMemberId từ props
     }
   };
