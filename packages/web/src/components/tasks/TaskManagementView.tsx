@@ -477,8 +477,39 @@ export default function TaskManagementView({
           const memberIds = filteredUsers.map(user => user.id);
           console.log('  - Final member IDs to search for:', memberIds);
 
-          // Lấy tất cả công việc của các thành viên được filter
-          const memberTasks = allRegularTasks.filter((task) => {
+          // Sử dụng managerTasks thay vì allRegularTasks cho individual view
+          const tasksToFilter = viewLevel === 'individual' && managerTasks.length > 0 ? managerTasks : allRegularTasks;
+          console.log(`  🔍 Using data source: ${viewLevel === 'individual' && managerTasks.length > 0 ? 'managerTasks' : 'allRegularTasks'} (${tasksToFilter.length} tasks)`);
+
+          // Nếu không có member nào được chọn, hiển thị tất cả tasks của team/department
+          if (memberIds.length === 0) {
+            console.log('  ⚠️ No specific member selected, showing all department/team tasks');
+
+            // Lấy tất cả user IDs trong department/team
+            const allDepartmentUsers = users.filter((user) => {
+              if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+                return user.department_type === currentUser.department_type && user.id !== currentUser.id;
+              } else if (currentUser?.role === 'team_leader') {
+                return user.team_id === currentUser.team_id && user.id !== currentUser.id;
+              }
+              return false;
+            });
+
+            const allMemberIds = allDepartmentUsers.map(user => user.id);
+            console.log('  - All department/team member IDs:', allMemberIds);
+
+            const allMemberTasks = tasksToFilter.filter((task) => {
+              const isAssignedToMember = allMemberIds.includes(task.assignedTo || '');
+              const isCreatedByMember = allMemberIds.includes(task.user_id || '');
+              return isAssignedToMember || isCreatedByMember;
+            });
+
+            console.log('  - All member tasks count:', allMemberTasks.length);
+            return allMemberTasks;
+          }
+
+          // Lấy công việc của các thành viên được filter cụ thể
+          const memberTasks = tasksToFilter.filter((task) => {
             const isAssignedToMember = memberIds.includes(task.assignedTo || '');
             const isCreatedByMember = memberIds.includes(task.user_id || '');
             const shouldInclude = isAssignedToMember || isCreatedByMember;
@@ -1072,7 +1103,7 @@ export default function TaskManagementView({
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-900 rounded-none sm:rounded-2xl shadow-lg border-0 sm:border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="task-management-view bg-white dark:bg-gray-900 rounded-none sm:rounded-2xl shadow-lg border-0 sm:border border-gray-100 dark:border-gray-700 overflow-hidden">
         {/* Header với view buttons - responsive */}
         <div className="border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
           <div className="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4">

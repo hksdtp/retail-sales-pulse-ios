@@ -606,13 +606,13 @@ html:not(.dark) .text-gray-600 {
     main {
         height: 100vh;
         height: 100dvh; /* Dynamic viewport height for mobile */
-        padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+        padding-bottom: calc(75px + env(safe-area-inset-bottom)) !important;
         overflow-y: auto;
     }
 
     /* Better mobile spacing */
     .mobile-content {
-        padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+        padding-bottom: calc(4rem + env(safe-area-inset-bottom));
     }
 
     /* Smooth scrolling on mobile */
@@ -625,8 +625,22 @@ html:not(.dark) .text-gray-600 {
     .page-content,
     .dashboard-content,
     .task-content,
-    .calendar-content {
-        padding-bottom: calc(90px + env(safe-area-inset-bottom)) !important;
+    .calendar-content,
+    .task-list,
+    .task-grid,
+    .task-container {
+        padding-bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Specific task management view fixes */
+    .task-management-view {
+        padding-bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Task cards in mobile */
+    .task-card:last-child {
+        margin-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
     }
 }
 
@@ -725,8 +739,8 @@ main {
 
 /* Bottom navigation optimizations */
 .bottom-nav-mobile {
-    min-height: 80px;
-    max-height: 80px;
+    min-height: 65px;
+    max-height: 65px;
 }
 
 .bottom-nav-mobile .flex {
@@ -737,26 +751,26 @@ main {
 /* Ensure equal spacing for bottom nav items */
 .bottom-nav-mobile a,
 .bottom-nav-mobile button {
-    min-width: 0;
-    flex: 1;
+    min-width: 64px;
+    width: 64px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 8px 4px;
+    padding: 6px 4px;
 }
 
 /* Icon and text alignment */
 .bottom-nav-mobile svg {
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     flex-shrink: 0;
 }
 
 /* Text styling for bottom nav */
 .bottom-nav-mobile span {
-    font-size: 10px;
-    line-height: 1.2;
+    font-size: 9px;
+    line-height: 1.1;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
