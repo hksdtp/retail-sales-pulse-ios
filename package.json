@@ -17,7 +17,11 @@
     "plw": "node mcp-servers/playwright-mcp.js",
     "open": "open http://localhost:8088",
     "start": "concurrently \"npm run dev\" \"npm run plw\"",
-    "start:all": "concurrently \"npm run dev\" \"npm run plw\" \"npm run aug\""
+    "start:all": "./scripts/start-all.sh",
+    "stop:all": "./scripts/stop-all.sh",
+    "install:mcp": "./scripts/install-mcp-servers.sh",
+    "start:mcp": "./scripts/start-mcp-servers.sh",
+    "stop:mcp": "./scripts/stop-mcp-servers.sh"
   },
   "devDependencies": {
     "prettier": "^3.5.3",
