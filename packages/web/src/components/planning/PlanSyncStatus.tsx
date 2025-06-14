@@ -15,7 +15,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { planToTaskSyncService, SyncStats } from '@/services/PlanToTaskSyncService';
+import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
+
+interface SyncStats {
+  totalPlansChecked: number;
+  plansConverted: number;
+  plansFailed: number;
+  lastSyncTime: string;
+}
 
 const PlanSyncStatus: React.FC = () => {
   const { currentUser } = useAuth();
@@ -27,8 +34,15 @@ const PlanSyncStatus: React.FC = () => {
   // Cập nhật stats định kỳ
   useEffect(() => {
     const updateStats = () => {
-      setStats(planToTaskSyncService.getStats());
-      setIsServiceActive(planToTaskSyncService.isActive());
+      // Mock stats cho AutoPlanSyncService
+      const mockStats: SyncStats = {
+        totalPlansChecked: 0,
+        plansConverted: 0,
+        plansFailed: 0,
+        lastSyncTime: new Date().toISOString()
+      };
+      setStats(mockStats);
+      setIsServiceActive(true); // AutoPlanSyncService luôn active
     };
 
     // Cập nhật ngay lập tức
@@ -54,14 +68,21 @@ const PlanSyncStatus: React.FC = () => {
     setIsManualSyncing(true);
     try {
       console.log('🔄 Bắt đầu sync thủ công...');
-      const result = await planToTaskSyncService.manualSync(currentUser.id);
-      
-      setStats(result);
-      
-      if (result.plansConverted > 0) {
+      const syncedCount = await autoPlanSyncService.manualSync(currentUser.id);
+
+      // Cập nhật stats
+      const updatedStats: SyncStats = {
+        totalPlansChecked: stats?.totalPlansChecked || 0,
+        plansConverted: (stats?.plansConverted || 0) + syncedCount,
+        plansFailed: stats?.plansFailed || 0,
+        lastSyncTime: new Date().toISOString()
+      };
+      setStats(updatedStats);
+
+      if (syncedCount > 0) {
         toast({
           title: '✅ Sync thành công',
-          description: `Đã chuyển ${result.plansConverted} kế hoạch thành công việc`,
+          description: `Đã chuyển ${syncedCount} kế hoạch thành công việc`,
         });
       } else {
         toast({

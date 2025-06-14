@@ -1,32 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  Calendar, 
-  Clock, 
-  Users, 
-  MapPin, 
-  FileText, 
+import {
+  X,
+  Calendar,
+  Clock,
+  Users,
+  MapPin,
+  FileText,
   AlertCircle,
   Plus,
-  Minus
+  Minus,
+  CalendarDays,
+  Timer,
+  Target,
+  CheckCircle2
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { User } from '@/types/user';
 import { personalPlanService } from '@/services/PersonalPlanService';
 import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
+import { useToast } from '@/hooks/use-toast';
 
 interface CreatePlanModalProps {
   isOpen: boolean;
@@ -36,6 +45,13 @@ interface CreatePlanModalProps {
 }
 
 const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, currentUser, onPlanCreated }) => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | undefined>(new Date());
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(new Date());
+  const [isStartCalendarOpen, setIsStartCalendarOpen] = useState(false);
+  const [isEndCalendarOpen, setIsEndCalendarOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     title: '',
     type: '',
@@ -55,16 +71,29 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
 
   // Auto-fill current date when modal opens
   useEffect(() => {
-    if (isOpen && !formData.startDate) {
+    if (isOpen) {
       const today = new Date();
       const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
       const currentTime = today.toTimeString().slice(0, 5); // HH:MM format
 
-      setFormData(prev => ({
-        ...prev,
+      setFormData({
+        title: '',
+        type: '',
         startDate: todayString,
-        startTime: currentTime
-      }));
+        endDate: todayString,
+        description: '',
+        priority: 'normal',
+        startTime: currentTime,
+        endTime: '17:00',
+        location: '',
+        notes: '',
+        participants: []
+      });
+
+      setSelectedStartDate(today);
+      setSelectedEndDate(today);
+      setNewParticipant('');
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
@@ -129,17 +158,26 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
     e.preventDefault();
 
     // Validation - chỉ cần 4 trường chính
-    if (!formData.title || !formData.type || !formData.startDate || !formData.endDate) {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc: Tiêu đề, Loại, Ngày bắt đầu, Ngày kết thúc');
+    if (!formData.title.trim() || !formData.type || !formData.startDate || !formData.endDate) {
+      toast({
+        title: 'Lỗi',
+        description: 'Vui lòng điền đầy đủ thông tin bắt buộc: Tiêu đề, Loại, Ngày bắt đầu, Ngày kết thúc',
+        variant: 'destructive',
+      });
       return;
     }
 
     if (!currentUser?.id) {
-      alert('Lỗi: Không xác định được người dùng');
+      toast({
+        title: 'Lỗi',
+        description: 'Không xác định được người dùng',
+        variant: 'destructive',
+      });
       return;
     }
 
     try {
+      setIsSubmitting(true);
       // Tạo kế hoạch mới trong personal workspace
       const newPlan = personalPlanService.addPlan(currentUser.id, {
         title: formData.title,
@@ -160,19 +198,9 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
       console.log('✅ Đã tạo kế hoạch cá nhân:', newPlan.title);
       console.log('📋 Plan data:', newPlan);
 
-      // Reset form và đóng modal
-      setFormData({
-        title: '',
-        description: '',
-        type: '',
-        priority: '',
-        startDate: '',
-        endDate: '',
-        startTime: '',
-        endTime: '',
-        location: '',
-        notes: '',
-        participants: []
+      toast({
+        title: 'Thành công',
+        description: 'Đã tạo kế hoạch mới thành công',
       });
 
       // Callback để refresh data
@@ -206,10 +234,15 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
         });
 
       onClose();
-      alert('Tạo kế hoạch thành công!');
     } catch (error) {
       console.error('Lỗi khi tạo kế hoạch:', error);
-      alert('Có lỗi xảy ra khi tạo kế hoạch. Vui lòng thử lại.');
+      toast({
+        title: 'Lỗi',
+        description: error instanceof Error ? error.message : 'Có lỗi xảy ra khi tạo kế hoạch',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -229,130 +262,219 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
 
         {/* Modal */}
         <motion.div
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 mb-20"
+          className="relative bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 w-full max-w-3xl max-h-[90vh] overflow-hidden mx-4"
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Tạo kế hoạch mới</h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-5 h-5" />
-            </Button>
+          <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Tạo kế hoạch mới</h2>
+                  <p className="text-blue-100 text-sm">Lập kế hoạch chi tiết và tự động chuyển thành công việc</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="text-white hover:bg-white/20 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Tiêu đề */}
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-medium">
-                Tiêu đề kế hoạch <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                placeholder="Nhập tiêu đề kế hoạch..."
-                className="w-full"
-              />
-            </div>
-
-            {/* Mô tả */}
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium">Mô tả</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Mô tả chi tiết về kế hoạch..."
-                rows={3}
-              />
-            </div>
-
-            {/* Loại và Độ ưu tiên */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Loại kế hoạch <span className="text-red-500">*</span>
-                </Label>
-                <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn loại kế hoạch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {planTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div className="flex flex-col">
-                          <span>{type.label}</span>
-                          <span className="text-xs text-gray-500">{type.description}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Độ ưu tiên</Label>
-                <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn độ ưu tiên" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {priorities.map((priority) => (
-                      <SelectItem key={priority.value} value={priority.value}>
-                        <Badge className={priority.color}>{priority.label}</Badge>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Ngày và Giờ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Ngày bắt đầu <span className="text-red-500">*</span>
-                </Label>
+          <div className="py-6 px-6 -mx-6 max-h-[60vh] overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Tiêu đề */}
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                  Tiêu đề kế hoạch <span className="text-red-500 ml-1">*</span>
+                </label>
                 <Input
-                  type="date"
-                  value={formData.startDate}
-                  onChange={(e) => handleInputChange('startDate', e.target.value)}
+                  name="title"
+                  placeholder="Nhập tiêu đề kế hoạch..."
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm"
+                  required
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Ngày kết thúc</Label>
-                <Input
-                  type="date"
-                  value={formData.endDate}
-                  onChange={(e) => handleInputChange('endDate', e.target.value)}
-                />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Giờ bắt đầu <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="time"
-                  value={formData.startTime}
-                  onChange={(e) => handleInputChange('startTime', e.target.value)}
+              {/* Mô tả */}
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  Mô tả chi tiết <span className="text-red-500 ml-1">*</span>
+                </label>
+                <Textarea
+                  name="description"
+                  placeholder="Mô tả chi tiết về kế hoạch, mục tiêu, yêu cầu..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  className="w-full min-h-[120px] bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl resize-none transition-all duration-200 hover:bg-white hover:shadow-sm"
+                  required
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Giờ kết thúc</Label>
-                <Input
-                  type="time"
-                  value={formData.endTime}
-                  onChange={(e) => handleInputChange('endTime', e.target.value)}
-                />
+
+              {/* Loại và Độ ưu tiên */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    Loại kế hoạch <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                    <SelectTrigger className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
+                      <SelectValue placeholder="Chọn loại kế hoạch" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white/95 backdrop-blur-sm border-gray-200 rounded-xl shadow-xl">
+                      {planTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value} className="hover:bg-blue-50 rounded-lg">
+                          <div className="flex flex-col">
+                            <span className="font-medium">{type.label}</span>
+                            <span className="text-xs text-gray-500">{type.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Độ ưu tiên</label>
+                  <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                    <SelectTrigger className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
+                      <SelectValue placeholder="Chọn độ ưu tiên" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white/95 backdrop-blur-sm border-gray-200 rounded-xl shadow-xl">
+                      {priorities.map((priority) => (
+                        <SelectItem key={priority.value} value={priority.value} className="hover:bg-blue-50 rounded-lg">
+                          <Badge className={priority.color}>{priority.label}</Badge>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
+
+              {/* Thời gian */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    Ngày bắt đầu <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <Popover open={isStartCalendarOpen} onOpenChange={setIsStartCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
+                      >
+                        <CalendarDays className="mr-3 h-4 w-4 text-gray-500" />
+                        {selectedStartDate ? (
+                          format(selectedStartDate, 'dd/MM/yyyy', { locale: vi })
+                        ) : (
+                          <span className="text-gray-500">Chọn ngày bắt đầu</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-white/95 backdrop-blur-sm border-gray-200 rounded-xl shadow-xl" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={selectedStartDate}
+                        onSelect={(date) => {
+                          setSelectedStartDate(date);
+                          if (date) {
+                            handleInputChange('startDate', date.toISOString().split('T')[0]);
+                          }
+                          setIsStartCalendarOpen(false);
+                        }}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        initialFocus
+                        locale={vi}
+                        className="rounded-xl"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    Ngày kết thúc <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <Popover open={isEndCalendarOpen} onOpenChange={setIsEndCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
+                      >
+                        <CalendarDays className="mr-3 h-4 w-4 text-gray-500" />
+                        {selectedEndDate ? (
+                          format(selectedEndDate, 'dd/MM/yyyy', { locale: vi })
+                        ) : (
+                          <span className="text-gray-500">Chọn ngày kết thúc</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-white/95 backdrop-blur-sm border-gray-200 rounded-xl shadow-xl" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={selectedEndDate}
+                        onSelect={(date) => {
+                          setSelectedEndDate(date);
+                          if (date) {
+                            handleInputChange('endDate', date.toISOString().split('T')[0]);
+                          }
+                          setIsEndCalendarOpen(false);
+                        }}
+                        disabled={(date) => {
+                          const startDate = selectedStartDate || new Date();
+                          return date < startDate;
+                        }}
+                        initialFocus
+                        locale={vi}
+                        className="rounded-xl"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    Giờ bắt đầu <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <div className="relative">
+                    <Timer className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <Input
+                      type="time"
+                      value={formData.startTime}
+                      onChange={(e) => handleInputChange('startTime', e.target.value)}
+                      className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Giờ kết thúc</label>
+                  <div className="relative">
+                    <Timer className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <Input
+                      type="time"
+                      value={formData.endTime}
+                      onChange={(e) => handleInputChange('endTime', e.target.value)}
+                      className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm"
+                    />
+                  </div>
+                </div>
+              </div>
 
             {/* Địa điểm */}
             <div className="space-y-2">
@@ -422,16 +544,39 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
               />
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Hủy
-              </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                Tạo kế hoạch
-              </Button>
-            </div>
-          </form>
+            </form>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 p-6 bg-gray-50/50 backdrop-blur-sm border-t border-gray-200/50">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="h-12 px-6 rounded-xl border-gray-200 hover:bg-gray-50 transition-all duration-200"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Đang tạo...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Tạo kế hoạch
+                </div>
+              )}
+            </Button>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>
