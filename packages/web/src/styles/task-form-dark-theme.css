@@ -1,0 +1,338 @@
+/* Task Form Dialog Dark Theme Enhancements */
+/* Ninh ơi - CSS tối ưu cho giao diện tối */
+
+/* Dialog overlay dark theme */
+.task-form-dialog[data-theme-aware="true"] {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.dark .task-form-dialog[data-theme-aware="true"] {
+  background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Calendar dark theme improvements */
+.dark .calendar-popover {
+  background: rgba(31, 41, 55, 0.95);
+  border: 1px solid rgba(75, 85, 99, 0.5);
+}
+
+.dark .calendar-popover .rdp {
+  --rdp-cell-size: 36px;
+  --rdp-accent-color: #3b82f6;
+  --rdp-background-color: #1f2937;
+  --rdp-accent-color-dark: #2563eb;
+  --rdp-background-color-dark: #111827;
+  --rdp-outline: 2px solid var(--rdp-accent-color);
+  --rdp-outline-selected: 2px solid rgba(0, 0, 0, 0.75);
+}
+
+/* Input focus states in dark mode */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Select dropdown dark theme */
+.dark [data-radix-select-content] {
+  background: rgba(31, 41, 55, 0.95);
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  backdrop-filter: blur(12px);
+}
+
+.dark [data-radix-select-item] {
+  color: #e5e7eb;
+}
+
+.dark [data-radix-select-item]:hover {
+  background: rgba(55, 65, 81, 0.8);
+}
+
+/* Popover dark theme */
+.dark [data-radix-popover-content] {
+  background: rgba(31, 41, 55, 0.95);
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  backdrop-filter: blur(12px);
+}
+
+/* Scrollbar dark theme */
+.dark .task-form-dialog ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dark .task-form-dialog ::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.3);
+  border-radius: 3px;
+}
+
+.dark .task-form-dialog ::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.6);
+  border-radius: 3px;
+}
+
+.dark .task-form-dialog ::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8);
+}
+
+/* Form field focus glow in dark mode */
+.dark .group:focus-within label {
+  color: #60a5fa;
+  transition: color 0.2s ease;
+}
+
+/* Button hover effects in dark mode */
+.dark button:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Tag/chip dark theme */
+.dark .user-tag {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+.dark .user-tag:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Animation improvements for dark mode */
+.dark .task-form-dialog {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Focus ring improvements */
+.dark *:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* Backdrop blur for better readability */
+.dark .task-form-dialog::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: inherit;
+  z-index: -1;
+}
+
+/* Text selection in dark mode */
+.dark .task-form-dialog ::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: #ffffff;
+}
+
+/* Placeholder text improvements */
+.dark .task-form-dialog input::placeholder,
+.dark .task-form-dialog textarea::placeholder {
+  color: #6b7280;
+  opacity: 0.8;
+}
+
+/* Loading spinner dark theme */
+.dark .loading-spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+}
+
+/* Error states in dark mode */
+.dark .error-message {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Success states in dark mode */
+.dark .success-message {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Large UI improvements for better readability */
+.task-form-dialog {
+  font-size: 16px; /* Base font size increased */
+  line-height: 1.6;
+  width: 98vw !important; /* Force full width usage */
+  max-width: none !important; /* Remove all width constraints */
+  min-height: 90vh; /* Minimum height for better space usage */
+}
+
+@media (min-width: 1024px) {
+  .task-form-dialog {
+    width: 95vw !important; /* Desktop: use 95% of screen width */
+    min-height: 85vh;
+  }
+}
+
+@media (min-width: 1280px) {
+  .task-form-dialog {
+    width: 90vw !important; /* Large desktop: 90% width */
+    min-height: 80vh;
+  }
+}
+
+@media (min-width: 1920px) {
+  .task-form-dialog {
+    width: 85vw !important; /* Ultra-wide: 85% width */
+    min-height: 75vh;
+  }
+}
+
+.task-form-dialog label {
+  font-size: 1rem !important;
+  font-weight: 600;
+  margin-bottom: 1rem !important;
+}
+
+.task-form-dialog input,
+.task-form-dialog textarea,
+.task-form-dialog select {
+  font-size: 1rem !important;
+  min-height: 3.5rem;
+  padding: 0.875rem 1rem;
+}
+
+.task-form-dialog button {
+  font-size: 1rem !important;
+  min-height: 3rem;
+  padding: 0.75rem 1.25rem;
+}
+
+/* Icon sizes for better visibility */
+.task-form-dialog .lucide {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+
+/* Force dialog to use full available space - Simplified */
+[data-radix-dialog-content].task-form-dialog {
+  max-width: none !important;
+  width: 98vw !important;
+}
+
+@media (min-width: 1024px) {
+  [data-radix-dialog-content].task-form-dialog {
+    width: 95vw !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  [data-radix-dialog-content].task-form-dialog {
+    width: 90vw !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  [data-radix-dialog-content].task-form-dialog {
+    width: 85vw !important;
+  }
+}
+
+/* Ensure dialog content uses full width */
+.task-form-dialog > * {
+  width: 100%;
+}
+
+/* Grid layouts should use full available space */
+.task-form-dialog .grid {
+  width: 100%;
+}
+
+/* Dialog overlay should cover full screen */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Additional constraints for Radix UI */
+[data-radix-dialog-content].task-form-dialog {
+  min-height: 90vh !important;
+}
+
+/* Ensure form elements use available space */
+.task-form-dialog form {
+  width: 100%;
+  max-width: none;
+}
+
+.task-form-dialog .group {
+  width: 100%;
+}
+
+/* Make input fields larger on wide screens */
+@media (min-width: 1280px) {
+  .task-form-dialog input,
+  .task-form-dialog textarea {
+    font-size: 1.1rem !important;
+    padding: 1rem 1.25rem !important;
+  }
+
+  .task-form-dialog label {
+    font-size: 1.1rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+}
+
+/* Responsive improvements for dark mode */
+@media (max-width: 768px) {
+  .dark .task-form-dialog {
+    margin: 0.5rem;
+    width: calc(100vw - 1rem) !important;
+    max-height: calc(100vh - 1rem);
+  }
+
+  .task-form-dialog {
+    font-size: 14px; /* Slightly smaller on mobile */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dark .task-form-dialog {
+    border: 2px solid #ffffff;
+  }
+  
+  .dark .task-form-dialog input,
+  .dark .task-form-dialog textarea,
+  .dark .task-form-dialog select {
+    border: 2px solid #6b7280;
+  }
+  
+  .dark .task-form-dialog input:focus,
+  .dark .task-form-dialog textarea:focus,
+  .dark .task-form-dialog select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dark .task-form-dialog,
+  .dark .task-form-dialog * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

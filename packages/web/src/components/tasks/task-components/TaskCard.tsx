@@ -255,6 +255,4 @@ const TaskCard: React.FC<TaskCardProps> = memo(({
   );
 };
 
-});
-
 export default TaskCard;

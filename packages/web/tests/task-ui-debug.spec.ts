@@ -127,7 +127,7 @@ test.describe('Task UI Debug Tests', () => {
       'a[href*="add"]'
     ];
     
-    let foundButtons = [];
+    const foundButtons = [];
     
     for (const selector of possibleSelectors) {
       try {
