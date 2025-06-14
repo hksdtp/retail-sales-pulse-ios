@@ -375,6 +375,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           backdropFilter: 'blur(20px)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
         }}
+        className="dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800"
       >
         <DialogHeader className="pb-6 border-b border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-6 -mt-6 px-6 pt-6 rounded-t-3xl">
           <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-4">
@@ -549,19 +550,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             </div>
 
             {/* Thời gian */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                  Ngày tạo <span className="text-red-500 ml-1">*</span>
-                </label>
-                <div className="w-full h-12 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl flex items-center px-4 text-gray-700 dark:text-gray-300">
-                  <Calendar className="mr-3 h-4 w-4 text-gray-500" />
-                  <span className="font-medium">
-                    {format(new Date(), 'EEEE, dd MMMM yyyy', { locale: vi })}
-                  </span>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                   Ngày thực hiện <span className="text-red-500 ml-1">*</span>
@@ -583,7 +572,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-auto p-0 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
+                    className="w-auto p-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
                     align="start"
                   >
                     <CalendarComponent
@@ -596,22 +585,22 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                         month: "space-y-4",
                         caption: "flex justify-center pt-1 relative items-center",
-                        caption_label: "text-sm font-semibold text-gray-900",
+                        caption_label: "text-sm font-semibold text-gray-900 dark:text-gray-100",
                         nav: "space-x-1 flex items-center",
-                        nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 rounded-lg transition-all duration-150",
+                        nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-150",
                         nav_button_previous: "absolute left-1",
                         nav_button_next: "absolute right-1",
                         table: "w-full border-collapse space-y-1",
                         head_row: "flex",
-                        head_cell: "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
+                        head_cell: "text-gray-500 dark:text-gray-400 rounded-md w-9 font-normal text-[0.8rem]",
                         row: "flex w-full mt-2",
-                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-blue-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-blue-50 rounded-lg transition-all duration-150",
+                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-blue-100 dark:[&:has([aria-selected])]:bg-blue-900/20 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-150 text-gray-900 dark:text-gray-100",
                         day_selected: "bg-blue-500 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
-                        day_today: "bg-gray-100 text-gray-900 font-semibold",
-                        day_outside: "text-gray-400 opacity-50",
-                        day_disabled: "text-gray-400 opacity-50",
-                        day_range_middle: "aria-selected:bg-blue-100 aria-selected:text-blue-900",
+                        day_today: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold",
+                        day_outside: "text-gray-400 dark:text-gray-500 opacity-50",
+                        day_disabled: "text-gray-400 dark:text-gray-500 opacity-50",
+                        day_range_middle: "aria-selected:bg-blue-100 dark:aria-selected:bg-blue-900/20 aria-selected:text-blue-900 dark:aria-selected:text-blue-100",
                         day_hidden: "invisible",
                       }}
                     />
@@ -621,16 +610,16 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
               <div className="group">
                 <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                  Deadline <span className="text-red-500 ml-1">*</span>
+                  Hạn chót <span className="text-red-500 ml-1">*</span>
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                   <Input
                     name="deadline"
                     type="date"
                     value={formData.deadline}
                     onChange={(e) => handleInputChange('deadline', e.target.value)}
-                    className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100"
+                    className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                     required
                   />
                 </div>
@@ -643,13 +632,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 Thời gian (tùy chọn)
               </label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                 <Input
                   name="time"
                   type="time"
                   value={formData.time}
                   onChange={(e) => handleInputChange('time', e.target.value)}
-                  className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100"
+                  className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 />
               </div>
             </div>
@@ -657,7 +646,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             {/* Phân công */}
             {(formType === 'team' || formType === 'individual') && canAssignToOthers && (
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                   Giao cho
                 </label>
                 <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
@@ -689,7 +678,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
             {/* Phạm vi chia sẻ công việc */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                 Phạm vi chia sẻ <span className="text-red-500 ml-1">*</span>
               </label>
               <div className="flex flex-wrap gap-2">
@@ -700,7 +689,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'personal'
                       ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                      : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                      : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                     }
                   `}
                 >
@@ -716,7 +705,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'team'
                       ? 'border-green-500 bg-green-500 text-white shadow-lg shadow-green-500/20'
-                      : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                      : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                     }
                   `}
                 >
@@ -732,7 +721,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'public'
                       ? 'border-purple-500 bg-purple-500 text-white shadow-lg shadow-purple-500/20'
-                      : 'border-gray-200 bg-white/80 text-gray-700 hover:border-gray-300 hover:bg-white hover:shadow-sm'
+                      : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                     }
                   `}
                 >
@@ -745,7 +734,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
             {/* Chia sẻ với người cụ thể */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                 Chia sẻ với người cụ thể (tùy chọn)
               </label>
 
@@ -782,7 +771,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               {/* User search input */}
               <div className="relative">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                   <Input
                     ref={searchInputRef}
                     placeholder="Tìm kiếm và thêm người..."
@@ -803,14 +792,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                       // Delay hiding to allow click on dropdown items
                       setTimeout(() => setShowUserDropdown(false), 150);
                     }}
-                    className="w-full h-10 pl-10 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm"
+                    className="w-full h-10 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   />
                 </div>
 
                 {/* User dropdown - Simplified positioning */}
                 {showUserDropdown && filteredUsersForTagging.length > 0 && (
                   <div
-                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-48 overflow-y-auto"
                     style={{
                       zIndex: 99999,
                       boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -824,7 +813,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                         type="button"
                         onClick={() => addUserToShared(user.id)}
                         onMouseDown={(e) => e.preventDefault()} // Prevent input blur
-                        className="w-full p-3 text-left hover:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
+                        className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -833,10 +822,10 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                             </span>
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">{user.name}</div>
-                            <div className="text-sm text-gray-500">{user.email || user.location}</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{user.email || user.location}</div>
                           </div>
-                          <UserPlus className="w-4 h-4 text-gray-400" />
+                          <UserPlus className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                         </div>
                       </button>
                     ))}
@@ -847,12 +836,12 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </form>
         </div>
 
-        <DialogFooter className="pt-6 border-t border-gray-100/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 -mx-6 -mb-6 px-6 pb-6 rounded-b-3xl flex flex-row justify-end space-x-4">
+        <DialogFooter className="pt-6 border-t border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-6 -mb-6 px-6 pb-6 rounded-b-3xl flex flex-row justify-end space-x-4">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="px-8 py-3 h-12 border-gray-200 text-gray-700 hover:bg-white hover:border-gray-300 hover:shadow-sm rounded-xl font-medium transition-all duration-200"
+            className="px-8 py-3 h-12 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm rounded-xl font-medium transition-all duration-200"
           >
             <X className="w-4 h-4 mr-2" />
             Hủy bỏ
