@@ -122,27 +122,8 @@ export const safeFill = async (page: any, selector: string, value: string) => {
   }
 };
 
-// Mock data for testing
-export const mockTasks = [
-  {
-    id: 'test-task-1',
-    title: 'Test Task 1',
-    description: 'This is a test task for automation',
-    status: 'todo',
-    priority: 'high',
-    date: new Date().toISOString().split('T')[0],
-    time: '09:00',
-    userId: 'test-user-001',
-    assignedUsers: ['test-user-001'],
-    checklist: [
-      { id: 1, text: 'Test checklist item 1', completed: false },
-      { id: 2, text: 'Test checklist item 2', completed: true },
-    ],
-    progress: 50,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
+// Mock data for testing - Đã xóa dữ liệu giả, chỉ giữ cấu trúc
+export const mockTasks: any[] = [];
 
 export const addTestDataAttribute = (element: HTMLElement, testId: string) => {
   if (isTestEnvironment()) {

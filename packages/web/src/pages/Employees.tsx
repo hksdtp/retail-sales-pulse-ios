@@ -40,6 +40,8 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { User as UserType } from '@/types/user';
+import EmployeeDetailModal from '@/components/employees/EmployeeDetailModal';
+import EmployeeSearchFilters from '@/components/employees/EmployeeSearchFilters';
 import OrganizationChart from '@/components/organization/OrganizationChart';
 
 const Employees = () => {
@@ -184,105 +186,50 @@ const Employees = () => {
         title="Quản lý nhân viên"
         subtitle={`${filteredUsers.length} nhân viên trong hệ thống`}
         actions={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleExportData}>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportData} className="w-full sm:w-auto">
               <Download className="w-4 h-4 mr-2" />
-              Xuất dữ liệu
+              <span className="hidden sm:inline">Xuất dữ liệu</span>
+              <span className="sm:hidden">Xuất</span>
             </Button>
             {canManageEmployees && (
-              <Button size="sm">
+              <Button size="sm" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
-                Thêm nhân viên
+                <span className="hidden sm:inline">Thêm nhân viên</span>
+                <span className="sm:hidden">Thêm</span>
               </Button>
             )}
           </div>
         }
       />
 
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="p-3 md:p-6 space-y-4 md:space-y-6">
         {/* Statistics Cards */}
         {/* <EmployeeStatsCards users={users} teams={teams} /> */}
 
         {/* Filters and Search */}
-        <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-lg">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Tìm kiếm nhân viên..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Location Filter */}
-              <Select value={selectedLocation} onValueChange={(value: any) => setSelectedLocation(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Địa điểm" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả địa điểm</SelectItem>
-                  <SelectItem value="hanoi">Hà Nội</SelectItem>
-                  <SelectItem value="hcm">Hồ Chí Minh</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Role Filter */}
-              <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Vai trò" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả vai trò</SelectItem>
-                  <SelectItem value="retail_director">Trưởng phòng</SelectItem>
-                  <SelectItem value="team_leader">Trưởng nhóm</SelectItem>
-                  <SelectItem value="employee">Nhân viên</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Team Filter */}
-              <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Nhóm" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả nhóm</SelectItem>
-                  {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Results Summary */}
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Users className="w-4 h-4" />
-                <span>{filteredUsers.length} nhân viên</span>
-                {filteredUsers.filter(u => u.role === 'retail_director').length > 0 && (
-                  <span className="text-purple-600">• {filteredUsers.filter(u => u.role === 'retail_director').length} trưởng phòng</span>
-                )}
-                {filteredUsers.filter(u => u.role === 'team_leader').length > 0 && (
-                  <span className="text-blue-600">• {filteredUsers.filter(u => u.role === 'team_leader').length} trưởng nhóm</span>
-                )}
-                {filteredUsers.filter(u => u.role === 'employee').length > 0 && (
-                  <span className="text-gray-600">• {filteredUsers.filter(u => u.role === 'employee').length} nhân viên</span>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <EmployeeSearchFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedLocation={selectedLocation}
+          onLocationChange={(value: any) => setSelectedLocation(value)}
+          selectedRole={selectedRole}
+          onRoleChange={(value: any) => setSelectedRole(value)}
+          selectedTeam={selectedTeam}
+          onTeamChange={setSelectedTeam}
+          teams={teams}
+          users={users}
+          resultCount={filteredUsers.length}
+          totalCount={users.length}
+          onExport={handleExportData}
+          canExport={canManageEmployees}
+        />
         {/* Organizational Chart Display */}
         <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-lg">
-          <CardContent className="p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Cấu trúc tổ chức</h2>
-              <p className="text-gray-600">Sơ đồ tổ chức phòng kinh doanh bán lẻ</p>
+          <CardContent className="p-4 md:p-8">
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Cấu trúc tổ chức</h2>
+              <p className="text-sm md:text-base text-gray-600">Sơ đồ tổ chức phòng kinh doanh bán lẻ</p>
             </div>
 
             {filteredUsers.length > 0 ? (
@@ -303,16 +250,16 @@ const Employees = () => {
         {/* Empty State */}
         {filteredUsers.length === 0 && (
           <Card className="border-2 border-dashed border-gray-300 bg-gray-50/50">
-            <CardContent className="p-12 text-center">
-              <div className="text-6xl mb-4">👥</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy nhân viên</h3>
-              <p className="text-gray-500 mb-4">
+            <CardContent className="p-6 md:p-12 text-center">
+              <div className="text-4xl md:text-6xl mb-4">👥</div>
+              <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">Không tìm thấy nhân viên</h3>
+              <p className="text-sm md:text-base text-gray-500 mb-4">
                 {searchTerm || selectedLocation !== 'all' || selectedRole !== 'all' || selectedTeam !== 'all'
                   ? 'Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm'
                   : 'Chưa có nhân viên nào trong hệ thống'}
               </p>
               {canManageEmployees && (
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
                   Thêm nhân viên đầu tiên
                 </Button>
@@ -322,7 +269,7 @@ const Employees = () => {
         )}
 
         {/* Employee Detail Modal */}
-        {/* <EmployeeDetailModal
+        <EmployeeDetailModal
           employee={selectedEmployee}
           isOpen={showDetailModal}
           onClose={() => {
@@ -330,7 +277,7 @@ const Employees = () => {
             setSelectedEmployee(null);
           }}
           canEdit={canManageEmployees}
-        /> */}
+        />
       </div>
     </AppLayout>
   );

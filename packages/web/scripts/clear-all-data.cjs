@@ -72,10 +72,13 @@ async function clearAllTasks() {
   }
 }
 
-// Chạy script
-console.log('🚨 CẢNH BÁO: Script này sẽ XÓA TẤT CẢ dữ liệu công việc!');
-console.log('⏰ Bắt đầu sau 3 giây...');
+// Script đã bị vô hiệu hóa để tránh xóa nhầm dữ liệu thật
+console.log('🚨 SCRIPT ĐÃ BỊ VÔ HIỆU HÓA!');
+console.log('❌ Script này có thể xóa dữ liệu thật trên production server');
+console.log('💡 Nếu cần xóa dữ liệu, hãy liên hệ admin để được hướng dẫn an toàn');
+console.log('🔒 Script đã được disable để bảo vệ dữ liệu');
 
-setTimeout(() => {
-  clearAllTasks().catch(console.error);
-}, 3000);
+// Không chạy function clearAllTasks()
+// setTimeout(() => {
+//   clearAllTasks().catch(console.error);
+// }, 3000);

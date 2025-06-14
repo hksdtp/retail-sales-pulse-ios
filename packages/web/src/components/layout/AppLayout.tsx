@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BottomNavigation from './BottomNavigation';
 import PlanToTaskNotification from '@/components/notifications/PlanToTaskNotification';
-import ThemeStatus from '@/components/debug/ThemeStatus';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
@@ -80,13 +79,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           // Mobile: no margin, add bottom padding for bottom nav
           isMobile && "ml-0"
         )}>
-          {/* macOS style subtle top bar shine */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/50 dark:bg-white/10 z-10"></div>
-
           <div className={cn(
             "flex-1 overflow-y-auto overflow-x-hidden",
-            "p-3 md:p-6",
-            isMobile && "pb-40 safe-area-inset-bottom"
+            "p-1 md:p-2",
+            // Mobile: Minimal bottom padding
+            isMobile && "pb-[50px]"
           )}>
             {children}
           </div>
@@ -109,9 +106,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           onViewTask={handleViewTask}
         />
       )}
-
-      {/* Theme Status Debug */}
-      <ThemeStatus position="bottom-left" />
 
     </div>
   );

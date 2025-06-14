@@ -1,12 +1,10 @@
 import React from 'react';
 import AIInsights from '@/components/dashboard/AIInsights';
 import PushNotificationManager from '@/components/notifications/PushNotificationManager';
-import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 const AIDemo: React.FC = () => {
   return (
-    <AIDisabledOverlay message="Tính năng AI tạm khóa để phát triển tiếp">
-      <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center py-8">
@@ -93,8 +91,7 @@ const AIDemo: React.FC = () => {
           </div>
         </div>
       </div>
-      </div>
-    </AIDisabledOverlay>
+    </div>
   );
 };
 

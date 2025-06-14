@@ -31,6 +31,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { User as UserType } from '@/types/user';
 import { useAuth } from '@/context/AuthContext';
+import { getTeamsWithLeaderNames } from '@/utils/teamUtils';
 
 interface EmployeeDetailModalProps {
   employee: UserType | null;
@@ -45,10 +46,13 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
   onClose, 
   canEdit 
 }) => {
-  const { teams, updateUser } = useAuth();
+  const { teams, users, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<UserType>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Lấy teams với tên trưởng nhóm
+  const teamsWithLeaders = getTeamsWithLeaderNames(teams, users);
 
   useEffect(() => {
     if (employee) {
@@ -306,9 +310,9 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="0">Chưa có nhóm</SelectItem>
-                          {teams.map((team) => (
+                          {teamsWithLeaders.map((team) => (
                             <SelectItem key={team.id} value={team.id}>
-                              {team.name}
+                              {team.displayName}
                             </SelectItem>
                           ))}
                         </SelectContent>

@@ -3,7 +3,6 @@ import React from 'react';
 
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { Button } from '@/components/ui/button';
-import { QuickThemeToggle } from '@/components/ui/theme-toggle';
 
 interface PageHeaderProps {
   title: string;
@@ -47,9 +46,6 @@ const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) 
         transition={{ delay: 0.3, duration: 0.3 }}
         className="mt-4 md:mt-0 flex items-center space-x-3 relative"
       >
-        {/* Theme Toggle */}
-        <QuickThemeToggle />
-
         {/* Notification Center */}
         <NotificationCenter onTaskClick={onTaskClick || (() => {})} />
 

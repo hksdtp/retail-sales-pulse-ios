@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
+import { getTeamLeader } from '@/utils/teamUtils';
 
 interface MemberTaskSelectorProps {
   selectedMemberId: string | null;
@@ -124,10 +125,18 @@ const MemberTaskSelector: React.FC<MemberTaskSelectorProps> = ({
       );
 
       Object.entries(teamGroups).forEach(([teamId, teamMembers]) => {
-        // Header cho team
+        // Header cho team với tên trưởng nhóm
         const team = teams?.find((t) => t.id === teamId);
-        const teamName =
-          teamId === 'no-team' ? 'Không thuộc nhóm' : team ? team.name : `Nhóm ${teamId}`;
+        let teamName = teamId === 'no-team' ? 'Không thuộc nhóm' : team ? team.name : `Nhóm ${teamId}`;
+
+        // Thêm tên trưởng nhóm nếu có
+        if (teamId !== 'no-team' && team) {
+          const leader = getTeamLeader(teamId, teams || [], users || []);
+          if (leader) {
+            teamName = `${team.name} - ${leader.name}`;
+          }
+        }
+
         options.push({
           id: `team-${teamId}`,
           name: `  👥 ${teamName}`,

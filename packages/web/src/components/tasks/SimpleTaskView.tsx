@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import React from 'react';
 
+// Dữ liệu trống - đã xóa mock data, chỉ sử dụng dữ liệu thật từ server
 const mockTasks: any[] = [];
 
 const statusMapping = {

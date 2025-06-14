@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
+import { getTeamsWithLeaderNames } from '@/utils/teamUtils';
 
 interface MemberViewFiltersProps {
   selectedLocation: string;
@@ -82,6 +83,9 @@ export default function MemberViewFilters({
   const teamsByLocation = getTeamsByLocation();
   const membersByTeam = getMembersByTeam();
 
+  // Lấy teams với tên trưởng nhóm
+  const teamsWithLeaders = getTeamsWithLeaderNames(teamsByLocation, users);
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
       <div className="flex items-center space-x-2 mb-3">
@@ -123,9 +127,9 @@ export default function MemberViewFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả nhóm</SelectItem>
-              {teamsByLocation.map((team) => (
+              {teamsWithLeaders.map((team) => (
                 <SelectItem key={team.id} value={team.id}>
-                  {team.name}
+                  {team.displayName}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -159,7 +163,7 @@ export default function MemberViewFilters({
         <div className="flex items-center justify-between text-sm text-gray-600">
           <span>
             Hiển thị: {selectedLocation === 'all' ? 'Tất cả địa điểm' : selectedLocation} • {' '}
-            {selectedTeam === 'all' ? 'Tất cả nhóm' : teamsByLocation.find(t => t.id === selectedTeam)?.name || 'Nhóm'} • {' '}
+            {selectedTeam === 'all' ? 'Tất cả nhóm' : teamsWithLeaders.find(t => t.id === selectedTeam)?.displayName || 'Nhóm'} • {' '}
             {selectedMember ? users.find(u => u.id === selectedMember)?.name || 'Thành viên' : 'Tất cả thành viên'}
           </span>
           <span className="font-medium">

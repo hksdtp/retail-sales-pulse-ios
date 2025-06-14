@@ -1,0 +1,1664 @@
+{
+  "timestamp": "2025-06-14T03:59:07.001Z",
+  "api_health": {
+    "status": "healthy",
+    "timestamp": "2025-06-14T03:59:05.527Z",
+    "service": "retail-sales-pulse-backend"
+  },
+  "tasks": [
+    {
+      "id": "1Cmy7q130b6WDe7oLtCj",
+      "title": "KH-CT ANH THÁI CHỊ TUYẾN OCEANPARK",
+      "description": "Khách hàng anh Thái chị Tuyến tại Oceanpark",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+      "user_id": "ACKzl2RISqrx5ca9QDM6",
+      "user_name": "Phạm Thị Hương",
+      "team_id": "4",
+      "teamId": "4",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872812,
+        "_nanoseconds": 950000000
+      },
+      "created_at": {
+        "_seconds": 1749872812,
+        "_nanoseconds": 950000000
+      }
+    },
+    {
+      "id": "77YpiEq4Z214uUACf4OP",
+      "title": "KTS-CHỊ DUYÊN THIẾT KẾ A+",
+      "description": "Kiến trúc sư chị Duyên thiết kế A+",
+      "type": "partner_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+      "user_id": "ACKzl2RISqrx5ca9QDM6",
+      "user_name": "Phạm Thị Hương",
+      "team_id": "4",
+      "teamId": "4",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872816,
+        "_nanoseconds": 422000000
+      },
+      "created_at": {
+        "_seconds": 1749872816,
+        "_nanoseconds": 422000000
+      }
+    },
+    {
+      "id": "CO2RpR1Iad9A5qHtorTv",
+      "title": "KH-CT CHỊ LINH-QUẢNG AN",
+      "description": "Liên hệ khách hàng chị Linh tại Quảng An",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+      "user_id": "ACKzl2RISqrx5ca9QDM6",
+      "user_name": "Phạm Thị Hương",
+      "team_id": "4",
+      "teamId": "4",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872804,
+        "_nanoseconds": 667000000
+      },
+      "created_at": {
+        "_seconds": 1749872804,
+        "_nanoseconds": 667000000
+      }
+    },
+    {
+      "id": "MXX7bbsj1o6pib5gMbxp",
+      "title": "Gặp kh chị Linh, chị Dung Hải Phòng",
+      "description": "Gặp khách hàng chị Linh và chị Dung tại Hải Phòng",
+      "type": "customer_meeting",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_id": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_name": "Lương Việt Anh",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872815,
+        "_nanoseconds": 760000000
+      },
+      "created_at": {
+        "_seconds": 1749872815,
+        "_nanoseconds": 760000000
+      }
+    },
+    {
+      "id": "MhwpUWDOlGQl1XwkzaHG",
+      "title": "Kết nối bên thiết kế Sunjinvietnam",
+      "description": "Kết nối với đội ngũ thiết kế Sunjinvietnam",
+      "type": "partner_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872814,
+        "_nanoseconds": 622000000
+      },
+      "created_at": {
+        "_seconds": 1749872814,
+        "_nanoseconds": 622000000
+      }
+    },
+    {
+      "id": "NwLiryRALfFZdbTvJfVm",
+      "title": "Liên hệ chị Trang - Vinhome",
+      "description": "Liên hệ chị Trang tại Vinhome",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872820,
+        "_nanoseconds": 647000000
+      },
+      "created_at": {
+        "_seconds": 1749872820,
+        "_nanoseconds": 647000000
+      }
+    },
+    {
+      "id": "OnNJfKTT9aDfqxdWU6yM",
+      "title": "Gặp a Mẫn M+",
+      "description": "Gặp anh Mẫn tại M+",
+      "type": "partner_meeting",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_id": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_name": "Lương Việt Anh",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872819,
+        "_nanoseconds": 989000000
+      },
+      "created_at": {
+        "_seconds": 1749872819,
+        "_nanoseconds": 989000000
+      }
+    },
+    {
+      "id": "Qq64Iz2dmwu0KS0tlklE",
+      "title": "Chị Hà Hải Phòng",
+      "description": "Liên hệ chị Hà tại Hải Phòng",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "user_id": "MO7N4Trk6mASlHpIcjME",
+      "user_name": "Nguyễn Thị Thảo",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872821,
+        "_nanoseconds": 765000000
+      },
+      "created_at": {
+        "_seconds": 1749872821,
+        "_nanoseconds": 765000000
+      }
+    },
+    {
+      "id": "RsVVYDOTAvSAETnQqE6M",
+      "title": "Hỗ trợ nhân viên nhóm",
+      "description": "Hỗ trợ và training nhân viên trong nhóm",
+      "type": "training",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "user_id": "MO7N4Trk6mASlHpIcjME",
+      "user_name": "Nguyễn Thị Thảo",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872822,
+        "_nanoseconds": 492000000
+      },
+      "created_at": {
+        "_seconds": 1749872822,
+        "_nanoseconds": 492000000
+      }
+    },
+    {
+      "id": "Rzma3vUrzc3BpmhWcNXu",
+      "title": "Học AI về SP Hunter",
+      "description": "Học về AI và ứng dụng SP Hunter",
+      "type": "training",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872808,
+        "_nanoseconds": 713000000
+      },
+      "created_at": {
+        "_seconds": 1749872808,
+        "_nanoseconds": 713000000
+      }
+    },
+    {
+      "id": "S4etVkkgrVNFhztteRfk",
+      "title": "KH A Nga- Chị Hải",
+      "description": "Khách hàng anh Nga và chị Hải",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872814,
+        "_nanoseconds": 73000000
+      },
+      "created_at": {
+        "_seconds": 1749872814,
+        "_nanoseconds": 73000000
+      }
+    },
+    {
+      "id": "SPXyCBF9TskP3xt9v75w",
+      "title": "ĐT - CHỊ HƯƠNG TBVS VÀ CHỊ DIỆP CỬA NHÔM",
+      "description": "Điện thoại liên hệ chị Hương TBVS và chị Diệp về cửa nhôm",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872807,
+        "_nanoseconds": 592000000
+      },
+      "created_at": {
+        "_seconds": 1749872807,
+        "_nanoseconds": 592000000
+      }
+    },
+    {
+      "id": "T5nCKWjSyiu2QAvnbBG7",
+      "title": "ĐÀO TẠO AI",
+      "description": "Tham gia khóa đào tạo về AI và ứng dụng trong công việc",
+      "type": "training",
+      "status": "todo",
+      "priority": "high",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872806,
+        "_nanoseconds": 449000000
+      },
+      "created_at": {
+        "_seconds": 1749872806,
+        "_nanoseconds": 449000000
+      }
+    },
+    {
+      "id": "Xvi1QWjt65zIThK87Ids",
+      "title": "Đi ctrinh a Long, a Quang, a Hưng ở Thanh Hoá cùng nhóm đối tác",
+      "description": "Công tác tại Thanh Hoá cùng đối tác",
+      "type": "business_trip",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_id": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_name": "Lương Việt Anh",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872807,
+        "_nanoseconds": 20000000
+      },
+      "created_at": {
+        "_seconds": 1749872807,
+        "_nanoseconds": 20000000
+      }
+    },
+    {
+      "id": "YuHD8yKUl5ArVx3zZFL0",
+      "title": "KH- CHỊ HẰNG - ROYAL",
+      "description": "Khách hàng chị Hằng tại Royal",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872811,
+        "_nanoseconds": 128000000
+      },
+      "created_at": {
+        "_seconds": 1749872811,
+        "_nanoseconds": 128000000
+      }
+    },
+    {
+      "id": "dT15xwxXLLbPIE2etGwb",
+      "title": "KH C Nhung Lưu",
+      "description": "Khách hàng cô Nhung Lưu",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872817,
+        "_nanoseconds": 560000000
+      },
+      "created_at": {
+        "_seconds": 1749872817,
+        "_nanoseconds": 560000000
+      }
+    },
+    {
+      "id": "dvi8WrUJKl7CMPANA0IH",
+      "title": "Kh Chị Thủy- Mỹ Đình",
+      "description": "Khách hàng chị Thủy tại Mỹ Đình",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872818,
+        "_nanoseconds": 194000000
+      },
+      "created_at": {
+        "_seconds": 1749872818,
+        "_nanoseconds": 194000000
+      }
+    },
+    {
+      "id": "dwXCVQMA72C5vN3ih7Kh",
+      "title": "ĐT- Gặp mặt",
+      "description": "Điện thoại sắp xếp cuộc gặp mặt",
+      "type": "meeting",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872808,
+        "_nanoseconds": 150000000
+      },
+      "created_at": {
+        "_seconds": 1749872808,
+        "_nanoseconds": 150000000
+      }
+    },
+    {
+      "id": "h4P1sl3TEYurrdEWYoxp",
+      "title": "Liên Hệ với chị Phương-Vihome",
+      "description": "Liên hệ chị Phương tại Vihome",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "user_id": "MO7N4Trk6mASlHpIcjME",
+      "user_name": "Nguyễn Thị Thảo",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872810,
+        "_nanoseconds": 562000000
+      },
+      "created_at": {
+        "_seconds": 1749872810,
+        "_nanoseconds": 562000000
+      }
+    },
+    {
+      "id": "iIsQn1Ia0XvUX7n2ClLJ",
+      "title": "ĐT - EM VIỆT THANG MÁY OTIS",
+      "description": "Điện thoại liên hệ em Việt về thang máy OTIS",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872809,
+        "_nanoseconds": 375000000
+      },
+      "created_at": {
+        "_seconds": 1749872809,
+        "_nanoseconds": 375000000
+      }
+    },
+    {
+      "id": "jMghvvdCoafPc4acC9NY",
+      "title": "KH Chị Hà- Dương Nội",
+      "description": "Khách hàng chị Hà tại Dương Nội",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872811,
+        "_nanoseconds": 691000000
+      },
+      "created_at": {
+        "_seconds": 1749872811,
+        "_nanoseconds": 691000000
+      }
+    },
+    {
+      "id": "jSIrpKYXzTv4pfbbNdaM",
+      "title": "Liên hệ KTS Hiếu THHOME",
+      "description": "Liên hệ kiến trúc sư Hiếu tại THHOME",
+      "type": "partner_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872805,
+        "_nanoseconds": 285000000
+      },
+      "created_at": {
+        "_seconds": 1749872805,
+        "_nanoseconds": 285000000
+      }
+    },
+    {
+      "id": "lYzlqBzUPkvoUsPyYriq",
+      "title": "Xử lý đơn hàng Someser",
+      "description": "Xử lý và theo dõi đơn hàng của khách hàng Someser",
+      "type": "order_processing",
+      "status": "in-progress",
+      "priority": "high",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "user_id": "MO7N4Trk6mASlHpIcjME",
+      "user_name": "Nguyễn Thị Thảo",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872805,
+        "_nanoseconds": 892000000
+      },
+      "created_at": {
+        "_seconds": 1749872805,
+        "_nanoseconds": 892000000
+      }
+    },
+    {
+      "id": "ljS2MSYQM9yiZSuFdWfj",
+      "title": "Tham gia hội thảo Đệm Xinh",
+      "description": "Tham gia hội thảo của Đệm Xinh",
+      "type": "training",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_id": "Ue4vzSj1KDg4vZyXwlHJ",
+      "user_name": "Lương Việt Anh",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872819,
+        "_nanoseconds": 407000000
+      },
+      "created_at": {
+        "_seconds": 1749872819,
+        "_nanoseconds": 407000000
+      }
+    },
+    {
+      "id": "mU0RgmqwwyLj4d5tE2V9",
+      "title": "ĐT - EM MẠNH EVERYGOLF",
+      "description": "Điện thoại liên hệ em Mạnh tại Everygolf",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872812,
+        "_nanoseconds": 350000000
+      },
+      "created_at": {
+        "_seconds": 1749872812,
+        "_nanoseconds": 350000000
+      }
+    },
+    {
+      "id": "mhDCRvK8QR7dQi69auVF",
+      "title": "KH Minh- NTT",
+      "description": "Khách hàng Minh tại NTT",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "user_id": "abtSSmK0p0oeOyy5YWGZ",
+      "user_name": "Lê Khánh Duy",
+      "team_id": "1",
+      "teamId": "1",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872821,
+        "_nanoseconds": 198000000
+      },
+      "created_at": {
+        "_seconds": 1749872821,
+        "_nanoseconds": 198000000
+      }
+    },
+    {
+      "id": "rc7kn6hvT0GDHi1sjChK",
+      "title": "Báo giá chị Hiền Khai Sơn",
+      "description": "Lập báo giá cho chị Hiền tại Khai Sơn",
+      "type": "quote_new",
+      "status": "todo",
+      "priority": "high",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "user_id": "MO7N4Trk6mASlHpIcjME",
+      "user_name": "Nguyễn Thị Thảo",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872816,
+        "_nanoseconds": 981000000
+      },
+      "created_at": {
+        "_seconds": 1749872816,
+        "_nanoseconds": 981000000
+      }
+    },
+    {
+      "id": "vZgCW0D5dMxkk3lqN892",
+      "title": "KH-CT ANH TIẾN-XUÂN PHƯƠNG",
+      "description": "Liên hệ khách hàng anh Tiến tại Xuân Phương",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+      "user_id": "ACKzl2RISqrx5ca9QDM6",
+      "user_name": "Phạm Thị Hương",
+      "team_id": "4",
+      "teamId": "4",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872810,
+        "_nanoseconds": 1000000
+      },
+      "created_at": {
+        "_seconds": 1749872810,
+        "_nanoseconds": 1000000
+      }
+    },
+    {
+      "id": "xVtccyVoJ1g4imEpRx3F",
+      "title": "ĐT - CHỊ HUYỀN NỘI THẤT NORDIC",
+      "description": "Điện thoại chị Huyền về nội thất Nordic",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872813,
+        "_nanoseconds": 510000000
+      },
+      "created_at": {
+        "_seconds": 1749872813,
+        "_nanoseconds": 510000000
+      }
+    },
+    {
+      "id": "xnA2cUEQYKA2I9bNvk3P",
+      "title": "KH-CT CHỊ THẢO-SOMMERSET",
+      "description": "Khách hàng chị Thảo tại Somerset",
+      "type": "customer_contact",
+      "status": "todo",
+      "priority": "normal",
+      "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+      "user_id": "ACKzl2RISqrx5ca9QDM6",
+      "user_name": "Phạm Thị Hương",
+      "team_id": "4",
+      "teamId": "4",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872815,
+        "_nanoseconds": 193000000
+      },
+      "created_at": {
+        "_seconds": 1749872815,
+        "_nanoseconds": 193000000
+      }
+    },
+    {
+      "id": "yhfzz3ymQxoFNoZX1wRo",
+      "title": "Lên đơn cắt nhà anh Dương Lò Đúc",
+      "description": "Lập đơn cắt nhà cho anh Dương tại Lò Đúc",
+      "type": "order_processing",
+      "status": "todo",
+      "priority": "high",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "user_id": "76ui8I1vw3wiJLyvwFjq",
+      "user_name": "Nguyễn Mạnh Linh",
+      "team_id": "2",
+      "teamId": "2",
+      "location": "hanoi",
+      "department_type": "retail",
+      "date": "2025-06-14",
+      "time": "09:00",
+      "progress": 0,
+      "isNew": false,
+      "isShared": false,
+      "isSharedWithTeam": false,
+      "extraAssignees": "",
+      "updated_at": {
+        "_seconds": 1749872818,
+        "_nanoseconds": 799000000
+      },
+      "created_at": {
+        "_seconds": 1749872818,
+        "_nanoseconds": 799000000
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "0AzCiDnWxcCMzIAwLA9D",
+      "name": "Nguyễn Ngọc Việt Khanh",
+      "email": "vietkhanh@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "6",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033699,
+        "_nanoseconds": 513000000
+      },
+      "created_at": {
+        "_seconds": 1749033699,
+        "_nanoseconds": 513000000
+      }
+    },
+    {
+      "id": "1",
+      "email": "manh.khong@example.com",
+      "name": "Khổng Đức Mạnh 123"
+    },
+    {
+      "id": "76ui8I1vw3wiJLyvwFjq",
+      "name": "Nguyễn Mạnh Linh",
+      "email": "manhlinh@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "2",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033695,
+        "_nanoseconds": 531000000
+      },
+      "created_at": {
+        "_seconds": 1749033695,
+        "_nanoseconds": 531000000
+      }
+    },
+    {
+      "id": "8NpVPLaiLDhv75jZNq5q",
+      "name": "Hà Nguyễn Thanh Tuyền",
+      "email": "tuyen.ha@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "5",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033698,
+        "_nanoseconds": 734000000
+      },
+      "created_at": {
+        "_seconds": 1749033698,
+        "_nanoseconds": 734000000
+      }
+    },
+    {
+      "id": "ACKzl2RISqrx5ca9QDM6",
+      "name": "Phạm Thị Hương",
+      "email": "huong.pham@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "4",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033697,
+        "_nanoseconds": 102000000
+      },
+      "created_at": {
+        "_seconds": 1749033697,
+        "_nanoseconds": 102000000
+      }
+    },
+    {
+      "id": "ERi0hcgzKhWsRKx1Gm26",
+      "name": "Phạm Thị Hương",
+      "email": "huong.pham@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "4",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606039,
+        "_nanoseconds": 723000000
+      },
+      "created_at": {
+        "_seconds": 1749606039,
+        "_nanoseconds": 723000000
+      }
+    },
+    {
+      "id": "H0ixVALWdoDxWbSOSxBn",
+      "name": "Nguyễn Ngọc Việt Khanh",
+      "email": "khanh.nguyen@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "2",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606036,
+        "_nanoseconds": 995000000
+      },
+      "created_at": {
+        "_seconds": 1749606036,
+        "_nanoseconds": 995000000
+      }
+    },
+    {
+      "id": "MO7N4Trk6mASlHpIcjME",
+      "name": "Nguyễn Thị Thảo",
+      "email": "thao.nguyen@example.com",
+      "role": "team_leader",
+      "team_id": "2",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "created_at": {
+        "_seconds": 1749033694,
+        "_nanoseconds": 749000000
+      },
+      "password": "Nguyenthithao1",
+      "updated_at": {
+        "_seconds": 1749716783,
+        "_nanoseconds": 509000000
+      }
+    },
+    {
+      "id": "ObroYv1R4odHRcTGOB8d",
+      "name": "Khổng Đức Mạnh",
+      "email": "manh.khong@example.com",
+      "password": "123456",
+      "role": "retail_director",
+      "team_id": "0",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng phòng kinh doanh bán lẻ",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606033,
+        "_nanoseconds": 861000000
+      },
+      "created_at": {
+        "_seconds": 1749606033,
+        "_nanoseconds": 861000000
+      }
+    },
+    {
+      "id": "RIWI0w6ETBPy6AA2Z5hL",
+      "name": "Phùng Thị Thuỳ Vân",
+      "email": "thuyvan@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "6",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033700,
+        "_nanoseconds": 373000000
+      },
+      "created_at": {
+        "_seconds": 1749033700,
+        "_nanoseconds": 373000000
+      }
+    },
+    {
+      "id": "Ue4vzSj1KDg4vZyXwlHJ",
+      "name": "Lương Việt Anh",
+      "email": "vietanh@example.com",
+      "role": "team_leader",
+      "team_id": "1",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "created_at": {
+        "_seconds": 1749033693,
+        "_nanoseconds": 24000000
+      },
+      "password": "Lva@173366043",
+      "updated_at": {
+        "_seconds": 1749616893,
+        "_nanoseconds": 631000000
+      }
+    },
+    {
+      "id": "Ve7sGRnMoRvT1E0VL5Ds",
+      "name": "Khổng Đức Mạnh",
+      "email": "manh.khong@example.com",
+      "password": "123456",
+      "role": "retail_director",
+      "team_id": "0",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng phòng kinh doanh bán lẻ",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033692,
+        "_nanoseconds": 208000000
+      },
+      "created_at": {
+        "_seconds": 1749033692,
+        "_nanoseconds": 208000000
+      }
+    },
+    {
+      "id": "XbEKpUCw6OPLiFQWmCCm",
+      "name": "Hà Nguyễn Tuyến",
+      "email": "tuyen.ha@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "1",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606036,
+        "_nanoseconds": 118000000
+      },
+      "created_at": {
+        "_seconds": 1749606036,
+        "_nanoseconds": 118000000
+      }
+    },
+    {
+      "id": "ZIJgzHB2b60qfWyOK0Ko",
+      "name": "Trịnh Thị Bốn",
+      "email": "bon.trinh@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "3",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606038,
+        "_nanoseconds": 827000000
+      },
+      "created_at": {
+        "_seconds": 1749606038,
+        "_nanoseconds": 827000000
+      }
+    },
+    {
+      "id": "aa2tloFwBhe6m05lwypc",
+      "name": "Nguyễn Ngọc Việt Khanh",
+      "email": "vietkhanh@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "6",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606043,
+        "_nanoseconds": 625000000
+      },
+      "created_at": {
+        "_seconds": 1749606043,
+        "_nanoseconds": 625000000
+      }
+    },
+    {
+      "id": "abtSSmK0p0oeOyy5YWGZ",
+      "name": "Lê Khánh Duy",
+      "email": "khanhduy@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "1",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033693,
+        "_nanoseconds": 870000000
+      },
+      "created_at": {
+        "_seconds": 1749033693,
+        "_nanoseconds": 870000000
+      }
+    },
+    {
+      "id": "k030JV0tAobf5rMvdzG4",
+      "name": "Trịnh Thị Bốn",
+      "email": "bon.trinh@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "3",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033696,
+        "_nanoseconds": 311000000
+      },
+      "created_at": {
+        "_seconds": 1749033696,
+        "_nanoseconds": 311000000
+      }
+    },
+    {
+      "id": "oH7an8cvGdI4uwmi7bpZ",
+      "name": "Nguyễn Thị Nga",
+      "email": "nga.nguyen@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "1",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606034,
+        "_nanoseconds": 793000000
+      },
+      "created_at": {
+        "_seconds": 1749606034,
+        "_nanoseconds": 793000000
+      }
+    },
+    {
+      "id": "pGahEQwrJN8aIpEdRnBY",
+      "name": "Hà Nguyễn Thanh Tuyền",
+      "email": "tuyen.ha@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "5",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606042,
+        "_nanoseconds": 723000000
+      },
+      "created_at": {
+        "_seconds": 1749606042,
+        "_nanoseconds": 723000000
+      }
+    },
+    {
+      "id": "pzSa30JeZR0UoOoKhZ7l",
+      "name": "Nguyễn Thị Nga",
+      "email": "nga.nguyen@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "5",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749033697,
+        "_nanoseconds": 883000000
+      },
+      "created_at": {
+        "_seconds": 1749033697,
+        "_nanoseconds": 883000000
+      }
+    },
+    {
+      "id": "qgM8ogYQwu0T5zJUesfn",
+      "name": "Quản Thu Hà",
+      "email": "thuha@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "1",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên sale",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749427843,
+        "_nanoseconds": 488000000
+      },
+      "created_at": {
+        "_seconds": 1749427843,
+        "_nanoseconds": 488000000
+      }
+    },
+    {
+      "id": "tacjOehkubNmOvgnmvOo",
+      "name": "Phùng Thị Thuỳ Vân",
+      "email": "thuyvan@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "6",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606044,
+        "_nanoseconds": 535000000
+      },
+      "created_at": {
+        "_seconds": 1749606044,
+        "_nanoseconds": 535000000
+      }
+    },
+    {
+      "id": "xpKkMvhRi7nfT8v81pUr",
+      "name": "Phùng Thị Thuỳ Vân",
+      "email": "thuyvan@example.com",
+      "password": "123456",
+      "role": "employee",
+      "team_id": "2",
+      "location": "hanoi",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Nhân viên",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606037,
+        "_nanoseconds": 912000000
+      },
+      "created_at": {
+        "_seconds": 1749606037,
+        "_nanoseconds": 912000000
+      }
+    },
+    {
+      "id": "zdORDsodkjHvQjDwbIEX",
+      "name": "Nguyễn Thị Nga",
+      "email": "nga.nguyen@example.com",
+      "password": "123456",
+      "role": "team_leader",
+      "team_id": "5",
+      "location": "hcm",
+      "department": "retail",
+      "department_type": "retail",
+      "position": "Trưởng nhóm",
+      "status": "active",
+      "password_changed": true,
+      "updated_at": {
+        "_seconds": 1749606041,
+        "_nanoseconds": 604000000
+      },
+      "created_at": {
+        "_seconds": 1749606041,
+        "_nanoseconds": 604000000
+      }
+    }
+  ],
+  "teams": [
+    {
+      "id": "DjDSUIiJ56tlkEIvDdkj",
+      "name": "NHÓM 4",
+      "leader_id": "7",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 4 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749606048,
+        "_nanoseconds": 120000000
+      },
+      "created_at": {
+        "_seconds": 1749606048,
+        "_nanoseconds": 120000000
+      }
+    },
+    {
+      "id": "FFYPPJnwG0R2IWsEUV26",
+      "name": "NHÓM 2",
+      "leader_id": "10",
+      "location": "hcm",
+      "description": "Nhóm kinh doanh 2 Hồ Chí Minh",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749606049,
+        "_nanoseconds": 900000000
+      },
+      "created_at": {
+        "_seconds": 1749606049,
+        "_nanoseconds": 900000000
+      }
+    },
+    {
+      "id": "TTbgB6deT8tUTodTHX6b",
+      "name": "NHÓM 1",
+      "leader_id": "2",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 1 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749606045,
+        "_nanoseconds": 424000000
+      },
+      "created_at": {
+        "_seconds": 1749606045,
+        "_nanoseconds": 424000000
+      }
+    },
+    {
+      "id": "ct17Zl81e1SHEQ1cTF90",
+      "name": "NHÓM 1",
+      "leader_id": "8",
+      "location": "hcm",
+      "description": "Nhóm kinh doanh 1 Hồ Chí Minh",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749033704,
+        "_nanoseconds": 370000000
+      },
+      "created_at": {
+        "_seconds": 1749033704,
+        "_nanoseconds": 370000000
+      }
+    },
+    {
+      "id": "jGAFee4WaZOtMsI42y1g",
+      "name": "NHÓM 1 - VIỆT ANH",
+      "leader_id": "2",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 1 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749033701,
+        "_nanoseconds": 149000000
+      },
+      "created_at": {
+        "_seconds": 1749033701,
+        "_nanoseconds": 149000000
+      }
+    },
+    {
+      "id": "mLrqhMcKaZ1OUV4fTksW",
+      "name": "NHÓM 2",
+      "leader_id": "10",
+      "location": "hcm",
+      "description": "Nhóm kinh doanh 2 Hồ Chí Minh",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749033705,
+        "_nanoseconds": 186000000
+      },
+      "created_at": {
+        "_seconds": 1749033705,
+        "_nanoseconds": 186000000
+      }
+    },
+    {
+      "id": "s1rkdVvo11xUCyytFqki",
+      "name": "NHÓM 4",
+      "leader_id": "7",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 4 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749033703,
+        "_nanoseconds": 536000000
+      },
+      "created_at": {
+        "_seconds": 1749033703,
+        "_nanoseconds": 536000000
+      }
+    },
+    {
+      "id": "uDGSN8yNee74reWh4mqt",
+      "name": "NHÓM 2 - THẢO",
+      "leader_id": "4",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 2 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749033701,
+        "_nanoseconds": 932000000
+      },
+      "created_at": {
+        "_seconds": 1749033701,
+        "_nanoseconds": 932000000
+      }
+    },
+    {
+      "id": "v1fBFyrgXYl83KgLWAAX",
+      "name": "NHÓM 3",
+      "leader_id": "6",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 3 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749033702,
+        "_nanoseconds": 710000000
+      },
+      "created_at": {
+        "_seconds": 1749033702,
+        "_nanoseconds": 710000000
+      }
+    },
+    {
+      "id": "w9qvRm7gDUNlYpNU1rZE",
+      "name": "NHÓM 3",
+      "leader_id": "6",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 3 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749606047,
+        "_nanoseconds": 225000000
+      },
+      "created_at": {
+        "_seconds": 1749606047,
+        "_nanoseconds": 225000000
+      }
+    },
+    {
+      "id": "xNiwgcK8snNg1m047vmD",
+      "name": "NHÓM 1",
+      "leader_id": "8",
+      "location": "hcm",
+      "description": "Nhóm kinh doanh 1 Hồ Chí Minh",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749606049,
+        "_nanoseconds": 19000000
+      },
+      "created_at": {
+        "_seconds": 1749606049,
+        "_nanoseconds": 19000000
+      }
+    },
+    {
+      "id": "xegrv5rYeLimjVXJpIgu",
+      "name": "NHÓM 2",
+      "leader_id": "4",
+      "location": "hanoi",
+      "description": "Nhóm kinh doanh 2 Hà Nội",
+      "department": "retail",
+      "department_type": "retail",
+      "updated_at": {
+        "_seconds": 1749606046,
+        "_nanoseconds": 319000000
+      },
+      "created_at": {
+        "_seconds": 1749606046,
+        "_nanoseconds": 319000000
+      }
+    }
+  ],
+  "summary": {
+    "total_tasks": 31,
+    "total_users": 24,
+    "total_teams": 12
+  }
+}

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import React from 'react';
 import { BarChart3, TrendingUp, Users, DollarSign } from 'lucide-react';
 
+
 import ConversionRates from '@/components/dashboard/ConversionRates';
 import KpiCard from '@/components/dashboard/KpiCard';
 import RegionDistribution from '@/components/dashboard/RegionDistribution';
@@ -90,13 +91,14 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
     }
 
   return (
-    <div className="p-4 md:p-6 space-y-8">
+    <div className="p-4 md:p-6 space-y-6">
+
       {/* Summary Stats */}
       <motion.div
         className="bg-gradient-to-br from-slate-50/80 via-white/90 to-blue-50/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg shadow-black/5 p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, delay: permissions.canViewAll ? 0.1 : 0 }}
       >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center group">
@@ -190,7 +192,7 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
       {/* Charts - Hiển thị theo quyền hạn */}
       {(permissions.canViewAll || permissions.canViewTeam) && (
         <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -220,7 +222,7 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
           className="grid grid-cols-1 lg:grid-cols-3 gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
           <motion.div
             className="lg:col-span-1"
@@ -247,7 +249,7 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
 
     // Error fallback UI
     return (
-      <div className="p-4 md:p-6 space-y-8">
+      <div className="p-4 md:p-6 space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-[20px] p-8 text-center">
           <div className="text-red-600 mb-4">
             <BarChart3 className="w-16 h-16 mx-auto mb-4 text-red-400" />

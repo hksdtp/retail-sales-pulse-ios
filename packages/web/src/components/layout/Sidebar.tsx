@@ -11,13 +11,11 @@ import {
   LogOut,
   Settings,
   ChevronLeft,
-  ChevronRight,
-  Sparkles
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import AccountSettings from '@/components/account/AccountSettings';
-import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 interface SidebarProps {
   onCollapseChange?: (collapsed: boolean) => void;
@@ -100,12 +98,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       icon: CalendarCheck,
       url: "/calendar"
     },
-    {
-      title: "Thiết kế rèm AI",
-      icon: Sparkles,
-      url: "/curtain-design",
-      isAI: true // Mark as AI feature for disabling
-    },
+
     {
       title: "Báo cáo",
       icon: FileText,
@@ -192,51 +185,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
         {/* Navigation Menu */}
         <nav className="flex-1 p-4 space-y-2">
-          {filteredMenuItems.map((item) => {
-            // Wrap AI features with disabled overlay
-            if (item.isAI) {
-              return (
-                <div key={item.title} className="relative">
-                  <Link
-                    to={item.url}
-                    className={cn(
-                      "flex items-center rounded-xl transition-all duration-300 ease-out relative group px-3 py-3 pointer-events-none",
-                      !isVisuallyExpanded ? "justify-center" : "space-x-3",
-                      "text-gray-400 bg-gray-50 dark:bg-gray-800 opacity-50 filter grayscale"
-                    )}
-                    title={!isVisuallyExpanded ? item.title : undefined}
-                  >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    <div
-                      className="overflow-hidden transition-all duration-300 ease-out"
-                      style={{
-                        width: isVisuallyExpanded ? '150px' : '0px',
-                        opacity: isVisuallyExpanded ? 1 : 0,
-                        transform: isVisuallyExpanded ? 'translateX(0)' : 'translateX(-8px)',
-                      }}
-                    >
-                      <span className="font-medium whitespace-nowrap">{item.title}</span>
-                    </div>
-
-                    {/* Tooltip for collapsed state */}
-                    {!isVisuallyExpanded && (
-                      <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                        {item.title} - AI tạm khóa
-                      </div>
-                    )}
-                  </Link>
-
-                  {/* AI Disabled Badge */}
-                  {isVisuallyExpanded && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs px-2 py-1 rounded-full border border-orange-200 dark:border-orange-700">
-                      AI tạm khóa
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
+          {filteredMenuItems.map((item) => (
               <Link
                 key={item.title}
                 to={item.url}
@@ -271,8 +220,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                   </div>
                 )}
               </Link>
-            );
-          })}
+          ))}
         </nav>
 
         {/* Account Section */}

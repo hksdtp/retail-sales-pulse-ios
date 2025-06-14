@@ -793,6 +793,37 @@ app.post('/users', async (req, res) => {
   }
 });
 
+// Delete user
+app.delete('/users/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Check if user exists
+    const userDoc = await admin.firestore().collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    // Delete the user
+    await admin.firestore().collection('users').doc(userId).delete();
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    functions.logger.error('Error deleting user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete user',
+    });
+  }
+});
+
 // Create team
 app.post('/teams', async (req, res) => {
   try {

@@ -10,7 +10,7 @@ import { ApiTaskDataProvider } from './context/ApiTaskDataProvider';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Calendar from './pages/Calendar';
-import CurtainDesign from './pages/CurtainDesign';
+
 import Employees from './pages/Employees';
 import FirebaseSetup from './pages/FirebaseSetup';
 import Index from './pages/Index';
@@ -18,13 +18,15 @@ import Kpi from './pages/Kpi';
 import Login from './pages/Login';
 import MobileTest from './pages/MobileTest';
 import NotFound from './pages/NotFound';
+import AccountPage from './pages/AccountPage';
 
 import Reports from './pages/Reports';
 import Tasks from './pages/Tasks';
 import TaskFormDemo from './components/tasks/TaskFormDemo';
-import AIDemo from './pages/AIDemo';
+
 import DetailedReports from './pages/DetailedReports';
 import ThemeDemo from './pages/ThemeDemo';
+import Account from './pages/Account';
 
 const queryClient = new QueryClient();
 
@@ -74,14 +76,7 @@ const App = () => (
                     }
                   />
 
-                  <Route
-                    path="/curtain-design"
-                    element={
-                      <ProtectedRoute>
-                        <CurtainDesign />
-                      </ProtectedRoute>
-                    }
-                  />
+
                   <Route
                     path="/kpi"
                     element={
@@ -106,6 +101,14 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/account"
+                    element={
+                      <ProtectedRoute>
+                        <Account />
+                      </ProtectedRoute>
+                    }
+                  />
 
                   <Route
                     path="/mobile-test"
@@ -123,14 +126,7 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
-                  <Route
-                    path="/ai-demo"
-                    element={
-                      <ProtectedRoute>
-                        <AIDemo />
-                      </ProtectedRoute>
-                    }
-                  />
+
                   <Route
                     path="/detailed-reports"
                     element={
@@ -144,6 +140,14 @@ const App = () => (
                     element={
                       <ProtectedRoute>
                         <ThemeDemo />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/account"
+                    element={
+                      <ProtectedRoute>
+                        <AccountPage />
                       </ProtectedRoute>
                     }
                   />

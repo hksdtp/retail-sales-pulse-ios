@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Languages, Copy, Check } from 'lucide-react';
-import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 const EnhancePromptDemo: React.FC = () => {
   const [inputText, setInputText] = useState('');
@@ -68,8 +67,7 @@ Prompt được cải thiện này cung cấp:
   };
 
   return (
-    <AIDisabledOverlay message="Tính năng Enhance Prompt AI tạm khóa để phát triển tiếp">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -215,7 +213,6 @@ Prompt được cải thiện này cung cấp:
           </CardContent>
         </Card>
       </div>
-    </AIDisabledOverlay>
   );
 };
 

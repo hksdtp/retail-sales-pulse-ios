@@ -1,0 +1,618 @@
+{
+  "timestamp": "2025-06-14T03:58:38.581Z",
+  "total_tasks": 39,
+  "duplicate_groups": 8,
+  "tasks_to_delete": [
+    {
+      "id": "mrxnrblvqce46xuhBL69",
+      "title": "Liên Hệ với chị Phương-Vihome",
+      "user_name": "Nguyễn Thị Thảo",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "created_at": {
+        "_seconds": 1749872848,
+        "_nanoseconds": 925000000
+      }
+    },
+    {
+      "id": "iXuzRM4U4PTFxwOhd8n8",
+      "title": "Xử lý đơn hàng Someser",
+      "user_name": "Nguyễn Thị Thảo",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "created_at": {
+        "_seconds": 1749872844,
+        "_nanoseconds": 371000000
+      }
+    },
+    {
+      "id": "ibmhJM6a6h4xdAqFcQ1j",
+      "title": "KH-CT CHỊ THẢO-SOMMERSET",
+      "user_name": "Phạm Thị Hương",
+      "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+      "created_at": {
+        "_seconds": 1749872853,
+        "_nanoseconds": 616000000
+      }
+    },
+    {
+      "id": "tXINKujBKbtZyoTgiasR",
+      "title": "KH Chị Hà- Dương Nội",
+      "user_name": "Lê Khánh Duy",
+      "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+      "created_at": {
+        "_seconds": 1749872850,
+        "_nanoseconds": 42000000
+      }
+    },
+    {
+      "id": "r3VcBeYBeXNvY8MNhIxv",
+      "title": "Liên hệ KTS Hiếu THHOME",
+      "user_name": "Nguyễn Mạnh Linh",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "created_at": {
+        "_seconds": 1749872843,
+        "_nanoseconds": 799000000
+      }
+    },
+    {
+      "id": "jj3txMKgaHdTXlsQm7tP",
+      "title": "ĐT - EM MẠNH EVERYGOLF",
+      "user_name": "Nguyễn Mạnh Linh",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "created_at": {
+        "_seconds": 1749872850,
+        "_nanoseconds": 608000000
+      }
+    },
+    {
+      "id": "peoDJ6w1mnlshWs0fp8m",
+      "title": "Lên đơn cắt nhà anh Dương Lò Đúc",
+      "user_name": "Nguyễn Mạnh Linh",
+      "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+      "created_at": {
+        "_seconds": 1749872857,
+        "_nanoseconds": 206000000
+      }
+    },
+    {
+      "id": "wnX8933zwYZylqt0wlDd",
+      "title": "Báo giá chị Hiền Khai Sơn",
+      "user_name": "Nguyễn Thị Thảo",
+      "assignedTo": "MO7N4Trk6mASlHpIcjME",
+      "created_at": {
+        "_seconds": 1749872855,
+        "_nanoseconds": 408000000
+      }
+    }
+  ],
+  "unique_tasks_after_cleanup": 31,
+  "duplicates": [
+    {
+      "title": "Liên Hệ với chị Phương-Vihome",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "h4P1sl3TEYurrdEWYoxp",
+          "title": "Liên Hệ với chị Phương-Vihome",
+          "description": "Liên hệ chị Phương tại Vihome",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "MO7N4Trk6mASlHpIcjME",
+          "user_id": "MO7N4Trk6mASlHpIcjME",
+          "user_name": "Nguyễn Thị Thảo",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872810,
+            "_nanoseconds": 562000000
+          },
+          "created_at": {
+            "_seconds": 1749872810,
+            "_nanoseconds": 562000000
+          }
+        },
+        {
+          "id": "mrxnrblvqce46xuhBL69",
+          "title": "Liên Hệ với chị Phương-Vihome",
+          "description": "Liên hệ chị Phương tại Vihome",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "MO7N4Trk6mASlHpIcjME",
+          "user_id": "MO7N4Trk6mASlHpIcjME",
+          "user_name": "Nguyễn Thị Thảo",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872848,
+            "_nanoseconds": 925000000
+          },
+          "created_at": {
+            "_seconds": 1749872848,
+            "_nanoseconds": 925000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "Xử lý đơn hàng Someser",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "lYzlqBzUPkvoUsPyYriq",
+          "title": "Xử lý đơn hàng Someser",
+          "description": "Xử lý và theo dõi đơn hàng của khách hàng Someser",
+          "type": "order_processing",
+          "status": "in-progress",
+          "priority": "high",
+          "assignedTo": "MO7N4Trk6mASlHpIcjME",
+          "user_id": "MO7N4Trk6mASlHpIcjME",
+          "user_name": "Nguyễn Thị Thảo",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872805,
+            "_nanoseconds": 892000000
+          },
+          "created_at": {
+            "_seconds": 1749872805,
+            "_nanoseconds": 892000000
+          }
+        },
+        {
+          "id": "iXuzRM4U4PTFxwOhd8n8",
+          "title": "Xử lý đơn hàng Someser",
+          "description": "Xử lý và theo dõi đơn hàng của khách hàng Someser",
+          "type": "order_processing",
+          "status": "in-progress",
+          "priority": "high",
+          "assignedTo": "MO7N4Trk6mASlHpIcjME",
+          "user_id": "MO7N4Trk6mASlHpIcjME",
+          "user_name": "Nguyễn Thị Thảo",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872844,
+            "_nanoseconds": 371000000
+          },
+          "created_at": {
+            "_seconds": 1749872844,
+            "_nanoseconds": 371000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "KH-CT CHỊ THẢO-SOMMERSET",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "xnA2cUEQYKA2I9bNvk3P",
+          "title": "KH-CT CHỊ THẢO-SOMMERSET",
+          "description": "Khách hàng chị Thảo tại Somerset",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+          "user_id": "ACKzl2RISqrx5ca9QDM6",
+          "user_name": "Phạm Thị Hương",
+          "team_id": "4",
+          "teamId": "4",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872815,
+            "_nanoseconds": 193000000
+          },
+          "created_at": {
+            "_seconds": 1749872815,
+            "_nanoseconds": 193000000
+          }
+        },
+        {
+          "id": "ibmhJM6a6h4xdAqFcQ1j",
+          "title": "KH-CT CHỊ THẢO-SOMMERSET",
+          "description": "Khách hàng chị Thảo tại Somerset",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "ACKzl2RISqrx5ca9QDM6",
+          "user_id": "ACKzl2RISqrx5ca9QDM6",
+          "user_name": "Phạm Thị Hương",
+          "team_id": "4",
+          "teamId": "4",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872853,
+            "_nanoseconds": 616000000
+          },
+          "created_at": {
+            "_seconds": 1749872853,
+            "_nanoseconds": 616000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "KH Chị Hà- Dương Nội",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "jMghvvdCoafPc4acC9NY",
+          "title": "KH Chị Hà- Dương Nội",
+          "description": "Khách hàng chị Hà tại Dương Nội",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+          "user_id": "abtSSmK0p0oeOyy5YWGZ",
+          "user_name": "Lê Khánh Duy",
+          "team_id": "1",
+          "teamId": "1",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872811,
+            "_nanoseconds": 691000000
+          },
+          "created_at": {
+            "_seconds": 1749872811,
+            "_nanoseconds": 691000000
+          }
+        },
+        {
+          "id": "tXINKujBKbtZyoTgiasR",
+          "title": "KH Chị Hà- Dương Nội",
+          "description": "Khách hàng chị Hà tại Dương Nội",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "abtSSmK0p0oeOyy5YWGZ",
+          "user_id": "abtSSmK0p0oeOyy5YWGZ",
+          "user_name": "Lê Khánh Duy",
+          "team_id": "1",
+          "teamId": "1",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872850,
+            "_nanoseconds": 42000000
+          },
+          "created_at": {
+            "_seconds": 1749872850,
+            "_nanoseconds": 42000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "Liên hệ KTS Hiếu THHOME",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "jSIrpKYXzTv4pfbbNdaM",
+          "title": "Liên hệ KTS Hiếu THHOME",
+          "description": "Liên hệ kiến trúc sư Hiếu tại THHOME",
+          "type": "partner_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+          "user_id": "76ui8I1vw3wiJLyvwFjq",
+          "user_name": "Nguyễn Mạnh Linh",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872805,
+            "_nanoseconds": 285000000
+          },
+          "created_at": {
+            "_seconds": 1749872805,
+            "_nanoseconds": 285000000
+          }
+        },
+        {
+          "id": "r3VcBeYBeXNvY8MNhIxv",
+          "title": "Liên hệ KTS Hiếu THHOME",
+          "description": "Liên hệ kiến trúc sư Hiếu tại THHOME",
+          "type": "partner_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+          "user_id": "76ui8I1vw3wiJLyvwFjq",
+          "user_name": "Nguyễn Mạnh Linh",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872843,
+            "_nanoseconds": 799000000
+          },
+          "created_at": {
+            "_seconds": 1749872843,
+            "_nanoseconds": 799000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "ĐT - EM MẠNH EVERYGOLF",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "mU0RgmqwwyLj4d5tE2V9",
+          "title": "ĐT - EM MẠNH EVERYGOLF",
+          "description": "Điện thoại liên hệ em Mạnh tại Everygolf",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+          "user_id": "76ui8I1vw3wiJLyvwFjq",
+          "user_name": "Nguyễn Mạnh Linh",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872812,
+            "_nanoseconds": 350000000
+          },
+          "created_at": {
+            "_seconds": 1749872812,
+            "_nanoseconds": 350000000
+          }
+        },
+        {
+          "id": "jj3txMKgaHdTXlsQm7tP",
+          "title": "ĐT - EM MẠNH EVERYGOLF",
+          "description": "Điện thoại liên hệ em Mạnh tại Everygolf",
+          "type": "customer_contact",
+          "status": "todo",
+          "priority": "normal",
+          "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+          "user_id": "76ui8I1vw3wiJLyvwFjq",
+          "user_name": "Nguyễn Mạnh Linh",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872850,
+            "_nanoseconds": 608000000
+          },
+          "created_at": {
+            "_seconds": 1749872850,
+            "_nanoseconds": 608000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "Lên đơn cắt nhà anh Dương Lò Đúc",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "yhfzz3ymQxoFNoZX1wRo",
+          "title": "Lên đơn cắt nhà anh Dương Lò Đúc",
+          "description": "Lập đơn cắt nhà cho anh Dương tại Lò Đúc",
+          "type": "order_processing",
+          "status": "todo",
+          "priority": "high",
+          "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+          "user_id": "76ui8I1vw3wiJLyvwFjq",
+          "user_name": "Nguyễn Mạnh Linh",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872818,
+            "_nanoseconds": 799000000
+          },
+          "created_at": {
+            "_seconds": 1749872818,
+            "_nanoseconds": 799000000
+          }
+        },
+        {
+          "id": "peoDJ6w1mnlshWs0fp8m",
+          "title": "Lên đơn cắt nhà anh Dương Lò Đúc",
+          "description": "Lập đơn cắt nhà cho anh Dương tại Lò Đúc",
+          "type": "order_processing",
+          "status": "todo",
+          "priority": "high",
+          "assignedTo": "76ui8I1vw3wiJLyvwFjq",
+          "user_id": "76ui8I1vw3wiJLyvwFjq",
+          "user_name": "Nguyễn Mạnh Linh",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872857,
+            "_nanoseconds": 206000000
+          },
+          "created_at": {
+            "_seconds": 1749872857,
+            "_nanoseconds": 206000000
+          }
+        }
+      ]
+    },
+    {
+      "title": "Báo giá chị Hiền Khai Sơn",
+      "count": 2,
+      "tasks": [
+        {
+          "id": "rc7kn6hvT0GDHi1sjChK",
+          "title": "Báo giá chị Hiền Khai Sơn",
+          "description": "Lập báo giá cho chị Hiền tại Khai Sơn",
+          "type": "quote_new",
+          "status": "todo",
+          "priority": "high",
+          "assignedTo": "MO7N4Trk6mASlHpIcjME",
+          "user_id": "MO7N4Trk6mASlHpIcjME",
+          "user_name": "Nguyễn Thị Thảo",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872816,
+            "_nanoseconds": 981000000
+          },
+          "created_at": {
+            "_seconds": 1749872816,
+            "_nanoseconds": 981000000
+          }
+        },
+        {
+          "id": "wnX8933zwYZylqt0wlDd",
+          "title": "Báo giá chị Hiền Khai Sơn",
+          "description": "Lập báo giá cho chị Hiền tại Khai Sơn",
+          "type": "quote_new",
+          "status": "todo",
+          "priority": "high",
+          "assignedTo": "MO7N4Trk6mASlHpIcjME",
+          "user_id": "MO7N4Trk6mASlHpIcjME",
+          "user_name": "Nguyễn Thị Thảo",
+          "team_id": "2",
+          "teamId": "2",
+          "location": "hanoi",
+          "department_type": "retail",
+          "date": "2025-06-14",
+          "time": "09:00",
+          "progress": 0,
+          "isNew": false,
+          "isShared": false,
+          "isSharedWithTeam": false,
+          "extraAssignees": "",
+          "updated_at": {
+            "_seconds": 1749872855,
+            "_nanoseconds": 408000000
+          },
+          "created_at": {
+            "_seconds": 1749872855,
+            "_nanoseconds": 408000000
+          }
+        }
+      ]
+    }
+  ]
+}

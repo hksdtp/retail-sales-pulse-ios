@@ -355,4 +355,9 @@ async function analyzeTaskDialog(page, dialog) {
     
     console.log(`📊 CSS Analysis Summary: ${cssErrors.length} CSS errors, ${hiddenElements} hidden elements, ${overflowElements.length} overflow issues`);
   });
+
+  test('should analyze CSS and UI issues', async ({ page }) => {
+    console.log('🎨 Analyzing CSS and UI issues...');
+    await analyzeCSSIssues(page);
+  });
 });

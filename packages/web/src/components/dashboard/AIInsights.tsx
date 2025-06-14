@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { aiInsightsService, AIInsight, AIAnalysis } from '@/services/aiInsightsService';
 import { cn } from '@/lib/utils';
-import AIDisabledOverlay from '@/components/ui/AIDisabledOverlay';
 
 interface AIInsightsProps {
   className?: string;
@@ -101,8 +100,7 @@ const AIInsights: React.FC<AIInsightsProps> = ({ className }) => {
   }
 
   return (
-    <AIDisabledOverlay className={className}>
-      <div className={cn("bg-white rounded-2xl border border-gray-200 overflow-hidden", className)}>
+    <div className={cn("bg-white rounded-2xl border border-gray-200 overflow-hidden", className)}>
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
         <div className="flex items-center space-x-3 mb-4">
@@ -271,8 +269,7 @@ const AIInsights: React.FC<AIInsightsProps> = ({ className }) => {
           </motion.div>
         )}
       </AnimatePresence>
-      </div>
-    </AIDisabledOverlay>
+    </div>
   );
 };
 
