@@ -53,19 +53,28 @@ export default function MemberViewFilters({
 
   // Lấy danh sách members theo team
   const getMembersByTeam = () => {
-    let filteredUsers = users.filter(user => 
-      user.department_type === currentUser.department_type && 
+    console.log('🔍 MemberViewFilters - Debug getMembersByTeam:');
+    console.log('  currentUser:', currentUser);
+    console.log('  all users:', users.map(u => ({ id: u.id, name: u.name, department_type: u.department_type, location: u.location, team_id: u.team_id })));
+
+    let filteredUsers = users.filter(user =>
+      user.department_type === currentUser.department_type &&
       user.id !== currentUser.id
     );
 
+    console.log('  after department_type filter:', filteredUsers.map(u => ({ id: u.id, name: u.name, department_type: u.department_type })));
+
     if (selectedLocation !== 'all') {
       filteredUsers = filteredUsers.filter(user => user.location === selectedLocation);
+      console.log(`  after location filter (${selectedLocation}):`, filteredUsers.map(u => ({ id: u.id, name: u.name, location: u.location })));
     }
 
     if (selectedTeam !== 'all') {
       filteredUsers = filteredUsers.filter(user => user.team_id === selectedTeam);
+      console.log(`  after team filter (${selectedTeam}):`, filteredUsers.map(u => ({ id: u.id, name: u.name, team_id: u.team_id })));
     }
 
+    console.log('  final membersByTeam:', filteredUsers.map(u => ({ id: u.id, name: u.name })));
     return filteredUsers;
   };
 

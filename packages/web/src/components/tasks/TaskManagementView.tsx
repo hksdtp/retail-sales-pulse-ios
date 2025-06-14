@@ -1267,19 +1267,28 @@ export default function TaskManagementView({
             </div>
 
             {/* Member Filters cho Individual view - chỉ cho Directors */}
-            {(currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') &&
-             viewLevel === 'individual' && (
-              <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100">
-                <MemberViewFilters
-                  selectedLocation={selectedLocation}
-                  selectedTeam={selectedTeam}
-                  selectedMember={selectedMember}
-                  onLocationChange={setSelectedLocation}
-                  onTeamChange={setSelectedTeam}
-                  onMemberChange={setSelectedMember}
-                />
-              </div>
-            )}
+            {(() => {
+              const shouldShowMemberFilters = (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') && viewLevel === 'individual';
+              console.log('🔍 MemberViewFilters render check:', {
+                currentUserRole: currentUser?.role,
+                viewLevel,
+                shouldShowMemberFilters,
+                isDirector: currentUser?.role === 'retail_director' || currentUser?.role === 'project_director'
+              });
+
+              return shouldShowMemberFilters && (
+                <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100">
+                  <MemberViewFilters
+                    selectedLocation={selectedLocation}
+                    selectedTeam={selectedTeam}
+                    selectedMember={selectedMember}
+                    onLocationChange={setSelectedLocation}
+                    onTeamChange={setSelectedTeam}
+                    onMemberChange={setSelectedMember}
+                  />
+                </div>
+              );
+            })()}
 
 
 
