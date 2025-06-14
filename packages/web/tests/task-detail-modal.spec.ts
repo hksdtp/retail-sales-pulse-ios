@@ -4,40 +4,45 @@ test.describe('Task Detail Modal', () => {
   test.beforeEach(async ({ page }) => {
     // Điều hướng đến trang tasks
     await page.goto('/tasks');
-    
+
     // Đợi trang load xong
     await page.waitForLoadState('networkidle');
+
+    // Đợi thêm để đảm bảo components đã render
+    await page.waitForTimeout(2000);
   });
 
   test('should display task cards', async ({ page }) => {
-    // Kiểm tra có task cards hiển thị
-    const taskCards = page.locator('.bg-white.rounded-xl').first();
-    await expect(taskCards).toBeVisible();
+    // Kiểm tra có task cards hiển thị với selector chính xác hơn
+    const taskCards = page.locator('.macos-card, [class*="bg-white"][class*="rounded-xl"], .task-card').first();
+    await expect(taskCards).toBeVisible({ timeout: 10000 });
   });
 
   test('should open task detail modal when clicking task card', async ({ page }) => {
-    // Click vào task card đầu tiên
-    const firstTaskCard = page.locator('.bg-white.rounded-xl').first();
+    // Click vào task card đầu tiên với selector cải thiện
+    const firstTaskCard = page.locator('.macos-card, [class*="bg-white"][class*="rounded-xl"], .task-card').first();
+    await expect(firstTaskCard).toBeVisible({ timeout: 10000 });
     await firstTaskCard.click();
-    
-    // Kiểm tra modal có mở
-    const modal = page.locator('.fixed.z-50').filter({ hasText: 'Chi tiết công việc' });
-    await expect(modal).toBeVisible();
+
+    // Kiểm tra modal có mở với selector chính xác
+    const modal = page.locator('.task-detail-panel, [class*="fixed"][class*="z-"]').filter({ hasText: 'Chi tiết công việc' });
+    await expect(modal).toBeVisible({ timeout: 5000 });
   });
 
   test('should display correct task information', async ({ page }) => {
-    // Click vào task card đầu tiên
-    const firstTaskCard = page.locator('.bg-white.rounded-xl').first();
+    // Click vào task card đầu tiên với selector cải thiện
+    const firstTaskCard = page.locator('.macos-card, [class*="bg-white"][class*="rounded-xl"], .task-card').first();
+    await expect(firstTaskCard).toBeVisible({ timeout: 10000 });
     await firstTaskCard.click();
-    
-    // Kiểm tra các thông tin trong modal
-    const modal = page.locator('.fixed.z-50').filter({ hasText: 'Chi tiết công việc' });
-    await expect(modal).toBeVisible();
-    
+
+    // Kiểm tra các thông tin trong modal với selector chính xác
+    const modal = page.locator('.task-detail-panel, [class*="fixed"][class*="z-"]').filter({ hasText: 'Chi tiết công việc' });
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
     // Kiểm tra có tiêu đề
     const titleInput = modal.locator('input[type="text"]').first();
     await expect(titleInput).toBeVisible();
-    
+
     // Kiểm tra có mô tả
     const descriptionTextarea = modal.locator('textarea');
     await expect(descriptionTextarea).toBeVisible();

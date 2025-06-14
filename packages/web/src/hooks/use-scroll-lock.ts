@@ -11,30 +11,34 @@ export const useScrollLock = (isLocked: boolean) => {
       const scrollY = window.scrollY;
       const body = document.body;
       const html = document.documentElement;
-      
+
       // Lưu trữ style gốc
       const originalBodyStyle = body.style.cssText;
       const originalHtmlStyle = html.style.cssText;
-      
-      // Áp dụng scroll lock
-      body.style.position = 'fixed';
-      body.style.top = `-${scrollY}px`;
-      body.style.left = '0';
-      body.style.right = '0';
-      body.style.overflow = 'hidden';
-      body.style.width = '100%';
-      
-      // Ngăn chặn scroll trên html element
-      html.style.overflow = 'hidden';
-      
+
+      // Áp dụng scroll lock với requestAnimationFrame để đảm bảo timing
+      requestAnimationFrame(() => {
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.overflow = 'hidden';
+        body.style.width = '100%';
+
+        // Ngăn chặn scroll trên html element
+        html.style.overflow = 'hidden';
+      });
+
       // Cleanup function
       return () => {
-        // Khôi phục style gốc
-        body.style.cssText = originalBodyStyle;
-        html.style.cssText = originalHtmlStyle;
-        
-        // Khôi phục scroll position
-        window.scrollTo(0, scrollY);
+        // Khôi phục style gốc với requestAnimationFrame
+        requestAnimationFrame(() => {
+          body.style.cssText = originalBodyStyle;
+          html.style.cssText = originalHtmlStyle;
+
+          // Khôi phục scroll position
+          window.scrollTo(0, scrollY);
+        });
       };
     }
   }, [isLocked]);
