@@ -17,6 +17,17 @@ export class GoogleDriveSetup {
     scopes: 'https://www.googleapis.com/auth/drive.file'
   };
 
+  /**
+   * Check if Google Drive is properly configured
+   */
+  public static isProperlyConfigured(config?: Partial<GoogleDriveConfig>): boolean {
+    const finalConfig = { ...this.DEFAULT_CONFIG, ...config };
+    return finalConfig.apiKey !== 'YOUR_API_KEY_HERE' &&
+           finalConfig.clientId !== 'YOUR_CLIENT_ID_HERE' &&
+           finalConfig.apiKey.length > 10 &&
+           finalConfig.clientId.length > 10;
+  }
+
   private static isInitialized = false;
   private static isSignedIn = false;
 
@@ -26,6 +37,13 @@ export class GoogleDriveSetup {
   public static async initialize(config?: Partial<GoogleDriveConfig>): Promise<boolean> {
     try {
       const finalConfig = { ...this.DEFAULT_CONFIG, ...config };
+
+      // Check if properly configured
+      if (!this.isProperlyConfigured(config)) {
+        console.warn('⚠️ Google Drive API not properly configured. Using placeholder credentials.');
+        console.warn('📝 Please configure real API key and Client ID in Google Drive Setup page.');
+        return false;
+      }
 
       // Check if gapi is loaded
       if (typeof gapi === 'undefined') {

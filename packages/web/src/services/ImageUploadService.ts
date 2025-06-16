@@ -29,6 +29,13 @@ export class ImageUploadService {
   private static driveFolderId: string | null = null;
 
   /**
+   * Check if Google Drive is available for upload
+   */
+  public static isGoogleDriveAvailable(): boolean {
+    return GoogleDriveSetup.isProperlyConfigured() && GoogleDriveSetup.isUserSignedIn();
+  }
+
+  /**
    * Upload ảnh lên Google Drive
    */
   public static async uploadImage(
@@ -36,6 +43,11 @@ export class ImageUploadService {
     onProgress?: (progress: UploadProgress) => void
   ): Promise<UploadedImage> {
     try {
+      // Check if Google Drive is properly configured
+      if (!GoogleDriveSetup.isProperlyConfigured()) {
+        throw new Error('Google Drive API chưa được cấu hình. Vui lòng vào trang Google Drive Setup để cấu hình API key và Client ID.');
+      }
+
       // Validate file
       this.validateFile(file);
 
