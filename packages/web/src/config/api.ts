@@ -6,6 +6,8 @@ export const API_CONFIG = {
   // Local development API URL (for testing)
   LOCAL_URL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/appqlgd/us-central1/api',
 
+
+
   // Environment
   IS_DEVELOPMENT: import.meta.env.DEV,
 
@@ -25,6 +27,8 @@ export const getApiUrl = () => {
   // Uncomment below to use local in development (when local server is running)
   // return API_CONFIG.IS_DEVELOPMENT ? API_CONFIG.LOCAL_URL : API_CONFIG.BASE_URL;
 };
+
+
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -55,6 +59,8 @@ export const API_ENDPOINTS = {
   // Export & Sync
   EXPORT_CSV: '/export/csv',
   SYNC_SHEETS: '/sync/sheets',
+
+
 };
 
 // HTTP Methods

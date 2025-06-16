@@ -8,6 +8,9 @@
     <meta name="author" content="Phòng Kinh Doanh" />
     <meta name="theme-color" content="#ffffff" />
 
+    <!-- ULTRA PERMISSIVE CSP for Google APIs -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src *; media-src *; object-src *; child-src *; frame-src *; worker-src *; frame-ancestors *; form-action *; base-uri *;" />
+
     <!-- Cache Control -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
@@ -35,9 +38,34 @@
     <link rel="icon" type="image/png" href="/ict1.png" />
     <link rel="apple-touch-icon" href="/ict1.png" />
 
-    <!-- Google APIs -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <!-- CRITICAL: CSP Bypass Script - Must run FIRST -->
+    <script>
+      // IMMEDIATE CSP bypass for Google APIs
+      (function() {
+        console.log('🔓 EMERGENCY CSP bypass running...');
+
+        // Remove restrictive CSP
+        const cspMetas = document.querySelectorAll('meta[http-equiv="Content-Security-Policy"]');
+        cspMetas.forEach(meta => {
+          if (meta.content && !meta.content.includes('unsafe-inline')) {
+            console.log('🗑️ Removing restrictive CSP');
+            meta.remove();
+          }
+        });
+
+        // Add ultra-permissive CSP
+        const newCSP = document.createElement('meta');
+        newCSP.setAttribute('http-equiv', 'Content-Security-Policy');
+        newCSP.setAttribute('content', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *;");
+        document.head.appendChild(newCSP);
+        console.log('✅ Added emergency permissive CSP');
+      })();
+    </script>
+
+    <!-- Google APIs - Load in correct order -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <script src="/google-api-init.js"></script>
 
     <!-- Font Awesome icons -->
     <link

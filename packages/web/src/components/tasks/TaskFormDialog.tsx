@@ -85,6 +85,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   });
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [uploadMode, setUploadMode] = useState<'google'>('google'); // Upload destination
 
 
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -801,15 +802,34 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
             {/* Upload ảnh - Full width */}
             <div className="group">
-              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                Hình ảnh đính kèm (tùy chọn)
-              </label>
-              <ImageUpload
-                onImagesUploaded={setUploadedImages}
-                existingImages={uploadedImages}
-                maxImages={5}
-                disabled={isSubmitting}
-              />
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200">
+                  Hình ảnh đính kèm (tùy chọn)
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Lưu vào:</span>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('google')}
+                      className="px-2 py-1 text-xs rounded-md transition-colors bg-purple-100 text-purple-800 border border-purple-200"
+                    >
+                      ☁️ Google Drive
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+
+
+              {uploadMode === 'google' && (
+                <ImageUpload
+                  onImagesUploaded={(images) => setUploadedImages(images as UploadedImage[])}
+                  existingImages={uploadedImages as UploadedImage[]}
+                  maxImages={5}
+                  disabled={isSubmitting}
+                />
+              )}
             </div>
 
             {/* Chia sẻ với người cụ thể - Full width */}

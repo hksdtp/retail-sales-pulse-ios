@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import FirebaseAutoSetupProvider from './components/firebase/FirebaseAutoSetupProvider';
 import VersionChecker from './components/layout/VersionChecker';
-import GoogleDriveSetupPage from './pages/GoogleDriveSetupPage';
+
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -33,6 +33,7 @@ import DebugPage from './pages/DebugPage';
 import SimpleCustomers from './pages/SimpleCustomers';
 import CustomerTest from './pages/CustomerTest';
 import CustomersSimple from './pages/CustomersSimple';
+import TestKPI from './pages/TestKPI';
 
 const queryClient = new QueryClient();
 
@@ -50,7 +51,7 @@ const App = () => (
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/firebase-setup" element={<FirebaseSetup />} />
-                  <Route path="/google-drive-setup" element={<GoogleDriveSetupPage />} />
+
                   <Route
                     path="/"
                     element={
@@ -162,6 +163,14 @@ const App = () => (
                   <Route path="/simple-customers" element={<SimpleCustomers />} />
                   <Route path="/customer-test" element={<CustomerTest />} />
                   <Route path="/customers-simple" element={<CustomersSimple />} />
+                  <Route
+                    path="/test-kpi"
+                    element={
+                      <ProtectedRoute>
+                        <TestKPI />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

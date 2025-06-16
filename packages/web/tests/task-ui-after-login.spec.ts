@@ -5,147 +5,56 @@ test.describe('Task UI After Login Tests', () => {
     // Điều hướng đến trang chủ
     await page.goto('http://localhost:8088');
     await page.waitForLoadState('networkidle');
-    
+
     // Thực hiện đăng nhập
     const emailInput = page.locator('input[type="email"]');
     const passwordInput = page.locator('input[type="password"]');
     const loginButton = page.locator('button[type="submit"]');
-    
+
     if (await emailInput.isVisible()) {
       console.log('🔐 Performing login...');
       await emailInput.fill('manh.khong@example.com');
       await passwordInput.fill('password123');
       await loginButton.click();
-      
+
       // Đợi đăng nhập hoàn tất
       await page.waitForTimeout(5000);
-      
+
       // Chụp ảnh sau khi đăng nhập
-      await page.screenshot({ 
+      await page.screenshot({
         path: 'test-results/after-login.png',
-        fullPage: true 
+        fullPage: true
       });
     }
   });
 
   test('should find task creation UI after login', async ({ page }) => {
     console.log('🔍 Searching for task creation UI after login...');
-    
+
     // Kiểm tra URL hiện tại
     const currentUrl = page.url();
     console.log(`📍 Current URL: ${currentUrl}`);
-    
+
     // Tìm tất cả các button sau khi đăng nhập
     const allButtons = await page.locator('button').all();
     console.log(`📊 Found ${allButtons.length} buttons after login`);
-    
-    for (let i = 0; i < allButtons.length; i++) {
+
+    for (let i = 0; i < Math.min(allButtons.length, 10); i++) {
       const button = allButtons[i];
       const text = await button.textContent();
       const isVisible = await button.isVisible();
       const classes = await button.getAttribute('class');
       console.log(`Button ${i}: "${text}" - Visible: ${isVisible} - Classes: ${classes}`);
     }
-    
-    // Tìm navigation menu
-    const navItems = await page.locator('nav a, nav button, [role="navigation"] a, [role="navigation"] button').all();
-    console.log(`📋 Found ${navItems.length} navigation items`);
-    
-    for (let i = 0; i < navItems.length; i++) {
-      const item = navItems[i];
-      const text = await item.textContent();
-      const href = await item.getAttribute('href');
-      const isVisible = await item.isVisible();
-      console.log(`Nav ${i}: "${text}" - href: ${href} - Visible: ${isVisible}`);
-    }
-    
-    // Tìm sidebar menu
-    const sidebarItems = await page.locator('aside a, aside button, .sidebar a, .sidebar button').all();
-    console.log(`📂 Found ${sidebarItems.length} sidebar items`);
-    
-    for (let i = 0; i < sidebarItems.length; i++) {
-      const item = sidebarItems[i];
-      const text = await item.textContent();
-      const href = await item.getAttribute('href');
-      const isVisible = await item.isVisible();
-      console.log(`Sidebar ${i}: "${text}" - href: ${href} - Visible: ${isVisible}`);
-    }
-    
-    // Tìm các link có chứa từ khóa task
-    const taskLinks = await page.locator('a:has-text("task"), a:has-text("Task"), a:has-text("công việc"), a:has-text("Công việc")').all();
-    console.log(`🔗 Found ${taskLinks.length} task-related links`);
-    
-    for (let i = 0; i < taskLinks.length; i++) {
-      const link = taskLinks[i];
-      const text = await link.textContent();
-      const href = await link.getAttribute('href');
-      const isVisible = await link.isVisible();
-      console.log(`Task Link ${i}: "${text}" - href: ${href} - Visible: ${isVisible}`);
-    }
+
+    // Expect to find at least some buttons
+    expect(allButtons.length).toBeGreaterThan(0);
   });
 
-  test('should navigate to tasks page and find create button', async ({ page }) => {
-    console.log('🧭 Navigating to tasks page...');
-    
-    // Thử navigate đến tasks page bằng nhiều cách
-    const taskUrls = [
-      '/tasks',
-      '/task',
-      '/cong-viec',
-      '/dashboard/tasks',
-      '/app/tasks'
-    ];
-    
-    for (const url of taskUrls) {
-      try {
-        console.log(`🔍 Trying URL: ${url}`);
-        await page.goto(`http://localhost:8088${url}`);
-        await page.waitForTimeout(2000);
-        
-        const currentUrl = page.url();
-        console.log(`📍 Navigated to: ${currentUrl}`);
-        
-        // Chụp ảnh trang hiện tại
-        await page.screenshot({ 
-          path: `test-results/page-${url.replace('/', '-')}.png`,
-          fullPage: true 
-        });
-        
-        // Tìm button tạo task trên trang này
-        const createButtons = await page.locator('button:has-text("Tạo"), button:has-text("Create"), button:has-text("Add"), button:has-text("New"), button:has-text("+")').all();
-        
-        if (createButtons.length > 0) {
-          console.log(`✅ Found ${createButtons.length} potential create buttons on ${url}`);
-          
-          for (let i = 0; i < createButtons.length; i++) {
-            const button = createButtons[i];
-            const text = await button.textContent();
-            const isVisible = await button.isVisible();
-            console.log(`  Create Button ${i}: "${text}" - Visible: ${isVisible}`);
-          }
-          
-          // Thử click button đầu tiên
-          if (await createButtons[0].isVisible()) {
-            console.log(`🖱️ Clicking first create button...`);
-            await createButtons[0].click();
-            await page.waitForTimeout(2000);
-            
-            // Kiểm tra xem có dialog nào mở không
-            const dialog = page.locator('[role="dialog"], .modal, [data-modal]');
-            const isDialogVisible = await dialog.isVisible();
-            
-            if (isDialogVisible) {
-              console.log(`🎉 SUCCESS! Dialog opened on ${url}`);
-              
-              // Chụp ảnh dialog
-              await page.screenshot({ 
-                path: `test-results/dialog-opened-${url.replace('/', '-')}.png`,
-                fullPage: true 
-              });
-              
-              // Phân tích dialog
-              await analyzeTaskDialog(page, dialog);
+  test('should check Google Drive setup page', async ({ page }) => {
+    console.log('🔍 Testing Google Drive setup page...');
 
+<<<<<<< HEAD
               return; // Thoát khỏi loop nếu tìm thấy
             } else {
               console.log(`❌ No dialog opened on ${url}`);
@@ -362,3 +271,40 @@ async function analyzeCSSIssues(page) {
     
     console.log(`📊 CSS Analysis Summary: ${cssErrors.length} CSS errors, ${hiddenElements} hidden elements, ${overflowElements.length} overflow issues`);
 }
+=======
+    try {
+      await page.goto('http://localhost:8088/google-drive-setup');
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+
+      // Chụp ảnh trang setup
+      await page.screenshot({
+        path: 'test-results/google-drive-setup.png',
+        fullPage: true
+      });
+
+      // Kiểm tra title
+      const title = await page.locator('h1').first().textContent();
+      console.log(`📋 Page title: "${title}"`);
+      expect(title).toContain('Google Drive');
+
+      // Kiểm tra các bước hướng dẫn
+      const steps = await page.locator('[class*="border-2"]').count();
+      console.log(`📊 Found ${steps} setup steps`);
+      expect(steps).toBeGreaterThan(0);
+
+      // Kiểm tra form inputs
+      const inputs = await page.locator('input').count();
+      console.log(`📝 Found ${inputs} input fields`);
+      expect(inputs).toBeGreaterThan(0);
+
+      console.log('✅ Google Drive setup page loaded successfully');
+
+    } catch (error) {
+      console.log(`❌ Error testing Google Drive setup: ${error.message}`);
+      throw error;
+    }
+  });
+
+});
+>>>>>>> cc745b7 (🗑️ Remove all image upload functionality)

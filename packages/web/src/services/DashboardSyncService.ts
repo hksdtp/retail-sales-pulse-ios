@@ -146,16 +146,23 @@ class DashboardSyncService {
    * Tạo KPI cards từ dữ liệu tasks và sales
    */
   private generateKpiCards(
-    user: User, 
-    tasks: Task[], 
-    salesData: any, 
+    user: User,
+    tasks: Task[],
+    salesData: any,
     permissions: DashboardData['permissions']
   ): SyncedKpiData[] {
     const completedTasks = tasks.filter(task => task.status === 'completed');
     const cards: SyncedKpiData[] = [];
 
+    console.log('📊 Generating KPI cards:', {
+      totalTasks: tasks.length,
+      completedTasks: completedTasks.length,
+      taskTypes: [...new Set(tasks.map(t => t.type))],
+      permissions
+    });
+
     // KPI từ tasks - KTS (Kiến trúc sư)
-    const ktsData = this.calculateTaskKpi(completedTasks, 'kts');
+    const ktsData = this.calculateTaskKpiByCategory(tasks, ['architect_new', 'architect_old']);
     const ktsTitle = permissions.canViewAll ? 'Tổng KTS' :
                      permissions.canViewTeam ? 'KTS Nhóm' : 'KTS Cá nhân';
     cards.push({
@@ -168,32 +175,60 @@ class DashboardSyncService {
       details: ktsData
     });
 
-    // KPI từ tasks - KH/CĐT (Khách hàng/Chủ đầu tư)
-    const khCdtData = this.calculateTaskKpi(completedTasks, 'kh_cdt');
-    const khCdtTitle = permissions.canViewAll ? 'Tổng KH/CĐT' :
-                       permissions.canViewTeam ? 'KH/CĐT Nhóm' : 'KH/CĐT Cá nhân';
+    // KPI từ tasks - Đối tác
+    const partnerData = this.calculateTaskKpiByCategory(tasks, ['partner_new', 'partner_old']);
+    const partnerTitle = permissions.canViewAll ? 'Tổng Đối tác' :
+                         permissions.canViewTeam ? 'Đối tác Nhóm' : 'Đối tác Cá nhân';
     cards.push({
-      title: khCdtTitle,
-      value: khCdtData.total.toString(),
-      oldValue: Math.round(khCdtData.total * 0.8).toString(),
-      change: khCdtData.total > 0 ? 12.3 : 0,
-      data: this.generateTrendData(khCdtData.total),
+      title: partnerTitle,
+      value: partnerData.total.toString(),
+      oldValue: Math.round(partnerData.total * 0.8).toString(),
+      change: partnerData.total > 0 ? 12.3 : 0,
+      data: this.generateTrendData(partnerData.total),
       category: 'task',
-      details: khCdtData
+      details: partnerData
     });
 
-    // KPI từ tasks - SBG (Sàn bán gỗ)
-    const sbgData = this.calculateTaskKpi(completedTasks, 'sbg');
-    const sbgTitle = permissions.canViewAll ? 'Tổng SBG' :
-                     permissions.canViewTeam ? 'SBG Nhóm' : 'SBG Cá nhân';
+    // KPI từ tasks - Khách hàng
+    const clientData = this.calculateTaskKpiByCategory(tasks, ['client_new', 'client_old']);
+    const clientTitle = permissions.canViewAll ? 'Tổng Khách hàng' :
+                        permissions.canViewTeam ? 'Khách hàng Nhóm' : 'Khách hàng Cá nhân';
     cards.push({
-      title: sbgTitle,
-      value: sbgData.total.toString(),
-      oldValue: Math.round(sbgData.total * 0.8).toString(),
-      change: sbgData.total > 0 ? 18.7 : 0,
-      data: this.generateTrendData(sbgData.total),
+      title: clientTitle,
+      value: clientData.total.toString(),
+      oldValue: Math.round(clientData.total * 0.8).toString(),
+      change: clientData.total > 0 ? 18.7 : 0,
+      data: this.generateTrendData(clientData.total),
       category: 'task',
-      details: sbgData
+      details: clientData
+    });
+
+    // KPI từ tasks - Báo giá
+    const quoteData = this.calculateTaskKpiByCategory(tasks, ['quote_new', 'quote_old']);
+    const quoteTitle = permissions.canViewAll ? 'Tổng Báo giá' :
+                       permissions.canViewTeam ? 'Báo giá Nhóm' : 'Báo giá Cá nhân';
+    cards.push({
+      title: quoteTitle,
+      value: quoteData.total.toString(),
+      oldValue: Math.round(quoteData.total * 0.8).toString(),
+      change: quoteData.total > 0 ? 22.1 : 0,
+      data: this.generateTrendData(quoteData.total),
+      category: 'task',
+      details: quoteData
+    });
+
+    // KPI từ tasks - Công việc khác
+    const otherData = this.calculateTaskKpiByCategory(tasks, ['other']);
+    const otherTitle = permissions.canViewAll ? 'Tổng Công việc khác' :
+                       permissions.canViewTeam ? 'Công việc khác Nhóm' : 'Công việc khác Cá nhân';
+    cards.push({
+      title: otherTitle,
+      value: otherData.total.toString(),
+      oldValue: Math.round(otherData.total * 0.8).toString(),
+      change: otherData.total > 0 ? 8.5 : 0,
+      data: this.generateTrendData(otherData.total),
+      category: 'task',
+      details: otherData
     });
 
     // KPI từ reports - Doanh số
@@ -213,12 +248,54 @@ class DashboardSyncService {
   }
 
   /**
-   * Tính toán KPI từ tasks theo loại
+   * Tính KPI từ tasks theo danh mục cụ thể
+   */
+  private calculateTaskKpiByCategory(tasks: Task[], taskTypes: string[]) {
+    const categoryTasks = tasks.filter(task => taskTypes.includes(task.type));
+
+    const total = categoryTasks.length;
+    const completed = categoryTasks.filter(task => task.status === 'completed').length;
+    const inProgress = categoryTasks.filter(task => task.status === 'in-progress').length;
+    const onHold = categoryTasks.filter(task => task.status === 'on-hold').length;
+    const todo = categoryTasks.filter(task => task.status === 'todo').length;
+
+    console.log(`📊 Task KPI calculation for types [${taskTypes.join(', ')}]:`, {
+      total,
+      completed,
+      inProgress,
+      onHold,
+      todo,
+      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+      allTasksCount: tasks.length,
+      breakdown: taskTypes.map(type => ({
+        type,
+        count: categoryTasks.filter(task => task.type === type).length
+      }))
+    });
+
+    return {
+      total,
+      completed,
+      inProgress,
+      onHold,
+      todo,
+      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+      taskTypes: taskTypes,
+      breakdown: taskTypes.map(type => ({
+        type,
+        count: categoryTasks.filter(task => task.type === type).length,
+        completed: categoryTasks.filter(task => task.type === type && task.status === 'completed').length
+      }))
+    };
+  }
+
+  /**
+   * Tính toán KPI từ tasks theo loại (chỉ completed - method cũ)
    */
   private calculateTaskKpi(completedTasks: Task[], type: string): { new: number; old: number; total: number } {
     const newTasks = completedTasks.filter(task => task.type === `${type}_new`).length;
     const oldTasks = completedTasks.filter(task => task.type === `${type}_old`).length;
-    
+
     return {
       new: newTasks,
       old: oldTasks,

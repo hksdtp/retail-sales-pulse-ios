@@ -1,6 +1,7 @@
 {
   "status": "interrupted",
   "failedTests": [
+<<<<<<< HEAD
     "72c76a359bf94be51755-bd5de87171b1f43e39ba",
     "72c76a359bf94be51755-a7a47890371e42fdf60d",
     "72c76a359bf94be51755-7b28e2a4c9a5f0a60ef3",
@@ -13,5 +14,47 @@
     "72c76a359bf94be51755-e8ba192afa1072cbd880",
     "72c76a359bf94be51755-1128f3da83d99026ab2d",
     "72c76a359bf94be51755-9cde8ee755ea56e372e5"
+=======
+    "5eb92860b5d5eafd2dd4-04235aed1fb0667163fb",
+    "5eb92860b5d5eafd2dd4-2be55cccda0eb5995b9e",
+    "5eb92860b5d5eafd2dd4-74c08122b0dbf31a9ff0",
+    "5eb92860b5d5eafd2dd4-c4d07fc322ea278aa1c8",
+    "5eb92860b5d5eafd2dd4-61c19d8f8041d9ac6885",
+    "5eb92860b5d5eafd2dd4-a0bdef15c61b46f22291",
+    "5eb92860b5d5eafd2dd4-84adac47c13cf4cde457",
+    "5eb92860b5d5eafd2dd4-e6224ef1cdaf2d399fb3",
+    "5eb92860b5d5eafd2dd4-385acfd2470706c727d6",
+    "5eb92860b5d5eafd2dd4-f07faecbecbbb835ff1c",
+    "5eb92860b5d5eafd2dd4-41cb6833cd2d935d8f96",
+    "5eb92860b5d5eafd2dd4-c9a15292a4e4c3ea0d8a",
+    "5eb92860b5d5eafd2dd4-7d8eb4d67fd22cdc2d7a",
+    "5eb92860b5d5eafd2dd4-aed85dc3c63654eb3ce3",
+    "5eb92860b5d5eafd2dd4-25b02483d4a5fb5b82cd",
+    "5eb92860b5d5eafd2dd4-c43c6d789a84b41b6eea",
+    "5eb92860b5d5eafd2dd4-3d5a7df4b088abe99553",
+    "5eb92860b5d5eafd2dd4-274ce52f4215fba00c88",
+    "5eb92860b5d5eafd2dd4-36c81a34e5c67fe6792d",
+    "5eb92860b5d5eafd2dd4-958c3f5ca293de43874a",
+    "5eb92860b5d5eafd2dd4-734cc5798a1fe6c425ea",
+    "5eb92860b5d5eafd2dd4-e6536b8a424c18dfff04",
+    "5eb92860b5d5eafd2dd4-ba4e4c0c9a8c2cd60193",
+    "5eb92860b5d5eafd2dd4-5643edf4b2f5265da648",
+    "5eb92860b5d5eafd2dd4-6d8f7108d3935ae745c2",
+    "5eb92860b5d5eafd2dd4-27459440b7b2c5130dd1",
+    "5eb92860b5d5eafd2dd4-780e3f51dd68a583bdb4",
+    "5eb92860b5d5eafd2dd4-f46c5ef0799906117449",
+    "5eb92860b5d5eafd2dd4-d703e6ea960d48c5ccbc",
+    "5eb92860b5d5eafd2dd4-a7a7575c0d78d9550f79",
+    "5eb92860b5d5eafd2dd4-5cdefc2dbd2aeb9056d3",
+    "5eb92860b5d5eafd2dd4-954e3383d09c60300afd",
+    "5eb92860b5d5eafd2dd4-3afb26dffdb8c881a856",
+    "5eb92860b5d5eafd2dd4-1bf820c8d7376ed543c8",
+    "5eb92860b5d5eafd2dd4-d2ac8004e6ea2711795a",
+    "5eb92860b5d5eafd2dd4-249b33e338f6425dc434",
+    "5eb92860b5d5eafd2dd4-4bb875a93d44a6aa6287",
+    "5eb92860b5d5eafd2dd4-ba73a28e6b2cbb4023d4",
+    "5eb92860b5d5eafd2dd4-ebdbf77d64c3d76b1d90",
+    "5eb92860b5d5eafd2dd4-9ba90e785de5a6f9138e"
+>>>>>>> cc745b7 (🗑️ Remove all image upload functionality)
   ]
 }

@@ -13,6 +13,7 @@ import {
   UserPlus,
   UserMinus,
   X,
+  Briefcase,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -47,6 +48,38 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   const [editedTask, setEditedTask] = useState(task);
   const [assignedUsers, setAssignedUsers] = useState<string[]>([]);
   const [showUserSelector, setShowUserSelector] = useState(false);
+
+  // Hàm lấy tên loại công việc
+  const getTaskTypeName = (type: string) => {
+    const typeMapping = {
+      'partner_new': 'Đối tác mới',
+      'partner_old': 'Đối tác cũ',
+      'architect_new': 'KTS mới',
+      'architect_old': 'KTS cũ',
+      'client_new': 'Khách hàng mới',
+      'client_old': 'Khách hàng cũ',
+      'quote_new': 'Báo giá mới',
+      'quote_old': 'Báo giá cũ',
+      'other': 'Công việc khác'
+    };
+    return typeMapping[type as keyof typeof typeMapping] || type;
+  };
+
+  // Hàm lấy màu cho loại công việc
+  const getTaskTypeColor = (type: string) => {
+    const colorMapping = {
+      'partner_new': 'bg-orange-500',
+      'partner_old': 'bg-orange-400',
+      'architect_new': 'bg-indigo-500',
+      'architect_old': 'bg-indigo-400',
+      'client_new': 'bg-blue-500',
+      'client_old': 'bg-blue-400',
+      'quote_new': 'bg-purple-500',
+      'quote_old': 'bg-purple-400',
+      'other': 'bg-gray-500'
+    };
+    return colorMapping[type as keyof typeof colorMapping] || 'bg-gray-500';
+  };
 
   // Function để lấy tên người dùng từ nhiều nguồn
   const getUserName = (task: any) => {
@@ -263,8 +296,19 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                   <User className="w-3.5 h-3.5 text-purple-500" />
                   <span className="text-gray-700 font-medium text-xs">{getUserName(task)}</span>
                 </div>
+                <div className="flex items-center space-x-1.5 bg-white px-2.5 py-1.5 rounded-md border border-gray-200">
+                  <Briefcase className="w-3.5 h-3.5 text-orange-500" />
+                  <span className="text-gray-700 font-medium text-xs">{getTaskTypeName(task.type)}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Task Type Badge */}
+                <div
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full text-white ${getTaskTypeColor(task.type)}`}
+                >
+                  {getTaskTypeName(task.type)}
+                </div>
+
                 {canEditTask(task) ? (
                   <>
                     <div className="relative">

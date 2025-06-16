@@ -2,7 +2,7 @@
  * Image Upload Service - Upload ảnh lên Google Drive
  */
 
-import { GoogleDriveSetup } from './GoogleDriveSetup';
+// GoogleDriveSetup service has been removed - will be rebuilt later
 
 export interface UploadedImage {
   id: string;
@@ -32,7 +32,8 @@ export class ImageUploadService {
    * Check if Google Drive is available for upload
    */
   public static isGoogleDriveAvailable(): boolean {
-    return GoogleDriveSetup.isProperlyConfigured() && GoogleDriveSetup.isUserSignedIn();
+    // GoogleDriveSetup service has been removed - will be rebuilt later
+    return false;
   }
 
   /**
@@ -43,10 +44,8 @@ export class ImageUploadService {
     onProgress?: (progress: UploadProgress) => void
   ): Promise<UploadedImage> {
     try {
-      // Check if Google Drive is properly configured
-      if (!GoogleDriveSetup.isProperlyConfigured()) {
-        throw new Error('Google Drive API chưa được cấu hình. Vui lòng vào trang Google Drive Setup để cấu hình API key và Client ID.');
-      }
+      // GoogleDriveSetup service has been removed - will be rebuilt later
+      throw new Error('Google Drive API service is being rebuilt. Please wait for the new implementation.');
 
       // Validate file
       this.validateFile(file);
@@ -126,10 +125,8 @@ export class ImageUploadService {
    * Ensure Google Drive API is loaded
    */
   private static async ensureGoogleDriveAPI(): Promise<void> {
-    // Check if GoogleDriveSetup is initialized
-    if (!GoogleDriveSetup.isUserSignedIn()) {
-      throw new Error('Google Drive not setup. Please configure Google Drive API first.');
-    }
+    // GoogleDriveSetup service has been removed - will be rebuilt later
+    throw new Error('Google Drive API service is being rebuilt. Please wait for the new implementation.');
   }
 
   /**
@@ -141,11 +138,8 @@ export class ImageUploadService {
     }
 
     try {
-      // Use GoogleDriveSetup to create folder
-      const folderId = await GoogleDriveSetup.createTaskImagesFolder();
-      if (!folderId) {
-        throw new Error('Failed to create TaskImages folder');
-      }
+      // GoogleDriveSetup service has been removed - will be rebuilt later
+      throw new Error('Google Drive API service is being rebuilt. Please wait for the new implementation.');
 
       this.driveFolderId = folderId;
       return this.driveFolderId;

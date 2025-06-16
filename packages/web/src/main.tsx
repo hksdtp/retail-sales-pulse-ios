@@ -10,5 +10,6 @@ import './styles/macos.css';
 import './utils/dialog-centering-fix.js';
 import './utils/versionManager.ts';
 import './utils/cacheHelper.ts';
+import './utils/test-kpi.ts';
 
 createRoot(document.getElementById('root')!).render(<App />);
