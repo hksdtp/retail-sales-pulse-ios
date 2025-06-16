@@ -2,6 +2,8 @@
  * Image Upload Service - Upload ảnh lên Google Drive
  */
 
+import { GoogleDriveSetup } from './GoogleDriveSetup';
+
 export interface UploadedImage {
   id: string;
   name: string;
@@ -112,20 +114,9 @@ export class ImageUploadService {
    * Ensure Google Drive API is loaded
    */
   private static async ensureGoogleDriveAPI(): Promise<void> {
-    if (typeof gapi === 'undefined') {
-      throw new Error('Google API not loaded. Please ensure Google APIs are available.');
-    }
-
-    // Load Drive API if not already loaded
-    if (!gapi.client.drive) {
-      await new Promise((resolve, reject) => {
-        gapi.load('client', {
-          callback: resolve,
-          onerror: reject
-        });
-      });
-
-      await gapi.client.load('drive', 'v3');
+    // Check if GoogleDriveSetup is initialized
+    if (!GoogleDriveSetup.isUserSignedIn()) {
+      throw new Error('Google Drive not setup. Please configure Google Drive API first.');
     }
   }
 
@@ -138,29 +129,13 @@ export class ImageUploadService {
     }
 
     try {
-      // Search for existing folder
-      const response = await gapi.client.drive.files.list({
-        q: `name='${this.DRIVE_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-        fields: 'files(id, name)'
-      });
-
-      if (response.result.files && response.result.files.length > 0) {
-        this.driveFolderId = response.result.files[0].id!;
-        console.log('📁 Found existing folder:', this.driveFolderId);
-        return this.driveFolderId;
+      // Use GoogleDriveSetup to create folder
+      const folderId = await GoogleDriveSetup.createTaskImagesFolder();
+      if (!folderId) {
+        throw new Error('Failed to create TaskImages folder');
       }
 
-      // Create new folder
-      const createResponse = await gapi.client.drive.files.create({
-        resource: {
-          name: this.DRIVE_FOLDER_NAME,
-          mimeType: 'application/vnd.google-apps.folder'
-        },
-        fields: 'id'
-      });
-
-      this.driveFolderId = createResponse.result.id!;
-      console.log('📁 Created new folder:', this.driveFolderId);
+      this.driveFolderId = folderId;
       return this.driveFolderId;
 
     } catch (error) {
