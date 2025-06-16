@@ -59,23 +59,83 @@
   backdrop-filter: blur(12px);
 }
 
+/* Scrollbar tối ưu - mỏng và đẹp */
+.task-form-dialog ::-webkit-scrollbar {
+  width: 4px;
+}
+
+.task-form-dialog ::-webkit-scrollbar-track {
+  background: rgba(229, 231, 235, 0.3);
+  border-radius: 2px;
+}
+
+.task-form-dialog ::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.task-form-dialog ::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
 /* Scrollbar dark theme */
 .dark .task-form-dialog ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .dark .task-form-dialog ::-webkit-scrollbar-track {
-  background: rgba(55, 65, 81, 0.3);
-  border-radius: 3px;
+  background: rgba(55, 65, 81, 0.2);
+  border-radius: 2px;
 }
 
 .dark .task-form-dialog ::-webkit-scrollbar-thumb {
-  background: rgba(107, 114, 128, 0.6);
-  border-radius: 3px;
+  background: rgba(107, 114, 128, 0.4);
+  border-radius: 2px;
+  transition: background 0.2s ease;
 }
 
 .dark .task-form-dialog ::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.8);
+  background: rgba(107, 114, 128, 0.7);
+}
+
+/* Custom scrollbar cho content wrapper */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(229, 231, 235, 0.3);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.2);
+  border-radius: 2px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.4);
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.7);
 }
 
 /* Form field focus glow in dark mode */
@@ -167,54 +227,100 @@
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
-/* Large UI improvements for better readability */
+/* Layout tối ưu - compact và gọn gàng */
 .task-form-dialog {
-  font-size: 16px; /* Base font size increased */
-  line-height: 1.6;
-  width: 98vw !important; /* Force full width usage */
-  max-width: none !important; /* Remove all width constraints */
-  min-height: 90vh; /* Minimum height for better space usage */
+  font-size: 16px;
+  line-height: 1.5;
+  width: 95vw !important;
+  max-width: 1200px !important; /* Giới hạn chiều rộng tối đa */
+  min-height: 85vh;
+  max-height: 95vh; /* Giới hạn chiều cao */
+  padding: 0.75rem !important; /* Padding compact hơn */
+  overflow: hidden; /* Ẩn overflow chính */
+}
+
+/* Container nội dung có scrollbar */
+.task-form-dialog > div:first-child {
+  max-height: calc(95vh - 1.5rem); /* Trừ padding compact */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem; /* Không gian nhỏ cho scrollbar */
+}
+
+/* Responsive breakpoints tối ưu */
+@media (min-width: 640px) {
+  .task-form-dialog {
+    width: 90vw !important;
+    max-width: 800px !important;
+    padding: 1rem !important;
+  }
 }
 
 @media (min-width: 1024px) {
   .task-form-dialog {
-    width: 95vw !important; /* Desktop: use 95% of screen width */
-    min-height: 85vh;
+    width: 85vw !important;
+    max-width: 1000px !important;
+    min-height: 80vh;
   }
 }
 
 @media (min-width: 1280px) {
   .task-form-dialog {
-    width: 90vw !important; /* Large desktop: 90% width */
-    min-height: 80vh;
+    width: 80vw !important;
+    max-width: 1200px !important;
+    min-height: 75vh;
   }
 }
 
 @media (min-width: 1920px) {
   .task-form-dialog {
-    width: 85vw !important; /* Ultra-wide: 85% width */
-    min-height: 75vh;
+    width: 70vw !important;
+    max-width: 1400px !important;
+    min-height: 70vh;
   }
 }
 
+/* Form elements tối ưu */
 .task-form-dialog label {
-  font-size: 1rem !important;
+  font-size: 0.95rem !important;
   font-weight: 600;
-  margin-bottom: 1rem !important;
+  margin-bottom: 0.75rem !important;
+  color: #374151;
+}
+
+.dark .task-form-dialog label {
+  color: #e5e7eb;
 }
 
 .task-form-dialog input,
 .task-form-dialog textarea,
 .task-form-dialog select {
-  font-size: 1rem !important;
-  min-height: 3.5rem;
-  padding: 0.875rem 1rem;
+  font-size: 0.95rem !important;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .task-form-dialog button {
-  font-size: 1rem !important;
-  min-height: 3rem;
-  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem !important;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.125rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Spacing compact */
+.task-form-dialog .space-y-4 > * + * {
+  margin-top: 1rem !important;
+}
+
+.task-form-dialog .space-y-5 > * + * {
+  margin-top: 1.125rem !important;
+}
+
+.task-form-dialog .gap-4 {
+  gap: 0.875rem !important;
 }
 
 /* Icon sizes for better visibility */
@@ -294,33 +400,57 @@
   }
 }
 
-/* Responsive improvements for dark mode */
+/* Mobile tối ưu */
 @media (max-width: 768px) {
-  .dark .task-form-dialog {
-    margin: 0.625rem;
-    width: calc(100vw - 1.25rem) !important;
-    max-height: calc(100vh - 1.25rem);
-    border-radius: 16px !important;
-  }
-
   .task-form-dialog {
-    font-size: 14px; /* Slightly smaller on mobile */
+    width: calc(100vw - 0.5rem) !important;
+    max-width: none !important;
+    min-height: calc(100vh - 1rem);
+    max-height: calc(100vh - 0.5rem);
+    margin: 0.25rem;
+    padding: 0.5rem !important;
+    border-radius: 12px !important;
+    font-size: 14px;
   }
 
-  /* Optimize dark mode spacing on mobile */
-  .dark .task-form-dialog .space-y-6 > * + * {
+  .task-form-dialog > div:first-child {
+    max-height: calc(100vh - 1rem);
+    padding-right: 0.125rem;
+  }
+
+  /* Scrollbar mobile - siêu mỏng */
+  .task-form-dialog ::-webkit-scrollbar {
+    width: 2px !important;
+  }
+
+  .task-form-dialog ::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+  }
+
+  .dark .task-form-dialog ::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.3);
+  }
+
+  /* Form elements mobile */
+  .task-form-dialog input,
+  .task-form-dialog textarea,
+  .task-form-dialog select {
+    min-height: 2.75rem;
+    font-size: 16px !important; /* Tránh zoom trên iOS */
+  }
+
+  .task-form-dialog button {
+    min-height: 2.5rem;
+    font-size: 15px !important;
+  }
+
+  /* Spacing mobile */
+  .task-form-dialog .space-y-6 > * + * {
     margin-top: 1rem !important;
   }
 
-  .dark .task-form-dialog .gap-4 {
+  .task-form-dialog .gap-4 {
     gap: 0.75rem !important;
-  }
-
-  /* Better contrast for mobile dark mode */
-  .dark .task-form-dialog input,
-  .dark .task-form-dialog textarea {
-    background-color: rgba(31, 41, 55, 0.9) !important;
-    border-color: rgba(75, 85, 99, 0.8) !important;
   }
 }
 

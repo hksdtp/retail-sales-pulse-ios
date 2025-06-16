@@ -367,7 +367,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="task-form-dialog w-[95vw] max-w-none sm:w-[90vw] lg:w-[85vw] xl:w-[80vw] max-h-[95vh] sm:max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900 shadow-2xl border-0 rounded-2xl sm:rounded-3xl animate-in fade-in-0 zoom-in-95 duration-300"
+        className="task-form-dialog w-[95vw] max-w-none sm:w-[90vw] lg:w-[85vw] xl:w-[80vw] max-h-[95vh] sm:max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 shadow-2xl border-0 rounded-2xl sm:rounded-3xl animate-in fade-in-0 zoom-in-95 duration-300"
         style={{
           position: 'fixed',
           left: '50%',
@@ -380,13 +380,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         }}
         data-theme-aware="true"
       >
-        <DialogHeader className="pb-4 sm:pb-6 border-b border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 pt-4 sm:pt-6 rounded-t-2xl sm:rounded-t-3xl">
-          <DialogTitle className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-200 hover:scale-105">
-              <Plus className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+        <DialogHeader className="flex-shrink-0 pb-2 sm:pb-3 border-b border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-2 sm:-mx-4 -mt-2 sm:-mt-4 px-2 sm:px-4 pt-2 sm:pt-3 rounded-t-2xl sm:rounded-t-3xl">
+          <DialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 sm:gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg transform transition-transform duration-200 hover:scale-105">
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-base sm:text-xl">
+              <span className="text-sm sm:text-base">
                 {formType === 'self' && 'Tạo công việc mới'}
                 {formType === 'team' && 'Giao công việc cho Nhóm'}
                 {formType === 'individual' && 'Giao công việc cho thành viên'}
@@ -400,8 +400,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 sm:py-8 px-4 sm:px-8 -mx-4 sm:-mx-6 max-h-[60vh] sm:max-h-[65vh] overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
-          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6 sm:space-y-8">
+        <div className="flex-1 min-h-0 py-2 sm:py-4 px-2 sm:px-4 -mx-2 sm:-mx-4 overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 sm:space-y-5">
             {/* Tiêu đề - Full width */}
             <div className="group">
               <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
@@ -897,7 +897,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </form>
         </div>
 
-        <DialogFooter className="pt-4 sm:pt-6 border-t border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 px-4 sm:px-6 pb-4 sm:pb-6 rounded-b-2xl sm:rounded-b-3xl flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+        <DialogFooter className="flex-shrink-0 pt-4 sm:pt-6 border-t border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 px-4 sm:px-6 pb-4 sm:pb-6 rounded-b-2xl sm:rounded-b-3xl flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
           <Button
             type="button"
             variant="outline"
@@ -922,11 +922,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               <>
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 <span>
-                  {formType === 'self'
+                  {formData.visibility === 'personal'
                     ? 'Lưu Công Việc'
-                    : formType === 'team'
-                      ? 'Giao công việc cho Nhóm'
-                      : 'Giao công việc cho thành viên'}
+                    : 'Giao việc cho thành viên'}
                 </span>
               </>
             )}
