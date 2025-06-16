@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Team, UserLocation, User as UserType } from '@/types/user';
+import { getTeamNameWithLeader } from '@/utils/teamUtils';
 
 import ChangePasswordModal from './ChangePasswordModal';
 import GoogleLoginButton from './GoogleLoginButton';
@@ -290,12 +291,12 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                 }}
                 className="w-full h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm px-3"
               >
-                <option value="">Tất cả nhóm</option>
+                <option value="">Chọn nhóm làm việc</option>
                 {filteredTeams
                   .filter((team) => team && team.id && team.name) // Lọc dữ liệu hợp lệ
                   .map((team) => (
                     <option key={team.id} value={team.id}>
-                      {team.name || 'Không có tên nhóm'}
+                      {getTeamNameWithLeader(team.id, teams, users)}
                     </option>
                   ))}
               </select>
@@ -329,7 +330,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                   .filter((user) => user && user.id && user.name) // Lọc dữ liệu hợp lệ
                   .map((user) => (
                     <option key={user.id} value={user.id}>
-                      {user.name || 'Không có tên'}
+                      {user.name || 'Không có tên'} - {user.position}
                     </option>
                   ))}
               </select>
@@ -363,9 +364,9 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           type="submit"
           data-testid="login-submit-button"
           className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
-          disabled={isSubmitting || !selectedUser || !password}
-          whileHover={{ scale: isSubmitting || !selectedUser || !password ? 1 : 1.01 }}
-          whileTap={{ scale: isSubmitting || !selectedUser || !password ? 1 : 0.99 }}
+          disabled={isSubmitting || !selectedUser || !password || (showTeamSelector && !selectedTeam)}
+          whileHover={{ scale: isSubmitting || !selectedUser || !password || (showTeamSelector && !selectedTeam) ? 1 : 1.01 }}
+          whileTap={{ scale: isSubmitting || !selectedUser || !password || (showTeamSelector && !selectedTeam) ? 1 : 0.99 }}
           transition={{ duration: 0.1, ease: "easeInOut" }}
         >
           {isSubmitting ? (

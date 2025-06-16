@@ -205,6 +205,9 @@ class PlanToTaskSyncService {
         notes: `${plan.notes || ''}\n[Đã chuyển thành công việc: ${taskId}]`
       });
 
+      // Lưu task vào localStorage
+      this.saveTaskToLocalStorage(newTask, userId);
+
       // Trigger custom event để thông báo cho UI
       this.dispatchPlanToTaskEvent(newTask, plan);
 
@@ -270,6 +273,35 @@ class PlanToTaskSyncService {
     }
   }
 
+  // Lưu task vào localStorage
+  private saveTaskToLocalStorage(task: Task, userId: string): void {
+    try {
+      // Lấy tasks hiện tại từ localStorage
+      const tasksKey = `tasks_${userId}`;
+      const existingTasksJson = localStorage.getItem(tasksKey);
+      let existingTasks: Task[] = [];
+
+      if (existingTasksJson) {
+        existingTasks = JSON.parse(existingTasksJson);
+      }
+
+      // Kiểm tra task đã tồn tại chưa
+      const taskExists = existingTasks.some(t => t.id === task.id);
+      if (!taskExists) {
+        // Thêm task mới
+        existingTasks.push(task);
+
+        // Lưu lại vào localStorage
+        localStorage.setItem(tasksKey, JSON.stringify(existingTasks));
+        console.log(`💾 Đã lưu task "${task.title}" vào localStorage cho user ${userId}`);
+      } else {
+        console.log(`⚠️ Task "${task.title}" đã tồn tại trong localStorage`);
+      }
+    } catch (error) {
+      console.error('❌ Lỗi khi lưu task vào localStorage:', error);
+    }
+  }
+
   // Dispatch custom event để UI có thể listen
   private dispatchPlanToTaskEvent(task: Task, plan: PersonalPlan): void {
     const event = new CustomEvent('planToTaskConverted', {
@@ -318,6 +350,12 @@ class PlanToTaskSyncService {
   // Kiểm tra service có đang chạy không
   public isActive(): boolean {
     return this.isRunning;
+  }
+
+  // Debug function - force sync ngay lập tức
+  public async debugForceSync(userId: string): Promise<void> {
+    console.log('🔧 DEBUG: Force sync for user:', userId);
+    await this.syncUserPlansToTasks(userId);
   }
 }
 

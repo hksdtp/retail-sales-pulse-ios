@@ -45,7 +45,17 @@ export interface Task {
   isSharedWithTeam?: boolean;
   customerId?: string; // ID của khách hàng liên quan
   customerName?: string; // Tên khách hàng (for display)
-  [key: string]: string | number | boolean | undefined | null;
+  images?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    thumbnailUrl: string;
+    size: number;
+    type: string;
+    uploadedAt: string;
+    driveFileId: string;
+  }>;
+  [key: string]: string | number | boolean | undefined | null | Array<any>;
 }
 
 export interface TaskListProps {

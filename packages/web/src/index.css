@@ -29,9 +29,40 @@
   background-color: rgba(156, 163, 175, 0.8);
 }
 
-/* Task form dialog animations */
+/* Task form dialog animations and layout */
 .task-form-dialog {
   animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Ensure proper flex layout for desktop */
+.task-form-dialog > div:first-child {
+  flex-shrink: 0;
+}
+
+.task-form-dialog > div:nth-child(2) {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.task-form-dialog > div:last-child {
+  flex-shrink: 0;
+}
+
+/* Ensure proper spacing and visibility for footer */
+.task-form-dialog .flex-shrink-0:last-child {
+  background: inherit;
+  border-radius: inherit;
+}
+
+/* Desktop dialog height optimization */
+@media (min-width: 640px) {
+  .task-form-dialog {
+    max-height: calc(100vh - 80px);
+  }
 }
 
 @keyframes slideInUp {
@@ -430,6 +461,65 @@ body.modal-open {
 
     .mobile-button-group > button {
         width: 100% !important;
+    }
+
+    /* Task form dialog mobile optimizations */
+    .task-form-dialog {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+        max-height: 95vh !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Ensure proper flex layout on mobile */
+    .task-form-dialog > div:first-child {
+        flex-shrink: 0 !important;
+    }
+
+    .task-form-dialog > div:nth-child(2) {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+    }
+
+    .task-form-dialog > div:last-child {
+        flex-shrink: 0 !important;
+    }
+
+    /* Prevent iOS zoom on input focus */
+    .task-form-dialog input,
+    .task-form-dialog textarea,
+    .task-form-dialog select {
+        font-size: 16px !important;
+        -webkit-appearance: none;
+        -webkit-border-radius: 0;
+    }
+
+    /* Better mobile scrolling */
+    .task-form-dialog .overflow-y-auto {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /* Ensure footer is always visible on mobile */
+    .task-form-dialog .flex-shrink-0:last-child {
+        position: sticky !important;
+        bottom: 0 !important;
+        z-index: 10 !important;
+        background: inherit !important;
+    }
+
+    /* Fix mobile dialog height calculation */
+    .task-form-dialog {
+        max-height: calc(100vh - 40px) !important;
+    }
+
+    /* Ensure content area doesn't overlap footer */
+    .task-form-dialog > div:nth-child(2) {
+        padding-bottom: 20px !important;
+        margin-bottom: 0 !important;
     }
 }
 

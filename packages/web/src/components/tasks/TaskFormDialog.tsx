@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import ImageUpload from '@/components/ui/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -25,7 +26,10 @@ import { vi } from 'date-fns/locale';
 import { useAuth } from '@/context/AuthContext';
 import { useTaskData } from '@/hooks/use-task-data';
 import { useToast } from '@/hooks/use-toast';
+import { UploadedImage } from '@/services/ImageUploadService';
 import { canAssignTasks } from '@/config/permissions';
+import { cn } from '@/lib/utils';
+import '@/styles/task-form-dark-theme.css';
 
 interface TaskFormData {
   title: string;
@@ -59,6 +63,12 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   const { addTask } = useTaskData();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isDeadlineCalendarOpen, setIsDeadlineCalendarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDeadline, setSelectedDeadline] = useState<Date | undefined>(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  );
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
@@ -74,8 +84,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     sharedWith: [],
   });
 
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+
+
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -93,6 +104,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   useEffect(() => {
     if (open) {
       const today = new Date();
+      const defaultDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      setSelectedDate(today);
+      setSelectedDeadline(defaultDeadline);
       setFormData({
         title: '',
         description: '',
@@ -101,13 +115,15 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         status: 'todo',
         priority: 'normal',
         date: today.toISOString().split('T')[0],
-        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        deadline: defaultDeadline.toISOString().split('T')[0],
         time: '',
         assignedTo: currentUser?.id || '',
         visibility: 'personal',
         sharedWith: [],
       });
-      setSelectedDate(today);
+      setUploadedImages([]);
+      setUserSearchQuery('');
+      setShowUserDropdown(false);
     }
   }, [open, currentUser]);
 
@@ -128,7 +144,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       // Tạo task mới
       await addTask({
         title: formData.title,
-        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}`,
+        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}${uploadedImages.length > 0 ? `\n📷 Có ${uploadedImages.length} hình ảnh đính kèm` : ''}`,
         type: formData.type,
         types: formData.types, // Send multiple types
         status: formData.status as any,
@@ -139,6 +155,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         visibility: formData.visibility,
         priority: formData.priority,
         sharedWith: formData.sharedWith,
+        images: uploadedImages, // Include uploaded images
       });
 
       toast({
@@ -163,6 +180,22 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleInputChange = (field: keyof TaskFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+      setFormData(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
+      setIsCalendarOpen(false);
+    }
+  };
+
+  const handleDeadlineSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDeadline(date);
+      setFormData(prev => ({ ...prev, deadline: date.toISOString().split('T')[0] }));
+      setIsDeadlineCalendarOpen(false);
+    }
   };
 
   // Handle multiple type selection
@@ -220,13 +253,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
            user.location?.toLowerCase().includes(query);
   });
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-      setFormData(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
-      setIsCalendarOpen(false);
-    }
-  };
+
 
   // Task type configurations with colors and icons
   const taskTypeConfig = {
@@ -284,24 +311,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       icon: Users,
       gradient: 'from-green-50 to-green-100'
     },
-    quote_new: {
-      label: 'Báo giá mới',
-      color: 'bg-purple-100 text-purple-800 border-purple-200',
-      icon: DollarSign,
-      gradient: 'from-purple-50 to-purple-100'
-    },
-    quote_old: {
-      label: 'Báo giá cũ',
-      color: 'bg-purple-100 text-purple-800 border-purple-200',
-      icon: DollarSign,
-      gradient: 'from-purple-50 to-purple-100'
-    },
-    other: {
-      label: 'Công việc khác',
-      color: 'bg-gray-100 text-gray-800 border-gray-200',
-      icon: FileText,
-      gradient: 'from-gray-50 to-gray-100'
-    }
+
   };
 
   // Status configurations
@@ -363,7 +373,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="task-form-dialog w-full max-w-3xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900 shadow-2xl border-0 rounded-3xl animate-in fade-in-0 zoom-in-95 duration-300"
+        className="task-form-dialog w-[95vw] max-w-none sm:w-[90vw] lg:w-[85vw] xl:w-[80vw] max-h-[95vh] sm:max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 shadow-2xl border-0 rounded-2xl sm:rounded-3xl animate-in fade-in-0 zoom-in-95 duration-300"
         style={{
           position: 'fixed',
           left: '50%',
@@ -371,24 +381,23 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           transform: 'translate(-50%, -50%)',
           margin: 0,
           zIndex: 10000,
-          background: 'var(--dialog-bg, linear-gradient(135deg, #ffffff 0%, #f8fafc 100%))',
           backdropFilter: 'blur(20px)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
         }}
-        className="dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800"
+        data-theme-aware="true"
       >
-        <DialogHeader className="pb-6 border-b border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-6 -mt-6 px-6 pt-6 rounded-t-3xl">
-          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-200 hover:scale-105">
-              <Plus className="w-6 h-6 text-white" />
+        <DialogHeader className="flex-shrink-0 pb-2 sm:pb-3 border-b border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-2 sm:-mx-4 -mt-2 sm:-mt-4 px-2 sm:px-4 pt-2 sm:pt-3 rounded-t-2xl sm:rounded-t-3xl">
+          <DialogTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 sm:gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg transform transition-transform duration-200 hover:scale-105">
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl">
+              <span className="text-sm sm:text-base">
                 {formType === 'self' && 'Tạo công việc mới'}
                 {formType === 'team' && 'Giao công việc cho Nhóm'}
                 {formType === 'individual' && 'Giao công việc cho thành viên'}
               </span>
-              <DialogDescription className="text-gray-600 dark:text-gray-400 text-sm font-normal mt-1">
+              <DialogDescription className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-normal mt-1 hidden sm:block">
                 {formType === 'self' && 'Tạo công việc cá nhân và quản lý tiến độ hiệu quả'}
                 {formType === 'team' && 'Phân công công việc cho nhóm hoặc cá nhân bất kỳ trong tổ chức'}
                 {formType === 'individual' && 'Phân công công việc cho các thành viên trong nhóm của bạn'}
@@ -397,11 +406,11 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-6 px-6 -mx-6 max-h-[60vh] overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
-          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-8">
-            {/* Tiêu đề */}
+        <div className="flex-1 min-h-0 py-2 sm:py-4 px-2 sm:px-4 -mx-2 sm:-mx-4 overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 sm:space-y-5">
+            {/* Tiêu đề - Full width */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Tiêu đề công việc <span className="text-red-500 ml-1">*</span>
               </label>
               <Input
@@ -409,14 +418,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 placeholder="Nhập tiêu đề công việc..."
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 required
               />
             </div>
 
-            {/* Mô tả */}
+            {/* Mô tả - Full width */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Mô tả chi tiết <span className="text-red-500 ml-1">*</span>
               </label>
               <Textarea
@@ -424,18 +433,18 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="w-full min-h-[120px] bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl resize-none transition-all duration-200 hover:bg-white hover:shadow-sm"
+                className="w-full min-h-[80px] sm:min-h-[100px] text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl resize-none transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 required
               />
             </div>
 
             {/* Loại công việc - Pill Layout */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Loại công việc <span className="text-red-500 ml-1">*</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">(Có thể chọn nhiều)</span>
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-2 hidden sm:inline">(Có thể chọn nhiều)</span>
               </label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {Object.entries(taskTypeConfig).map(([key, config]) => {
                   const IconComponent = config.icon;
                   const isSelected = formData.types.includes(key);
@@ -445,27 +454,27 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                       type="button"
                       onClick={() => handleTypeToggle(key)}
                       className={`
-                        inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                        inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                         ${isSelected
                           ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
                           : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                         }
                       `}
                     >
-                      <IconComponent className="w-4 h-4" />
-                      <span className="text-sm font-medium whitespace-nowrap">
+                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="text-sm sm:text-base font-medium whitespace-nowrap">
                         {config.label}
                       </span>
                       {isSelected && (
-                        <CheckCircle className="w-4 h-4" />
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                       )}
                     </button>
                   );
                 })}
               </div>
               {formData.types.length > 0 && (
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                  <div className="text-sm text-blue-800 dark:text-blue-200">
+                <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg sm:rounded-xl">
+                  <div className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
                     <strong>Đã chọn:</strong> {formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}
                   </div>
                 </div>
@@ -473,36 +482,36 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             </div>
 
             {/* Trạng thái và Ưu tiên */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                   Trạng thái
                 </label>
                 <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm">
+                  <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
                     <SelectValue placeholder="Chọn trạng thái">
                       {formData.status && (
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${statusConfig[formData.status as keyof typeof statusConfig]?.dotColor}`}></div>
-                          <span className="font-medium">{statusConfig[formData.status as keyof typeof statusConfig]?.label}</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{statusConfig[formData.status as keyof typeof statusConfig]?.label}</span>
                         </div>
                       )}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
+                  <SelectContent className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
                     {Object.entries(statusConfig).map(([key, config]) => {
                       const IconComponent = config.icon;
                       return (
                         <SelectItem
                           key={key}
                           value={key}
-                          className="rounded-xl mb-1 hover:bg-gray-50 transition-all duration-150 cursor-pointer group"
+                          className="rounded-xl mb-1 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 cursor-pointer group"
                         >
                           <div className="flex items-center gap-3 py-1">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${config.color} transition-all duration-200 group-hover:scale-105`}>
                               <IconComponent className="w-4 h-4" />
                             </div>
-                            <span className="font-medium text-gray-800">{config.label}</span>
+                            <span className="font-medium text-gray-800 dark:text-gray-200">{config.label}</span>
                           </div>
                         </SelectItem>
                       );
@@ -512,34 +521,34 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                   Mức độ ưu tiên
                 </label>
                 <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm">
+                  <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
                     <SelectValue placeholder="Chọn mức độ ưu tiên">
                       {formData.priority && (
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${priorityConfig[formData.priority as keyof typeof priorityConfig]?.dotColor}`}></div>
-                          <span className="font-medium">{priorityConfig[formData.priority as keyof typeof priorityConfig]?.label}</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{priorityConfig[formData.priority as keyof typeof priorityConfig]?.label}</span>
                         </div>
                       )}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
+                  <SelectContent className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
                     {Object.entries(priorityConfig).map(([key, config]) => {
                       const IconComponent = config.icon;
                       return (
                         <SelectItem
                           key={key}
                           value={key}
-                          className="rounded-xl mb-1 hover:bg-gray-50 transition-all duration-150 cursor-pointer group"
+                          className="rounded-xl mb-1 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 cursor-pointer group"
                         >
                           <div className="flex items-center gap-3 py-1">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${config.color} transition-all duration-200 group-hover:scale-105`}>
                               <IconComponent className="w-4 h-4" />
                             </div>
-                            <span className="font-medium text-gray-800">{config.label}</span>
+                            <span className="font-medium text-gray-800 dark:text-gray-200">{config.label}</span>
                           </div>
                         </SelectItem>
                       );
@@ -549,19 +558,19 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
             </div>
 
-            {/* Thời gian */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Thời gian - Responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                   Ngày thực hiện <span className="text-red-500 ml-1">*</span>
                 </label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
+                      className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
                     >
-                      <Calendar className="mr-3 h-4 w-4 text-gray-500" />
+                      <Calendar className="mr-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
                       {selectedDate ? (
                         <span className="font-medium text-gray-900 dark:text-gray-100">
                           {format(selectedDate, 'EEEE, dd MMMM yyyy', { locale: vi })}
@@ -587,21 +596,21 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                         caption: "flex justify-center pt-1 relative items-center",
                         caption_label: "text-sm font-semibold text-gray-900 dark:text-gray-100",
                         nav: "space-x-1 flex items-center",
-                        nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-150",
+                        nav_button: cn(
+                          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        ),
                         nav_button_previous: "absolute left-1",
                         nav_button_next: "absolute right-1",
                         table: "w-full border-collapse space-y-1",
                         head_row: "flex",
                         head_cell: "text-gray-500 dark:text-gray-400 rounded-md w-9 font-normal text-[0.8rem]",
                         row: "flex w-full mt-2",
-                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-blue-100 dark:[&:has([aria-selected])]:bg-blue-900/20 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-150 text-gray-900 dark:text-gray-100",
-                        day_selected: "bg-blue-500 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-600 focus:text-white",
+                        cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
+                        day: "h-9 w-9 p-0 font-normal text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
+                        day_selected: "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
                         day_today: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold",
-                        day_outside: "text-gray-400 dark:text-gray-500 opacity-50",
-                        day_disabled: "text-gray-400 dark:text-gray-500 opacity-50",
-                        day_range_middle: "aria-selected:bg-blue-100 dark:aria-selected:bg-blue-900/20 aria-selected:text-blue-900 dark:aria-selected:text-blue-100",
-                        day_hidden: "invisible",
+                        day_outside: "text-gray-400 dark:text-gray-600 opacity-50",
+                        day_disabled: "text-gray-300 dark:text-gray-700 opacity-50",
                       }}
                     />
                   </PopoverContent>
@@ -609,132 +618,203 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                   Hạn chót <span className="text-red-500 ml-1">*</span>
                 </label>
+                <Popover open={isDeadlineCalendarOpen} onOpenChange={setIsDeadlineCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
+                    >
+                      <Calendar className="mr-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      {selectedDeadline ? (
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {format(selectedDeadline, 'EEEE, dd MMMM yyyy', { locale: vi })}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 dark:text-gray-400">Chọn hạn chót</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto p-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
+                    align="start"
+                  >
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDeadline}
+                      onSelect={handleDeadlineSelect}
+                      initialFocus
+                      className="rounded-2xl"
+                      classNames={{
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption: "flex justify-center pt-1 relative items-center",
+                        caption_label: "text-sm font-semibold text-gray-900 dark:text-gray-100",
+                        nav: "space-x-1 flex items-center",
+                        nav_button: cn(
+                          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        ),
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse space-y-1",
+                        head_row: "flex",
+                        head_cell: "text-gray-500 dark:text-gray-400 rounded-md w-9 font-normal text-[0.8rem]",
+                        row: "flex w-full mt-2",
+                        cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
+                        day: "h-9 w-9 p-0 font-normal text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
+                        day_selected: "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
+                        day_today: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold",
+                        day_outside: "text-gray-400 dark:text-gray-600 opacity-50",
+                        day_disabled: "text-gray-300 dark:text-gray-700 opacity-50",
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Thời gian - Cột thứ 3 */}
+              <div className="group sm:col-span-2 lg:col-span-1">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                  Thời gian (tùy chọn)
+                </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  <Clock className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
                   <Input
-                    name="deadline"
-                    type="date"
-                    value={formData.deadline}
-                    onChange={(e) => handleInputChange('deadline', e.target.value)}
-                    className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                    required
+                    name="time"
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => handleInputChange('time', e.target.value)}
+                    className="w-full h-10 sm:h-12 pl-10 sm:pl-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Thời gian */}
-            <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                Thời gian (tùy chọn)
-              </label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <Input
-                  name="time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => handleInputChange('time', e.target.value)}
-                  className="w-full h-12 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                />
-              </div>
-            </div>
+            {/* Assignment và Visibility - Responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {/* Phân công */}
+              {(formType === 'team' || formType === 'individual') && canAssignToOthers && (
+                <div className="group">
+                  <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                    Giao cho
+                  </label>
+                  <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
+                    <SelectTrigger className="w-full h-10 sm:h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
+                      <SelectValue placeholder="Chọn người thực hiện">
+                        {formData.assignedTo && (() => {
+                          const selectedUser = filteredUsers.find(user => user.id === formData.assignedTo);
+                          return selectedUser ? (
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                <Users className="w-4 h-4 text-white" />
+                              </div>
+                              <div className="flex flex-col items-start">
+                                <span className="font-medium text-gray-900 dark:text-gray-100">{selectedUser.name}</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">{selectedUser.location || 'Chưa xác định'}</span>
+                              </div>
+                            </div>
+                          ) : null;
+                        })()}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
+                      {filteredUsers.map((user) => (
+                        <SelectItem
+                          key={user.id}
+                          value={user.id}
+                          className="rounded-xl mb-1 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 py-1">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                              <Users className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-medium text-gray-800 dark:text-gray-200">{user.name}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{user.location || 'Chưa xác định'}</span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-            {/* Phân công */}
-            {(formType === 'team' || formType === 'individual') && canAssignToOthers && (
-              <div className="group">
-                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                  Giao cho
+              {/* Phạm vi chia sẻ công việc */}
+              <div className="group sm:col-span-2">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                  Phạm vi chia sẻ <span className="text-red-500 ml-1">*</span>
                 </label>
-                <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
-                  <SelectTrigger className="w-full h-12 bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all duration-200 hover:bg-white hover:shadow-sm">
-                    <SelectValue placeholder="Chọn người thực hiện" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
-                    {filteredUsers.map((user) => (
-                      <SelectItem
-                        key={user.id}
-                        value={user.id}
-                        className="rounded-xl mb-1 hover:bg-gray-50 transition-all duration-150 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3 py-1">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                            <Users className="w-4 h-4 text-white" />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-gray-800">{user.name}</span>
-                            <span className="text-xs text-gray-500">{user.location || 'Chưa xác định'}</span>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Phạm vi chia sẻ công việc */}
-            <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                Phạm vi chia sẻ <span className="text-red-500 ml-1">*</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => handleInputChange('visibility', 'personal')}
                   className={`
-                    inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                    inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'personal'
                       ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
                       : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                     }
                   `}
                 >
-                  <User className="w-4 h-4" />
-                  <span className="text-sm font-medium">Cá nhân</span>
-                  {formData.visibility === 'personal' && <CheckCircle className="w-4 h-4" />}
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base font-medium">Cá nhân</span>
+                  {formData.visibility === 'personal' && <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleInputChange('visibility', 'team')}
                   className={`
-                    inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                    inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'team'
                       ? 'border-green-500 bg-green-500 text-white shadow-lg shadow-green-500/20'
                       : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                     }
                   `}
                 >
-                  <UserCheck className="w-4 h-4" />
-                  <span className="text-sm font-medium">Nhóm</span>
-                  {formData.visibility === 'team' && <CheckCircle className="w-4 h-4" />}
+                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base font-medium">Nhóm</span>
+                  {formData.visibility === 'team' && <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleInputChange('visibility', 'public')}
                   className={`
-                    inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
+                    inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
                     ${formData.visibility === 'public'
                       ? 'border-purple-500 bg-purple-500 text-white shadow-lg shadow-purple-500/20'
                       : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
                     }
                   `}
                 >
-                  <Globe className="w-4 h-4" />
-                  <span className="text-sm font-medium">Chung</span>
-                  {formData.visibility === 'public' && <CheckCircle className="w-4 h-4" />}
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base font-medium">Chung</span>
+                  {formData.visibility === 'public' && <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
+              </div>
               </div>
             </div>
 
-            {/* Chia sẻ với người cụ thể */}
+            {/* Upload ảnh - Full width */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                Hình ảnh đính kèm (tùy chọn)
+              </label>
+              <ImageUpload
+                onImagesUploaded={setUploadedImages}
+                existingImages={uploadedImages}
+                maxImages={5}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Chia sẻ với người cụ thể - Full width */}
+            <div className="group">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Chia sẻ với người cụ thể (tùy chọn)
               </label>
 
@@ -747,9 +827,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     return (
                       <div
                         key={userId}
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full border border-blue-200"
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full border border-blue-200 dark:border-blue-700"
                       >
-                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center">
                           <span className="text-xs font-medium text-white">
                             {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                           </span>
@@ -758,9 +838,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                         <button
                           type="button"
                           onClick={() => removeUserFromShared(userId)}
-                          className="w-4 h-4 rounded-full bg-blue-200 hover:bg-blue-300 flex items-center justify-center transition-colors duration-150"
+                          className="w-4 h-4 rounded-full bg-blue-200 dark:bg-blue-700 hover:bg-blue-300 dark:hover:bg-blue-600 flex items-center justify-center transition-colors duration-150"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3 h-3 text-blue-600 dark:text-blue-200" />
                         </button>
                       </div>
                     );
@@ -771,7 +851,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               {/* User search input */}
               <div className="relative">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400" />
                   <Input
                     ref={searchInputRef}
                     placeholder="Tìm kiếm và thêm người..."
@@ -792,19 +872,18 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                       // Delay hiding to allow click on dropdown items
                       setTimeout(() => setShowUserDropdown(false), 150);
                     }}
-                    className="w-full h-10 pl-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                    className="w-full h-10 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   />
                 </div>
 
                 {/* User dropdown - Simplified positioning */}
                 {showUserDropdown && filteredUsersForTagging.length > 0 && (
                   <div
-                    className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-48 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800/98 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-48 overflow-y-auto"
                     style={{
                       zIndex: 99999,
                       boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                       backdropFilter: 'blur(8px)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.98)'
                     }}
                   >
                     {filteredUsersForTagging.slice(0, 5).map(user => (
@@ -836,36 +915,34 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </form>
         </div>
 
-        <DialogFooter className="pt-6 border-t border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-6 -mb-6 px-6 pb-6 rounded-b-3xl flex flex-row justify-end space-x-4">
+        <DialogFooter className="flex-shrink-0 pt-4 sm:pt-6 border-t border-gray-100/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50 dark:from-gray-800/50 dark:to-gray-700/50 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 px-4 sm:px-6 pb-4 sm:pb-6 rounded-b-2xl sm:rounded-b-3xl flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="px-8 py-3 h-12 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm rounded-xl font-medium transition-all duration-200"
+            className="px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 text-sm sm:text-base border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm rounded-lg sm:rounded-xl font-medium transition-all duration-200 order-2 sm:order-1"
           >
-            <X className="w-4 h-4 mr-2" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
             Hủy bỏ
           </Button>
           <Button
             type="submit"
             onClick={handleSubmit}
             disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.deadline || !formData.visibility}
-            className="px-8 py-3 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+            className="px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg sm:rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] order-1 sm:order-2"
           >
             {isSubmitting ? (
               <>
-                <div className="w-5 h-5 mr-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 <span>Đang lưu...</span>
               </>
             ) : (
               <>
-                <Plus className="w-5 h-5 mr-3" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 <span>
-                  {formType === 'self'
-                    ? 'Tạo công việc'
-                    : formType === 'team'
-                      ? 'Giao công việc cho Nhóm'
-                      : 'Giao công việc cho thành viên'}
+                  {formData.visibility === 'personal'
+                    ? 'Lưu Công Việc'
+                    : 'Giao việc cho thành viên'}
                 </span>
               </>
             )}

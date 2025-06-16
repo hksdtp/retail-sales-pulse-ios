@@ -610,7 +610,9 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                   }
 
                   // Gọi callback để cập nhật UI ngay lập tức
-                  onEdit && onEdit(taskWithFullData);
+                  if (onEdit) {
+                    onEdit(taskWithFullData);
+                  }
                   alert('Đã lưu công việc thành công!');
                   onClose();
                 } catch (error) {
