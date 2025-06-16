@@ -10,16 +10,19 @@ export interface AppVersion {
 
 export class VersionManager {
   private static readonly VERSION_KEY = 'app_version';
-  private static readonly CURRENT_VERSION = '1.2.0';
+  private static readonly CURRENT_VERSION = '1.3.0'; // Tăng version để force refresh
   private static readonly BUILD_TIME = new Date().toISOString();
+  private static readonly FORCE_REFRESH_VERSION = '1.3.0'; // Version bắt buộc refresh
 
   // Danh sách tính năng mới trong version này
   private static readonly CURRENT_FEATURES = [
     'Fixed task form dialog layout',
     'Updated Plans to Tasks sync',
     'Enhanced Plan creation UI',
-    'Added debug sync tools',
-    'Improved mobile responsiveness'
+    'Added image upload to tasks',
+    'Google Drive integration',
+    'Force refresh for all users',
+    'Improved cache management'
   ];
 
   /**
@@ -29,10 +32,14 @@ export class VersionManager {
     const storedVersion = this.getStoredVersion();
     const currentVersion = this.getCurrentVersion();
 
-    if (!storedVersion || storedVersion.version !== currentVersion.version) {
+    // Kiểm tra force refresh version
+    const needsForceRefresh = this.needsForceRefresh(storedVersion);
+
+    if (!storedVersion || storedVersion.version !== currentVersion.version || needsForceRefresh) {
       console.log('🔄 Version update detected:', {
         old: storedVersion?.version || 'unknown',
-        new: currentVersion.version
+        new: currentVersion.version,
+        forceRefresh: needsForceRefresh
       });
 
       // Lưu version mới
@@ -41,13 +48,43 @@ export class VersionManager {
       // Clear cache nếu cần
       this.clearOldCache();
 
-      // Hiển thị thông báo update
+      // Force refresh nếu cần thiết
+      if (needsForceRefresh) {
+        this.showForceRefreshNotification(currentVersion);
+        setTimeout(() => {
+          this.forceRefresh();
+        }, 3000); // Delay 3s để user đọc thông báo
+        return true;
+      }
+
+      // Hiển thị thông báo update bình thường
       this.showUpdateNotification(currentVersion);
 
       return true; // Version đã thay đổi
     }
 
     return false; // Version không đổi
+  }
+
+  /**
+   * Kiểm tra có cần force refresh không
+   */
+  private static needsForceRefresh(storedVersion: AppVersion | null): boolean {
+    if (!storedVersion) return true; // User mới -> force refresh
+
+    // So sánh với FORCE_REFRESH_VERSION
+    const storedVersionNum = this.parseVersion(storedVersion.version);
+    const forceVersionNum = this.parseVersion(this.FORCE_REFRESH_VERSION);
+
+    return storedVersionNum < forceVersionNum;
+  }
+
+  /**
+   * Parse version string thành number để so sánh
+   */
+  private static parseVersion(version: string): number {
+    const parts = version.split('.').map(Number);
+    return parts[0] * 10000 + parts[1] * 100 + (parts[2] || 0);
   }
 
   /**
@@ -132,6 +169,33 @@ export class VersionManager {
     } catch (error) {
       console.error('Error clearing cache:', error);
     }
+  }
+
+  /**
+   * Hiển thị thông báo force refresh
+   */
+  private static showForceRefreshNotification(version: AppVersion): void {
+    // Tạo notification element
+    const notification = document.createElement('div');
+    notification.className = 'fixed inset-0 z-[99999] bg-black/80 flex items-center justify-center p-4';
+    notification.innerHTML = `
+      <div class="bg-gradient-to-br from-red-600 via-orange-600 to-red-700 text-white p-8 rounded-2xl shadow-2xl max-w-md text-center animate-pulse">
+        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 animate-spin" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold mb-2">🚀 Cập nhật quan trọng!</h2>
+        <p class="text-sm mb-4">Version ${version.version} yêu cầu làm mới toàn bộ ứng dụng</p>
+        <p class="text-xs text-red-100">Đang tự động làm mới trong 3 giây...</p>
+        <div class="mt-4 bg-white/20 rounded-full h-2">
+          <div class="bg-white rounded-full h-2 animate-pulse" style="width: 100%"></div>
+        </div>
+      </div>
+    `;
+
+    // Thêm vào DOM
+    document.body.appendChild(notification);
   }
 
   /**

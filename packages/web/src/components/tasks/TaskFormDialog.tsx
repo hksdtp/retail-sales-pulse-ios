@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import ImageUpload from '@/components/ui/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -25,6 +26,7 @@ import { vi } from 'date-fns/locale';
 import { useAuth } from '@/context/AuthContext';
 import { useTaskData } from '@/hooks/use-task-data';
 import { useToast } from '@/hooks/use-toast';
+import { UploadedImage } from '@/services/ImageUploadService';
 import { canAssignTasks } from '@/config/permissions';
 import { cn } from '@/lib/utils';
 import '@/styles/task-form-dark-theme.css';
@@ -82,6 +84,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     sharedWith: [],
   });
 
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+
 
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -117,6 +121,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         visibility: 'personal',
         sharedWith: [],
       });
+      setUploadedImages([]);
       setUserSearchQuery('');
       setShowUserDropdown(false);
     }
@@ -139,7 +144,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       // Tạo task mới
       await addTask({
         title: formData.title,
-        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}`,
+        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}${uploadedImages.length > 0 ? `\n📷 Có ${uploadedImages.length} hình ảnh đính kèm` : ''}`,
         type: formData.type,
         types: formData.types, // Send multiple types
         status: formData.status as any,
@@ -150,6 +155,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         visibility: formData.visibility,
         priority: formData.priority,
         sharedWith: formData.sharedWith,
+        images: uploadedImages, // Include uploaded images
       });
 
       toast({
@@ -791,6 +797,19 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 </button>
               </div>
               </div>
+            </div>
+
+            {/* Upload ảnh - Full width */}
+            <div className="group">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                Hình ảnh đính kèm (tùy chọn)
+              </label>
+              <ImageUpload
+                onImagesUploaded={setUploadedImages}
+                existingImages={uploadedImages}
+                maxImages={5}
+                disabled={isSubmitting}
+              />
             </div>
 
             {/* Chia sẻ với người cụ thể - Full width */}

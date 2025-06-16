@@ -43,7 +43,17 @@ export interface Task {
   sharedWith?: string[];
   isShared?: boolean;
   isSharedWithTeam?: boolean;
-  [key: string]: string | number | boolean | undefined | null;
+  images?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    thumbnailUrl: string;
+    size: number;
+    type: string;
+    uploadedAt: string;
+    driveFileId: string;
+  }>;
+  [key: string]: string | number | boolean | undefined | null | Array<any>;
 }
 
 export interface TaskListProps {
