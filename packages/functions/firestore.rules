@@ -17,6 +17,11 @@ service cloud.firestore {
       allow read, write, delete: if true;
     }
 
+    // Rules for customers collection - Allow read/write for development
+    match /customers/{customerId} {
+      allow read, write, delete: if true;
+    }
+
     // Rules for reports collection - Allow read/write for development
     match /reports/{reportId} {
       allow read, write: if true;

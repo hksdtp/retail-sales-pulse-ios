@@ -43,6 +43,8 @@ export interface Task {
   sharedWith?: string[];
   isShared?: boolean;
   isSharedWithTeam?: boolean;
+  customerId?: string; // ID của khách hàng liên quan
+  customerName?: string; // Tên khách hàng (for display)
   [key: string]: string | number | boolean | undefined | null;
 }
 

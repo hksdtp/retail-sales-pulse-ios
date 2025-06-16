@@ -11,7 +11,8 @@ import {
   LogOut,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -98,7 +99,11 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       icon: CalendarCheck,
       url: "/calendar"
     },
-
+    {
+      title: "Khách hàng",
+      icon: UserCheck,
+      url: "/customers"
+    },
     {
       title: "Báo cáo",
       icon: FileText,

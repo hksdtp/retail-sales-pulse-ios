@@ -242,6 +242,11 @@ test.describe('Task UI After Login Tests', () => {
     }
   });
 
+  test('should analyze CSS and UI issues', async ({ page }) => {
+    console.log('🎨 Analyzing CSS and UI issues...');
+    await analyzeCSSIssues(page);
+  });
+
 });
 
 async function analyzeTaskDialog(page, dialog) {
@@ -304,6 +309,8 @@ async function analyzeTaskDialog(page, dialog) {
       console.log(`❌ Error analyzing dialog: ${error.message}`);
     }
 }
+
+async function analyzeCSSIssues(page) {
     console.log('🎨 Checking for CSS and layout issues...');
     
     // Kiểm tra console errors liên quan đến CSS
@@ -354,10 +361,4 @@ async function analyzeTaskDialog(page, dialog) {
     });
     
     console.log(`📊 CSS Analysis Summary: ${cssErrors.length} CSS errors, ${hiddenElements} hidden elements, ${overflowElements.length} overflow issues`);
-  });
-
-  test('should analyze CSS and UI issues', async ({ page }) => {
-    console.log('🎨 Analyzing CSS and UI issues...');
-    await analyzeCSSIssues(page);
-  });
-});
+}

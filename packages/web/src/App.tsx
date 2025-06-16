@@ -10,7 +10,7 @@ import { ApiTaskDataProvider } from './context/ApiTaskDataProvider';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Calendar from './pages/Calendar';
-
+import Customers from './pages/Customers';
 import Employees from './pages/Employees';
 import FirebaseSetup from './pages/FirebaseSetup';
 import Index from './pages/Index';
@@ -27,6 +27,10 @@ import TaskFormDemo from './components/tasks/TaskFormDemo';
 import DetailedReports from './pages/DetailedReports';
 import ThemeDemo from './pages/ThemeDemo';
 import Account from './pages/Account';
+import DebugPage from './pages/DebugPage';
+import SimpleCustomers from './pages/SimpleCustomers';
+import CustomerTest from './pages/CustomerTest';
+import CustomersSimple from './pages/CustomersSimple';
 
 const queryClient = new QueryClient();
 
@@ -75,7 +79,14 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
-
+                  <Route
+                    path="/customers"
+                    element={
+                      <ProtectedRoute>
+                        <CustomersSimple />
+                      </ProtectedRoute>
+                    }
+                  />
 
                   <Route
                     path="/kpi"
@@ -143,14 +154,10 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
-                  <Route
-                    path="/account"
-                    element={
-                      <ProtectedRoute>
-                        <AccountPage />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="/debug" element={<DebugPage />} />
+                  <Route path="/simple-customers" element={<SimpleCustomers />} />
+                  <Route path="/customer-test" element={<CustomerTest />} />
+                  <Route path="/customers-simple" element={<CustomersSimple />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

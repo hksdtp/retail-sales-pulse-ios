@@ -6,7 +6,8 @@ import {
   List,
   CalendarCheck,
   Users,
-  User
+  User,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -39,9 +40,9 @@ const BottomNavigation = () => {
     icon: CalendarCheck,
     url: "/calendar"
   }, {
-    title: "Nhân viên",
-    icon: Users,
-    url: "/employees"
+    title: "Khách hàng",
+    icon: UserCheck,
+    url: "/customers"
   }];
 
   const isActive = (path: string) => {
