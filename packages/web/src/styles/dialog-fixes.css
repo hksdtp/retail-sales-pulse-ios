@@ -269,13 +269,36 @@ html body div[data-radix-dialog-overlay] {
 @media (max-width: 640px) {
   html body [data-radix-dialog-content],
   html body .task-form-dialog[data-radix-dialog-content] {
-    width: calc(100vw - 16px) !important;
-    max-width: calc(100vw - 16px) !important;
-    max-height: 90vh !important;
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: 95vh !important;
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
     margin: 0 !important;
+    border-radius: 16px !important;
+  }
+
+  /* Reduce padding on mobile */
+  .task-form-dialog .space-y-12 > * + * {
+    margin-top: 1.5rem !important;
+  }
+
+  .task-form-dialog .space-y-8 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  /* Optimize form elements for mobile */
+  .task-form-dialog input,
+  .task-form-dialog textarea,
+  .task-form-dialog button {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+
+  /* Improve touch targets */
+  .task-form-dialog button {
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
 }
 

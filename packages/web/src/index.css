@@ -431,6 +431,29 @@ body.modal-open {
     .mobile-button-group > button {
         width: 100% !important;
     }
+
+    /* Task form dialog mobile optimizations */
+    .task-form-dialog {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+        max-height: 95vh !important;
+        border-radius: 16px !important;
+    }
+
+    /* Prevent iOS zoom on input focus */
+    .task-form-dialog input,
+    .task-form-dialog textarea,
+    .task-form-dialog select {
+        font-size: 16px !important;
+        -webkit-appearance: none;
+        -webkit-border-radius: 0;
+    }
+
+    /* Better mobile scrolling */
+    .task-form-dialog .overflow-y-auto {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
 }
 
 /* Optimized sidebar animations with hardware acceleration */

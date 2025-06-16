@@ -295,7 +295,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                   .filter((team) => team && team.id && team.name) // Lọc dữ liệu hợp lệ
                   .map((team) => (
                     <option key={team.id} value={team.id}>
-                      {team.name || 'Không có tên nhóm'}
+                      {team.name || 'Không có tên nhóm'} - {team.location}
                     </option>
                   ))}
               </select>
@@ -329,7 +329,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                   .filter((user) => user && user.id && user.name) // Lọc dữ liệu hợp lệ
                   .map((user) => (
                     <option key={user.id} value={user.id}>
-                      {user.name || 'Không có tên'}
+                      {user.name || 'Không có tên'} - {user.position}
                     </option>
                   ))}
               </select>
