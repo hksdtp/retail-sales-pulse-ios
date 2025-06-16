@@ -72,11 +72,12 @@ Nếu bạn vẫn thấy giao diện cũ, hãy thực hiện:
    * Auto-detect và hiển thị hướng dẫn nếu cần
    */
   public static autoDetectAndGuide(): void {
-    setTimeout(() => {
-      if (this.detectOldCache()) {
-        this.showRefreshInstructions();
-      }
-    }, 2000); // Delay 2s để page load xong
+    // DISABLED: Không hiển thị dialog force refresh nữa
+    // setTimeout(() => {
+    //   if (this.detectOldCache()) {
+    //     this.showRefreshInstructions();
+    //   }
+    // }, 2000); // Delay 2s để page load xong
   }
 
   /**
@@ -147,11 +148,11 @@ Nếu bạn vẫn thấy giao diện cũ, hãy thực hiện:
   }
 }
 
-// Auto-run detection
-document.addEventListener('DOMContentLoaded', () => {
-  CacheHelper.autoDetectAndGuide();
-  CacheHelper.logCacheInfo();
-});
+// Auto-run detection - DISABLED
+// document.addEventListener('DOMContentLoaded', () => {
+//   CacheHelper.autoDetectAndGuide();
+//   CacheHelper.logCacheInfo();
+// });
 
 // Export cho global access
 (window as any).CacheHelper = CacheHelper;
