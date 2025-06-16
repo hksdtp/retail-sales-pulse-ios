@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 
 import AppLayout from '@/components/layout/AppLayout';
 import PageHeader from '@/components/layout/PageHeader';
@@ -9,6 +9,7 @@ import EditPlanModal from '@/components/planning/EditPlanModal';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { personalPlanService, PersonalPlan } from '@/services/PersonalPlanService';
+import { planToTaskSyncService } from '@/services/PlanToTaskSyncService';
 
 const Calendar = () => {
   const { currentUser } = useAuth();
@@ -76,16 +77,36 @@ const Calendar = () => {
     console.log('Plan updated successfully - ModernCalendar refreshed');
   };
 
+  // Debug function để test sync
+  const handleDebugSync = async () => {
+    if (!currentUser?.id) return;
+
+    console.log('🔧 DEBUG: Manual sync triggered');
+    try {
+      await planToTaskSyncService.debugForceSync(currentUser.id);
+      alert('✅ Debug sync completed! Check console for details.');
+    } catch (error) {
+      console.error('❌ Debug sync failed:', error);
+      alert('❌ Debug sync failed! Check console for details.');
+    }
+  };
+
   return (
     <AppLayout>
       <PageHeader
         title="📅 Lịch Kế hoạch"
         subtitle="Quản lý và theo dõi kế hoạch công việc hàng ngày"
         actions={
-          <Button onClick={handleCreatePlan} className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Tạo kế hoạch
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleDebugSync} variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Debug Sync
+            </Button>
+            <Button onClick={handleCreatePlan} className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Tạo kế hoạch
+            </Button>
+          </div>
         }
       />
 

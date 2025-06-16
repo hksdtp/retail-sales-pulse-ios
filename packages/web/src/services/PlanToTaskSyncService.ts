@@ -351,6 +351,12 @@ class PlanToTaskSyncService {
   public isActive(): boolean {
     return this.isRunning;
   }
+
+  // Debug function - force sync ngay lập tức
+  public async debugForceSync(userId: string): Promise<void> {
+    console.log('🔧 DEBUG: Force sync for user:', userId);
+    await this.syncUserPlansToTasks(userId);
+  }
 }
 
 export const planToTaskSyncService = PlanToTaskSyncService.getInstance();
