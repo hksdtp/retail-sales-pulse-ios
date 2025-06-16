@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import { Button } from '@/components/ui/button';
+import { CacheHelper } from '@/utils/cacheHelper';
 
 interface PageHeaderProps {
   title: string;
@@ -12,6 +14,15 @@ interface PageHeaderProps {
 }
 
 const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleForceRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      CacheHelper.forceReload();
+    }, 1000);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -46,6 +57,19 @@ const PageHeader = ({ title, subtitle, actions, onTaskClick }: PageHeaderProps) 
         transition={{ delay: 0.3, duration: 0.3 }}
         className="mt-4 md:mt-0 flex items-center space-x-3 relative"
       >
+        {/* Force Refresh Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleForceRefresh}
+          disabled={isRefreshing}
+          className="border-orange-500 text-orange-600 hover:bg-orange-50 hidden sm:flex"
+          title="Force refresh nếu thấy giao diện cũ"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Đang làm mới...' : 'Làm mới'}
+        </Button>
+
         {/* Notification Center */}
         <NotificationCenter onTaskClick={onTaskClick || (() => {})} />
 

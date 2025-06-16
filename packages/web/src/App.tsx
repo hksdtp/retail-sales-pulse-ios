@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import FirebaseAutoSetupProvider from './components/firebase/FirebaseAutoSetupProvider';
+import VersionChecker from './components/layout/VersionChecker';
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -39,6 +40,7 @@ const App = () => (
             <TooltipProvider>
             <Toaster />
             <Sonner />
+            <VersionChecker />
             <BrowserRouter>
                 <Routes>
                   <Route path="/login" element={<Login />} />
