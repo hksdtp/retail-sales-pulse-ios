@@ -70,6 +70,12 @@ export class VersionManager {
    * Kiểm tra có cần force refresh không
    */
   private static needsForceRefresh(storedVersion: AppVersion | null): boolean {
+    // Kiểm tra flag đã force refresh chưa
+    const hasForceRefreshed = localStorage.getItem('force_refreshed_1.3.0');
+    if (hasForceRefreshed) {
+      return false; // Đã force refresh rồi, không cần nữa
+    }
+
     if (!storedVersion) return true; // User mới -> force refresh
 
     // So sánh với FORCE_REFRESH_VERSION
@@ -117,6 +123,11 @@ export class VersionManager {
   private static saveVersion(version: AppVersion): void {
     try {
       localStorage.setItem(this.VERSION_KEY, JSON.stringify(version));
+
+      // Nếu version mới khác FORCE_REFRESH_VERSION, clear flag force refresh
+      if (version.version !== this.FORCE_REFRESH_VERSION) {
+        localStorage.removeItem('force_refreshed_1.3.0');
+      }
     } catch (error) {
       console.error('Error saving version:', error);
     }
@@ -241,12 +252,23 @@ export class VersionManager {
    */
   public static forceRefresh(): void {
     console.log('🔄 Force refreshing application...');
-    
+
+    // Set flag đã force refresh để tránh vòng lặp
+    localStorage.setItem('force_refreshed_1.3.0', 'true');
+
     // Clear tất cả cache
     this.clearAllCache();
-    
+
     // Reload page
     window.location.reload();
+  }
+
+  /**
+   * Clear flag force refresh (dùng khi cần reset)
+   */
+  public static clearForceRefreshFlag(): void {
+    localStorage.removeItem('force_refreshed_1.3.0');
+    console.log('🔄 Force refresh flag cleared');
   }
 
   /**
@@ -254,21 +276,20 @@ export class VersionManager {
    */
   private static clearAllCache(): void {
     try {
-      // Clear localStorage (trừ user data quan trọng)
-      const importantKeys = ['auth_token', 'user_profile', 'tasks_', 'personal_plans_'];
-      const keysToKeep: string[] = [];
-      
+      // Clear localStorage (trừ user data quan trọng và force refresh flag)
+      const importantKeys = ['auth_token', 'user_profile', 'tasks_', 'personal_plans_', 'force_refreshed_'];
+      const keysToKeep: { [key: string]: string } = {};
+
       Object.keys(localStorage).forEach(key => {
         if (importantKeys.some(important => key.includes(important))) {
-          keysToKeep.push(key);
+          keysToKeep[key] = localStorage.getItem(key) || '';
         }
       });
 
       localStorage.clear();
-      
+
       // Restore important data
-      keysToKeep.forEach(key => {
-        const value = sessionStorage.getItem(key);
+      Object.entries(keysToKeep).forEach(([key, value]) => {
         if (value) {
           localStorage.setItem(key, value);
         }

@@ -879,13 +879,12 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 {/* User dropdown - Simplified positioning */}
                 {showUserDropdown && filteredUsersForTagging.length > 0 && (
                   <div
-                    className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-48 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800/98 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-48 overflow-y-auto"
                     style={{
                       zIndex: 99999,
                       boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                       backdropFilter: 'blur(8px)',
                     }}
-                    className="dark:bg-gray-800/98"
                   >
                     {filteredUsersForTagging.slice(0, 5).map(user => (
                       <button
