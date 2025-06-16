@@ -35,17 +35,17 @@ export const getTeamNameWithLeader = (
  * Tìm trưởng nhóm dựa trên pattern của team name và location
  */
 const findTeamLeaderByPattern = (team: Team, users: User[]): User | null => {
-  // Mapping chính xác theo yêu cầu của user (6 teams)
+  // Mapping chính xác theo yêu cầu của user (5 teams - đã xóa NHÓM 4)
   const teamLeaderMapping = {
     hanoi: {
       'NHÓM 1': 'Lương Việt Anh',      // team_id: 1
       'NHÓM 2': 'Nguyễn Thị Thảo',     // team_id: 2
       'NHÓM 3': 'Trịnh Thị Bốn',       // team_id: 3
-      'NHÓM 4': 'Phạm Thị Hương',      // team_id: 4 (thay thế Lê Tiến Quân đã nghỉ việc)
+      'NHÓM 5': 'Phạm Thị Hương',      // team_id: 5 (chuyển từ NHÓM 4 sang NHÓM 5)
     },
     hcm: {
-      'NHÓM 1': 'Nguyễn Thị Nga',      // team_id: 5 -> NHÓM 1 HCM
-      'NHÓM 2': 'Nguyễn Ngọc Việt Khanh', // team_id: 6 -> NHÓM 2 HCM
+      'NHÓM 1': 'Nguyễn Thị Nga',      // team_id: 6 -> NHÓM 1 HCM
+      'NHÓM 2': 'Nguyễn Ngọc Việt Khanh', // team_id: 7 -> NHÓM 2 HCM
     }
   };
 
@@ -76,13 +76,13 @@ const findTeamLeaderByPattern = (team: Team, users: User[]): User | null => {
     }
   }
 
-  // Xử lý trường hợp đặc biệt: Phạm Thị Hương (NHÓM 4)
-  // Phạm Thị Hương có team_id: 4, thay thế Lê Tiến Quân đã nghỉ việc
-  if (team.location === 'hanoi' && team.name.includes('NHÓM 4')) {
+  // Xử lý trường hợp đặc biệt: Phạm Thị Hương (NHÓM 5)
+  // Phạm Thị Hương có team_id: 5, chuyển từ NHÓM 4 (Lê Tiến Quân đã nghỉ việc)
+  if (team.location === 'hanoi' && team.name.includes('NHÓM 5')) {
     const huong = users.find(user =>
       user.name.includes('Phạm Thị Hương') &&
       user.role === 'team_leader' &&
-      user.team_id === '4'
+      user.team_id === '5'
     );
     if (huong) {
       return huong;
@@ -182,9 +182,9 @@ const getUniqueTeams = (teams: Team[]): Team[] => {
     return lower;
   };
 
-  // Cấu trúc mong muốn (6 teams)
+  // Cấu trúc mong muốn (5 teams - đã xóa NHÓM 4)
   const desiredStructure = {
-    hanoi: ['NHÓM 1', 'NHÓM 2', 'NHÓM 3', 'NHÓM 4'],
+    hanoi: ['NHÓM 1', 'NHÓM 2', 'NHÓM 3', 'NHÓM 5'],
     hcm: ['NHÓM 1', 'NHÓM 2']
   };
 

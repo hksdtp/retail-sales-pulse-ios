@@ -400,7 +400,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 sm:py-8 px-4 sm:px-8 -mx-4 sm:-mx-6 max-h-[75vh] sm:max-h-[80vh] overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
+        <div className="py-4 sm:py-8 px-4 sm:px-8 -mx-4 sm:-mx-6 max-h-[60vh] sm:max-h-[65vh] overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6 sm:space-y-8">
             {/* Tiêu đề - Full width */}
             <div className="group">
@@ -923,7 +923,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 <span>
                   {formType === 'self'
-                    ? 'Tạo công việc'
+                    ? 'Lưu Công Việc'
                     : formType === 'team'
                       ? 'Giao công việc cho Nhóm'
                       : 'Giao công việc cho thành viên'}
