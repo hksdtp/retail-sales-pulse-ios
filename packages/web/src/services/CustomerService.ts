@@ -23,19 +23,38 @@ export class CustomerService {
    */
   async createCustomer(customerData: CustomerFormData, currentUser: User): Promise<Customer | null> {
     try {
+      console.log('🔍 Creating customer with data:', customerData);
+      console.log('🔍 Current user:', currentUser);
+      console.log('🔍 Current user ID:', currentUser?.id);
+
+      // Validate currentUser
+      if (!currentUser || !currentUser.id) {
+        throw new Error('Invalid currentUser or missing ID');
+      }
+
       const now = new Date().toISOString();
-      
-      const customer: Omit<Customer, 'id'> = {
-        ...customerData,
+
+      // Clean data - remove undefined values
+      const cleanedData = {
+        name: customerData.name,
+        type: customerData.type,
+        phone: customerData.phone,
+        email: customerData.email || '', // Ensure email is never undefined
+        address: customerData.address || '',
+        notes: customerData.notes || '',
         assignedTo: customerData.assignedTo || currentUser.id,
-        assignedToName: customerData.assignedTo ? 
+      };
+
+      const customer: Omit<Customer, 'id'> = {
+        ...cleanedData,
+        assignedToName: customerData.assignedTo ?
           await this.getUserName(customerData.assignedTo) : currentUser.name,
         createdBy: currentUser.id,
         createdByName: currentUser.name,
         createdAt: now,
         updatedAt: now,
-        teamId: currentUser.team_id,
-        location: currentUser.location,
+        teamId: currentUser.team_id || '',
+        location: currentUser.location || '',
         status: 'active',
       };
 
@@ -63,8 +82,19 @@ export class CustomerService {
    */
   async updateCustomer(customerId: string, customerData: Partial<CustomerFormData>, currentUser: User): Promise<boolean> {
     try {
+      // Clean data - remove undefined values
+      const cleanedData = {
+        name: customerData.name,
+        type: customerData.type,
+        phone: customerData.phone,
+        email: customerData.email || '', // Ensure email is never undefined
+        address: customerData.address || '',
+        notes: customerData.notes || '',
+        assignedTo: customerData.assignedTo || currentUser.id,
+      };
+
       const updateData: any = {
-        ...customerData,
+        ...cleanedData,
         updatedAt: new Date().toISOString(),
       };
 

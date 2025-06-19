@@ -30,7 +30,7 @@ class AugmentMCPServer extends EventEmitter {
 
   setupMiddleware() {
     this.app.use(cors({
-      origin: ['http://localhost:8088', 'http://localhost:4173', 'http://localhost:3000'],
+      origin: ['http://localhost:8089', 'http://localhost:8088', 'http://localhost:4173', 'http://localhost:3000'],
       credentials: true
     }));
     this.app.use(express.json({ limit: '50mb' }));

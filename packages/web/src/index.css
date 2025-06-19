@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import './styles/dialog-fixes.css';
+@import './styles/mobile-performance.css';
+@import './styles/ios-design-system.css';
 
 @tailwind base;
 @tailwind components;
@@ -646,13 +648,11 @@ html:not(.dark) .text-gray-600 {
   color: #0052A3;
 }
 
-/* Mobile responsive styles */
+/* Enhanced Mobile responsive styles */
 @media (max-width: 767px) {
-    .sidebar-desktop {
-        display: none !important;
-    }
+    /* Sidebar visibility is now controlled by AppLayout component */
 
-    /* Force bottom navigation to be visible on mobile */
+    /* Enhanced bottom navigation for mobile */
     .bottom-nav-mobile {
         display: block !important;
         position: fixed !important;
@@ -664,17 +664,20 @@ html:not(.dark) .text-gray-600 {
         opacity: 1 !important;
         pointer-events: auto !important;
         width: 100vw !important;
-        min-height: 70px !important;
-        max-height: 70px !important;
+        min-height: calc(70px + env(safe-area-inset-bottom)) !important;
         transform: translateZ(0) !important; /* Force hardware acceleration */
+        /* Enhanced backdrop blur for better iOS-like feel */
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     }
 
-    /* Force horizontal layout */
+    /* Enhanced horizontal layout with better spacing */
     .bottom-nav-mobile > div {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-around !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
     }
 
     .bottom-nav-mobile a,
@@ -713,28 +716,34 @@ html:not(.dark) .text-gray-600 {
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
 
-/* Mobile layout improvements */
+/* Enhanced Mobile layout improvements */
 @media (max-width: 767px) {
-    /* Ensure content doesn't get cut off */
+    /* Optimized viewport handling for mobile */
     main {
         height: 100vh;
         height: 100dvh; /* Dynamic viewport height for mobile */
-        padding-bottom: 50px !important;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
         overflow-y: auto;
+        /* Enhanced scrolling performance */
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
 
-    /* Better mobile spacing */
+    /* Enhanced mobile content spacing */
     .mobile-content {
-        padding-bottom: 50px !important;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+        padding-left: max(1rem, env(safe-area-inset-left)) !important;
+        padding-right: max(1rem, env(safe-area-inset-right)) !important;
     }
 
-    /* Smooth scrolling on mobile */
+    /* Optimized scrolling for mobile */
     .mobile-scroll {
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;
+        overscroll-behavior: contain;
     }
 
-    /* Ensure all page content has proper bottom padding */
+    /* Enhanced page content spacing with safe areas */
     .page-content,
     .dashboard-content,
     .task-content,
@@ -747,8 +756,34 @@ html:not(.dark) .text-gray-600 {
     main > div > div,
     body > div,
     #root > div {
-        padding-bottom: 50px !important;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
         margin-bottom: 0 !important;
+    }
+
+    /* Enhanced touch targets for mobile */
+    button,
+    .btn,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        touch-action: manipulation;
+    }
+
+    /* Improved form elements for mobile */
+    input,
+    textarea,
+    select {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        min-height: 44px !important;
+    }
+
+    /* Enhanced card spacing for mobile */
+    .card,
+    .card-content {
+        margin-bottom: 1rem !important;
+        padding: 1rem !important;
     }
 
     /* Employee page mobile optimizations */
@@ -1248,5 +1283,477 @@ div[data-radix-dialog-content] {
 @media (min-width: 768px) {
     .bottom-nav-mobile {
         display: none !important;
+    }
+}
+
+/* ===== ENHANCED MOBILE OPTIMIZATIONS ===== */
+
+/* Mobile-first responsive typography */
+@media (max-width: 767px) {
+    /* Optimized font sizes for mobile readability */
+    h1 { font-size: 1.75rem !important; line-height: 1.2 !important; }
+    h2 { font-size: 1.5rem !important; line-height: 1.3 !important; }
+    h3 { font-size: 1.25rem !important; line-height: 1.4 !important; }
+    h4 { font-size: 1.125rem !important; line-height: 1.4 !important; }
+
+    /* Enhanced mobile text readability */
+    p, span, div {
+        line-height: 1.5 !important;
+        letter-spacing: 0.01em !important;
+    }
+
+    /* Mobile-optimized button typography */
+    button, .btn {
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.02em !important;
+    }
+}
+
+/* Enhanced mobile performance optimizations */
+@media (max-width: 767px) {
+    /* Hardware acceleration for smooth animations */
+    .bottom-nav-mobile,
+    .bottom-nav-mobile *,
+    main,
+    .card,
+    .ios-card,
+    .macos-card {
+        transform: translateZ(0) !important;
+        backface-visibility: hidden !important;
+        perspective: 1000px !important;
+    }
+
+    /* Optimized scrolling performance */
+    /* * {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+        overscroll-behavior: contain !important;
+    } */
+
+    /* Reduce motion for better performance on low-end devices */
+    /* @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    } */
+}
+
+/* Enhanced mobile interaction improvements */
+@media (max-width: 767px) {
+    /* Larger tap targets for better accessibility */
+    a, button, [role="button"], input, select, textarea {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        padding: 0.75rem !important;
+    }
+
+    /* Enhanced focus states for mobile */
+    a:focus, button:focus, input:focus, select:focus, textarea:focus {
+        outline: 2px solid #007AFF !important;
+        outline-offset: 2px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Improved active states for touch feedback */
+    a:active, button:active, [role="button"]:active {
+        transform: scale(0.98) !important;
+        transition: transform 0.1s ease !important;
+    }
+
+    /* Enhanced card interactions */
+    .card:active, .ios-card:active, .macos-card:active {
+        transform: scale(0.99) !important;
+        transition: transform 0.15s ease !important;
+    }
+}
+
+/* Mobile-specific layout enhancements */
+@media (max-width: 767px) {
+    /* Optimized grid layouts for mobile */
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Enhanced mobile spacing system */
+    .space-y-6 > * + * { margin-top: 1rem !important; }
+    .space-y-4 > * + * { margin-top: 0.75rem !important; }
+    .space-y-2 > * + * { margin-top: 0.5rem !important; }
+
+    /* Mobile-optimized padding system */
+    .p-6 { padding: 1rem !important; }
+    .p-4 { padding: 0.75rem !important; }
+    .p-2 { padding: 0.5rem !important; }
+
+    /* Enhanced mobile margins */
+    .m-6 { margin: 1rem !important; }
+    .m-4 { margin: 0.75rem !important; }
+    .m-2 { margin: 0.5rem !important; }
+}
+
+/* iOS-specific enhancements */
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari specific optimizations */
+    body {
+        -webkit-text-size-adjust: 100% !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Enhanced iOS scrolling */
+    .mobile-scroll, main, .overflow-y-auto {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-snap-type: y proximity !important;
+    }
+
+    /* iOS safe area enhancements */
+    @media (max-width: 767px) {
+        .bottom-nav-mobile {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        }
+
+        main {
+            padding-top: max(1rem, env(safe-area-inset-top)) !important;
+            padding-left: max(1rem, env(safe-area-inset-left)) !important;
+            padding-right: max(1rem, env(safe-area-inset-right)) !important;
+        }
+    }
+}
+
+/* Enhanced mobile form optimizations */
+@media (max-width: 767px) {
+    /* Prevent iOS zoom on input focus */
+    input, textarea, select {
+        font-size: 16px !important;
+        -webkit-appearance: none !important;
+        border-radius: 8px !important;
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Enhanced mobile form spacing */
+    .form-group, .space-y-4 > div {
+        margin-bottom: 1rem !important;
+    }
+
+    /* Mobile-optimized select dropdowns */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: right 0.5rem center !important;
+        background-repeat: no-repeat !important;
+        background-size: 1.5em 1.5em !important;
+        padding-right: 2.5rem !important;
+    }
+}
+
+/* ===== CALENDAR MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 767px) {
+    /* Calendar container optimizations */
+    .calendar-container {
+        padding: 0.75rem !important;
+    }
+
+    /* Calendar grid mobile improvements */
+    [data-testid="calendar"],
+    .rdp,
+    .rdp-months,
+    .rdp-month,
+    .rdp-table,
+    .rdp-tbody {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* Calendar day cells mobile optimization */
+    [role="gridcell"],
+    .rdp-cell,
+    .rdp-day {
+        min-height: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
+        width: 40px !important;
+        font-size: 14px !important;
+        touch-action: manipulation !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Calendar navigation buttons */
+    [role="button"][aria-label*="Previous"],
+    [role="button"][aria-label*="Next"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        touch-action: manipulation !important;
+    }
+
+    /* Calendar month/year header */
+    [role="heading"] {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+    }
+
+    /* Calendar popover mobile positioning */
+    [data-radix-popper-content-wrapper] {
+        max-width: calc(100vw - 2rem) !important;
+        margin: 0 1rem !important;
+    }
+
+    /* Calendar date picker mobile improvements */
+    .calendar-date-picker {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Modern calendar mobile layout */
+    .modern-calendar-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Calendar card mobile spacing */
+    .calendar-card {
+        margin-bottom: 1rem !important;
+        padding: 0.75rem !important;
+    }
+
+    /* Calendar day with plans indicator */
+    .calendar-day-with-plans {
+        position: relative;
+    }
+
+    .calendar-day-with-plans::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 6px;
+        height: 6px;
+        background-color: #3b82f6;
+        border-radius: 50%;
+    }
+
+    /* Calendar touch feedback */
+    .calendar-day:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s ease !important;
+    }
+
+    /* Calendar month navigation mobile */
+    .calendar-month-nav {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.5rem !important;
+    }
+
+    /* Calendar plans list mobile */
+    .calendar-plans-list {
+        max-height: 300px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Calendar plan item mobile */
+    .calendar-plan-item {
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+        border-radius: 8px !important;
+        touch-action: manipulation !important;
+    }
+
+    .calendar-plan-item:active {
+        transform: scale(0.98) !important;
+        transition: transform 0.1s ease !important;
+    }
+
+    /* Fix calendar table display issues - FORCE GRID LAYOUT */
+    .rdp-table {
+        display: table !important;
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 2px !important;
+        table-layout: fixed !important;
+    }
+
+    .rdp-head_row,
+    .rdp-row {
+        display: table-row !important;
+        width: 100% !important;
+    }
+
+    .rdp-head_cell,
+    .rdp-cell {
+        display: table-cell !important;
+        width: 14.28% !important; /* 100% / 7 columns */
+        vertical-align: middle !important;
+        text-align: center !important;
+        padding: 2px !important;
+    }
+
+    /* Ensure all calendar rows are visible */
+    .rdp-tbody {
+        display: table-row-group !important;
+    }
+
+    .rdp-thead {
+        display: table-header-group !important;
+    }
+
+    /* Fix calendar month container */
+    .rdp-month {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Calendar wrapper mobile fix */
+    .rdp-months {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Force calendar to show all weeks */
+    .rdp {
+        min-height: 300px !important;
+        height: auto !important;
+    }
+
+    /* FORCE CALENDAR GRID LAYOUT - OVERRIDE ALL */
+    .calendar-grid-fix {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        grid-template-rows: repeat(6, 1fr) !important;
+        gap: 2px !important;
+        min-height: 240px !important;
+        width: 100% !important;
+    }
+
+    .calendar-grid-fix > * {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 36px !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 4px !important;
+    }
+
+    /* Ensure calendar container doesn't clip content */
+    .calendar-container,
+    .calendar-wrapper {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 300px !important;
+    }
+
+    /* Fix for react-day-picker mobile issues */
+    .rdp-day_button {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* FORCE SIMPLE CALENDAR GRID LAYOUT */
+    .simple-calendar-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        grid-template-rows: repeat(6, 1fr) !important;
+        gap: 4px !important;
+        min-height: 240px !important;
+        width: 100% !important;
+    }
+
+    .simple-calendar-grid > * {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 36px !important;
+        min-width: 36px !important;
+    }
+
+    /* Modern Calendar Mobile Fixes */
+    .mobile-calendar-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+        grid-template-rows: repeat(6, minmax(44px, 1fr)) !important;
+        gap: 2px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .mobile-calendar-day {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Mobile Calendar Navigation */
+    .mobile-calendar-nav {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0.5rem !important;
+    }
+
+    .mobile-calendar-nav button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        touch-action: manipulation !important;
+    }
+
+    /* Mobile Calendar Container */
+    .mobile-calendar-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        padding: 0.75rem !important;
+    }
+
+    /* Mobile Calendar Touch Feedback */
+    .mobile-calendar-day:active {
+        transform: scale(0.95) !important;
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        transition: all 0.1s ease !important;
+    }
+
+    /* Mobile Calendar Plan Indicators */
+    .mobile-calendar-day .w-1\.5 {
+        width: 8px !important;
+        height: 8px !important;
+        margin: 1px !important;
+    }
+
+    /* Mobile Calendar Search and Filters */
+    .mobile-calendar-search {
+        padding: 0.75rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .mobile-calendar-search input {
+        min-height: 44px !important;
+        font-size: 16px !important;
+        padding: 0.75rem !important;
+    }
+
+    .mobile-calendar-search select {
+        min-height: 44px !important;
+        font-size: 16px !important;
+        padding: 0.75rem 2.5rem 0.75rem 0.75rem !important;
     }
 }

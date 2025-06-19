@@ -4,6 +4,27 @@ import { createRoot } from 'react-dom/client';
 import '../setup-sheets.js';
 import App from './App.tsx';
 import './index.css';
+
+// Initialize Firebase
+import { FirebaseService } from './services/FirebaseService';
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBqJVJKvXxKxKxKxKxKxKxKxKxKxKxKxKx",
+  authDomain: "appqlgd.firebaseapp.com",
+  projectId: "appqlgd",
+  storageBucket: "appqlgd.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdefghijklmnop"
+};
+
+// Initialize Firebase
+try {
+  FirebaseService.initializeApp(firebaseConfig);
+  console.log('🔥 Firebase initialized successfully');
+} catch (error) {
+  console.error('🔥 Firebase initialization failed:', error);
+}
 import './styles/dark-theme.css';
 import './styles/login-theme.css';
 import './styles/macos.css';

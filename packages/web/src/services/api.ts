@@ -104,14 +104,36 @@ class ApiClient {
       }
 
       const responseText = await response.text();
-      console.log(`📄 Raw response:`, responseText);
+      console.log(`📄 Raw response:`, responseText.substring(0, 500));
 
       let data;
       try {
+        // Check if response is HTML (common error case)
+        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+          console.error(`❌ Server returned HTML instead of JSON. This usually means:
+            1. API endpoint not found (404)
+            2. Server error (500)
+            3. CORS issues
+            4. Wrong API URL`);
+          throw new Error(`Server returned HTML instead of JSON. Check API endpoint and server status.`);
+        }
+
+        // Check if response is empty
+        if (!responseText.trim()) {
+          console.error(`❌ Empty response from server`);
+          throw new Error(`Empty response from server`);
+        }
+
         data = JSON.parse(responseText);
       } catch (parseError) {
         console.error(`❌ JSON Parse Error:`, parseError);
-        console.error(`📄 Response text that failed to parse:`, responseText);
+        console.error(`📄 Response text that failed to parse:`, responseText.substring(0, 500));
+
+        // Provide more helpful error message
+        if (responseText.includes('<script type="module">import { injectIntoGlobalHook }')) {
+          throw new Error(`Server returned React development page instead of API response. Check if API server is running correctly.`);
+        }
+
         throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
       }
 
@@ -134,25 +156,48 @@ class ApiClient {
 
   // Tasks API với phân quyền
   async getTasks(currentUser?: any): Promise<ApiResponse<Task[]>> {
-    let url = API_ENDPOINTS.TASKS;
+    // Check if using test server (development mode)
+    const isTestServer = import.meta.env.DEV && window.location.hostname === 'localhost';
 
-    if (currentUser) {
-      const params = new URLSearchParams();
-      params.append('user_id', currentUser.id);
-      params.append('role', currentUser.role);
+    if (isTestServer) {
+      // Use test server endpoint
+      let url = '/tasks/manager-view';
 
-      if (currentUser.team_id) {
-        params.append('team_id', currentUser.team_id);
+      if (currentUser) {
+        const params = new URLSearchParams();
+        params.append('role', currentUser.role);
+        params.append('view_level', 'department');
+
+        if (currentUser.department_type) {
+          params.append('department', currentUser.department_type);
+        }
+
+        url += `?${params.toString()}`;
       }
 
-      if (currentUser.department_type) {
-        params.append('department', currentUser.department_type);
+      return this.request<Task[]>(url);
+    } else {
+      // Use production API endpoint - fallback to /tasks if manager-view doesn't exist
+      let url = API_ENDPOINTS.TASKS;
+
+      if (currentUser) {
+        const params = new URLSearchParams();
+        params.append('user_id', currentUser.id);
+        params.append('role', currentUser.role);
+
+        if (currentUser.team_id) {
+          params.append('team_id', currentUser.team_id);
+        }
+
+        if (currentUser.department_type) {
+          params.append('department', currentUser.department_type);
+        }
+
+        url += `?${params.toString()}`;
       }
 
-      url += `?${params.toString()}`;
+      return this.request<Task[]>(url);
     }
-
-    return this.request<Task[]>(url);
   }
 
   async getTaskById(id: string): Promise<ApiResponse<Task>> {

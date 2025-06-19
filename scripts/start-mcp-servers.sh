@@ -26,24 +26,26 @@ pkill -f "server-augment" 2>/dev/null || true
 # Đợi một chút để processes tắt hoàn toàn
 sleep 2
 
-# Khởi động MCP Playwright Server
-echo "🎭 Khởi động MCP Playwright Server..."
+# Khởi động Playwright Test Server
+echo "🎭 Khởi động Playwright Test Server..."
 if check_port 3001; then
-    npx @modelcontextprotocol/server-playwright --port 3001 &
+    # Sử dụng dedicated Playwright server
+    node ./scripts/playwright-server.js &
     PLAYWRIGHT_PID=$!
-    echo "✅ MCP Playwright Server đang chạy (PID: $PLAYWRIGHT_PID, Port: 3001)"
+    echo "✅ Playwright Test Server đang chạy (PID: $PLAYWRIGHT_PID, Port: 3001)"
 else
-    echo "❌ Không thể khởi động MCP Playwright Server - port 3001 đang được sử dụng"
+    echo "❌ Không thể khởi động Playwright Test Server - port 3001 đang được sử dụng"
 fi
 
-# Khởi động MCP Augment Server  
-echo "🔧 Khởi động MCP Augment Server..."
+# Khởi động Augment Code Server
+echo "🔧 Khởi động Augment Code Server..."
 if check_port 3002; then
-    npx @modelcontextprotocol/server-augment --port 3002 &
+    # Sử dụng dedicated Augment server
+    node ./scripts/augment-server.js &
     AUGMENT_PID=$!
-    echo "✅ MCP Augment Server đang chạy (PID: $AUGMENT_PID, Port: 3002)"
+    echo "✅ Augment Code Server đang chạy (PID: $AUGMENT_PID, Port: 3002)"
 else
-    echo "❌ Không thể khởi động MCP Augment Server - port 3002 đang được sử dụng"
+    echo "❌ Không thể khởi động Augment Code Server - port 3002 đang được sử dụng"
 fi
 
 # Tạo file PID để track processes
@@ -51,13 +53,15 @@ echo "$PLAYWRIGHT_PID" > .playwright.pid
 echo "$AUGMENT_PID" > .augment.pid
 
 echo ""
-echo "🎉 MCP Servers đã khởi động!"
+echo "🎉 Development Servers đã khởi động!"
 echo "📋 Thông tin:"
-echo "  - Playwright Server: http://localhost:3001"
-echo "  - Augment Server: http://localhost:3002"
+echo "  - Playwright Test Server: http://localhost:3001"
+echo "  - Augment Code Server: http://localhost:3002"
 echo ""
 echo "🔧 Sử dụng:"
-echo "  plw test <description> - Chạy Playwright tests"
-echo "  aug fix <description> - Sử dụng Augment để fix code"
+echo "  ./plw test <description> - Chạy Playwright tests"
+echo "  ./aug fix <description> - Sử dụng Augment để fix code"
+echo "  curl http://localhost:3001/health - Test Playwright server"
+echo "  curl http://localhost:3002/health - Test Augment server"
 echo ""
 echo "⏹️  Để dừng servers: npm run stop:mcp"

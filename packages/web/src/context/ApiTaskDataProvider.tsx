@@ -63,7 +63,7 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
       } else {
         console.error('❌ Lỗi khi tải tasks:', response.error);
         toast({
-          title: 'Lỗi',
+          title: 'Lỗi khi tải tasks',
           description: response.error || 'Không thể tải dữ liệu công việc',
           variant: 'destructive',
         });
@@ -71,7 +71,7 @@ export const ApiTaskDataProvider: React.FC<{ children: ReactNode }> = ({ childre
     } catch (error) {
       console.error('❌ Lỗi khi tải tasks:', error);
       toast({
-        title: 'Lỗi',
+        title: 'Lỗi khi tải tasks',
         description: 'Không thể kết nối đến server',
         variant: 'destructive',
       });

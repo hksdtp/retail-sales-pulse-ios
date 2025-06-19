@@ -104,6 +104,11 @@ export class FirebaseService {
   }
 
   private connectToEmulatorsIfDev(): void {
+    // Temporarily disable emulator connection to avoid conflicts
+    console.log('🔥 Skipping Firebase emulator connection - using production Firebase');
+    console.log('🔥 To enable emulators, uncomment the code in connectToEmulatorsIfDev()');
+
+    /*
     // Check if we're in development environment
     const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV === 'true';
 
@@ -114,8 +119,8 @@ export class FirebaseService {
     try {
       // Connect Firestore to emulator
       if (this.db) {
-        connectFirestoreEmulator(this.db, 'localhost', 8080);
-        console.log('🔥 Connected to Firestore emulator on localhost:8080');
+        connectFirestoreEmulator(this.db, 'localhost', 9099);
+        console.log('🔥 Connected to Firestore emulator on localhost:9099');
       }
 
       // Connect Storage to emulator
@@ -129,7 +134,12 @@ export class FirebaseService {
     } catch (error) {
       // Emulators might already be connected or not running
       console.warn('⚠️ Could not connect to Firebase emulators:', error);
+      console.warn('⚠️ Make sure Firebase emulators are running: firebase emulators:start');
+
+      // Continue without emulators - use production Firebase
+      console.log('🔥 Continuing with production Firebase configuration');
     }
+    */
   }
 
   public getFirestore(): Firestore | null {

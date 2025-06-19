@@ -8,8 +8,8 @@
     <meta name="author" content="Phòng Kinh Doanh" />
     <meta name="theme-color" content="#ffffff" />
 
-    <!-- ULTRA PERMISSIVE CSP for Google APIs -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src *; media-src *; object-src *; child-src *; frame-src *; worker-src *; frame-ancestors *; form-action *; base-uri *;" />
+    <!-- ULTRA PERMISSIVE CSP for Google APIs - Fixed frame-ancestors -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src *; media-src *; object-src *; child-src *; frame-src *; worker-src *; form-action *; base-uri *;" />
 
     <!-- Cache Control -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -53,10 +53,10 @@
           }
         });
 
-        // Add ultra-permissive CSP
+        // Add ultra-permissive CSP - Fixed frame-ancestors
         const newCSP = document.createElement('meta');
         newCSP.setAttribute('http-equiv', 'Content-Security-Policy');
-        newCSP.setAttribute('content', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *;");
+        newCSP.setAttribute('content', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; media-src *; object-src *; child-src *; worker-src *; form-action *; base-uri *;");
         document.head.appendChild(newCSP);
         console.log('✅ Added emergency permissive CSP');
       })();
@@ -66,6 +66,12 @@
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script src="/google-api-init.js"></script>
+
+    <!-- Debug API script for development -->
+    <script src="/debug-api.js"></script>
+
+    <!-- Force refresh script for cache issues -->
+    <script src="/force-refresh.js"></script>
 
     <!-- Font Awesome icons -->
     <link

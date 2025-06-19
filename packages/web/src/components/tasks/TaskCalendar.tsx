@@ -246,19 +246,19 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mobile-content">
       {/* Calendar */}
       <div className="lg:col-span-1">
         <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold text-gray-800">Lịch kế hoạch</CardTitle>
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-base md:text-lg font-semibold text-gray-800">Lịch kế hoạch</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Calendar
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="p-3"
+              className="p-2 md:p-3"
               modifiers={{
                 hasTasks: isDayWithTask,
               }}

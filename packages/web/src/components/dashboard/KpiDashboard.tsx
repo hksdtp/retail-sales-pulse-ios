@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import React from 'react';
-import { BarChart3, TrendingUp, Users, DollarSign } from 'lucide-react';
+
+import { DashboardIcon, TrendingUpIcon, UsersIcon, DollarSignIcon } from '@/components/ui/sf-symbol';
 
 
 import ConversionRates from '@/components/dashboard/ConversionRates';
@@ -79,11 +80,11 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
     if (!kpiData || kpiData.length === 0) {
       return (
         <div className="p-4 md:p-6 space-y-8">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-[20px] border border-gray-200 p-8 text-center">
-            <div className="text-gray-500 mb-4">
-              <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-semibold mb-2">Chưa có dữ liệu</h3>
-              <p className="text-sm">Dashboard sẽ hiển thị dữ liệu khi có công việc và báo cáo.</p>
+          <div className="ios-card rounded-ios-2xl border border-ios-gray-4 p-ios-8 text-center">
+            <div className="text-ios-label-secondary mb-ios-4">
+              <DashboardIcon size="2xl" className="mx-auto mb-ios-4 text-ios-gray" />
+              <h3 className="ios-headline mb-ios-2">Chưa có dữ liệu</h3>
+              <p className="ios-subhead">Dashboard sẽ hiển thị dữ liệu khi có công việc và báo cáo.</p>
             </div>
           </div>
         </div>
@@ -91,58 +92,59 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
     }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-ios-3 md:p-ios-6 space-y-ios-4 md:space-y-ios-6 mobile-content">
 
-      {/* Summary Stats */}
+      {/* iOS-Optimized Summary Stats */}
       <motion.div
-        className="bg-gradient-to-br from-slate-50/80 via-white/90 to-blue-50/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg shadow-black/5 p-6"
+        className="ios-card bg-gradient-to-br from-ios-bg-secondary/80 via-white/95 to-ios-blue/5 ios-vibrancy-ultra-thin rounded-ios-2xl border border-ios-gray-4/50 shadow-ios-lg p-ios-3 md:p-ios-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: permissions.canViewAll ? 0.1 : 0 }}
+        transition={{ duration: 0.3, delay: permissions.canViewAll ? 0.1 : 0, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {/* iOS-style responsive grid with 8px spacing system */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-ios-2 md:gap-ios-6">
           <div className="text-center group">
-            <div className="flex items-center justify-center mb-3">
-              <div className="p-2 rounded-xl bg-blue-100/80 group-hover:bg-blue-200/80 transition-colors duration-300">
-                <BarChart3 className="w-5 h-5 text-blue-600" />
+            <div className="flex items-center justify-center mb-ios-2 md:mb-ios-3">
+              <div className="p-ios-2 md:p-ios-3 rounded-ios-xl bg-ios-blue/10 group-hover:bg-ios-blue/15 transition-colors duration-300 ios-touch-feedback">
+                <DashboardIcon size="sm" className="md:w-5 md:h-5" color="#007AFF" />
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tổng công việc</span>
-              <div className="text-2xl font-bold text-slate-800">{summary.totalTasks}</div>
+              <span className="ios-caption-1 uppercase tracking-wider text-ios-label-secondary">Tổng công việc</span>
+              <div className="ios-title-2 md:ios-title-1 font-bold text-ios-label-primary">{summary.totalTasks}</div>
             </div>
           </div>
           <div className="text-center group">
-            <div className="flex items-center justify-center mb-3">
-              <div className="p-2 rounded-xl bg-emerald-100/80 group-hover:bg-emerald-200/80 transition-colors duration-300">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <div className="flex items-center justify-center mb-ios-2 md:mb-ios-3">
+              <div className="p-ios-2 md:p-ios-3 rounded-ios-xl bg-ios-green/10 group-hover:bg-ios-green/15 transition-colors duration-300 ios-touch-feedback">
+                <TrendingUpIcon size="sm" className="md:w-5 md:h-5" color="#34C759" />
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hoàn thành</span>
-              <div className="text-2xl font-bold text-slate-800">{summary.completedTasks}</div>
+              <span className="ios-caption-1 uppercase tracking-wider text-ios-label-secondary">Hoàn thành</span>
+              <div className="ios-title-2 md:ios-title-1 font-bold text-ios-label-primary">{summary.completedTasks}</div>
             </div>
           </div>
           <div className="text-center group">
-            <div className="flex items-center justify-center mb-3">
-              <div className="p-2 rounded-xl bg-purple-100/80 group-hover:bg-purple-200/80 transition-colors duration-300">
-                <Users className="w-5 h-5 text-purple-600" />
+            <div className="flex items-center justify-center mb-ios-2 md:mb-ios-3">
+              <div className="p-ios-2 md:p-ios-3 rounded-ios-xl bg-ios-purple/10 group-hover:bg-ios-purple/15 transition-colors duration-300 ios-touch-feedback">
+                <UsersIcon size="sm" className="md:w-5 md:h-5" color="#AF52DE" />
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tỷ lệ hoàn thành</span>
-              <div className="text-2xl font-bold text-slate-800">{summary.completionRate}%</div>
+              <span className="ios-caption-1 uppercase tracking-wider text-ios-label-secondary">Tỷ lệ hoàn thành</span>
+              <div className="ios-title-2 md:ios-title-1 font-bold text-ios-label-primary">{summary.completionRate}%</div>
             </div>
           </div>
           <div className="text-center group">
-            <div className="flex items-center justify-center mb-3">
-              <div className="p-2 rounded-xl bg-amber-100/80 group-hover:bg-amber-200/80 transition-colors duration-300">
-                <DollarSign className="w-5 h-5 text-amber-600" />
+            <div className="flex items-center justify-center mb-ios-2 md:mb-ios-3">
+              <div className="p-ios-2 md:p-ios-3 rounded-ios-xl bg-ios-orange/10 group-hover:bg-ios-orange/15 transition-colors duration-300 ios-touch-feedback">
+                <DollarSignIcon size="sm" className="md:w-5 md:h-5" color="#FF9500" />
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Doanh số</span>
-              <div className="text-2xl font-bold text-slate-800">
+              <span className="ios-caption-1 uppercase tracking-wider text-ios-label-secondary">Doanh số</span>
+              <div className="ios-title-2 md:ios-title-1 font-bold text-ios-label-primary">
                 {summary.totalSales >= 1000000000
                   ? `${(summary.totalSales / 1000000000).toFixed(1)} tỷ VND`
                   : summary.totalSales >= 1000000
@@ -154,21 +156,21 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
         </div>
       </motion.div>
 
-      {/* KPI Cards */}
+      {/* iOS-Optimized KPI Cards */}
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-ios-2 md:gap-ios-6"
         data-testid="kpi-cards-grid"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
+        transition={{ duration: 0.3, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         {kpiData.map((kpi, index) => (
           <motion.div
             key={`${kpi.title}-${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            whileHover={{ translateY: -5, transition: { duration: 0.4 } }}
+            transition={{ duration: 0.3, delay: index * 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}
+            whileHover={{ translateY: -4, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
             className="overflow-hidden"
           >
             <KpiCard
@@ -189,10 +191,10 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
         ))}
       </motion.div>
 
-      {/* Charts - Hiển thị theo quyền hạn */}
+      {/* Enhanced Mobile-Optimized Charts - Hiển thị theo quyền hạn */}
       {(permissions.canViewAll || permissions.canViewTeam) && (
         <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -249,7 +251,7 @@ const KpiDashboard: React.FC<KpiDashboardProps> = ({
 
     // Error fallback UI
     return (
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="p-3 md:p-6 space-y-4 md:space-y-6">
         <div className="bg-red-50 border border-red-200 rounded-[20px] p-8 text-center">
           <div className="text-red-600 mb-4">
             <BarChart3 className="w-16 h-16 mx-auto mb-4 text-red-400" />

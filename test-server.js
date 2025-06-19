@@ -2,7 +2,13 @@ import express from 'express';
 import cors from 'cors';
 const app = express();
 
-app.use(cors());
+// Enable CORS for all origins in development
+app.use(cors({
+  origin: ['http://localhost:8089', 'http://localhost:8088', 'http://localhost:3000', 'http://localhost:4173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Mock data - công việc chung của phòng
@@ -51,6 +57,16 @@ const sharedTasks = [
   }
 ];
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Test API server is running',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // API endpoint giống Firebase Functions
 app.get('/tasks/manager-view', (req, res) => {
   const { role, view_level, department } = req.query;
@@ -90,8 +106,10 @@ app.get('/tasks/manager-view', (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = 3003; // Changed from 3001 to avoid conflict with MCP Playwright server
 app.listen(PORT, () => {
-  console.log(`🚀 Test server running on http://localhost:${PORT}`);
+  console.log(`🚀 Test API server running on http://localhost:${PORT}`);
   console.log(`📋 Test URL: http://localhost:${PORT}/tasks/manager-view?role=employee&view_level=department&department=retail`);
+  console.log(`🔧 MCP Playwright server: http://localhost:3001`);
+  console.log(`🔧 MCP Augment server: http://localhost:3002`);
 });

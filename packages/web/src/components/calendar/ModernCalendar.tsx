@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import SimpleCalendarGrid from './SimpleCalendarGrid';
 import { personalPlanService, PersonalPlan } from '@/services/PersonalPlanService';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -204,134 +205,18 @@ const ModernCalendar: React.FC<ModernCalendarProps> = ({ onCreatePlan, onEditPla
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6 mobile-content">
       {/* Compact Calendar */}
       <div className="lg:col-span-1">
-        <Card className="shadow-sm border bg-white dark:bg-gray-800">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={goToPreviousMonth}
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                >
-                  <ChevronLeft className="w-3 h-3" />
-                </Button>
-
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {vietnameseMonths[month]} {year}
-                </h2>
-
-                <Button
-                  onClick={goToNextMonth}
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                >
-                  <ChevronRight className="w-3 h-3" />
-                </Button>
-              </div>
-
-              <Button
-                onClick={goToToday}
-                variant="ghost"
-                size="sm"
-                className="text-xs px-2 py-1 h-6"
-              >
-                Hôm nay
-              </Button>
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-3">
-            {/* Day headers */}
-            <div className="grid grid-cols-7 gap-0.5 mb-1">
-              {vietnameseDaysShort.map((day, index) => (
-                <div
-                  key={day}
-                  className={`text-center text-xs font-medium py-1 ${
-                    index === 0 ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'
-                  }`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Compact Calendar grid */}
-            <div className="grid grid-cols-7 gap-0.5">
-              {calendarDays.map((day, index) => {
-                const dayPlans = getPlansForDate(day.fullDate);
-                const dateStr = day.fullDate.toISOString().split('T')[0];
-                const holiday = isVietnamHoliday(dateStr);
-                const isOfficial = isOfficialHoliday(dateStr);
-
-                return (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`
-                      relative min-h-[32px] p-1 border border-gray-100 dark:border-gray-700 rounded cursor-pointer
-                      transition-all duration-200 hover:shadow-sm
-                      ${day.isCurrentMonth
-                        ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        : 'bg-gray-50 dark:bg-gray-900 text-gray-400'
-                      }
-                      ${day.isToday ? 'ring-1 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''}
-                      ${selectedDate?.toDateString() === day.fullDate.toDateString()
-                        ? 'ring-1 ring-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                        : ''
-                      }
-                    `}
-                    onClick={() => setSelectedDate(day.fullDate)}
-                  >
-                    {/* Date number and indicators */}
-                    <div className="flex items-center justify-between">
-                      <span className={`
-                        text-xs font-medium
-                        ${day.isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}
-                        ${holiday && isOfficial ? 'text-red-600 dark:text-red-400' : ''}
-                      `}>
-                        {day.date}
-                      </span>
-
-                      <div className="flex items-center gap-0.5">
-                        {/* Holiday indicator */}
-                        {holiday && (
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              isOfficial ? 'bg-red-500' : 'bg-orange-500'
-                            }`}
-                            title={holiday.name}
-                          />
-                        )}
-
-                        {/* Plans indicator */}
-                        {dayPlans.length > 0 && (
-                          <div className="flex items-center gap-0.5">
-                            {dayPlans.slice(0, 3).map((plan, i) => (
-                              <div
-                                key={i}
-                                className={`w-1.5 h-1.5 rounded-full ${getPriorityColor(plan.priority)}`}
-                                title={plan.title}
-                              />
-                            ))}
-                            {dayPlans.length > 3 && (
-                              <span className="text-[10px] text-gray-500">+</span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <SimpleCalendarGrid
+          currentDate={currentDate}
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+          onPreviousMonth={goToPreviousMonth}
+          onNextMonth={goToNextMonth}
+          onToday={goToToday}
+          getPlansForDate={getPlansForDate}
+        />
 
         {/* Quick actions */}
         <div className="mt-4 space-y-2">
@@ -354,7 +239,7 @@ const ModernCalendar: React.FC<ModernCalendarProps> = ({ onCreatePlan, onEditPla
         <div className="space-y-4">
           {/* Search and filters */}
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-4 mobile-calendar-search">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

@@ -76,14 +76,21 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           "flex-1 flex flex-col relative z-0 h-screen overflow-hidden transition-all duration-300",
           // Desktop: no margin needed as sidebar is in flex layout
           !isMobile && "ml-0",
-          // Mobile: no margin, add bottom padding for bottom nav
+          // Mobile: optimized layout with safe areas
           isMobile && "ml-0"
         )}>
           <div className={cn(
             "flex-1 overflow-y-auto overflow-x-hidden",
-            "p-1 md:p-2",
-            // Mobile: Minimal bottom padding
-            isMobile && "pb-[50px]"
+            // Mobile-first responsive padding
+            "p-3 sm:p-4 md:p-6",
+            // Mobile: Enhanced bottom padding for bottom nav + safe area
+            isMobile && "pb-[calc(70px+env(safe-area-inset-bottom))]",
+            // Mobile: Top padding for status bar
+            isMobile && "pt-[max(1rem,env(safe-area-inset-top))]",
+            // Mobile: Side padding for safe areas
+            isMobile && "px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]",
+            // Smooth scrolling for mobile
+            isMobile && "scroll-smooth"
           )}>
             {children}
           </div>

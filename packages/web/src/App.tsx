@@ -8,6 +8,7 @@ import VersionChecker from './components/layout/VersionChecker';
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
+import MobileOptimizations from './components/mobile/MobileOptimizations';
 import { ApiTaskDataProvider } from './context/ApiTaskDataProvider';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -19,6 +20,7 @@ import Index from './pages/Index';
 import Kpi from './pages/Kpi';
 import Login from './pages/Login';
 import MobileTest from './pages/MobileTest';
+import MobileOptimizationTest from './pages/MobileOptimizationTest';
 import NotFound from './pages/NotFound';
 import AccountPage from './pages/AccountPage';
 
@@ -47,7 +49,13 @@ const App = () => (
             <Toaster />
             <Sonner />
             <VersionChecker />
-            <BrowserRouter>
+            {/* <MobileOptimizations /> */}
+            <BrowserRouter
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/firebase-setup" element={<FirebaseSetup />} />
@@ -88,7 +96,7 @@ const App = () => (
                     path="/customers"
                     element={
                       <ProtectedRoute>
-                        <CustomersSimple />
+                        <Customers />
                       </ProtectedRoute>
                     }
                   />
@@ -160,6 +168,7 @@ const App = () => (
                     }
                   />
                   <Route path="/debug" element={<DebugPage />} />
+                  {/* <Route path="/mobile-test" element={<MobileOptimizationTest />} /> */}
                   <Route path="/simple-customers" element={<SimpleCustomers />} />
                   <Route path="/customer-test" element={<CustomerTest />} />
                   <Route path="/customers-simple" element={<CustomersSimple />} />

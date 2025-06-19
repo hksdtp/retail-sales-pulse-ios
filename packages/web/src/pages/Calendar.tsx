@@ -110,7 +110,7 @@ const Calendar = () => {
         }
       />
 
-      <div className="p-4 md:p-6">
+      <div className="p-3 md:p-6 mobile-content">
         <ModernCalendar
           onCreatePlan={handleCreatePlan}
           onEditPlan={handleEditPlan}

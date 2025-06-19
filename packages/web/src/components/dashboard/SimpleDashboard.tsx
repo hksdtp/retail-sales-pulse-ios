@@ -71,14 +71,14 @@ const SimpleDashboard: React.FC<SimpleDashboardProps> = ({ currentUser, isLoadin
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-8">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-8 mobile-content">
       {/* Summary */}
-      <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-blue-50/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg shadow-black/5 p-6">
+      <div className="bg-gradient-to-br from-slate-50/80 via-white/90 to-blue-50/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg shadow-black/5 p-4 md:p-6">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100/80 rounded-xl mb-4">
-            <BarChart3 className="w-6 h-6 text-blue-600" />
+          <div className="inline-flex items-center justify-center w-10 md:w-12 h-10 md:h-12 bg-blue-100/80 rounded-xl mb-3 md:mb-4">
+            <BarChart3 className="w-5 md:w-6 h-5 md:h-6 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-800 mb-2">
+          <h3 className="text-base md:text-lg font-semibold text-slate-800 mb-2">
             Dashboard đang được cập nhật
           </h3>
           <p className="text-sm text-slate-600">
@@ -87,8 +87,8 @@ const SimpleDashboard: React.FC<SimpleDashboardProps> = ({ currentUser, isLoadin
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" data-testid="kpi-cards-grid">
+      {/* Enhanced Mobile-Optimized KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6" data-testid="kpi-cards-grid">
         {kpiCards.map((card, index) => {
           const Icon = card.icon;
           const colorClasses = getColorClasses(card.color);
@@ -97,24 +97,24 @@ const SimpleDashboard: React.FC<SimpleDashboardProps> = ({ currentUser, isLoadin
             <div
               key={index}
               className={`
-                rounded-2xl border backdrop-blur-xl p-6
+                rounded-2xl border backdrop-blur-xl p-3 md:p-6
                 transition-all duration-500 ease-out
                 hover:shadow-lg hover:shadow-black/10
                 hover:scale-[1.02] hover:-translate-y-1
                 group ${colorClasses}
               `}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 rounded-xl bg-white/60 group-hover:bg-white/80 transition-colors duration-300">
-                  <Icon className="w-5 h-5" />
+              <div className="flex items-center justify-between mb-2 md:mb-4">
+                <div className="p-1.5 md:p-2 rounded-xl bg-white/60 group-hover:bg-white/80 transition-colors duration-300">
+                  <Icon className="w-4 md:w-5 h-4 md:h-5" />
                 </div>
-                <div className={`w-2 h-2 rounded-full ${card.color === 'yellow' ? 'bg-amber-400' : 'bg-blue-400'} shadow-sm`}></div>
+                <div className={`w-1.5 md:w-2 h-1.5 md:h-2 rounded-full ${card.color === 'yellow' ? 'bg-amber-400' : 'bg-blue-400'} shadow-sm`}></div>
               </div>
 
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold tracking-wide uppercase opacity-90">{card.title}</h4>
-                <div className="text-2xl font-bold tracking-tight">{card.value}</div>
-                <div className="text-xs font-medium opacity-75 bg-white/40 rounded-lg px-2 py-1 inline-block">
+              <div className="space-y-2 md:space-y-3">
+                <h4 className="text-xs md:text-sm font-semibold tracking-wide uppercase opacity-90">{card.title}</h4>
+                <div className="text-lg md:text-2xl font-bold tracking-tight">{card.value}</div>
+                <div className="text-xs font-medium opacity-75 bg-white/40 rounded-lg px-1.5 md:px-2 py-0.5 md:py-1 inline-block">
                   Chưa có dữ liệu
                 </div>
               </div>
@@ -124,10 +124,10 @@ const SimpleDashboard: React.FC<SimpleDashboardProps> = ({ currentUser, isLoadin
       </div>
 
       {/* Info Section */}
-      <div className="bg-gradient-to-br from-white/80 to-slate-50/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg shadow-black/5 p-8">
+      <div className="bg-gradient-to-br from-white/80 to-slate-50/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg shadow-black/5 p-6 md:p-8">
         <div className="text-center text-slate-600">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100/80 to-indigo-100/80 rounded-2xl mb-4">
-            <BarChart3 className="w-8 h-8 text-blue-600" />
+          <div className="inline-flex items-center justify-center w-12 md:w-16 h-12 md:h-16 bg-gradient-to-br from-blue-100/80 to-indigo-100/80 rounded-2xl mb-3 md:mb-4">
+            <BarChart3 className="w-6 md:w-8 h-6 md:h-8 text-blue-600" />
           </div>
           <h4 className="font-semibold text-slate-800 mb-3">Bắt đầu sử dụng Dashboard</h4>
           <p className="text-sm text-slate-600 max-w-md mx-auto">

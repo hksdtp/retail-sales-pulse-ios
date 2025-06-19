@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { User, Settings, LogOut, Shield, Bell, Palette, Globe } from 'lucide-react';
+import { User, Settings, LogOut, Shield, Bell, Palette, Globe, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AccountSettings from '@/components/account/AccountSettings';
+import AppLayout from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Account = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [showAccountSettings, setShowAccountSettings] = useState(false);
 
   const handleLogout = () => {
@@ -53,33 +57,43 @@ const Account = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Tài khoản
-          </h1>
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          {/* Back button for mobile */}
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="p-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              Tài khoản
+            </h1>
+          </div>
         </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* User Profile Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 md:p-6">
+          <div className="flex items-center space-x-3 md:space-x-4">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-lg md:text-2xl font-bold">
                 {currentUser?.name?.charAt(0) || 'U'}
               </span>
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
                 {currentUser?.name || 'Người dùng'}
               </h2>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">
                 {currentUser?.email || ''}
               </p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              <p className="text-xs md:text-sm text-gray-400 dark:text-gray-500 mt-1">
                 {currentUser?.role || 'Nhân viên'} • {currentUser?.department || 'Phòng ban'}
               </p>
             </div>
@@ -110,10 +124,10 @@ const Account = () => {
         </div>
 
         {/* Logout Button */}
-        <div className="mt-6">
+        <div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+            className="w-full flex items-center justify-center p-3 md:p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
           >
             <LogOut className="w-5 h-5 mr-2" />
             <span className="font-medium">Đăng xuất</span>
@@ -128,7 +142,7 @@ const Account = () => {
           onClose={() => setShowAccountSettings(false)}
         />
       )}
-    </div>
+    </AppLayout>
   );
 };
 
