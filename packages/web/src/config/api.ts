@@ -66,6 +66,7 @@ export const API_ENDPOINTS = {
   // Authentication
   AUTH_LOGIN: '/auth/login',
   AUTH_VERIFY: '/auth/verify',
+  AUTH_CHANGE_PASSWORD: '/auth/change-password',
 
   // Export & Sync
   EXPORT_CSV: '/export/csv',

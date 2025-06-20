@@ -4,6 +4,8 @@ import { getApiUrl } from '@/config/api';
 
 import { Task } from '../components/tasks/types/TaskTypes';
 import { useAuth } from '../context/AuthContext';
+// import { TaskFirebaseManager } from '../services/TaskFirebaseManager';
+// import { FirebaseService } from '../services/FirebaseService';
 
 export type TaskViewLevel = 'department' | 'team' | 'individual' | 'personal' | 'shared';
 
@@ -44,6 +46,12 @@ export const useManagerTaskData = (
     async (level: TaskViewLevel) => {
       if (!currentUser) return [];
 
+      // TODO: Firebase integration (temporarily disabled due to import issues)
+      // Will be re-enabled after fixing Vite import resolution
+      console.log(`🔥 Firebase integration temporarily disabled for ${level} tasks`);
+      console.log(`📡 Using API fallback for ${level} tasks`);
+
+      // Fallback to API if Firebase fails or no data
       try {
         const apiUrl = getApiUrl();
         const params = new URLSearchParams();
@@ -75,7 +83,7 @@ export const useManagerTaskData = (
           console.log(`👤 Specific member requested: ${selectedMemberId}`);
         }
 
-        const url = `${apiUrl}/tasks/managerview?${params.toString()}`;
+        const url = `${apiUrl}/tasks/manager-view?${params.toString()}`;
         console.log(`🔍 Fetching ${level} tasks:`, url);
 
         console.log(`📡 API Request: ${url}`);
@@ -111,7 +119,7 @@ export const useManagerTaskData = (
         return [];
       }
     },
-    [currentUser],
+    [currentUser, selectedMemberId],
   );
 
   const loadTasks = useCallback(async () => {

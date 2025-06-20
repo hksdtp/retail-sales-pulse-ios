@@ -7,10 +7,14 @@
  * Server wrapper cho Playwright testing với REST API interface
  */
 
-const http = require('http');
-const { exec, spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import { exec, spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3001;
 
@@ -206,7 +210,7 @@ class PlaywrightServer {
 
   generateTestCode({ description, url, selector, action }) {
     return `
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test('${description}', async ({ page }) => {
   ${url ? `await page.goto('${url}');` : '// No URL specified'}

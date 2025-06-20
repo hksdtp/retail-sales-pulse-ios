@@ -1,0 +1,16 @@
+{
+  "remote_mcp_servers": [
+    {
+      "name": "example-remote",
+      "url": "https://example-server.modelcontextprotocol.io/sse",
+      "type": "sse",
+      "description": "Example remote MCP server",
+      "enabled": false
+    }
+  ],
+  "api_configuration": {
+    "anthropic_beta_header": "mcp-client-2025-04-04",
+    "max_tokens": 1000,
+    "model": "claude-sonnet-4-20250514"
+  }
+}

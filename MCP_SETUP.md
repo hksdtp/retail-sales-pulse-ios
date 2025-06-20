@@ -2,6 +2,26 @@
 
 Ninh ơi, đây là hướng dẫn cài đặt và sử dụng MCP (Model Context Protocol) Servers cho dự án.
 
+## 🎉 **MCP Setup Complete!**
+
+### ✅ **Claude Code MCP Servers (7 servers):**
+- `sequential-thinking` - Problem solving step by step
+- `filesystem` - File operations trong project
+- `memory` - Context storage và retrieval
+- `brave-search` - Web search (cần API key)
+- `fetch` - HTTP requests và web scraping
+- `git` - Git operations
+- `time` - Date/time utilities
+
+### ✅ **Custom Servers (vẫn hoạt động):**
+- `playwright-server.js` - Port 3001 (REST API)
+- `augment-server.js` - Port 3002 (REST API)
+
+### ✅ **Remote MCP Support:**
+- MCP Connector API ready
+- OAuth authentication support
+- Multiple servers configuration
+
 ## 📦 Cài đặt lần đầu
 
 ```bash
@@ -132,4 +152,45 @@ Sau khi chạy `npm run install:mcp`, các aliases sau sẽ có sẵn:
 
 ---
 
+## 🌐 **Claude Code MCP Integration**
+
+### **Sử dụng MCP trong Claude Code:**
+```bash
+# Start Claude Code trong project
+claude
+
+# Trong chat, MCP tools sẽ tự động available:
+# - File operations (filesystem)
+# - Web search (brave-search, fetch)
+# - Git operations (git)
+# - Context storage (memory)
+# - Problem solving (sequential-thinking)
+# - Date/time utilities (time)
+```
+
+### **MCP Commands:**
+```bash
+# Test MCP servers
+npm run test:mcp
+
+# Restart MCP connection
+npm run restart:mcp
+
+# List all servers
+claude mcp list
+
+# Get server details
+claude mcp get <server-name>
+```
+
+### **Remote MCP Setup:**
+- See `REMOTE-MCP-GUIDE.md` for detailed instructions
+- Example code in `examples/remote-mcp-example.js`
+- OAuth authentication support
+- Multiple remote servers configuration
+
+---
+
 **Ninh ơi**, setup này sẽ giúp bạn có đầy đủ tools để develop và debug hiệu quả! 🚀
+
+**New**: Bây giờ bạn có thể sử dụng Claude Code với 7 MCP servers chuẩn + Remote MCP support! 🌐

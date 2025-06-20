@@ -27,12 +27,13 @@ interface FirebaseTaskDataProviderProps {
 
 export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
-  const taskContext = useContext(TaskDataContext);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Kiểm tra kết nối Firebase khi provider được tải
+  // Kiểm tra kết nối Firebase và load data khi provider được tải
   useEffect(() => {
-    const checkFirebaseConnection = async () => {
+    const initializeFirebaseAndLoadData = async () => {
       const isConfigured = FirebaseService.isConfigured();
 
       if (isConfigured) {
@@ -40,13 +41,19 @@ export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> =
           // Khởi tạo Firebase từ cấu hình đã lưu
           FirebaseService.initializeFromLocalStorage();
           console.log('Firebase đã được kết nối từ cấu hình đã lưu');
+
+          // Load tasks từ Firebase
+          await loadTasksFromFirebase();
         } catch (error) {
           console.error('Lỗi khi khởi tạo Firebase:', error);
+          setIsLoading(false);
         }
+      } else {
+        setIsLoading(false);
       }
     };
 
-    checkFirebaseConnection();
+    initializeFirebaseAndLoadData();
   }, []);
 
   // Đồng bộ dữ liệu với Firebase
@@ -67,15 +74,15 @@ export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> =
       const instance = FirebaseService.getInstance();
       const db = instance.getFirestore();
 
-      if (!db || !taskContext) {
-        throw new Error('Không thể kết nối đến Firestore hoặc TaskContext không tồn tại');
+      if (!db) {
+        throw new Error('Không thể kết nối đến Firestore');
       }
 
-      // Lấy danh sách công việc từ context
-      const tasks = taskContext.tasks;
+      // Lấy danh sách công việc từ state
+      const currentTasks = tasks;
 
       // Đẩy mỗi công việc lên Firebase
-      for (const task of tasks) {
+      for (const task of currentTasks) {
         // Kiểm tra xem task.id có phải là ID mockup hay không
         const isMockId =
           typeof task.id === 'string' &&
@@ -125,6 +132,14 @@ export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> =
     }
   };
 
+  // Load tasks từ Firebase và cập nhật state
+  const loadTasksFromFirebase = async (): Promise<void> => {
+    setIsLoading(true);
+    const loadedTasks = await fetchTasksFromFirebase();
+    setTasks(loadedTasks);
+    setIsLoading(false);
+  };
+
   // Lấy danh sách công việc từ Firebase
   const fetchTasksFromFirebase = async (): Promise<Task[]> => {
     if (!FirebaseService.isConfigured()) {
@@ -151,10 +166,8 @@ export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> =
         id: doc.id,
       })) as Task[];
 
-      // Cập nhật context với dữ liệu từ Firebase
-      if (taskContext && taskContext.setTasks) {
-        taskContext.setTasks(tasks);
-      }
+      // Cập nhật state với dữ liệu từ Firebase
+      setTasks(tasks);
 
       toast({
         title: 'Lấy dữ liệu thành công',
@@ -177,13 +190,26 @@ export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> =
     }
   };
 
-  const value = {
+  // TaskDataContext value
+  const taskDataValue = {
+    tasks,
+    setTasks,
+    isLoading,
+    refreshTasks: loadTasksFromFirebase,
+  };
+
+  // FirebaseTaskDataContext value
+  const firebaseValue = {
     syncWithFirebase,
     fetchTasksFromFirebase,
     isSyncing,
   };
 
   return (
-    <FirebaseTaskDataContext.Provider value={value}>{children}</FirebaseTaskDataContext.Provider>
+    <TaskDataContext.Provider value={taskDataValue}>
+      <FirebaseTaskDataContext.Provider value={firebaseValue}>
+        {children}
+      </FirebaseTaskDataContext.Provider>
+    </TaskDataContext.Provider>
   );
 };

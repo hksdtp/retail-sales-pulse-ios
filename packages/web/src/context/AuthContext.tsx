@@ -7,6 +7,7 @@ import {
   getUsers as getUsersAPI,
   login as loginAPI,
   updateUser as updateUserAPI,
+  changePassword as changePasswordAPI,
 } from '@/services/api';
 import { isTestEnvironment, setupTestAuth, getTestUser, getTestAuthToken } from '@/utils/testUtils';
 import {
@@ -25,11 +26,14 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   isFirstLogin: boolean;
+  requirePasswordChange: boolean;
   changePassword: (newPassword: string) => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
   users: User[];
   teams: Team[];
   authToken: string | null;
+  loginType: string | null;
+  blockAppAccess: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -39,11 +43,14 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   isLoading: false,
   isFirstLogin: false,
+  requirePasswordChange: false,
   changePassword: (): any => {},
   updateUser: async () => {},
   users: [],
   teams: [],
   authToken: null,
+  loginType: null,
+  blockAppAccess: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -52,9 +59,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [requirePasswordChange, setRequirePasswordChange] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [loginType, setLoginType] = useState<string | null>(null);
+  const [blockAppAccess, setBlockAppAccess] = useState(false);
   const { toast } = useToast();
 
   // Load users và teams từ Mock/API (tránh Firebase CORS)
@@ -192,24 +202,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
+
+    // Reset states
+    setRequirePasswordChange(false);
+    setBlockAppAccess(false);
+    setLoginType(null);
+
     try {
-      console.log('Attempting login for:', email);
+      console.log('🔐 Attempting login for:', email);
 
       // Try API authentication first
       const apiResponse = await loginAPI(email, password);
-      console.log('API login response:', apiResponse);
+      console.log('📥 API login response:', apiResponse);
 
       let response;
 
       // Check if API response is successful
       if (apiResponse.success && apiResponse.data) {
         response = apiResponse;
-        console.log('Using API authentication');
+        console.log('✅ Using API authentication');
       } else {
-        console.warn('API login failed, trying mock authentication. API error:', apiResponse.error);
+        console.warn('⚠️ API login failed, trying mock authentication. API error:', apiResponse.error);
         // Fallback to mock authentication
         response = await mockLogin(email, password);
-        console.log('Mock login response:', response);
+        console.log('📥 Mock login response:', response);
       }
 
       if (!response.success || !response.data) {
@@ -217,31 +233,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const { user, token } = response.data;
+      const responseLoginType = response.data.loginType || response.loginType;
+      const requiresPasswordChange = response.data.requirePasswordChange || false;
 
       // Set user and token
       setCurrentUser(user);
       setAuthToken(token);
-      setIsFirstLogin(!user.password_changed);
+      setLoginType(responseLoginType);
+
+      // Handle first login workflow
+      const isFirstLogin = !user.password_changed || requiresPasswordChange;
+      setIsFirstLogin(isFirstLogin);
+      setRequirePasswordChange(requiresPasswordChange);
+
+      // Block app access if password change is required
+      if (requiresPasswordChange && responseLoginType === 'first_login') {
+        setBlockAppAccess(true);
+        console.log('🚫 Blocking app access - password change required');
+      } else {
+        setBlockAppAccess(false);
+      }
 
       // Store in localStorage
       localStorage.setItem('currentUser', JSON.stringify(user));
       localStorage.setItem('authToken', token);
+      localStorage.setItem('loginType', responseLoginType || '');
 
-      console.log('Login successful for user:', user.name);
-
-      // Start auto plan sync service
-      autoPlanSyncService.startAutoSync(user.id);
-      console.log('🔄 Started auto plan sync for user:', user.name);
-
-      toast({
-        title: 'Đăng nhập thành công',
-        description: `Chào mừng ${user.name}!`,
+      console.log('✅ Login successful for user:', user.name, {
+        loginType: responseLoginType,
+        requirePasswordChange: requiresPasswordChange,
+        blockAppAccess: requiresPasswordChange && responseLoginType === 'first_login'
       });
+
+      // Start auto plan sync service only if not blocked
+      if (!requiresPasswordChange) {
+        autoPlanSyncService.startAutoSync(user.id);
+        console.log('🔄 Started auto plan sync for user:', user.name);
+      }
+
+      // Show appropriate toast message
+      if (requiresPasswordChange) {
+        toast({
+          title: 'Đăng nhập lần đầu',
+          description: 'Vui lòng đổi mật khẩu để tiếp tục',
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: 'Đăng nhập thành công',
+          description: `Chào mừng ${user.name}!`,
+        });
+      }
 
       return Promise.resolve();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
 
       toast({
         title: 'Đăng nhập thất bại',
@@ -255,17 +302,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    console.log('Logging out user');
+    console.log('🚪 Logging out user');
 
     // Stop auto plan sync service
     autoPlanSyncService.stopAutoSync();
     console.log('⏹️ Stopped auto plan sync');
 
+    // Reset all auth states
     setCurrentUser(null);
     setAuthToken(null);
     setIsFirstLogin(false);
+    setRequirePasswordChange(false);
+    setBlockAppAccess(false);
+    setLoginType(null);
+
+    // Clear localStorage
     localStorage.removeItem('currentUser');
     localStorage.removeItem('authToken');
+    localStorage.removeItem('loginType');
 
     toast({
       title: 'Đăng xuất thành công',
@@ -274,31 +328,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const changePassword = async (newPassword: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      throw new Error('Không có người dùng hiện tại');
+    }
 
     try {
-      console.log('Changing password for user:', currentUser.id);
+      console.log('🔄 Changing password for user:', currentUser.id);
 
-      // Update password via Firebase/API
-      const updatedUserData = {
-        password: newPassword,
-        password_changed: true,
-      };
+      // Try API change password first
+      const apiResponse = await changePasswordAPI(currentUser.id, newPassword);
+      console.log('📥 API change password response:', apiResponse);
 
-      await updateUser(updatedUserData);
-      setIsFirstLogin(false);
+      if (apiResponse.success) {
+        // Update current user state
+        const updatedUser = { ...currentUser, password_changed: true };
+        setCurrentUser(updatedUser);
 
-      toast({
-        title: 'Đổi mật khẩu thành công',
-        description: 'Mật khẩu của bạn đã được cập nhật',
-      });
+        // Reset first login states
+        setIsFirstLogin(false);
+        setRequirePasswordChange(false);
+        setBlockAppAccess(false);
+
+        // Update localStorage
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        // Start auto plan sync service now that password is changed
+        autoPlanSyncService.startAutoSync(currentUser.id);
+        console.log('🔄 Started auto plan sync after password change');
+
+        toast({
+          title: 'Đổi mật khẩu thành công',
+          description: 'Mật khẩu của bạn đã được cập nhật. Bạn có thể sử dụng ứng dụng ngay bây giờ.',
+        });
+      } else {
+        throw new Error(apiResponse.error || 'API change password failed');
+      }
     } catch (error) {
-      console.error('Error changing password:', error);
-      toast({
-        title: 'Đổi mật khẩu thất bại',
-        description: 'Có lỗi xảy ra khi đổi mật khẩu',
-        variant: 'destructive',
-      });
+      console.error('❌ Error changing password:', error);
+
+      // Fallback to local update if API fails
+      try {
+        const updatedUserData = {
+          password: newPassword,
+          password_changed: true,
+        };
+
+        await updateUser(updatedUserData);
+
+        // Reset first login states
+        setIsFirstLogin(false);
+        setRequirePasswordChange(false);
+        setBlockAppAccess(false);
+
+        toast({
+          title: 'Đổi mật khẩu thành công',
+          description: 'Mật khẩu của bạn đã được cập nhật (fallback)',
+        });
+      } catch (fallbackError) {
+        console.error('❌ Fallback password change also failed:', fallbackError);
+        toast({
+          title: 'Đổi mật khẩu thất bại',
+          description: 'Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.',
+          variant: 'destructive',
+        });
+        throw fallbackError;
+      }
     }
   };
 
@@ -372,16 +466,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         currentUser,
-        isAuthenticated: !!currentUser,
+        isAuthenticated: !!currentUser && !blockAppAccess,
         login,
         logout,
         isLoading,
         isFirstLogin,
+        requirePasswordChange,
         changePassword,
         updateUser,
         users,
         teams,
         authToken,
+        loginType,
+        blockAppAccess,
       }}
     >
       {children}

@@ -23,7 +23,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   const [selectedLocation, setSelectedLocation] = useState<UserLocation | 'all'>('all');
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-  const [password, setPassword] = useState('123456'); // Đặt mật khẩu mặc định là "123456"
+  const [password, setPassword] = useState(''); // Không đặt mật khẩu mặc định vì lý do bảo mật
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [pendingUser, setPendingUser] = useState<UserType | null>(null);

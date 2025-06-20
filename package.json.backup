@@ -21,10 +21,7 @@
     "stop:all": "./scripts/stop-all.sh",
     "install:mcp": "./scripts/install-mcp-servers.sh",
     "start:mcp": "./scripts/start-mcp-servers.sh",
-    "stop:mcp": "./scripts/stop-mcp-servers.sh",
-    "test:mcp": "./scripts/test-mcp.sh",
-    "restart:mcp": "./scripts/restart-mcp.sh",
-    "setup:remote-mcp": "./scripts/setup-remote-mcp.sh"
+    "stop:mcp": "./scripts/stop-mcp-servers.sh"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

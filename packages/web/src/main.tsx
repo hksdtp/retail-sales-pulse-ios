@@ -10,12 +10,12 @@ import { FirebaseService } from './services/FirebaseService';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBqJVJKvXxKxKxKxKxKxKxKxKxKxKxKxKx",
+  apiKey: "AIzaSyD15K9FMm2J0Hq4yeacqL9fQ0TNK7NI7Lo",
   authDomain: "appqlgd.firebaseapp.com",
   projectId: "appqlgd",
   storageBucket: "appqlgd.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdefghijklmnop"
+  messagingSenderId: "873528436407",
+  appId: "1:873528436407:web:abcdefghijklmnop"
 };
 
 // Initialize Firebase

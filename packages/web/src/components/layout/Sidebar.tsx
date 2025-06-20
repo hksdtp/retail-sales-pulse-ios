@@ -307,15 +307,24 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
               {/* Menu Items */}
               <div className="py-2">
+                <Link
+                  to="/settings"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Settings className="w-4 h-4 mr-3 text-gray-400" />
+                  <span>Cài đặt hệ thống</span>
+                </Link>
+
                 <button
                   onClick={() => {
-                    console.log('Settings clicked');
+                    console.log('Account Settings clicked');
                     setShowAccountSettings(true);
                     setIsDropdownOpen(false);
                   }}
                   className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  <Settings className="w-4 h-4 mr-3 text-gray-400" />
+                  <User className="w-4 h-4 mr-3 text-gray-400" />
                   <span>Cài đặt tài khoản</span>
                 </button>
 

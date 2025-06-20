@@ -160,8 +160,8 @@ class ApiClient {
     const isTestServer = import.meta.env.DEV && window.location.hostname === 'localhost';
 
     if (isTestServer) {
-      // Use test server endpoint
-      let url = '/tasks/manager-view';
+      // Use test server endpoint with /api/ prefix for Vite proxy
+      let url = '/api/tasks/manager-view';
 
       if (currentUser) {
         const params = new URLSearchParams();
@@ -277,6 +277,13 @@ class ApiClient {
     });
   }
 
+  async changePassword(userId: string, newPassword: string, currentPassword?: string): Promise<ApiResponse<{ user: User }>> {
+    return this.request<{ user: User }>(API_ENDPOINTS.AUTH_CHANGE_PASSWORD, {
+      method: HTTP_METHODS.POST,
+      body: JSON.stringify({ userId, newPassword, currentPassword }),
+    });
+  }
+
   // Export & Sync API
   async exportCSV(): Promise<Response> {
     const url = `${this.baseUrl}${API_ENDPOINTS.EXPORT_CSV}`;
@@ -311,5 +318,7 @@ export const getTeams = () => apiClient.getTeams();
 export const getTeamById = (id: string) => apiClient.getTeamById(id);
 export const login = (email: string, password: string) => apiClient.login(email, password);
 export const verifyToken = (token: string) => apiClient.verifyToken(token);
+export const changePassword = (userId: string, newPassword: string, currentPassword?: string) =>
+  apiClient.changePassword(userId, newPassword, currentPassword);
 export const exportCSV = () => apiClient.exportCSV();
 export const syncGoogleSheets = () => apiClient.syncGoogleSheets();

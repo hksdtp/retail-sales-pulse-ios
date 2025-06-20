@@ -13,12 +13,8 @@ interface PasswordFieldProps {
 const PasswordField: React.FC<PasswordFieldProps> = ({ password, onPasswordChange }) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  // Thiết lập mật khẩu mặc định là "123" khi component được tạo
-  useEffect(() => {
-    if (!password) {
-      onPasswordChange('123');
-    }
-  }, []);
+  // Không thiết lập mật khẩu mặc định vì lý do bảo mật
+  // useEffect đã được xóa để tránh lỗ hổng bảo mật
 
   return (
     <motion.div
