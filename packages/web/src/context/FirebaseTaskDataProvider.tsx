@@ -169,10 +169,8 @@ export const FirebaseTaskDataProvider: React.FC<FirebaseTaskDataProviderProps> =
       // Cập nhật state với dữ liệu từ Firebase
       setTasks(tasks);
 
-      toast({
-        title: 'Lấy dữ liệu thành công',
-        description: 'Đã lấy dữ liệu công việc từ Firebase',
-      });
+      // Không hiển thị toast cho việc fetch data thành công - chỉ log để debug
+      console.log(`✅ Đã lấy ${tasks.length} công việc từ Firebase`);
 
       setIsSyncing(false);
       return tasks;

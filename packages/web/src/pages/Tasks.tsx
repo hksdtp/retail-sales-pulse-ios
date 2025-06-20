@@ -67,10 +67,8 @@ const Tasks = () => {
   const handleTaskCreated = () => {
     // Tăng giá trị trigger để kích hoạt useEffect trong TaskList
     setTaskUpdateTrigger((prev) => prev + 1);
-    toast({
-      title: 'Đã làm mới dữ liệu',
-      description: 'Danh sách công việc đã được cập nhật với công việc mới',
-    });
+    // Không cần toast cho việc refresh data - chỉ log để debug
+    console.log('🔄 Danh sách công việc đã được cập nhật');
   };
 
   // Hàm xóa toàn bộ công việc
@@ -289,10 +287,8 @@ const Tasks = () => {
               onClick={() => {
                 console.log('🔄 Data refresh triggered');
                 setTaskUpdateTrigger((prev) => prev + 1);
-                toast({
-                  title: '🔄 Đang tải lại',
-                  description: 'Dữ liệu công việc đang được tải lại từ Firebase...',
-                });
+                // Không cần toast cho việc refresh - user sẽ thấy data được update
+                console.log('🔄 Dữ liệu đang được tải lại từ Firebase...');
               }}
             >
               <span className="sr-only">Tải lại dữ liệu</span>
