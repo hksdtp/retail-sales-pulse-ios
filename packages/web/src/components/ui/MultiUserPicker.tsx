@@ -225,7 +225,7 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 right-0 z-50 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+            className="absolute top-full left-0 right-0 z-[10001] mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
           >
             {/* Search Header */}
             <div className="p-3 border-b border-gray-100 dark:border-gray-700">
