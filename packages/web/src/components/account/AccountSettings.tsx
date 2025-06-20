@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SaveButton, CancelButton, ActionButton } from '@/components/ui/ActionButton';
 import { Switch } from '@/components/ui/switch';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/context/AuthContext';
@@ -335,15 +336,16 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Thông tin cá nhân</h3>
                 {!isEditingProfile && (
-                  <Button
+                  <ActionButton
+                    iconType="edit-mode"
                     onClick={() => setIsEditingProfile(true)}
                     variant="outline"
                     size="sm"
                     className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                    title="Chỉnh sửa thông tin cá nhân"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
                     Chỉnh sửa
-                  </Button>
+                  </ActionButton>
                 )}
               </div>
 
@@ -397,32 +399,23 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ isOpen, onClose }) =>
 
               {isEditingProfile && (
                 <div className="flex space-x-3 pt-4">
-                  <Button
+                  <SaveButton
                     onClick={handleProfileSave}
                     disabled={isSubmitting}
+                    loading={isSubmitting}
                     className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                    title="Lưu thay đổi thông tin cá nhân"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
-                        Đang lưu...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 mr-2" />
-                        Lưu thay đổi
-                      </>
-                    )}
-                  </Button>
-                  <Button
+                    {isSubmitting ? 'Đang lưu...' : 'Lưu thay đổi'}
+                  </SaveButton>
+                  <CancelButton
                     onClick={handleProfileCancel}
-                    variant="outline"
                     disabled={isSubmitting}
                     className="flex-1"
+                    title="Hủy chỉnh sửa thông tin"
                   >
-                    <X className="w-4 h-4 mr-2" />
                     Hủy
-                  </Button>
+                  </CancelButton>
                 </div>
               )}
             </div>

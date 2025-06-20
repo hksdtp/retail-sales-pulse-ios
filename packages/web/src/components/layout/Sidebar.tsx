@@ -7,9 +7,7 @@ import {
   CalendarCheck,
   FileText,
   Users,
-  User,
   LogOut,
-  Settings,
   ChevronLeft,
   ChevronRight,
   UserCheck
@@ -17,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import AccountSettings from '@/components/account/AccountSettings';
+import { SettingsButton } from '@/components/ui/ActionButton';
 
 interface SidebarProps {
   onCollapseChange?: (collapsed: boolean) => void;
@@ -310,10 +309,23 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 <Link
                   to="/settings"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 >
-                  <Settings className="w-4 h-4 mr-3 text-gray-400" />
-                  <span>Cài đặt hệ thống</span>
+                  <div className="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500 transition-colors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/>
+                      <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+                      <path d="M12 2v2"/>
+                      <path d="M12 20v2"/>
+                      <path d="m4.93 4.93 1.41 1.41"/>
+                      <path d="m17.66 17.66 1.41 1.41"/>
+                      <path d="M2 12h2"/>
+                      <path d="M20 12h2"/>
+                      <path d="m6.34 17.66-1.41 1.41"/>
+                      <path d="m19.07 4.93-1.41 1.41"/>
+                    </svg>
+                  </div>
+                  <span>Quản lý hệ thống</span>
                 </Link>
 
                 <button
@@ -322,10 +334,15 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                     setShowAccountSettings(true);
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 >
-                  <User className="w-4 h-4 mr-3 text-gray-400" />
-                  <span>Cài đặt tài khoản</span>
+                  <div className="w-4 h-4 mr-3 text-gray-400 group-hover:text-green-500 transition-colors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <span>Hồ sơ cá nhân</span>
                 </button>
 
                 <button

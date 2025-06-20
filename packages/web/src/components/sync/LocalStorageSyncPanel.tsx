@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { LocalStorageSyncService } from '@/services/LocalStorageSyncService';
-import { Loader2, Upload, Database, Trash2, RefreshCw, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import {
+  SyncButton,
+  RefreshButton,
+  ActionButton,
+  DeleteButton
+} from '@/components/ui/ActionButton';
+import { Database, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
 interface SyncStats {
   total: number;
@@ -213,65 +218,78 @@ export const LocalStorageSyncPanel: React.FC = () => {
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Button
-            onClick={handleSyncAll}
-            disabled={isSyncing || syncStats.pending === 0}
-            className="w-full"
-          >
-            {isSyncing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4 mr-2" />
-            )}
-            Đồng bộ tất cả ({syncStats.pending})
-          </Button>
+        {/* Action Buttons - Grouped by Function */}
+        <div className="space-y-4">
+          {/* Data Operations */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-700 border-b pb-1">Thao tác dữ liệu</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <SyncButton
+                onClick={handleSyncAll}
+                disabled={isSyncing || syncStats.pending === 0}
+                loading={isSyncing}
+                className="w-full"
+                title={`Đồng bộ ${syncStats.pending} tasks lên Firebase`}
+              >
+                Đồng bộ tất cả ({syncStats.pending})
+              </SyncButton>
 
-          <Button
-            onClick={loadSyncStats}
-            variant="outline"
-            disabled={isSyncing}
-            className="w-full"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Làm mới
-          </Button>
+              <RefreshButton
+                type="ui"
+                onClick={loadSyncStats}
+                disabled={isSyncing}
+                className="w-full"
+                variant="outline"
+                title="Làm mới thống kê từ localStorage"
+              >
+                Làm mới thống kê
+              </RefreshButton>
+            </div>
+          </div>
 
-          <Button
-            onClick={handleResetSync}
-            variant="outline"
-            disabled={isSyncing || syncStats.total === 0}
-            className="w-full"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Reset trạng thái sync
-          </Button>
+          {/* State Management */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-700 border-b pb-1">Quản lý trạng thái</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <ActionButton
+                iconType="reset-state"
+                onClick={handleResetSync}
+                disabled={isSyncing || syncStats.total === 0}
+                className="w-full"
+                variant="outline"
+                title="Đặt lại tất cả tasks về trạng thái chờ đồng bộ"
+              >
+                Đặt lại để sync lại
+              </ActionButton>
 
-          <Button
-            onClick={handleCleanup}
-            variant="outline"
-            disabled={isSyncing || syncStats.synced === 0}
-            className="w-full"
-          >
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Dọn dẹp đã sync ({syncStats.synced})
-          </Button>
+              <ActionButton
+                iconType="success"
+                onClick={handleCleanup}
+                disabled={isSyncing || syncStats.synced === 0}
+                className="w-full"
+                variant="outline"
+                title={`Xóa ${syncStats.synced} tasks đã đồng bộ khỏi localStorage`}
+              >
+                Dọn dẹp đã hoàn thành ({syncStats.synced})
+              </ActionButton>
+            </div>
+          </div>
         </div>
 
         {/* Danger Zone */}
-        <div className="border-t pt-4">
-          <h4 className="text-sm font-medium text-red-600 mb-2">Vùng nguy hiểm</h4>
-          <Button
+        <div className="border-t border-red-200 pt-4">
+          <h4 className="text-sm font-medium text-red-600 mb-3 flex items-center gap-2">
+            ⚠️ Vùng nguy hiểm
+          </h4>
+          <DeleteButton
             onClick={handleClearAll}
-            variant="destructive"
-            size="sm"
             disabled={isSyncing}
+            size="sm"
             className="w-full"
+            title="Xóa hoàn toàn tất cả dữ liệu tasks trong localStorage"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
             Xóa tất cả dữ liệu local
-          </Button>
+          </DeleteButton>
         </div>
 
         {/* Status Indicators */}

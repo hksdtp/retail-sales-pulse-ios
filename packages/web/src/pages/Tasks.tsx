@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import { Button } from '../components/ui/button';
+import { RefreshButton, ExportButton } from '../components/ui/ActionButton';
 import { useAuth } from '../context/AuthContext';
 import { TaskViewLevel, useManagerTaskData } from '../hooks/use-manager-task-data';
 import { useTaskData } from '../hooks/use-task-data';
@@ -269,33 +270,33 @@ const Tasks = () => {
         actions={
           <div className="flex space-x-2">
             <ExportDialog>
-              <Button
-                variant="outline"
+              <ExportButton
                 size="icon"
-                title="Xuất dữ liệu"
+                title="Xuất dữ liệu tasks"
                 className="text-blue-600 border-blue-200 bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:bg-blue-900/20"
               >
-                <Download className="h-4 w-4" />
-              </Button>
+                <span className="sr-only">Xuất dữ liệu</span>
+              </ExportButton>
             </ExportDialog>
 
-            {/* Manual refresh button for testing */}
-            <Button
-              variant="outline"
+            {/* Data refresh button */}
+            <RefreshButton
+              type="data"
               size="icon"
-              title="Làm mới dữ liệu"
+              variant="outline"
+              title="Tải lại dữ liệu từ Firebase"
               className="text-green-600 border-green-200 bg-green-50 dark:text-green-400 dark:border-green-700 dark:bg-green-900/20"
               onClick={() => {
-                console.log('🔄 Manual refresh triggered');
+                console.log('🔄 Data refresh triggered');
                 setTaskUpdateTrigger((prev) => prev + 1);
                 toast({
-                  title: '🔄 Đang làm mới',
-                  description: 'Dữ liệu công việc đang được cập nhật...',
+                  title: '🔄 Đang tải lại',
+                  description: 'Dữ liệu công việc đang được tải lại từ Firebase...',
                 });
               }}
             >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+              <span className="sr-only">Tải lại dữ liệu</span>
+            </RefreshButton>
 
             {/* Nút tạo công việc gộp */}
             <Button
