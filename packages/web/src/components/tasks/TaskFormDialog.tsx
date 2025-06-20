@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search, Building, DollarSign } from 'lucide-react';
+import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search, Building, DollarSign, Image as ImageIcon, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,6 +10,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import ImageUpload from '@/components/ui/ImageUpload';
+import SmartInput from '@/components/ui/SmartInput';
+import TaskTypeSelector, { taskTypeConfig } from '@/components/ui/TaskTypeSelector';
+import DateTimePicker from '@/components/ui/DateTimePicker';
+import MultiUserPicker from '@/components/ui/MultiUserPicker';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -27,6 +31,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTaskData } from '@/hooks/use-task-data';
 import { useToast } from '@/hooks/use-toast';
 import { UploadedImage } from '@/services/ImageUploadService';
+import TaskSuggestionService from '@/services/TaskSuggestionService';
 import { canAssignTasks } from '@/config/permissions';
 import { cn } from '@/lib/utils';
 import '@/styles/task-form-dark-theme.css';
@@ -62,9 +67,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   const { currentUser, users } = useAuth();
   const { addTask } = useTaskData();
   const { toast } = useToast();
+  const suggestionService = TaskSuggestionService.getInstance();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isDeadlineCalendarOpen, setIsDeadlineCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedDeadline, setSelectedDeadline] = useState<Date | undefined>(
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -78,19 +83,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     priority: 'normal',
     date: new Date().toISOString().split('T')[0], // Default to today
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 7 days from now
-    time: '',
+    time: '12:30',
     assignedTo: currentUser?.id || '',
     visibility: 'personal',
     sharedWith: [],
   });
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
-  const [uploadMode, setUploadMode] = useState<'google'>('google'); // Upload destination
-
-
-  const [userSearchQuery, setUserSearchQuery] = useState('');
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const canAssignToOthers = currentUser && canAssignTasks(currentUser.role);
 
@@ -117,14 +116,17 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         priority: 'normal',
         date: today.toISOString().split('T')[0],
         deadline: defaultDeadline.toISOString().split('T')[0],
-        time: '',
+        time: '12:30',
         assignedTo: currentUser?.id || '',
         visibility: 'personal',
         sharedWith: [],
       });
       setUploadedImages([]);
-      setUserSearchQuery('');
-      setShowUserDropdown(false);
+
+      // Learn from task creation for suggestions
+      if (formData.title.trim()) {
+        suggestionService.learnFromTask(formData.title, formData.types[0]);
+      }
     }
   }, [open, currentUser]);
 
@@ -159,6 +161,13 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         images: uploadedImages, // Include uploaded images
       });
 
+      // Learn from successful task creation
+      suggestionService.learnFromTask(
+        formData.title,
+        formData.types[0],
+        formData.sharedWith.length > 0 ? users.find(u => u.id === formData.sharedWith[0])?.name : undefined
+      );
+
       toast({
         title: 'Thành công',
         description: 'Đã tạo công việc mới thành công',
@@ -183,22 +192,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-      setFormData(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
-      setIsCalendarOpen(false);
-    }
-  };
-
-  const handleDeadlineSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDeadline(date);
-      setFormData(prev => ({ ...prev, deadline: date.toISOString().split('T')[0] }));
-      setIsDeadlineCalendarOpen(false);
-    }
-  };
-
   // Handle multiple type selection
   const handleTypeToggle = (typeKey: string) => {
     setFormData(prev => {
@@ -216,43 +209,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       };
     });
   };
-
-  // User tagging functions
-  const addUserToShared = (userId: string) => {
-    if (!formData.sharedWith.includes(userId)) {
-      handleInputChange('sharedWith', [...formData.sharedWith, userId]);
-    }
-    setUserSearchQuery('');
-    setShowUserDropdown(false);
-  };
-
-  const removeUserFromShared = (userId: string) => {
-    handleInputChange('sharedWith', formData.sharedWith.filter(id => id !== userId));
-  };
-
-  const filteredUsersForTagging = users.filter(user => {
-    // Exclude current user
-    if (user.id === currentUser?.id) return false;
-
-    // Exclude already selected users
-    if (formData.sharedWith.includes(user.id)) return false;
-
-    // Only include users from retail department
-    const isRetailUser = user.department_type === 'retail' ||
-                        user.department === 'retail' ||
-                        user.role?.includes('retail') ||
-                        user.location; // Fallback: users with location are likely retail
-
-    if (!isRetailUser) return false;
-
-    // Search filter
-    if (userSearchQuery.length === 0) return true;
-
-    const query = userSearchQuery.toLowerCase();
-    return user.name.toLowerCase().includes(query) ||
-           user.email?.toLowerCase().includes(query) ||
-           user.location?.toLowerCase().includes(query);
-  });
 
 
 
@@ -409,18 +365,39 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
         <div className="flex-1 min-h-0 py-2 sm:py-4 px-2 sm:px-4 -mx-2 sm:-mx-4 overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 sm:space-y-5">
-            {/* Tiêu đề - Full width */}
+            {/* Tiêu đề - Smart Input with Suggestions */}
             <div className="group">
               <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Tiêu đề công việc <span className="text-red-500 ml-1">*</span>
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-2 hidden sm:inline">
+                  (Gợi ý thông minh dựa trên lịch sử)
+                </span>
               </label>
-              <Input
-                name="title"
-                placeholder="Nhập tiêu đề công việc..."
+              <SmartInput
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                required
+                onChange={(value) => handleInputChange('title', value)}
+                placeholder="Nhập tiêu đề công việc..."
+                taskType={formData.types[0]}
+                className="w-full"
+                onSuggestionSelect={(suggestion) => {
+                  // Learn from selection and auto-suggest task type if available
+                  suggestionService.learnFromTask(suggestion.title, formData.types[0]);
+
+                  // Auto-suggest task type based on suggestion category
+                  if (suggestion.category && formData.types.length === 0) {
+                    const categoryToType: Record<string, string> = {
+                      'KTS': 'kts-new',
+                      'SBG': 'sbg-new',
+                      'Customer': 'customer-new',
+                      'Partner': 'partner-new'
+                    };
+
+                    const suggestedType = categoryToType[suggestion.category];
+                    if (suggestedType) {
+                      handleTypeToggle(suggestedType);
+                    }
+                  }
+                }}
               />
             </div>
 
@@ -439,47 +416,25 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               />
             </div>
 
-            {/* Loại công việc - Pill Layout */}
+            {/* Loại công việc - Improved Selector */}
             <div className="group">
               <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Loại công việc <span className="text-red-500 ml-1">*</span>
                 <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-2 hidden sm:inline">(Có thể chọn nhiều)</span>
               </label>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {Object.entries(taskTypeConfig).map(([key, config]) => {
-                  const IconComponent = config.icon;
-                  const isSelected = formData.types.includes(key);
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => handleTypeToggle(key)}
-                      className={`
-                        inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]
-                        ${isSelected
-                          ? 'border-blue-500 bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                          : 'border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm'
-                        }
-                      `}
-                    >
-                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="text-sm sm:text-base font-medium whitespace-nowrap">
-                        {config.label}
-                      </span>
-                      {isSelected && (
-                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              {formData.types.length > 0 && (
-                <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg sm:rounded-xl">
-                  <div className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
-                    <strong>Đã chọn:</strong> {formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}
-                  </div>
-                </div>
-              )}
+              <TaskTypeSelector
+                selectedTypes={formData.types}
+                onTypesChange={(types) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    types,
+                    type: types.length > 0 ? types[0] : ''
+                  }));
+                }}
+                layout="pills"
+                maxSelection={3}
+                className="w-full"
+              />
             </div>
 
             {/* Trạng thái và Ưu tiên */}
@@ -559,187 +514,76 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
             </div>
 
-            {/* Thời gian - Responsive grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <div className="group">
-                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                  Ngày thực hiện <span className="text-red-500 ml-1">*</span>
-                </label>
-                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
-                    >
-                      <Calendar className="mr-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                      {selectedDate ? (
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
-                          {format(selectedDate, 'EEEE, dd MMMM yyyy', { locale: vi })}
-                        </span>
-                      ) : (
-                        <span className="text-gray-500 dark:text-gray-400">Chọn ngày thực hiện</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
-                    align="start"
-                  >
-                    <CalendarComponent
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={handleDateSelect}
-                      initialFocus
-                      className="rounded-2xl"
-                      classNames={{
-                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                        month: "space-y-4",
-                        caption: "flex justify-center pt-1 relative items-center",
-                        caption_label: "text-sm font-semibold text-gray-900 dark:text-gray-100",
-                        nav: "space-x-1 flex items-center",
-                        nav_button: cn(
-                          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        ),
-                        nav_button_previous: "absolute left-1",
-                        nav_button_next: "absolute right-1",
-                        table: "w-full border-collapse space-y-1",
-                        head_row: "flex",
-                        head_cell: "text-gray-500 dark:text-gray-400 rounded-md w-9 font-normal text-[0.8rem]",
-                        row: "flex w-full mt-2",
-                        cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
-                        day: "h-9 w-9 p-0 font-normal text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
-                        day_selected: "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
-                        day_today: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold",
-                        day_outside: "text-gray-400 dark:text-gray-600 opacity-50",
-                        day_disabled: "text-gray-300 dark:text-gray-700 opacity-50",
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+            {/* Thời gian - Improved Date/Time Pickers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <DateTimePicker
+                date={selectedDate}
+                onDateChange={(date) => {
+                  setSelectedDate(date);
+                  if (date) {
+                    setFormData(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
+                  }
+                }}
+                time={formData.time}
+                onTimeChange={(time) => handleInputChange('time', time)}
+                label="Ngày thực hiện"
+                placeholder="Chọn ngày thực hiện"
+                required={true}
+                showTime={true}
+                minDate={new Date()}
+                className="w-full"
+              />
 
-              <div className="group">
-                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                  Hạn chót <span className="text-red-500 ml-1">*</span>
-                </label>
-                <Popover open={isDeadlineCalendarOpen} onOpenChange={setIsDeadlineCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm justify-start text-left font-normal"
-                    >
-                      <Calendar className="mr-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                      {selectedDeadline ? (
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
-                          {format(selectedDeadline, 'EEEE, dd MMMM yyyy', { locale: vi })}
-                        </span>
-                      ) : (
-                        <span className="text-gray-500 dark:text-gray-400">Chọn hạn chót</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
-                    align="start"
-                  >
-                    <CalendarComponent
-                      mode="single"
-                      selected={selectedDeadline}
-                      onSelect={handleDeadlineSelect}
-                      initialFocus
-                      className="rounded-2xl"
-                      classNames={{
-                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                        month: "space-y-4",
-                        caption: "flex justify-center pt-1 relative items-center",
-                        caption_label: "text-sm font-semibold text-gray-900 dark:text-gray-100",
-                        nav: "space-x-1 flex items-center",
-                        nav_button: cn(
-                          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        ),
-                        nav_button_previous: "absolute left-1",
-                        nav_button_next: "absolute right-1",
-                        table: "w-full border-collapse space-y-1",
-                        head_row: "flex",
-                        head_cell: "text-gray-500 dark:text-gray-400 rounded-md w-9 font-normal text-[0.8rem]",
-                        row: "flex w-full mt-2",
-                        cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
-                        day: "h-9 w-9 p-0 font-normal text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors",
-                        day_selected: "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
-                        day_today: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold",
-                        day_outside: "text-gray-400 dark:text-gray-600 opacity-50",
-                        day_disabled: "text-gray-300 dark:text-gray-700 opacity-50",
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Thời gian - Cột thứ 3 */}
-              <div className="group sm:col-span-2 lg:col-span-1">
-                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                  Thời gian (tùy chọn)
-                </label>
-                <div className="relative">
-                  <Clock className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
-                  <Input
-                    name="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => handleInputChange('time', e.target.value)}
-                    className="w-full h-10 sm:h-12 pl-10 sm:pl-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  />
-                </div>
-              </div>
+              <DateTimePicker
+                date={selectedDeadline}
+                onDateChange={(date) => {
+                  setSelectedDeadline(date);
+                  if (date) {
+                    setFormData(prev => ({ ...prev, deadline: date.toISOString().split('T')[0] }));
+                  }
+                }}
+                label="Hạn chót"
+                placeholder="Chọn hạn chót"
+                required={true}
+                showTime={false}
+                minDate={selectedDate || new Date()}
+                className="w-full"
+              />
             </div>
 
             {/* Assignment và Visibility - Responsive grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              {/* Phân công */}
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
+              {/* Phân công - Multi-select */}
               {(formType === 'team' || formType === 'individual') && canAssignToOthers && (
                 <div className="group">
                   <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                    Giao cho
+                    Giao cho ai <span className="text-red-500 ml-1">*</span>
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-2 hidden sm:inline">
+                      (Có thể chọn nhiều người)
+                    </span>
                   </label>
-                  <Select value={formData.assignedTo} onValueChange={(value) => handleInputChange('assignedTo', value)}>
-                    <SelectTrigger className="w-full h-10 sm:h-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
-                      <SelectValue placeholder="Chọn người thực hiện">
-                        {formData.assignedTo && (() => {
-                          const selectedUser = filteredUsers.find(user => user.id === formData.assignedTo);
-                          return selectedUser ? (
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                                <Users className="w-4 h-4 text-white" />
-                              </div>
-                              <div className="flex flex-col items-start">
-                                <span className="font-medium text-gray-900 dark:text-gray-100">{selectedUser.name}</span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">{selectedUser.location || 'Chưa xác định'}</span>
-                              </div>
-                            </div>
-                          ) : null;
-                        })()}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50 rounded-2xl shadow-2xl p-2 animate-in fade-in-0 zoom-in-95 duration-200">
-                      {filteredUsers.map((user) => (
-                        <SelectItem
-                          key={user.id}
-                          value={user.id}
-                          className="rounded-xl mb-1 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-150 cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3 py-1">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                              <Users className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="font-medium text-gray-800 dark:text-gray-200">{user.name}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{user.location || 'Chưa xác định'}</span>
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <MultiUserPicker
+                    users={filteredUsers.map(user => ({
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      role: user.role,
+                      isOnline: true // You can add online status logic here
+                    }))}
+                    selectedUserIds={formData.sharedWith}
+                    onSelectionChange={(userIds) => {
+                      handleInputChange('sharedWith', userIds);
+                      // Set primary assignee to first selected user
+                      if (userIds.length > 0) {
+                        handleInputChange('assignedTo', userIds[0]);
+                      }
+                    }}
+                    placeholder="Chọn người được giao việc..."
+                    maxSelection={5}
+                    showRoles={true}
+                    currentUserId={currentUser?.id}
+                    className="w-full"
+                  />
                 </div>
               )}
 
@@ -800,136 +644,39 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
             </div>
 
-            {/* Upload ảnh - Full width */}
+            {/* Hình ảnh đính kèm - Repositioned to bottom and disabled */}
             <div className="group">
               <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
                   Hình ảnh đính kèm (tùy chọn)
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Lưu vào:</span>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setUploadMode('google')}
-                      className="px-2 py-1 text-xs rounded-md transition-colors bg-purple-100 text-purple-800 border border-purple-200"
-                    >
-                      ☁️ Google Drive
-                    </button>
-                  </div>
+                  <Lock className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                    Đang phát triển
+                  </span>
                 </div>
               </div>
 
-
-
-              {uploadMode === 'google' && (
-                <ImageUpload
-                  onImagesUploaded={(images) => setUploadedImages(images as UploadedImage[])}
-                  existingImages={uploadedImages as UploadedImage[]}
-                  maxImages={5}
-                  disabled={isSubmitting}
-                />
-              )}
-            </div>
-
-            {/* Chia sẻ với người cụ thể - Full width */}
-            <div className="group">
-              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                Chia sẻ với người cụ thể (tùy chọn)
-              </label>
-
-              {/* Selected users */}
-              {formData.sharedWith.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {formData.sharedWith.map(userId => {
-                    const user = users.find(u => u.id === userId);
-                    if (!user) return null;
-                    return (
-                      <div
-                        key={userId}
-                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full border border-blue-200 dark:border-blue-700"
-                      >
-                        <div className="w-6 h-6 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-white">
-                            {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium">{user.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeUserFromShared(userId)}
-                          className="w-4 h-4 rounded-full bg-blue-200 dark:bg-blue-700 hover:bg-blue-300 dark:hover:bg-blue-600 flex items-center justify-center transition-colors duration-150"
-                        >
-                          <X className="w-3 h-3 text-blue-600 dark:text-blue-200" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* User search input */}
+              {/* Disabled placeholder */}
               <div className="relative">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 dark:text-gray-400" />
-                  <Input
-                    ref={searchInputRef}
-                    placeholder="Tìm kiếm và thêm người..."
-                    value={userSearchQuery}
-                    onChange={(e) => {
-                      const query = e.target.value;
-                      setUserSearchQuery(query);
-                      const shouldShow = query.length > 0 && filteredUsersForTagging.length > 0;
-                      setShowUserDropdown(shouldShow);
-                      console.log('🔍 Search query:', query, 'shouldShow:', shouldShow, 'filteredUsers:', filteredUsersForTagging.length);
-                    }}
-                    onFocus={() => {
-                      const shouldShow = userSearchQuery.length > 0 && filteredUsersForTagging.length > 0;
-                      setShowUserDropdown(shouldShow);
-                      console.log('🎯 Focus - shouldShow:', shouldShow, 'query:', userSearchQuery, 'users:', filteredUsersForTagging.length);
-                    }}
-                    onBlur={() => {
-                      // Delay hiding to allow click on dropdown items
-                      setTimeout(() => setShowUserDropdown(false), 150);
-                    }}
-                    className="w-full h-10 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  />
+                <div className="w-full p-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 opacity-60">
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Tính năng upload ảnh
+                    </h3>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      Sẽ được bổ sung trong phiên bản tiếp theo
+                    </p>
+                  </div>
                 </div>
 
-                {/* User dropdown - Simplified positioning */}
-                {showUserDropdown && filteredUsersForTagging.length > 0 && (
-                  <div
-                    className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800/98 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-48 overflow-y-auto"
-                    style={{
-                      zIndex: 99999,
-                      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                      backdropFilter: 'blur(8px)',
-                    }}
-                  >
-                    {filteredUsersForTagging.slice(0, 5).map(user => (
-                      <button
-                        key={user.id}
-                        type="button"
-                        onClick={() => addUserToShared(user.id)}
-                        onMouseDown={(e) => e.preventDefault()} // Prevent input blur
-                        className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                            <span className="text-sm font-medium text-white">
-                              {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                            </span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{user.email || user.location}</div>
-                          </div>
-                          <UserPlus className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {/* Overlay to prevent interaction */}
+                <div className="absolute inset-0 bg-transparent cursor-not-allowed" />
               </div>
             </div>
           </form>
