@@ -170,24 +170,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Check for stored user and token
           const storedUser = localStorage.getItem('currentUser');
           const storedToken = localStorage.getItem('authToken');
+          const storedLoginType = localStorage.getItem('loginType');
+
+          console.log('🔍 [AuthContext] Checking localStorage on init:', {
+            hasStoredUser: !!storedUser,
+            hasStoredToken: !!storedToken,
+            storedLoginType,
+            userPreview: storedUser ? JSON.parse(storedUser).name : 'none'
+          });
 
           if (storedUser && storedToken) {
             try {
               const user = JSON.parse(storedUser);
+
+              // IMPORTANT: Ensure user persistence - log detailed info
+              console.log('🔄 [AuthContext] Restoring user session:', {
+                userId: user.id,
+                userName: user.name,
+                userEmail: user.email,
+                userRole: user.role,
+                userTeamId: user.team_id,
+                loginType: storedLoginType
+              });
+
               setCurrentUser(user);
               setAuthToken(storedToken);
+              setLoginType(storedLoginType);
               setIsFirstLogin(!user.password_changed);
 
               // Start auto plan sync for restored user
               autoPlanSyncService.startAutoSync(user.id);
               console.log('🔄 Started auto plan sync for restored user:', user.name);
 
-              console.log('Restored user session from localStorage');
+              console.log('✅ [AuthContext] Successfully restored user session from localStorage');
             } catch (error) {
-              console.error('Error parsing stored user data:', error);
+              console.error('❌ [AuthContext] Error parsing stored user data:', error);
               localStorage.removeItem('currentUser');
               localStorage.removeItem('authToken');
+              localStorage.removeItem('loginType');
             }
+          } else {
+            console.log('ℹ️ [AuthContext] No stored user session found');
           }
         }
       } catch (error) {
@@ -199,6 +222,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initializeAuth();
   }, []);
+
+  // Monitor currentUser changes to debug session persistence issues
+  useEffect(() => {
+    if (currentUser) {
+      console.log('👤 [AuthContext] Current user changed:', {
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmail: currentUser.email,
+        userRole: currentUser.role,
+        userTeamId: currentUser.team_id,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.log('👤 [AuthContext] Current user cleared/null');
+    }
+  }, [currentUser]);
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
@@ -254,10 +293,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setBlockAppAccess(false);
       }
 
-      // Store in localStorage
+      // Store in localStorage with detailed logging
+      console.log('💾 [AuthContext] Storing user session in localStorage:', {
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        userRole: user.role,
+        userTeamId: user.team_id,
+        loginType: responseLoginType,
+        token: token ? 'present' : 'missing'
+      });
+
       localStorage.setItem('currentUser', JSON.stringify(user));
       localStorage.setItem('authToken', token);
       localStorage.setItem('loginType', responseLoginType || '');
+
+      // Verify storage immediately
+      const verifyUser = localStorage.getItem('currentUser');
+      const verifyToken = localStorage.getItem('authToken');
+      const verifyLoginType = localStorage.getItem('loginType');
+
+      console.log('✅ [AuthContext] Verified localStorage storage:', {
+        userStored: !!verifyUser,
+        tokenStored: !!verifyToken,
+        loginTypeStored: !!verifyLoginType,
+        storedUserName: verifyUser ? JSON.parse(verifyUser).name : 'none'
+      });
 
       console.log('✅ Login successful for user:', user.name, {
         loginType: responseLoginType,
