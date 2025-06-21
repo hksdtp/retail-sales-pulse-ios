@@ -156,8 +156,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Load users and teams
         await loadUsersAndTeams();
 
+        // DISABLED: Test environment auto-auth to fix session persistence bug
         // Check for test environment and setup test auth if needed
-        if (isTestEnvironment()) {
+        if (false && isTestEnvironment()) {
           console.log('🧪 Test environment detected, setting up test auth...');
           setupTestAuth();
           const testUser = getTestUser();

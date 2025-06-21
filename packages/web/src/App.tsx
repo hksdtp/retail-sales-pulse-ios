@@ -9,7 +9,7 @@ import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
 import MobileOptimizations from './components/mobile/MobileOptimizations';
-import { FirebaseTaskDataProvider } from './context/FirebaseTaskDataProvider';
+import { TaskDataProvider } from './context/TaskDataProvider';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Calendar from './pages/Calendar';
@@ -45,7 +45,7 @@ const App = () => (
     <ThemeProvider>
       <FirebaseAutoSetupProvider>
         <AuthProvider>
-          <FirebaseTaskDataProvider>
+          <TaskDataProvider>
             <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -193,7 +193,7 @@ const App = () => (
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>
-          </FirebaseTaskDataProvider>
+          </TaskDataProvider>
         </AuthProvider>
       </FirebaseAutoSetupProvider>
     </ThemeProvider>

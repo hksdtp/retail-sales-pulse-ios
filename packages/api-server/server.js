@@ -135,6 +135,19 @@ const mockUsers = [
     position: 'Trưởng nhóm',
     status: 'active',
     password_changed: true
+  },
+  {
+    id: 'nguyen_manh_linh_id',
+    name: 'Nguyễn Mạnh Linh',
+    email: 'linh.nguyen@example.com',
+    role: 'employee',
+    team_id: '1',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Nhân viên bán hàng',
+    status: 'active',
+    password_changed: true
   }
 ];
 

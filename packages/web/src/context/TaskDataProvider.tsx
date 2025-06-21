@@ -390,13 +390,25 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
             );
 
             // Tìm các nhóm do người này quản lý
-            const managedTeams = teams.filter((team) => team.leader_id === userId);
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Checking teams for user: ${userId}`);
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Available teams:`, teams.map(t => ({ id: t.id, name: t.name, leader_id: t.leader_id })));
+
+            const managedTeams = teams.filter((team) => {
+              const isLeader = team.leader_id === userId;
+              console.log(`🔍 [TEAM_LEADER_DEBUG] Team ${team.id} (${team.name}): leader_id=${team.leader_id}, userId=${userId}, isLeader=${isLeader}`);
+              return isLeader;
+            });
             const managedTeamIds = managedTeams.map((team) => team.id);
+
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Managed teams:`, managedTeams.map(t => ({ id: t.id, name: t.name })));
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Managed team IDs:`, managedTeamIds);
 
             // Tìm các thành viên trong nhóm
             const teamMemberIds = users
               .filter((user) => user.team_id && managedTeamIds.includes(user.team_id))
               .map((user) => user.id);
+
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Team members:`, teamMemberIds);
 
             permissionLog(
               `Trưởng nhóm quản lý ${managedTeamIds.length} nhóm với ${teamMemberIds.length} thành viên`,
@@ -404,15 +416,28 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
             );
 
             // Lọc công việc theo tiêu chí:
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Filtering ${rawTasksData.length} tasks for team leader`);
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Available tasks:`, rawTasksData.map(t => ({
+              id: t.id,
+              title: t.title,
+              assignedTo: t.assignedTo,
+              teamId: t.teamId,
+              user_id: t.user_id
+            })));
+
             filteredTasksForRole = rawTasksData.filter((task) => {
+              console.log(`🔍 [TEAM_LEADER_DEBUG] Checking task ${task.id} (${task.title})`);
+
               // 1. Công việc của bản thân
               if (task.assignedTo === userId || task.user_id === userId) {
+                console.log(`✅ [TEAM_LEADER_DEBUG] Task ${task.id}: Assigned to team leader (assignedTo=${task.assignedTo}, user_id=${task.user_id})`);
                 permissionLog(`Task ${task.id}: Được phân công cho trưởng nhóm`, LogLevel.DETAILED);
                 return true;
               }
 
               // 2. Công việc của nhóm mình
               if (task.teamId && managedTeamIds.includes(task.teamId)) {
+                console.log(`✅ [TEAM_LEADER_DEBUG] Task ${task.id}: Belongs to managed team (teamId=${task.teamId}, managedTeamIds=${managedTeamIds})`);
                 permissionLog(`Task ${task.id}: Thuộc nhóm của trưởng nhóm`, LogLevel.DETAILED);
                 return true;
               }
@@ -420,6 +445,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
               // 3. Công việc được admin giao
               const creator = users.find((u) => u.id === task.user_id);
               if (creator && isAdmin(creator.id) && task.assignedTo === userId) {
+                console.log(`✅ [TEAM_LEADER_DEBUG] Task ${task.id}: Assigned by admin`);
                 permissionLog(`Task ${task.id}: Được giao bởi Admin`, LogLevel.DETAILED);
                 return true;
               }
@@ -427,6 +453,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
               // 4. Người dùng được thêm làm người thực hiện cùng
               const extraAssignees = task.extraAssignees || [];
               if (Array.isArray(extraAssignees) && extraAssignees.includes(userId)) {
+                console.log(`✅ [TEAM_LEADER_DEBUG] Task ${task.id}: Extra assignee`);
                 permissionLog(
                   `Task ${task.id}: Trưởng nhóm là người thực hiện cùng`,
                   LogLevel.DETAILED,
@@ -434,8 +461,12 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
                 return true;
               }
 
+              console.log(`❌ [TEAM_LEADER_DEBUG] Task ${task.id}: No permission (assignedTo=${task.assignedTo}, teamId=${task.teamId}, user_id=${task.user_id})`);
               return false;
             });
+
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Filtered tasks result: ${filteredTasksForRole.length}/${rawTasksData.length}`);
+            console.log(`🔍 [TEAM_LEADER_DEBUG] Filtered tasks:`, filteredTasksForRole.map(t => ({ id: t.id, title: t.title })));
           }
           // Nếu là nhân viên thường
           else {
