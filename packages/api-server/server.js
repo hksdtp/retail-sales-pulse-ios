@@ -17,9 +17,70 @@ app.use((req, res, next) => {
 });
 
 // Mock data
-// Mock tasks array - CLEARED for production use
-// All task data now comes from Firebase Firestore production database
-const mockTasks = [];
+// Mock tasks array - UPDATED with test data for debugging
+const mockTasks = [
+  {
+    id: 'task_team5_1',
+    title: 'Khảo sát khách hàng mới - Team 5',
+    description: 'Khảo sát nhu cầu của khách hàng mới tại khu vực Hà Nội',
+    assignedTo: 'pham_thi_huong_id',
+    teamId: '5',
+    status: 'pending',
+    priority: 'high',
+    type: 'KTS mới',
+    date: new Date().toISOString().split('T')[0],
+    location: 'Hà Nội',
+    user_id: 'pham_thi_huong_id',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'task_team5_2',
+    title: 'Báo cáo doanh số tuần - Team 5',
+    description: 'Tổng hợp báo cáo doanh số bán hàng tuần của team',
+    assignedTo: 'pham_thi_huong_id',
+    teamId: '5',
+    status: 'in_progress',
+    priority: 'medium',
+    type: 'Báo cáo',
+    date: new Date().toISOString().split('T')[0],
+    location: 'Hà Nội',
+    user_id: 'pham_thi_huong_id',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'task_team1_1',
+    title: 'Công việc của team 1 - Không được xem bởi team 5',
+    description: 'Đây là công việc của team 1, Phạm Thị Hương không được xem',
+    assignedTo: 'Ue4vzSj1KDg4vZyXwlHJ', // Lương Việt Anh
+    teamId: '1',
+    status: 'pending',
+    priority: 'low',
+    type: 'KH/CĐT',
+    date: new Date().toISOString().split('T')[0],
+    location: 'Hà Nội',
+    user_id: 'Ue4vzSj1KDg4vZyXwlHJ',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'task_admin_all',
+    title: 'Công việc của Admin - Tất cả mọi người đều thấy',
+    description: 'Công việc được tạo bởi admin, tất cả mọi người đều có thể xem',
+    assignedTo: 'Ve7sGRnMoRvT1E0VL5Ds', // Khổng Đức Mạnh
+    teamId: '0',
+    status: 'pending',
+    priority: 'high',
+    type: 'Báo cáo',
+    date: new Date().toISOString().split('T')[0],
+    location: 'Toàn quốc',
+    user_id: 'Ve7sGRnMoRvT1E0VL5Ds',
+    isShared: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
 
 const mockUsers = [
   // Real users from production system
@@ -61,6 +122,49 @@ const mockUsers = [
     position: 'Nhân viên bán hàng',
     status: 'active',
     password_changed: false
+  },
+  {
+    id: 'pham_thi_huong_id',
+    name: 'Phạm Thị Hương',
+    email: 'huong.pham@example.com',
+    role: 'team_leader',
+    team_id: '5',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm',
+    status: 'active',
+    password_changed: true
+  }
+];
+
+const mockTeams = [
+  {
+    id: '0',
+    name: 'Ban Giám Đốc',
+    leader_id: 'Ve7sGRnMoRvT1E0VL5Ds', // Khổng Đức Mạnh
+    location: 'Toàn quốc',
+    description: 'Ban lãnh đạo công ty',
+    department: 'Bán lẻ',
+    department_type: 'retail'
+  },
+  {
+    id: '1',
+    name: 'Nhóm 1 Hà Nội',
+    leader_id: 'Ue4vzSj1KDg4vZyXwlHJ', // Lương Việt Anh
+    location: 'Hà Nội',
+    description: 'Nhóm bán hàng số 1 tại Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail'
+  },
+  {
+    id: '5',
+    name: 'Nhóm 5 Hà Nội',
+    leader_id: 'pham_thi_huong_id', // Phạm Thị Hương
+    location: 'Hà Nội',
+    description: 'Nhóm bán hàng số 5 tại Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail'
   }
 ];
 
@@ -139,6 +243,29 @@ app.get('/users/:id', (req, res) => {
   res.json({
     success: true,
     data: user
+  });
+});
+
+// Teams endpoints
+app.get('/teams', (req, res) => {
+  res.json({
+    success: true,
+    data: mockTeams,
+    count: mockTeams.length
+  });
+});
+
+app.get('/teams/:id', (req, res) => {
+  const team = mockTeams.find(t => t.id === req.params.id);
+  if (!team) {
+    return res.status(404).json({
+      success: false,
+      error: 'Team not found'
+    });
+  }
+  res.json({
+    success: true,
+    data: team
   });
 });
 
@@ -487,6 +614,8 @@ app.listen(PORT, () => {
   console.log(`   GET  /tasks/:id`);
   console.log(`   GET  /users`);
   console.log(`   GET  /users/:id`);
+  console.log(`   GET  /teams`);
+  console.log(`   GET  /teams/:id`);
   console.log(`   POST /auth/login`);
 });
 
