@@ -100,6 +100,17 @@ class ApiClient {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ HTTP Error ${response.status}:`, errorText);
+
+        // Try to parse JSON error response to get clean error message
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error) {
+            throw new Error(errorData.error);
+          }
+        } catch (parseError) {
+          // If not JSON, fall back to original error format
+        }
+
         throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
 

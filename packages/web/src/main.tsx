@@ -6,7 +6,7 @@ import App from './App.tsx';
 import './index.css';
 
 // Initialize Firebase
-import { FirebaseService } from './services/FirebaseService';
+import { FirebaseService } from '@services/FirebaseService';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -25,12 +25,12 @@ try {
 } catch (error) {
   console.error('🔥 Firebase initialization failed:', error);
 }
-import './styles/dark-theme.css';
-import './styles/login-theme.css';
-import './styles/macos.css';
-import './utils/dialog-centering-fix.js';
-import './utils/versionManager.ts';
-import './utils/cacheHelper.ts';
-import './utils/test-kpi.ts';
+import '@styles/dark-theme.css';
+import '@styles/login-theme.css';
+import '@styles/macos.css';
+import '@utils/dialog-centering-fix.js';
+import '@utils/versionManager.ts';
+import '@utils/cacheHelper.ts';
+import '@utils/test-kpi.ts';
 
 createRoot(document.getElementById('root')!).render(<App />);

@@ -9,13 +9,20 @@
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "firebase": "^11.9.1",
+    "iconv-lite": "^0.4.24"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
-  "keywords": ["api", "mock", "retail", "sales"],
+  "keywords": [
+    "api",
+    "mock",
+    "retail",
+    "sales"
+  ],
   "author": "Retail Sales Pulse Team",
   "license": "MIT"
 }

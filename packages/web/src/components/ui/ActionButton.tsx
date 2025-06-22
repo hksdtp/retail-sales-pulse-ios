@@ -67,7 +67,7 @@ interface ActionButtonProps {
   title?: string;
 }
 
-export const ActionButton: React.FC<ActionButtonProps> = ({
+export const ActionButton = React.forwardRef<HTMLButtonElement, ActionButtonProps>(({
   iconType,
   children,
   onClick,
@@ -79,14 +79,15 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   'aria-label': ariaLabel,
   title,
   ...props
-}) => {
+}, ref) => {
   const IconComponent = ICON_MAP[iconType];
-  
+
   // Auto-generate aria-label if not provided
   const autoAriaLabel = ariaLabel || `${iconType.replace('-', ' ')} button`;
-  
+
   return (
     <Button
+      ref={ref}
       onClick={onClick}
       variant={variant}
       size={size}
@@ -104,48 +105,58 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       {children}
     </Button>
   );
-};
+});
+ActionButton.displayName = 'ActionButton';
 
 // Specialized button components để tránh confusion
-export const RefreshButton: React.FC<Omit<ActionButtonProps, 'iconType'> & { type?: 'data' | 'ui' }> = ({ 
-  type = 'data', 
-  ...props 
-}) => (
-  <ActionButton 
-    iconType={type === 'data' ? 'refresh-data' : 'reload-ui'} 
-    {...props} 
+export const RefreshButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'> & { type?: 'data' | 'ui' }>(({
+  type = 'data',
+  ...props
+}, ref) => (
+  <ActionButton
+    ref={ref}
+    iconType={type === 'data' ? 'refresh-data' : 'reload-ui'}
+    {...props}
   />
-);
+));
+RefreshButton.displayName = 'RefreshButton';
 
-export const SettingsButton: React.FC<Omit<ActionButtonProps, 'iconType'> & { type?: 'system' | 'user' }> = ({ 
-  type = 'system', 
-  ...props 
-}) => (
-  <ActionButton 
-    iconType={type === 'system' ? 'system-settings' : 'user-profile'} 
-    {...props} 
+export const SettingsButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'> & { type?: 'system' | 'user' }>(({
+  type = 'system',
+  ...props
+}, ref) => (
+  <ActionButton
+    ref={ref}
+    iconType={type === 'system' ? 'system-settings' : 'user-profile'}
+    {...props}
   />
-);
+));
+SettingsButton.displayName = 'SettingsButton';
 
-export const SaveButton: React.FC<Omit<ActionButtonProps, 'iconType'>> = (props) => (
-  <ActionButton iconType="save" {...props} />
-);
+export const SaveButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'>>((props, ref) => (
+  <ActionButton ref={ref} iconType="save" {...props} />
+));
+SaveButton.displayName = 'SaveButton';
 
-export const CancelButton: React.FC<Omit<ActionButtonProps, 'iconType'>> = (props) => (
-  <ActionButton iconType="cancel" variant="outline" {...props} />
-);
+export const CancelButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'>>((props, ref) => (
+  <ActionButton ref={ref} iconType="cancel" variant="outline" {...props} />
+));
+CancelButton.displayName = 'CancelButton';
 
-export const ExportButton: React.FC<Omit<ActionButtonProps, 'iconType'>> = (props) => (
-  <ActionButton iconType="export" variant="outline" {...props} />
-);
+export const ExportButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'>>((props, ref) => (
+  <ActionButton iconType="export" variant="outline" ref={ref} {...props} />
+));
+ExportButton.displayName = 'ExportButton';
 
-export const SyncButton: React.FC<Omit<ActionButtonProps, 'iconType'>> = (props) => (
-  <ActionButton iconType="upload" {...props} />
-);
+export const SyncButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'>>((props, ref) => (
+  <ActionButton ref={ref} iconType="upload" {...props} />
+));
+SyncButton.displayName = 'SyncButton';
 
-export const DeleteButton: React.FC<Omit<ActionButtonProps, 'iconType'>> = (props) => (
-  <ActionButton iconType="delete" variant="destructive" {...props} />
-);
+export const DeleteButton = React.forwardRef<HTMLButtonElement, Omit<ActionButtonProps, 'iconType'>>((props, ref) => (
+  <ActionButton ref={ref} iconType="delete" variant="destructive" {...props} />
+));
+DeleteButton.displayName = 'DeleteButton';
 
 // Usage examples:
 /*

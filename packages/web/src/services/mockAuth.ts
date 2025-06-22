@@ -140,7 +140,7 @@ export const mockLogin = async (email: string, password: string): Promise<{
   if (!validPasswords.includes(password)) {
     return {
       success: false,
-      error: 'Mật khẩu không đúng. Thử: 123456, password, hoặc password123',
+      error: 'Mật khẩu không đúng',
     };
   }
 

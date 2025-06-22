@@ -205,6 +205,16 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
   };
 
+  // Helper function để check Firebase configuration
+  const isFirebaseConfigured = (): boolean => {
+    try {
+      return FirebaseService.isConfigured();
+    } catch (error) {
+      console.error('Error checking Firebase configuration:', error);
+      return false;
+    }
+  };
+
   // Hàm chuyển đổi dữ liệu từ Firebase sang định dạng Task
   const convertFirebaseTasks = (fbTasks: Record<string, unknown>[]): Task[] => {
     return fbTasks.map((task) => {
@@ -267,6 +277,25 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Lấy dữ liệu ban đầu
   useEffect(() => {
+    // Define handlePlanToTaskConversion at the top level of useEffect
+    const handlePlanToTaskConversion = (event: CustomEvent) => {
+      const { task } = event.detail;
+      console.log('📋 Nhận được task mới từ plan conversion:', task.title);
+
+      // Thêm task mới vào danh sách hiện tại
+      setTasks(prevTasks => {
+        const updatedTasks = [...prevTasks, task];
+        saveFilteredTasks(updatedTasks);
+        return updatedTasks;
+      });
+
+      // Hiển thị thông báo
+      toast({
+        title: '📋 Kế hoạch đã chuyển thành công việc',
+        description: `"${task.title}" đã được tự động thêm vào danh sách công việc`,
+      });
+    };
+
     const initialize = async () => {
       setIsLoading(true);
 
@@ -279,37 +308,39 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
         // Kiểm tra xem có dữ liệu thô trong localStorage không
         const localRawTasks = getRawTasks();
 
-        // PRODUCTION MODE: Xóa dữ liệu cũ nhưng giữ lại auto-synced tasks
-        console.log('🗑️ PRODUCTION MODE: Xóa dữ liệu cũ nhưng giữ auto-synced tasks...');
+        // PRODUCTION MODE: Xóa dữ liệu cũ nhưng giữ lại auto-synced tasks và auth data
+        console.log('🗑️ PRODUCTION MODE: Xóa dữ liệu cũ nhưng giữ auto-synced tasks và auth data...');
 
-        // Backup auto-synced tasks trước khi clear
-        const autoSyncedTasks: { [key: string]: string } = {};
+        // Backup important data trước khi clear
+        const importantData: { [key: string]: string } = {};
         Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('user_tasks_')) {
-            autoSyncedTasks[key] = localStorage.getItem(key) || '';
+          // Giữ lại auth data, auto-synced tasks, và personal plans
+          if (key.startsWith('user_tasks_') ||
+              key.startsWith('personal_plans_') ||
+              key === 'currentUser' ||
+              key === 'authToken' ||
+              key === 'loginType') {
+            importantData[key] = localStorage.getItem(key) || '';
           }
         });
 
-        // Backup personal plans
-        const personalPlans: { [key: string]: string } = {};
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('personal_plans_')) {
-            personalPlans[key] = localStorage.getItem(key) || '';
-          }
-        });
+        // Chỉ xóa task-related data, không xóa auth data
+        const keysToRemove = Object.keys(localStorage).filter(key =>
+          key.startsWith('rawTasks') ||
+          key.startsWith('filteredTasks') ||
+          key.startsWith('tasks') ||
+          key.startsWith('mockTasks')
+        );
 
-        localStorage.clear(); // Xóa toàn bộ localStorage
-        sessionStorage.clear(); // Xóa session storage
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        console.log(`🗑️ Removed ${keysToRemove.length} task-related keys, kept auth data`);
 
-        // Restore auto-synced tasks và personal plans
-        Object.entries(autoSyncedTasks).forEach(([key, value]) => {
-          if (value) localStorage.setItem(key, value);
-        });
-        Object.entries(personalPlans).forEach(([key, value]) => {
+        // Restore important data
+        Object.entries(importantData).forEach(([key, value]) => {
           if (value) localStorage.setItem(key, value);
         });
 
-        console.log('✅ Restored auto-synced tasks and personal plans after clear');
+        console.log('✅ Restored auto-synced tasks, personal plans, and auth data after selective clear');
 
         // Xóa tất cả dữ liệu từ API nếu có
         if (isFirebaseConfigured()) {
@@ -333,9 +364,49 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
         }
 
-        // PRODUCTION MODE: Bắt đầu với dữ liệu trống nhưng load auto-synced tasks
-        console.log('🚀 PRODUCTION MODE: Bắt đầu dự án mới - load auto-synced tasks');
+        // PRODUCTION MODE: Load tasks từ Firebase trước, fallback API và auto-synced tasks
+        console.log('🚀 PRODUCTION MODE: Load tasks từ Firebase, fallback API và auto-synced tasks');
         rawTasksData = [];
+
+        // Ưu tiên load tasks từ Firebase trước
+        console.log('🔥 Checking Firebase configuration...');
+        const firebaseConfigured = isFirebaseConfigured();
+        console.log(`🔥 Firebase configured: ${firebaseConfigured}`);
+
+        if (firebaseConfigured) {
+          try {
+            console.log('🔥 Loading tasks from Firebase...');
+            const firebaseService = FirebaseService.getInstance();
+            console.log('🔥 Firebase service instance:', firebaseService);
+
+            const firebaseTasks = await firebaseService.getDocuments('tasks');
+            console.log('🔥 Firebase tasks response:', firebaseTasks);
+
+            if (firebaseTasks && firebaseTasks.length > 0) {
+              console.log(`📋 ✅ SUCCESS: Loaded ${firebaseTasks.length} tasks from Firebase`);
+              const convertedTasks = convertFirebaseTasks(firebaseTasks);
+              rawTasksData = [...rawTasksData, ...convertedTasks];
+              console.log(`📋 ✅ Converted and added ${convertedTasks.length} Firebase tasks to rawTasksData`);
+            } else {
+              console.log('📋 ⚠️ No tasks found in Firebase, will fallback to API');
+            }
+          } catch (error) {
+            console.error('❌ Error loading tasks from Firebase:', error);
+            console.log('📡 Fallback to API...');
+          }
+        } else {
+          console.log('🔥 ⚠️ Firebase not configured, using API...');
+        }
+
+        // Fallback: Load tasks từ API nếu Firebase không có data hoặc lỗi
+        if (rawTasksData.length === 0 && currentUser) {
+          console.log('📡 Loading tasks from API...');
+          const apiTasks = await getTasks(currentUser, users);
+          if (apiTasks && apiTasks.length > 0) {
+            console.log(`📋 Loaded ${apiTasks.length} tasks from API`);
+            rawTasksData = [...rawTasksData, ...apiTasks];
+          }
+        }
 
         // Load auto-synced tasks nếu có user đăng nhập
         if (currentUser?.id) {
@@ -568,25 +639,7 @@ export const TaskDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       console.log('🚀 Khởi tạo PlanToTaskSyncService cho user:', currentUser.name);
       planToTaskSyncService.startAutoSync(1); // Check mỗi 1 phút
 
-      // Listen for plan-to-task conversion events
-      const handlePlanToTaskConversion = (event: CustomEvent) => {
-        const { task } = event.detail;
-        console.log('📋 Nhận được task mới từ plan conversion:', task.title);
-
-        // Thêm task mới vào danh sách hiện tại
-        setTasks(prevTasks => {
-          const updatedTasks = [...prevTasks, task];
-          saveFilteredTasks(updatedTasks);
-          return updatedTasks;
-        });
-
-        // Hiển thị thông báo
-        toast({
-          title: '📋 Kế hoạch đã chuyển thành công việc',
-          description: `"${task.title}" đã được tự động thêm vào danh sách công việc`,
-        });
-      };
-
+      // Add event listener for plan-to-task conversion events
       window.addEventListener('planToTaskConverted', handlePlanToTaskConversion as EventListener);
     }
 

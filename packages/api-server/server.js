@@ -5,7 +5,7 @@ const PORT = 3003;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:8088', 'http://127.0.0.1:8088', 'http://[::1]:8088'],
+  origin: ['http://localhost:8088', 'http://127.0.0.1:8088', 'http://[::1]:8088', 'file://'],
   credentials: true
 }));
 app.use(express.json());
@@ -17,69 +17,10 @@ app.use((req, res, next) => {
 });
 
 // Mock data
-// Mock tasks array - UPDATED with test data for debugging
+// Mock tasks array - EMPTY - Data will be loaded from Firebase
 const mockTasks = [
-  {
-    id: 'task_team5_1',
-    title: 'Khảo sát khách hàng mới - Team 5',
-    description: 'Khảo sát nhu cầu của khách hàng mới tại khu vực Hà Nội',
-    assignedTo: 'pham_thi_huong_id',
-    teamId: '5',
-    status: 'pending',
-    priority: 'high',
-    type: 'KTS mới',
-    date: new Date().toISOString().split('T')[0],
-    location: 'Hà Nội',
-    user_id: 'pham_thi_huong_id',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'task_team5_2',
-    title: 'Báo cáo doanh số tuần - Team 5',
-    description: 'Tổng hợp báo cáo doanh số bán hàng tuần của team',
-    assignedTo: 'pham_thi_huong_id',
-    teamId: '5',
-    status: 'in_progress',
-    priority: 'medium',
-    type: 'Báo cáo',
-    date: new Date().toISOString().split('T')[0],
-    location: 'Hà Nội',
-    user_id: 'pham_thi_huong_id',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'task_team1_1',
-    title: 'Công việc của team 1 - Không được xem bởi team 5',
-    description: 'Đây là công việc của team 1, Phạm Thị Hương không được xem',
-    assignedTo: 'Ue4vzSj1KDg4vZyXwlHJ', // Lương Việt Anh
-    teamId: '1',
-    status: 'pending',
-    priority: 'low',
-    type: 'KH/CĐT',
-    date: new Date().toISOString().split('T')[0],
-    location: 'Hà Nội',
-    user_id: 'Ue4vzSj1KDg4vZyXwlHJ',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: 'task_admin_all',
-    title: 'Công việc của Admin - Tất cả mọi người đều thấy',
-    description: 'Công việc được tạo bởi admin, tất cả mọi người đều có thể xem',
-    assignedTo: 'Ve7sGRnMoRvT1E0VL5Ds', // Khổng Đức Mạnh
-    teamId: '0',
-    status: 'pending',
-    priority: 'high',
-    type: 'Báo cáo',
-    date: new Date().toISOString().split('T')[0],
-    location: 'Toàn quốc',
-    user_id: 'Ve7sGRnMoRvT1E0VL5Ds',
-    isShared: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
+  // EMPTY - Firebase is the primary data source
+  // Mock data only used as fallback when Firebase is not available
 ];
 
 const mockUsers = [
@@ -408,7 +349,7 @@ app.post('/auth/login', (req, res) => {
 
       return res.status(401).json({
         success: false,
-        error: 'Mật khẩu không đúng. Lần đăng nhập đầu tiên vui lòng sử dụng mật khẩu mặc định: 123456'
+        error: 'Mật khẩu không đúng. Lần đăng nhập đầu tiên vui lòng sử dụng mật khẩu: 123456'
       });
     }
   }
@@ -422,7 +363,7 @@ app.post('/auth/login', (req, res) => {
 
     return res.status(401).json({
       success: false,
-      error: 'Bạn phải sử dụng mật khẩu đã thay đổi, không phải mật khẩu mặc định'
+      error: 'Mật khẩu không đúng. Vui lòng sử dụng mật khẩu mới đã đặt.'
     });
   }
 

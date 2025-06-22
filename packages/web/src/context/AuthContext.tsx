@@ -262,8 +262,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         response = apiResponse;
         console.log('✅ Using API authentication');
       } else {
-        console.warn('⚠️ API login failed, trying mock authentication. API error:', apiResponse.error);
-        // Fallback to mock authentication
+        // If API server is running but returns error, don't fallback to mock
+        // Only fallback if API server is completely unreachable
+        if (apiResponse.error && !apiResponse.error.includes('Network Error') && !apiResponse.error.includes('fetch')) {
+          console.log('🚫 API server rejected login, not using mock fallback');
+          throw new Error(apiResponse.error || 'Đăng nhập thất bại');
+        }
+
+        console.warn('⚠️ API server unreachable, trying mock authentication. API error:', apiResponse.error);
+        // Fallback to mock authentication only if API server is unreachable
         response = await mockLogin(email, password);
         console.log('📥 Mock login response:', response);
       }
@@ -349,7 +356,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return Promise.resolve();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Đã xảy ra lỗi không xác định';
+      let errorMessage = 'Đã xảy ra lỗi không xác định';
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+
+        // Clean up error message - remove HTTP status and JSON structure
+        if (errorMessage.includes('HTTP 401:') || errorMessage.includes('HTTP 400:')) {
+          // Extract just the error message from JSON if present
+          const jsonMatch = errorMessage.match(/\{"success":false,"error":"([^"]+)"\}/);
+          if (jsonMatch && jsonMatch[1]) {
+            errorMessage = jsonMatch[1];
+          } else {
+            // Fallback: remove HTTP status prefix
+            errorMessage = errorMessage.replace(/^HTTP \d+: [^-]+ - /, '');
+          }
+        }
+      }
+
       console.error('❌ Login error:', error);
 
       toast({

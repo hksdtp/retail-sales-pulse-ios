@@ -20,7 +20,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const passwordSchema = z
   .object({
-    password: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+    password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -106,7 +106,7 @@ const ChangePasswordForm: React.FC = () => {
                         </Button>
                       </div>
                       <FormDescription className="text-xs text-[#636e72]">
-                        Mật khẩu phải có ít nhất 8 ký tự
+                        Mật khẩu phải có ít nhất 6 ký tự
                       </FormDescription>
                       <FormMessage className="text-xs font-medium" />
                     </FormItem>

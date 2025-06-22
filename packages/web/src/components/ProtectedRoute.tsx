@@ -11,26 +11,40 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, isFirstLogin, currentUser } = useAuth();
+  const {
+    isAuthenticated,
+    isLoading,
+    isFirstLogin,
+    currentUser,
+    requirePasswordChange,
+    blockAppAccess
+  } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Kiểm tra xem người dùng đã xác thực chưa sau khi trang được tải
-    if (!isLoading && !isAuthenticated) {
+    // Chỉ redirect về login nếu thực sự không có user và không phải trường hợp cần đổi mật khẩu
+    if (!isLoading && !currentUser && !requirePasswordChange) {
       navigate('/login');
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isLoading, currentUser, requirePasswordChange, navigate]);
 
   if (isLoading) {
     return <LoadingScreen message="Đang xác thực người dùng..." />;
   }
 
-  if (!isAuthenticated) {
+  // Nếu có user nhưng cần đổi mật khẩu (first login), hiển thị form đổi mật khẩu
+  if (currentUser && (isFirstLogin || requirePasswordChange)) {
+    return <ChangePasswordForm />;
+  }
+
+  // Nếu không có user và không phải trường hợp đổi mật khẩu, redirect về login
+  if (!currentUser) {
     return <Navigate to="/login" replace />;
   }
 
-  // Nếu đây là lần đăng nhập đầu tiên, hiển thị form đổi mật khẩu
-  if (isFirstLogin) {
+  // Nếu có user nhưng bị block (không nên xảy ra sau khi sửa logic trên)
+  if (blockAppAccess) {
     return <ChangePasswordForm />;
   }
 
