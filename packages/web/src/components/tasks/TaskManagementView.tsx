@@ -53,13 +53,14 @@ import { useTaskData } from '@/hooks/use-task-data';
 import { useIsMobile } from '@/hooks/use-mobile';
 import notificationService from '@/services/notificationService';
 
-import LoadingScreen from '@/components/ui/LoadingScreen';
+import InlineLoadingSpinner from '@/components/ui/InlineLoadingSpinner';
 import MemberTaskSelector from './MemberTaskSelector';
 import MemberViewFilters from './MemberViewFilters';
 import TaskDetailPanel from './TaskDetailPanel';
+
 import TaskSearchBar from './TaskSearchBar';
 import { getStatusColor, getTypeName } from './task-utils/TaskFormatters';
-import { sortTasks } from './task-utils/TaskFilters';
+import { sortTasks, filterTasksByDate } from './task-utils/TaskFilters';
 import { Task } from './types/TaskTypes';
 
 // Mapping trạng thái theo form nhập công việc
@@ -219,9 +220,17 @@ export default function TaskManagementView({
     }
   }, [selectedMember, users]);
 
-  // Early return nếu chưa có currentUser
+  // Early return nếu chưa có currentUser - sử dụng inline loading thay vì full screen
   if (!currentUser) {
-    return <LoadingScreen message="Đang khởi tạo dữ liệu người dùng..." />;
+    return (
+      <div className="flex items-center justify-center min-h-[400px] p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Đang khởi tạo dữ liệu người dùng...</p>
+          <p className="text-sm text-gray-500 mt-2">Vui lòng đợi trong giây lát</p>
+        </div>
+      </div>
+    );
   }
 
   // Sử dụng hook phù hợp dựa trên role
@@ -230,8 +239,37 @@ export default function TaskManagementView({
     currentUser?.role === 'retail_director' ||
     currentUser?.role === 'project_director';
 
-  // Dữ liệu trống - đã xóa mock data, chỉ sử dụng dữ liệu thật từ server
-  const mockTasks: any[] = [];
+  // TEMPORARY: Load tasks from migration data for testing
+  const [migrationTasks, setMigrationTasks] = useState<any[]>([]);
+
+  // Load migration tasks on component mount
+  useEffect(() => {
+    const loadMigrationTasks = async () => {
+      try {
+        console.log('📋 Loading tasks from migration data...');
+
+        // Try to load from converted migration data
+        const response = await fetch('/supabase-data-converted.json');
+        if (response.ok) {
+          const data = await response.json();
+          const tasks = data.tasks || [];
+          console.log(`✅ Loaded ${tasks.length} tasks from migration data`);
+          setMigrationTasks(tasks);
+        } else {
+          console.log('⚠️ Migration data not found, using empty array');
+          setMigrationTasks([]);
+        }
+      } catch (error) {
+        console.error('❌ Error loading migration tasks:', error);
+        setMigrationTasks([]);
+      }
+    };
+
+    loadMigrationTasks();
+  }, []);
+
+  // Use migration tasks as fallback
+  const mockTasks: any[] = migrationTasks;
 
 
 
@@ -266,6 +304,15 @@ export default function TaskManagementView({
       selectedMemberForHook
     });
 
+    // FORCE DEBUG: Log detailed task data
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] ===== DETAILED TASK DATA =====');
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] regularTaskData:', regularTaskData);
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] regularTaskData.tasks:', regularTaskData?.tasks);
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] managerTaskData:', managerTaskData);
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] managerTaskData.tasks:', managerTaskData?.tasks);
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] currentUser:', currentUser);
+    console.log('🔍 [TASK_MANAGEMENT_DEBUG] ===============================');
+
   } catch (error) {
     console.error('Error with hooks, using mock data:', error);
     regularTaskData = { tasks: mockTasks };
@@ -277,17 +324,28 @@ export default function TaskManagementView({
     const regularTasks = regularTaskData?.tasks || [];
     const managerTasks = managerTaskData?.tasks || [];
 
-    // Combine với mock data để test
-    const allRegularTasks = [...regularTasks, ...mockTasks];
-    const allManagerTasks = [...managerTasks, ...mockTasks];
+    // PRIORITY: Use migration data first, then Supabase data
+    const allRegularTasks = mockTasks.length > 0 ? mockTasks : regularTasks;
+    const allManagerTasks = mockTasks.length > 0 ? mockTasks : managerTasks;
 
     console.log('🔍 Data sources:', {
       regularTasks: regularTasks.length,
       managerTasks: managerTasks.length,
       mockTasks: mockTasks.length,
+      migrationTasks: migrationTasks.length,
       allRegularTasks: allRegularTasks.length,
-      allManagerTasks: allManagerTasks.length
+      allManagerTasks: allManagerTasks.length,
+      usingMigrationData: mockTasks.length > 0
     });
+
+    // Log migration data details
+    if (migrationTasks.length > 0) {
+      console.log('📋 Migration tasks loaded:', {
+        count: migrationTasks.length,
+        sampleTitles: migrationTasks.slice(0, 3).map(t => t.title),
+        sampleUsers: migrationTasks.slice(0, 3).map(t => t.user_name)
+      });
+    }
 
     switch (view) {
       case 'personal':
@@ -314,13 +372,10 @@ export default function TaskManagementView({
                                    task.assignedTo == currentUserId ||
                                    task.user_id == currentUserId;
 
-          // Đặc biệt cho retail_director: hiển thị tất cả tasks của phòng
+          // Đặc biệt cho retail_director: chỉ hiển thị tasks của bản thân trong personal view
           const isRetailDirector = currentUser?.role === 'retail_director';
-          const isDepartmentTask = isRetailDirector && (
-            task.isShared || // Công việc chung phòng
-            task.department === 'retail' || // Thuộc phòng bán lẻ
-            task.department_type === 'retail' // Thuộc loại bán lẻ
-          );
+          // Trong personal view, director chỉ xem tasks của bản thân, không xem tất cả department
+          const isDepartmentTask = false; // Disable department filtering in personal view
 
           console.log(`  - Task "${task.title}":`);
           console.log(`    assignedTo: ${task.assignedTo} (${typeof task.assignedTo})`);
@@ -350,7 +405,7 @@ export default function TaskManagementView({
           const teamTasks = sourceData.filter((task) => {
             const isSharedWithTeam = task.isSharedWithTeam || false;
 
-            // Directors xem tất cả tasks (vì có thể quản lý nhiều team)
+            // Directors xem tasks của department
             const isDirector = (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director' || currentUser?.role === 'director');
 
             // Team Leaders chỉ xem tasks của team mình
@@ -362,9 +417,37 @@ export default function TaskManagementView({
             // Hiển thị tasks có team_id (thuộc về một team nào đó)
             const hasTeamId = task.team_id && task.team_id !== '';
 
-            // Directors hiển thị tất cả tasks có team_id hoặc shared
-            // Đơn giản hóa: Directors xem tất cả tasks trong team view
-            const shouldShow = isSharedWithTeam || (isDirector ? true : (hasTeamId || isFromTeamMember));
+            // Director logic: xem tasks của department
+            let isDepartmentTask = false;
+            if (isDirector) {
+              const currentDepartment = currentUser?.department_type || currentUser?.department;
+
+              // Check if task belongs to department through assignedTo
+              if (task.assignedTo && users && users.length > 0) {
+                const assignedUser = users.find(u => u.id === task.assignedTo);
+                if (assignedUser && (assignedUser.department_type === currentDepartment || assignedUser.department === currentDepartment)) {
+                  isDepartmentTask = true;
+                }
+              }
+
+              // Check if task belongs to department through creator
+              if (task.user_id && users && users.length > 0) {
+                const creator = users.find(u => u.id === task.user_id);
+                if (creator && (creator.department_type === currentDepartment || creator.department === currentDepartment)) {
+                  isDepartmentTask = true;
+                }
+              }
+
+              // Check if task belongs to department through team
+              if (task.teamId && teams && teams.length > 0) {
+                const team = teams.find(t => t.id === task.teamId);
+                if (team && (team.department_type === currentDepartment || team.department === currentDepartment)) {
+                  isDepartmentTask = true;
+                }
+              }
+            }
+
+            const shouldShow = isSharedWithTeam || (isDirector ? isDepartmentTask : (hasTeamId || isFromTeamMember));
 
             console.log(`  📋 Task "${task.title}": isSharedWithTeam=${isSharedWithTeam}, isDirector=${isDirector}, hasTeamId=${hasTeamId}, isFromTeamMember=${isFromTeamMember}, shouldShow=${shouldShow}`);
 
@@ -612,7 +695,7 @@ export default function TaskManagementView({
     ];
 
     if (isManager) {
-      baseItems[1].items.push('Công việc của nhóm', 'Công việc của thành viên');
+      baseItems[1].items.push('Của nhóm', 'Công việc của thành viên');
     }
 
     baseItems.push(
@@ -871,7 +954,11 @@ export default function TaskManagementView({
   };
 
   // Áp dụng filters cho tasks và sắp xếp
-  const filteredTasks = filterTasks(localTasks);
+  let filteredTasks = filterTasks(localTasks);
+
+  // Áp dụng date filter - sử dụng filters.timeRange từ TaskSearchBar
+  filteredTasks = filterTasksByDate(filteredTasks, filters.timeRange);
+
   const tasks = sortTasks(filteredTasks);
 
   // Hàm lấy initials từ tên
@@ -1166,7 +1253,7 @@ export default function TaskManagementView({
           </div>
         </div>
 
-        {/* Task Search Bar */}
+        {/* Task Search Bar với Date Filter tích hợp */}
         <div className="px-4 py-3 border-b border-gray-100">
           <TaskSearchBar
             onSearch={setSearchQuery}
@@ -1179,6 +1266,8 @@ export default function TaskManagementView({
               });
             }}
             placeholder="Tìm kiếm công việc theo tiêu đề, mô tả..."
+            showDateFilter={true} // Luôn hiển thị date filter
+            currentDateFilter={filters.timeRange}
           />
         </div>
 
@@ -1187,10 +1276,7 @@ export default function TaskManagementView({
           {/* Mobile Card View */}
           <div className="block sm:hidden">
             {isLoading ? (
-              <div className="p-8 text-center text-gray-500">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p>Đang tải...</p>
-              </div>
+              <InlineLoadingSpinner message="Đang tải công việc..." size="md" />
             ) : tasks.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <div className="text-4xl mb-4">📝</div>

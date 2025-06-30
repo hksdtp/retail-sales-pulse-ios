@@ -1,0 +1,275 @@
+{
+  "timestamp": "2025-06-30T01:23:05.588Z",
+  "summary": {
+    "totalTasks": 31,
+    "totalUsers": 24,
+    "totalTeams": 12,
+    "tasksWithIssues": 0
+  },
+  "fieldStats": {
+    "id": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "1Cmy7q130b6WDe7oLtCj",
+        "77YpiEq4Z214uUACf4OP",
+        "CO2RpR1Iad9A5qHtorTv"
+      ]
+    },
+    "title": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "KH-CT ANH THÁI CHỊ TUYẾN OCEANPARK",
+        "KTS-CHỊ DUYÊN THIẾT KẾ A+",
+        "KH-CT CHỊ LINH-QUẢNG AN"
+      ]
+    },
+    "description": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "Khách hàng anh Thái chị Tuyến tại Oceanpark",
+        "Kiến trúc sư chị Duyên thiết kế A+",
+        "Liên hệ khách hàng chị Linh tại Quảng An"
+      ]
+    },
+    "type": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "customer_contact",
+        "partner_contact",
+        "customer_contact"
+      ]
+    },
+    "status": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "todo",
+        "todo",
+        "todo"
+      ]
+    },
+    "priority": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "normal",
+        "normal",
+        "normal"
+      ]
+    },
+    "assignedTo": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "ACKzl2RISqrx5ca9QDM6",
+        "ACKzl2RISqrx5ca9QDM6",
+        "ACKzl2RISqrx5ca9QDM6"
+      ]
+    },
+    "user_id": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "ACKzl2RISqrx5ca9QDM6",
+        "ACKzl2RISqrx5ca9QDM6",
+        "ACKzl2RISqrx5ca9QDM6"
+      ]
+    },
+    "user_name": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "Phạm Thị Hương",
+        "Phạm Thị Hương",
+        "Phạm Thị Hương"
+      ]
+    },
+    "team_id": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "4",
+        "4",
+        "4"
+      ]
+    },
+    "teamId": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "4",
+        "4",
+        "4"
+      ]
+    },
+    "location": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "hanoi",
+        "hanoi",
+        "hanoi"
+      ]
+    },
+    "department_type": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "retail",
+        "retail",
+        "retail"
+      ]
+    },
+    "date": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "2025-06-14",
+        "2025-06-14",
+        "2025-06-14"
+      ]
+    },
+    "time": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        "09:00",
+        "09:00",
+        "09:00"
+      ]
+    },
+    "progress": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        0,
+        0,
+        0
+      ]
+    },
+    "isNew": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        false,
+        false,
+        false
+      ]
+    },
+    "isShared": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        false,
+        false,
+        false
+      ]
+    },
+    "isSharedWithTeam": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        false,
+        false,
+        false
+      ]
+    },
+    "extraAssignees": {
+      "count": 31,
+      "hasValue": 0,
+      "types": {},
+      "samples": []
+    },
+    "updated_at": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        {
+          "_seconds": 1749872812,
+          "_nanoseconds": 950000000
+        },
+        {
+          "_seconds": 1749872816,
+          "_nanoseconds": 422000000
+        },
+        {
+          "_seconds": 1749872804,
+          "_nanoseconds": 667000000
+        }
+      ]
+    },
+    "created_at": {
+      "count": 31,
+      "hasValue": 31,
+      "types": {},
+      "samples": [
+        {
+          "_seconds": 1749872812,
+          "_nanoseconds": 950000000
+        },
+        {
+          "_seconds": 1749872816,
+          "_nanoseconds": 422000000
+        },
+        {
+          "_seconds": 1749872804,
+          "_nanoseconds": 667000000
+        }
+      ]
+    }
+  },
+  "statusDistribution": {
+    "todo": 30,
+    "in-progress": 1
+  },
+  "assignedDistribution": {
+    "Phạm Thị Hương": 5,
+    "Lương Việt Anh": 4,
+    "Nguyễn Mạnh Linh": 10,
+    "Nguyễn Thị Thảo": 5,
+    "Lê Khánh Duy": 7
+  },
+  "priorityDistribution": {
+    "normal": 27,
+    "high": 4
+  },
+  "visibilityDistribution": {
+    "personal": 31
+  },
+  "dataIntegrity": {
+    "tasksWithoutTitle": 0,
+    "tasksWithoutUser": 0,
+    "tasksWithInvalidDate": 0
+  },
+  "uniqueUserIds": [
+    "ACKzl2RISqrx5ca9QDM6",
+    "Ue4vzSj1KDg4vZyXwlHJ",
+    "76ui8I1vw3wiJLyvwFjq",
+    "MO7N4Trk6mASlHpIcjME",
+    "abtSSmK0p0oeOyy5YWGZ"
+  ]
+}
