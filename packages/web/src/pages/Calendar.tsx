@@ -7,7 +7,7 @@ import ModernCalendar from '@/components/calendar/ModernCalendar';
 import SimpleCreatePlanModal from '@/components/planning/SimpleCreatePlanModal';
 import EditPlanModal from '@/components/planning/EditPlanModal';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { personalPlanService, PersonalPlan } from '@/services/PersonalPlanService';
 import { planToTaskSyncService } from '@/services/PlanToTaskSyncService';
 

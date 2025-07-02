@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { ApiTest } from '@/components/debug/ApiTest';
 import { LoginTest } from '@/components/debug/LoginTest';
+import SupabaseTestPanel from '@/components/debug/SupabaseTestPanel';
 
 const DebugPage: React.FC = () => {
   const { currentUser, isLoading, error } = useAuth();
-  const [activeTab, setActiveTab] = useState<'auth' | 'api' | 'login'>('login');
+  const [activeTab, setActiveTab] = useState<'auth' | 'api' | 'login' | 'supabase'>('supabase');
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -15,6 +16,7 @@ const DebugPage: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex space-x-1 mb-6">
           {[
+            { id: 'supabase', label: '🚀 Supabase Test', desc: 'Test Supabase migration' },
             { id: 'login', label: '🔐 Login Test', desc: 'Test authentication & password' },
             { id: 'api', label: '🌐 API Test', desc: 'Test API endpoints' },
             { id: 'auth', label: '👤 Auth Status', desc: 'Current auth state' }
@@ -35,6 +37,9 @@ const DebugPage: React.FC = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Supabase Test Tab */}
+          {activeTab === 'supabase' && <SupabaseTestPanel />}
+
           {/* Login Test Tab */}
           {activeTab === 'login' && <LoginTest />}
 

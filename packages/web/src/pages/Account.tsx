@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Settings, LogOut, Shield, Bell, Palette, Globe, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { useNavigate } from 'react-router-dom';
 import AccountSettings from '@/components/account/AccountSettings';
 import AppLayout from '@/components/layout/AppLayout';
@@ -13,9 +13,16 @@ const Account = () => {
   const isMobile = useIsMobile();
   const [showAccountSettings, setShowAccountSettings] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    console.log('🚪 Account page logout clicked');
+    try {
+      await logout();
+      // Don't navigate here - logout function handles redirect
+    } catch (error) {
+      console.error('❌ Logout error in Account page:', error);
+      // Fallback: force emergency logout
+      (window as any).emergencyLogout?.();
+    }
   };
 
   const menuItems = [

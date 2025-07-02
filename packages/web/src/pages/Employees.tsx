@@ -38,7 +38,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { User as UserType } from '@/types/user';
 import EmployeeDetailModal from '@/components/employees/EmployeeDetailModal';
 import EmployeeSearchFilters from '@/components/employees/EmployeeSearchFilters';

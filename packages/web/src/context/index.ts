@@ -2,7 +2,7 @@
 // Centralized exports for all React contexts
 
 // Auth context
-export { AuthContext, AuthProvider, useAuth } from './AuthContext';
+export { AuthProvider, useAuth } from './AuthContextSupabase';
 
 // Task contexts
 export { TaskContext, TaskProvider, useTaskContext } from './TaskContext';

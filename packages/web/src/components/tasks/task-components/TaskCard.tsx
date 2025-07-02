@@ -3,7 +3,7 @@ import React, { useState, memo, useMemo, useCallback } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 
 import { Task } from '../types/TaskTypes';
 import TaskActionMenu from './TaskActionMenu';

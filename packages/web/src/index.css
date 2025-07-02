@@ -7,6 +7,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Password Change Modal Z-Index Fix */
+[data-testid="change-password-modal"] {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+[data-testid="change-password-modal-content"] {
+  z-index: 10000 !important;
+}
+
 /* Custom scrollbar styles */
 .custom-scrollbar {
   scrollbar-width: thin;

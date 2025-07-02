@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import {
   PieChart,
   List,
@@ -23,6 +23,11 @@ interface SidebarProps {
 
 const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   const { currentUser, logout } = useAuth();
+
+  // Debug: Log currentUser changes
+  useEffect(() => {
+    console.log('🔍 Sidebar currentUser changed:', currentUser?.name || 'null');
+  }, [currentUser]);
   const location = useLocation();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(true); // Bắt đầu ở trạng thái collapsed
@@ -77,9 +82,16 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
     };
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    console.log('🚪 Sidebar logout clicked');
+    try {
+      await logout();
+      // Don't navigate here - logout function handles redirect
+    } catch (error) {
+      console.error('❌ Logout error in Sidebar:', error);
+      // Fallback: force emergency logout
+      (window as any).emergencyLogout?.();
+    }
   };
 
   const menuItems = [
@@ -228,7 +240,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         </nav>
 
         {/* Account Section */}
-        <div className="p-4 border-t border-white/10 dark:border-white/5 relative" ref={dropdownRef}>
+        <div className="p-4 border-t border-white/10 dark:border-white/5 relative" ref={dropdownRef} key={currentUser?.id || 'no-user'}>
           <button
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-300 ease-out relative group px-3 py-3",
@@ -236,7 +248,9 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:transform hover:scale-[1.02] hover:border hover:border-blue-100"
             )}
             onClick={() => {
-              console.log('Avatar clicked, current state:', isDropdownOpen);
+              console.log('🔍 Avatar clicked, current state:', isDropdownOpen);
+              console.log('🔍 Current user:', currentUser?.name);
+              console.log('🔍 Current user full:', currentUser);
               setIsDropdownOpen(!isDropdownOpen);
             }}
           >
@@ -248,7 +262,9 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                currentUser?.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                currentUser?.name ?
+                  currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) :
+                  'U'
               )}
             </div>
             <div
@@ -260,10 +276,10 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               }}
             >
               <p className="text-sm font-medium text-gray-900 truncate whitespace-nowrap">
-                {currentUser?.name}
+                {currentUser?.name || 'Unknown User'}
               </p>
               <p className="text-xs text-gray-500 truncate whitespace-nowrap">
-                {currentUser?.email}
+                {currentUser?.email || 'No email'}
               </p>
             </div>
 
@@ -347,9 +363,9 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
                 <button
                   onClick={() => {
-                    console.log('Logout clicked');
-                    handleLogout();
+                    console.log('🚪 Logout button clicked in dropdown');
                     setIsDropdownOpen(false);
+                    handleLogout();
                   }}
                   className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >

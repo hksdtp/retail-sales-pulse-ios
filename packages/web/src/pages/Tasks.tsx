@@ -6,11 +6,11 @@ import { getApiUrl } from '@/config/api';
 
 import ErrorBoundary from '../components/ErrorBoundary';
 import { ExportDialog } from '../components/export/ExportDialog';
-import AutoFirebaseSetup from '../components/firebase/AutoFirebaseSetup';
+
 import AppLayout from '../components/layout/AppLayout';
 import PageHeader from '../components/layout/PageHeader';
 import NotificationCenter from '../components/notifications/NotificationCenter';
-import FirebaseConfig from '../components/settings/FirebaseConfig';
+import SupabaseConfig from '../components/settings/SupabaseConfig';
 import MemberTaskSelector from '../components/tasks/MemberTaskSelector';
 import SimpleTaskView from '../components/tasks/SimpleTaskView';
 import TaskFormDialog from '../components/tasks/TaskFormDialog';
@@ -33,13 +33,13 @@ import { useAuth } from '../context/AuthContext';
 import { TaskViewLevel, useManagerTaskData } from '../hooks/use-manager-task-data';
 import { useTaskData } from '../hooks/use-task-data';
 import { useToast } from '../hooks/use-toast';
-import { FirebaseService } from '../services/FirebaseService';
+import { SupabaseService } from '../services/SupabaseService';
 import TaskList from './TaskList';
 
 
 const Tasks = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState(false);
+  const [isSupabaseConfigOpen, setIsSupabaseConfigOpen] = useState(false);
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const [taskUpdateTrigger, setTaskUpdateTrigger] = useState(0); // Trigger để kích hoạt làm mới danh sách công việc
   const [isDeleting, setIsDeleting] = useState(false);
@@ -184,7 +184,7 @@ const Tasks = () => {
 
   // Firebase đã được auto-setup trong App.tsx, không cần manual setup nữa
   useEffect(() => {
-    const isConfigured = FirebaseService.isConfigured();
+    const isConfigured = SupabaseService.isConfigured();
 
     if (isConfigured) {
       console.log('✅ Firebase is ready');
@@ -350,9 +350,9 @@ const Tasks = () => {
         formType={taskFormType}
         onTaskCreated={handleTaskCreated}
       />
-      <FirebaseConfig
-        open={isFirebaseConfigOpen}
-        onOpenChange={setIsFirebaseConfigOpen}
+      <SupabaseConfig
+        open={isSupabaseConfigOpen}
+        onOpenChange={setIsSupabaseConfigOpen}
         onConfigSaved={() => {
           toast({
             title: 'Cấu hình thành công',

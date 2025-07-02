@@ -2,7 +2,7 @@
 // Centralized exports for all services
 
 // Core services
-export { default as FirebaseService } from './FirebaseService';
+export { SupabaseService } from './SupabaseService';
 export { default as CustomerService } from './CustomerService';
 export { default as SyncService } from './SyncService';
 export { default as LocalStorageSyncService } from './LocalStorageSyncService';

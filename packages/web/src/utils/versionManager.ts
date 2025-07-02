@@ -48,17 +48,18 @@ export class VersionManager {
       // Clear cache nếu cần
       this.clearOldCache();
 
-      // Force refresh nếu cần thiết
+      // Force refresh nếu cần thiết - DISABLED for migration testing
       if (needsForceRefresh) {
-        this.showForceRefreshNotification(currentVersion);
-        setTimeout(() => {
-          this.forceRefresh();
-        }, 3000); // Delay 3s để user đọc thông báo
+        // this.showForceRefreshNotification(currentVersion);
+        console.log('🔄 Force refresh needed but disabled for testing');
+        // setTimeout(() => {
+        //   this.forceRefresh();
+        // }, 3000); // Delay 3s để user đọc thông báo
         return true;
       }
 
-      // Hiển thị thông báo update bình thường
-      this.showUpdateNotification(currentVersion);
+      // Hiển thị thông báo update bình thường - DISABLED for migration testing
+      // this.showUpdateNotification(currentVersion);
 
       return true; // Version đã thay đổi
     }

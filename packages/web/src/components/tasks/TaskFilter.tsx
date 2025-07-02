@@ -24,6 +24,7 @@ import {
 
 export type TimeFilterType =
   | 'today'
+  | 'yesterday'
   | 'tomorrow'
   | 'this-week'
   | 'next-week'
@@ -47,6 +48,9 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
     switch (filterType) {
       case 'today':
         onFilterChange('today');
+        break;
+      case 'yesterday':
+        onFilterChange('yesterday');
         break;
       case 'tomorrow':
         onFilterChange('tomorrow');
@@ -106,6 +110,8 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
     switch (currentFilter) {
       case 'today':
         return 'Hôm nay';
+      case 'yesterday':
+        return 'Hôm qua';
       case 'tomorrow':
         return 'Ngày mai';
       case 'this-week':
@@ -140,8 +146,8 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
             <SelectValue placeholder={getFilterLabel()} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả</SelectItem>
             <SelectItem value="today">Hôm nay</SelectItem>
+            <SelectItem value="yesterday">Hôm qua</SelectItem>
             <SelectItem value="tomorrow">Ngày mai</SelectItem>
             <SelectItem value="this-week">Tuần này</SelectItem>
             <SelectItem value="next-week">Tuần tới</SelectItem>
@@ -149,6 +155,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ onFilterChange, currentFilter }
             <SelectItem value="past-week">7 ngày qua</SelectItem>
             <SelectItem value="past-month">30 ngày qua</SelectItem>
             <SelectItem value="custom">Chọn ngày cụ thể</SelectItem>
+            <SelectItem value="all">Tất cả</SelectItem>
           </SelectContent>
         </Select>
 

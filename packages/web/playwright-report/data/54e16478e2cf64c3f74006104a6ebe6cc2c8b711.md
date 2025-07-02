@@ -1,0 +1,45 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list
+- region "Notifications alt+T"
+- heading "Đổi Mật Khẩu" [level=1]
+- paragraph: Đây là lần đầu tiên bạn đăng nhập. Vui lòng đổi mật khẩu để tiếp tục.
+- heading "Mật khẩu mới" [level=3]
+- textbox "Nhập mật khẩu mới": newpassword123
+- button:
+  - img
+- paragraph: Mật khẩu phải có ít nhất 6 ký tự
+- heading "Xác nhận mật khẩu" [level=3]
+- textbox "Xác nhận mật khẩu mới": newpassword123
+- button:
+  - img
+- button "Đổi mật khẩu"
+- button "Quay lại"
+- img
+- heading "Bắt buộc đổi mật khẩu" [level=2]
+- paragraph: Lần đăng nhập đầu tiên
+- paragraph: Xin chào Lương Việt Anh!
+- paragraph: 🔒 Bạn phải đổi mật khẩu để tiếp tục sử dụng ứng dụng
+- paragraph: Vì lý do bảo mật, bạn không thể sử dụng mật khẩu mặc định.
+- text: Mật khẩu mới
+- img
+- textbox "Nhập mật khẩu mới"
+- button:
+  - img
+- text: Xác nhận mật khẩu
+- img
+- textbox "Nhập lại mật khẩu"
+- button:
+  - img
+- heading "Yêu cầu mật khẩu:" [level=4]
+- img
+- text: Ít nhất 6 ký tự
+- img
+- text: Không được để trống
+- img
+- text: Mật khẩu khớp nhau
+- button "Hủy"
+- button "Đổi mật khẩu" [disabled]
+```

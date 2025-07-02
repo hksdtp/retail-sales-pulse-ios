@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input';
 import { SaveButton, CancelButton, ActionButton } from '@/components/ui/ActionButton';
 import { Switch } from '@/components/ui/switch';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { useTheme } from '@/context/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-import { FirebaseService } from '@/services/FirebaseService';
+import { SupabaseService } from '@/services/SupabaseService';
 import passwordService from '@/services/passwordService';
 
 interface AccountSettingsProps {

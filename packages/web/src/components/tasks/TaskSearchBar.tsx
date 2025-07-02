@@ -18,6 +18,8 @@ interface TaskSearchBarProps {
   onSearch: (query: string) => void;
   onFilterChange: (filters: TaskFilters) => void;
   placeholder?: string;
+  showDateFilter?: boolean;
+  currentDateFilter?: string;
 }
 
 interface TaskFilters {
@@ -34,7 +36,9 @@ interface TaskFilters {
 const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
   onSearch,
   onFilterChange,
-  placeholder = "Tìm kiếm công việc..."
+  placeholder = "Tìm kiếm công việc...",
+  showDateFilter = false,
+  currentDateFilter = 'all'
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -43,10 +47,15 @@ const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
     status: 'all',
     type: 'all',
     priority: 'all',
-    dateRange: 'all',
+    dateRange: currentDateFilter,
     assignedTo: 'all'
   });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  // Đồng bộ currentDateFilter với filters
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, dateRange: currentDateFilter }));
+  }, [currentDateFilter]);
 
   // Debounce search
   useEffect(() => {
@@ -85,9 +94,13 @@ const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
     setSearchQuery('');
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => 
-    value !== 'all' && value !== '' && value !== undefined
-  );
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    // Nếu showDateFilter = true, không tính dateRange trong hasActiveFilters vì nó hiển thị ngoài
+    if (showDateFilter && key === 'dateRange') {
+      return false;
+    }
+    return value !== 'all' && value !== '' && value !== undefined;
+  });
 
   return (
     <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">
@@ -109,6 +122,32 @@ const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
           </button>
         )}
       </div>
+
+      {/* Date Filter ngoài - hiển thị khi showDateFilter = true */}
+      {showDateFilter && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <Clock className="inline w-4 h-4 mr-1" />
+            Lọc theo thời gian
+          </label>
+          <Select value={filters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
+            <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg">
+              <SelectValue placeholder="Tất cả" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="today">Hôm nay</SelectItem>
+              <SelectItem value="yesterday">Hôm qua</SelectItem>
+              <SelectItem value="tomorrow">Ngày mai</SelectItem>
+              <SelectItem value="this-week">Tuần này</SelectItem>
+              <SelectItem value="this-month">Tháng này</SelectItem>
+              <SelectItem value="past-week">7 ngày qua</SelectItem>
+              <SelectItem value="past-month">30 ngày qua</SelectItem>
+              <SelectItem value="custom">Chọn ngày cụ thể</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Filter Toggle */}
       <div className="flex items-center justify-between">
@@ -147,7 +186,7 @@ const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
       {/* Advanced Filters */}
       {showFilters && (
         <div className="mt-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${showDateFilter ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
             {/* Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -210,26 +249,30 @@ const TaskSearchBar: React.FC<TaskSearchBarProps> = ({
               </Select>
             </div>
 
-            {/* Date Range Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Thời gian
-              </label>
-              <Select value={filters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
-                <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg">
-                  <SelectValue placeholder="Tất cả" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="today">Hôm nay</SelectItem>
-                  <SelectItem value="week">Tuần này</SelectItem>
-                  <SelectItem value="month">Tháng này</SelectItem>
-                  <SelectItem value="quarter">Quý này</SelectItem>
-                  <SelectItem value="year">Năm này</SelectItem>
-                  <SelectItem value="custom">Tùy chọn</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Date Range Filter - chỉ hiển thị khi showDateFilter = false */}
+            {!showDateFilter && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Thời gian
+                </label>
+                <Select value={filters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
+                  <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-lg">
+                    <SelectValue placeholder="Tất cả" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả</SelectItem>
+                    <SelectItem value="today">Hôm nay</SelectItem>
+                    <SelectItem value="yesterday">Hôm qua</SelectItem>
+                    <SelectItem value="tomorrow">Ngày mai</SelectItem>
+                    <SelectItem value="this-week">Tuần này</SelectItem>
+                    <SelectItem value="this-month">Tháng này</SelectItem>
+                    <SelectItem value="past-week">7 ngày qua</SelectItem>
+                    <SelectItem value="past-month">30 ngày qua</SelectItem>
+                    <SelectItem value="custom">Chọn ngày cụ thể</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           {/* Custom Date Range */}

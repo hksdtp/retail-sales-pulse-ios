@@ -8,7 +8,7 @@ import PageHeader from '@/components/layout/PageHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { ExportButton } from '@/components/ui/ActionButton';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { useTaskData } from '@/hooks/use-task-data';
 import { getDashboardSubtitle } from '@/utils/kpiUtils';
 import { dashboardSyncService } from '@/services/DashboardSyncService';

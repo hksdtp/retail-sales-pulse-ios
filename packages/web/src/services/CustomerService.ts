@@ -1,14 +1,14 @@
-import { FirebaseService } from './FirebaseService';
+import { SupabaseService } from './SupabaseService';
 import { Customer, CustomerFormData, CustomerFilters, CustomerPermissions } from '@/types/customer';
 import { User } from '@/types/user';
 import { isAdmin, isDirector, isTeamLeader } from '@/config/permissions';
 
 export class CustomerService {
   private static instance: CustomerService;
-  private firebaseService: FirebaseService;
+  private supabaseService: SupabaseService;
 
   private constructor() {
-    this.firebaseService = FirebaseService.getInstance();
+    this.supabaseService = SupabaseService.getInstance();
   }
 
   public static getInstance(): CustomerService {
@@ -58,7 +58,7 @@ export class CustomerService {
         status: 'active',
       };
 
-      const customerId = await this.firebaseService.addDocument('customers', customer);
+      const customerId = await this.supabaseService.addDocument('customers', customer);
       
       if (customerId) {
         const newCustomer: Customer = {
@@ -103,7 +103,7 @@ export class CustomerService {
         updateData.assignedToName = await this.getUserName(customerData.assignedTo);
       }
 
-      const success = await this.firebaseService.updateDocument('customers', customerId, updateData);
+      const success = await this.supabaseService.updateDocument('customers', customerId, updateData);
       
       if (success) {
         console.log('✅ Customer updated successfully:', customerId);
@@ -121,7 +121,7 @@ export class CustomerService {
    */
   async deleteCustomer(customerId: string): Promise<boolean> {
     try {
-      const success = await this.firebaseService.deleteDocument('customers', customerId);
+      const success = await this.supabaseService.deleteDocument('customers', customerId);
       
       if (success) {
         console.log('✅ Customer deleted successfully:', customerId);
@@ -140,7 +140,7 @@ export class CustomerService {
   async getCustomers(currentUser: User, filters?: CustomerFilters): Promise<Customer[]> {
     try {
       const permissions = this.getCustomerPermissions(currentUser);
-      let customers = await this.firebaseService.getDocuments('customers') as Customer[];
+      let customers = await this.supabaseService.getDocuments('customers') as Customer[];
 
       // Áp dụng phân quyền
       customers = this.filterCustomersByPermissions(customers, currentUser, permissions);
@@ -162,7 +162,7 @@ export class CustomerService {
    */
   async getCustomerById(customerId: string): Promise<Customer | null> {
     try {
-      const customers = await this.firebaseService.queryDocuments('customers', 'id', '==', customerId) as Customer[];
+      const customers = await this.supabaseService.queryDocuments('customers', 'id', 'eq', customerId) as Customer[];
       return customers.length > 0 ? customers[0] : null;
     } catch (error) {
       console.error('❌ Error getting customer by ID:', error);
@@ -257,7 +257,7 @@ export class CustomerService {
    */
   private async getUserName(userId: string): Promise<string> {
     try {
-      const users = await this.firebaseService.queryDocuments('users', 'id', '==', userId);
+      const users = await this.supabaseService.queryDocuments('users', 'id', 'eq', userId);
       return users.length > 0 ? users[0].name : 'Unknown User';
     } catch (error) {
       console.error('❌ Error getting user name:', error);

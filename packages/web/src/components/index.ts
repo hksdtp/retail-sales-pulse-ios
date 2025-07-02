@@ -84,7 +84,7 @@ export { default as EmployeeStatsCards } from './employees/EmployeeStatsCards';
 
 // Settings components
 export { default as AccountSettings } from './account/AccountSettings';
-export { default as FirebaseConfig } from './settings/FirebaseConfig';
+export { default as SupabaseConfig } from './settings/SupabaseConfig';
 export { default as GoogleSheetsConfig } from './settings/GoogleSheetsConfig';
 
 // Firebase components

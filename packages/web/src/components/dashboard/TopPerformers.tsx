@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { reportsDataService } from '@/services/ReportsDataService';
 
 interface Performer {

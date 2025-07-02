@@ -6,7 +6,7 @@ import PageHeader from '@/components/layout/PageHeader';
 import PlanList from '@/components/planning/PlanList';
 import CreatePlanModal from '@/components/planning/CreatePlanModal';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 
 const Plans = () => {
   const { currentUser } = useAuth();

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CustomerList } from '@/components/customers/CustomerList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TrendingUp, UserCheck, Building, ArrowLeft, Plus, X } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { customerService } from '@/services/CustomerService';
 import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';

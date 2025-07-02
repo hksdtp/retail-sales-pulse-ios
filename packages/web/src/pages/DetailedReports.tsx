@@ -9,7 +9,7 @@ import DetailedOverviewComponent from '@/components/reports/DetailedOverviewComp
 import TimeAnalysisComponent from '@/components/reports/TimeAnalysisComponent';
 
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { useTaskData } from '@/hooks/use-task-data';
 import { dashboardSyncService } from '@/services/DashboardSyncService';
 import { reportsDataService } from '@/services/ReportsDataService';

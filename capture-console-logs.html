@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Console Log Capture</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .log { margin: 5px 0; padding: 5px; border-left: 3px solid #ccc; }
+        .debug { border-left-color: #007acc; }
+        .error { border-left-color: #ff0000; }
+        .warn { border-left-color: #ff9900; }
+        .info { border-left-color: #00aa00; }
+    </style>
+</head>
+<body>
+    <h1>Console Logs from Webapp</h1>
+    <div id="logs"></div>
+    
+    <script>
+        // Capture console logs
+        const logsDiv = document.getElementById('logs');
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+        
+        function addLog(type, args) {
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.textContent = `[${new Date().toLocaleTimeString()}] ${type.toUpperCase()}: ${args.join(' ')}`;
+            logsDiv.appendChild(logDiv);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsole.log.apply(console, args);
+            addLog('log', args);
+        };
+        
+        console.error = function(...args) {
+            originalConsole.error.apply(console, args);
+            addLog('error', args);
+        };
+        
+        console.warn = function(...args) {
+            originalConsole.warn.apply(console, args);
+            addLog('warn', args);
+        };
+        
+        console.info = function(...args) {
+            originalConsole.info.apply(console, args);
+            addLog('info', args);
+        };
+        
+        // Connect to webapp
+        console.log('🔍 Console log capture started');
+        console.log('🔍 Open http://localhost:8088 in another tab to see logs here');
+        
+        // Auto-refresh every 30 seconds to capture new logs
+        setInterval(() => {
+            console.log('🔄 Auto-refresh - still capturing logs...');
+        }, 30000);
+    </script>
+</body>
+</html>

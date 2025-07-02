@@ -1,6 +1,6 @@
 /* Login Theme - Đồng bộ phong cách với trang Login */
 
-/* Biến màu sắc */
+/* Biến màu sắc cho light mode */
 :root {
   --login-gradient-start: #ff6b6b;
   --login-gradient-middle: #4ecdc4;
@@ -10,22 +10,48 @@
   --login-border: rgba(255, 255, 255, 0.3);
   --login-shadow: 0 10px 25px rgba(108, 92, 231, 0.1);
   --login-hover-shadow: 0 15px 35px rgba(108, 92, 231, 0.15);
+  --login-card-bg: rgba(255, 255, 255, 0.95);
+  --login-input-bg: rgba(255, 255, 255, 0.8);
+  --login-input-border: rgba(200, 200, 200, 0.3);
+}
+
+/* Biến màu sắc cho dark mode */
+:root.dark {
+  --login-gradient-start: #ff6b6b;
+  --login-gradient-middle: #4ecdc4;
+  --login-gradient-end: #6c5ce7;
+  --login-text-primary: #f8f9fa;
+  --login-text-secondary: #adb5bd;
+  --login-border: rgba(255, 255, 255, 0.1);
+  --login-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  --login-hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  --login-card-bg: rgba(15, 15, 17, 0.95);
+  --login-input-bg: rgba(30, 30, 35, 0.8);
+  --login-input-border: rgba(255, 255, 255, 0.1);
 }
 
 /* Card styles */
 .login-card {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--login-card-bg);
   backdrop-filter: blur(15px);
   border-radius: 20px;
   border: 1px solid var(--login-border);
   box-shadow: var(--login-shadow);
   overflow: hidden;
   transition: all 0.4s ease;
+  color: var(--login-text-primary);
 }
 
 .login-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--login-hover-shadow);
+}
+
+/* Dark mode card styles */
+.dark .login-card {
+  background-color: var(--login-card-bg);
+  color: var(--login-text-primary);
+  border-color: var(--login-border);
 }
 
 /* Button styles */
@@ -68,11 +94,12 @@
 
 /* Input styles */
 .login-input {
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(200, 200, 200, 0.3);
+  background-color: var(--login-input-bg);
+  border: 1px solid var(--login-input-border);
   border-radius: 12px;
   padding: 0.75rem 1rem;
   transition: all 0.3s ease;
+  color: var(--login-text-primary);
 }
 
 .login-input:focus {
@@ -82,20 +109,44 @@
   transform: translateY(-1px);
 }
 
+/* Dark mode input styles */
+.dark .login-input {
+  background-color: var(--login-input-bg);
+  border-color: var(--login-input-border);
+  color: var(--login-text-primary);
+}
+
+.dark .login-input:focus {
+  border-color: var(--login-gradient-end);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.25);
+}
+
+.dark .login-input::placeholder {
+  color: var(--login-text-secondary);
+}
+
 /* Dashboard card styles */
 .dashboard-card {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--login-card-bg);
   backdrop-filter: blur(15px);
   border-radius: 20px;
   border: 1px solid var(--login-border);
   box-shadow: var(--login-shadow);
   overflow: hidden;
   transition: all 0.4s ease;
+  color: var(--login-text-primary);
 }
 
 .dashboard-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--login-hover-shadow);
+}
+
+/* Dark mode dashboard card styles */
+.dark .dashboard-card {
+  background-color: var(--login-card-bg);
+  color: var(--login-text-primary);
+  border-color: var(--login-border);
 }
 
 /* Background gradient */
@@ -163,6 +214,68 @@
 .login-shimmer {
   position: relative;
   overflow: hidden;
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+  color: var(--login-text-primary) !important;
+}
+
+.dark .text-gray-800 {
+  color: var(--login-text-primary) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--login-text-secondary) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--login-text-secondary) !important;
+}
+
+.dark .text-gray-500 {
+  color: var(--login-text-secondary) !important;
+}
+
+/* Dark mode button styles */
+.dark .bg-white {
+  background-color: var(--login-card-bg) !important;
+  color: var(--login-text-primary) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: rgba(30, 30, 35, 0.5) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: rgba(40, 40, 45, 0.5) !important;
+}
+
+/* Dark mode border colors */
+.dark .border-gray-200 {
+  border-color: var(--login-border) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: var(--login-border) !important;
+}
+
+/* Dark mode hover states */
+.dark .hover\:bg-gray-50:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .hover\:bg-white:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark mode shadows */
+.dark .shadow-lg {
+  box-shadow: var(--login-shadow) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: var(--login-hover-shadow) !important;
 }
 
 .login-shimmer::after {

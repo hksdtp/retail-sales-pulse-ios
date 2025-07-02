@@ -77,14 +77,14 @@ const CustomerTest: React.FC = () => {
         addResult(`❌ Failed to import CustomerForm: ${error}`);
       }
 
-      // Test 7: Test Firebase Service
+      // Test 7: Test Supabase Service
       try {
-        const { FirebaseService } = await import('@/services/FirebaseService');
-        const firebaseService = FirebaseService.getInstance();
-        addResult(`✅ Firebase service imported successfully`);
-        addResult(`✅ Firebase configured: ${firebaseService.getFirestore() ? 'Yes' : 'No'}`);
+        const { SupabaseService } = await import('@/services/SupabaseService');
+        const supabaseService = SupabaseService.getInstance();
+        addResult(`✅ Supabase service imported successfully`);
+        addResult(`✅ Supabase configured: ${supabaseService.isInitialized() ? 'Yes' : 'No'}`);
       } catch (error) {
-        addResult(`❌ Failed to import Firebase service: ${error}`);
+        addResult(`❌ Failed to import Supabase service: ${error}`);
       }
 
       addResult('🎉 All tests completed!');

@@ -1,6 +1,6 @@
 // LocalStorage to Firebase Sync Service
 import { Task } from '../components/tasks/types/TaskTypes';
-import { FirebaseService } from './FirebaseService';
+import { SupabaseService } from './SupabaseService';
 
 export interface LocalStorageTask extends Task {
   isLocalOnly?: boolean;
@@ -107,15 +107,15 @@ export class LocalStorageSyncService {
       return { success: true, synced: 0, failed: 0, errors: [] };
     }
 
-    console.log(`📤 Found ${pendingTasks.length} tasks to sync to Firebase`);
+    console.log(`📤 Found ${pendingTasks.length} tasks to sync to Supabase`);
 
-    if (!FirebaseService.isConfigured()) {
-      const error = 'Firebase not configured';
+    if (!SupabaseService.isConfigured()) {
+      const error = 'Supabase not configured';
       console.error('❌', error);
       return { success: false, synced: 0, failed: pendingTasks.length, errors: [error] };
     }
 
-    const firebaseService = FirebaseService.getInstance();
+    const supabaseService = SupabaseService.getInstance();
     let syncedCount = 0;
     let failedCount = 0;
     const errors: string[] = [];
@@ -144,16 +144,16 @@ export class LocalStorageSyncService {
           }
         });
 
-        // Kiểm tra xem task đã tồn tại trên Firebase chưa
-        const existingTasks = await firebaseService.queryDocuments('tasks', 'id', '==', task.id);
-        
+        // Kiểm tra xem task đã tồn tại trên Supabase chưa
+        const existingTasks = await supabaseService.queryDocuments('tasks', 'id', 'eq', task.id);
+
         if (existingTasks.length > 0) {
           // Update existing task
-          await firebaseService.updateDocument('tasks', existingTasks[0].id, firebaseTask);
+          await supabaseService.updateDocument('tasks', existingTasks[0].id, firebaseTask);
           console.log(`✅ Updated existing task: "${task.title}"`);
         } else {
           // Create new task
-          const newId = await firebaseService.addDocument('tasks', firebaseTask);
+          const newId = await supabaseService.addDocument('tasks', firebaseTask);
           console.log(`✅ Created new task: "${task.title}" with ID: ${newId}`);
         }
 

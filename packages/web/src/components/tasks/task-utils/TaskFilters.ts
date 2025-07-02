@@ -39,6 +39,114 @@ export const sortTasks = (tasks: Task[]): Task[] => {
   });
 };
 
+// Hàm filter tasks theo ngày tạo (created_at) - mặc định chỉ hiển thị hôm nay
+export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'today'): Task[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  console.log('🔍 DEBUG filterTasksByDate:', {
+    dateFilter,
+    totalTasks: tasks.length,
+    todayTimestamp: today.getTime()
+  });
+
+  return tasks.filter(task => {
+    // Sử dụng created_at thay vì date để filter theo ngày tạo task
+    const createdAtField = task.created_at || task.date;
+    if (!createdAtField) {
+      console.log('❌ Task missing created_at and date:', task.id);
+      return false;
+    }
+
+    // Parse ngày tạo task - handle multiple formats
+    let taskCreatedDate;
+    try {
+      if (createdAtField && typeof createdAtField === 'object') {
+        // Handle Firestore Timestamp
+        if (createdAtField.toDate && typeof createdAtField.toDate === 'function') {
+          taskCreatedDate = createdAtField.toDate();
+        }
+        // Handle plain object with _seconds and _nanoseconds
+        else if (createdAtField._seconds && typeof createdAtField._seconds === 'number') {
+          taskCreatedDate = new Date(createdAtField._seconds * 1000);
+        }
+        // Handle other object formats
+        else {
+          taskCreatedDate = new Date(createdAtField);
+        }
+      } else {
+        // Handle string format
+        taskCreatedDate = new Date(createdAtField);
+      }
+
+      // Validate parsed date
+      if (isNaN(taskCreatedDate.getTime())) {
+        console.log('❌ Invalid date for task:', task.id, createdAtField);
+        return false;
+      }
+
+      taskCreatedDate.setHours(0, 0, 0, 0);
+    } catch (error) {
+      console.log('❌ Error parsing date for task:', task.id, error.message);
+      return false;
+    }
+
+    console.log('📅 Task date comparison:', {
+      taskId: task.id,
+      taskTitle: task.title,
+      createdAtField,
+      taskCreatedDate: taskCreatedDate.toISOString(),
+      taskTimestamp: taskCreatedDate.getTime()
+    });
+
+    switch (dateFilter) {
+      case 'today':
+        const isToday = taskCreatedDate.getTime() === today.getTime();
+        console.log(`📅 Today filter for ${task.id}:`, isToday);
+        return isToday;
+
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const isYesterday = taskCreatedDate.getTime() === yesterday.getTime();
+        console.log(`📅 Yesterday filter for ${task.id}:`, isYesterday);
+        return isYesterday;
+
+      case 'tomorrow':
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const isTomorrow = taskCreatedDate.getTime() === tomorrow.getTime();
+        console.log(`📅 Tomorrow filter for ${task.id}:`, isTomorrow);
+        return isTomorrow;
+
+      case 'this-week':
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        const isThisWeek = taskCreatedDate >= startOfWeek && taskCreatedDate <= endOfWeek;
+        console.log(`📅 This week filter for ${task.id}:`, isThisWeek);
+        return isThisWeek;
+
+      case 'this-month':
+        const isThisMonth = taskCreatedDate.getMonth() === today.getMonth() &&
+               taskCreatedDate.getFullYear() === today.getFullYear();
+        console.log(`📅 This month filter for ${task.id}:`, isThisMonth);
+        return isThisMonth;
+
+      case 'all':
+        console.log(`📅 All filter for ${task.id}: true`);
+        return true;
+
+      default:
+        const isDefaultToday = taskCreatedDate.getTime() === today.getTime();
+        console.log(`📅 Default (today) filter for ${task.id}:`, isDefaultToday);
+        return isDefaultToday; // Default to today
+    }
+  });
+};
+
 export const filterTasksByUserRole = (
   tasks: Task[],
   currentUser: User | null,
