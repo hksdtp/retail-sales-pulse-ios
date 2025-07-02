@@ -568,29 +568,7 @@ export class SupabaseService {
     return this.config;
   }
 
-  public async testConnection(): Promise<{ success: boolean; error?: string }> {
-    if (!this.client) {
-      return { success: false, error: 'Client not initialized' };
-    }
 
-    try {
-      const { data, error } = await this.client
-        .from('users')
-        .select('count', { count: 'exact', head: true });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-    }
-  }
-
-  public getConfig(): SupabaseConfig | null {
-    return this.config;
-  }
 
   // ===== STATIC UTILITY METHODS (Firebase compatibility) =====
 

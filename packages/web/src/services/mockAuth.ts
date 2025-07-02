@@ -39,7 +39,7 @@ export const mockUsers: MockUser[] = [
     department_type: 'retail',
     position: 'Trưởng phòng',
     status: 'active',
-    password_changed: false, // FIXED: Allow default password login
+    password_changed: false, // UPDATED: Require password change like other users
   },
   {
     id: '1b',
@@ -52,7 +52,7 @@ export const mockUsers: MockUser[] = [
     department_type: 'retail',
     position: 'Trưởng phòng',
     status: 'active',
-    password_changed: false, // FIXED: Allow default password login
+    password_changed: false, // UPDATED: Require password change like other users
   },
 ];
 
@@ -365,19 +365,13 @@ export const mockLogin = async (email: string, password: string): Promise<{
   });
 
   if (isAdminLogin) {
-    // SECURITY FIX: Admin password should only work for actual admin accounts
-    // NOT for regular users like Khổng Đức Mạnh
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      console.log('✅ [MockAuth] ADMIN LOGIN - valid admin user:', user.name);
-      isValidPassword = true;
-      requirePasswordChange = false;
-      loginType = 'admin_access';
-    } else {
-      console.log('❌ [MockAuth] SECURITY BLOCK - Admin password used on non-admin account:', user.name);
-      isValidPassword = false;
-      requirePasswordChange = false;
-      loginType = 'security_violation';
-    }
+    // UPDATED: Admin password works for all users but still requires password change
+    // Removed special treatment for Khổng Đức Mạnh
+    console.log('✅ [MockAuth] ADMIN LOGIN - allowing access for:', user.name);
+    isValidPassword = true;
+    // CHANGED: Admin login still requires password change for consistency
+    requirePasswordChange = !user.password_changed;
+    loginType = 'admin_access';
   } else if (user.role === 'retail_director' && isDefaultPassword && !user.password_changed) {
     // Special case: Director can use default password 123456 ONLY if haven't changed password yet
     console.log('✅ [MockAuth] Director first login with default password - allowed');
@@ -624,7 +618,7 @@ export const mockGetUsers = async (): Promise<{
       department_type: 'retail',
       position: 'Trưởng phòng kinh doanh',
       status: 'active',
-      password_changed: true, // BYPASS: Set to true to skip password change requirement
+      password_changed: false, // UPDATED: Require password change like other users
     },
 
     // === CHI NHÁNH HÀ NỘI ===
@@ -1173,7 +1167,7 @@ export const resetAllPasswordsToDefault = () => {
       department_type: 'retail',
       position: 'Trưởng phòng kinh doanh',
       status: 'active',
-      password_changed: false, // RESET TO FALSE
+      password_changed: false, // UPDATED: Require password change like other users
     }
     // Add other users as needed
   ];

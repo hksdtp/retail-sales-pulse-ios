@@ -51,17 +51,16 @@ const GlobalPasswordChangeModal: React.FC = () => {
     });
   }, [currentUser, isFirstLogin, requirePasswordChange, showModal]);
 
-  // Show modal when ANY USER needs to change password - ENHANCED LOGIC WITH ADMIN CHECK
+  // Show modal when ANY USER needs to change password - REMOVED ADMIN EXCEPTION
   useEffect(() => {
-    // Admin users should never see password change modal
-    const isAdmin = currentUser?.role === 'admin' || currentUser?.name === 'Khổng Đức Mạnh';
-    const shouldShowModal = currentUser && (isFirstLogin || requirePasswordChange) && !isAdmin;
+    // REMOVED: Admin bypass logic for Khổng Đức Mạnh
+    // ALL users including directors must change password on first login
+    const shouldShowModal = currentUser && (isFirstLogin || requirePasswordChange);
 
     console.log('🌍 GlobalPasswordChangeModal: DETAILED CHECK for modal display:', {
       currentUser: currentUser?.name,
       userRole: currentUser?.role,
       userPasswordChanged: currentUser?.password_changed,
-      isAdmin,
       isFirstLogin,
       requirePasswordChange,
       shouldShowModal,
@@ -69,7 +68,6 @@ const GlobalPasswordChangeModal: React.FC = () => {
       currentUrl: window.location.href,
       calculation: {
         hasCurrentUser: !!currentUser,
-        isAdminUser: isAdmin,
         isFirstLoginCheck: isFirstLogin,
         requirePasswordChangeCheck: requirePasswordChange,
         finalShouldShow: shouldShowModal
@@ -86,8 +84,7 @@ const GlobalPasswordChangeModal: React.FC = () => {
       console.log('✅ GlobalPasswordChangeModal: Modal already open - no action needed');
     } else {
       console.log('ℹ️ GlobalPasswordChangeModal: No modal needed', {
-        reason: isAdmin ? 'admin user' : 'password already changed',
-        isAdmin,
+        reason: 'password already changed',
         passwordChanged: currentUser?.password_changed
       });
     }

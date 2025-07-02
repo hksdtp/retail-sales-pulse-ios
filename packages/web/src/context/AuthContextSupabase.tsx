@@ -248,29 +248,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setAuthToken(storedToken);
               setLoginType(storedLoginType);
 
-              // Fix: Properly set password change requirements after refresh - ADMIN EXCEPTION
-              const isAdmin = user.role === 'admin' || user.name === 'Khổng Đức Mạnh';
-              // ALWAYS check password_changed status, even for restored sessions
-              const needsPasswordChange = !user.password_changed && !isAdmin;
+              // Fix: Properly set password change requirements after refresh - NO ADMIN EXCEPTION
+              // REMOVED: Admin bypass logic for Khổng Đức Mạnh
+              // ALWAYS check password_changed status for ALL users including directors
+              const needsPasswordChange = !user.password_changed;
 
               console.log('🔍 [AuthContext] Session restore - password change check:', {
                 userId: user.id,
                 userName: user.name,
                 passwordChanged: user.password_changed,
-                isAdmin,
                 needsPasswordChange
               });
 
               setIsFirstLogin(needsPasswordChange);
               setRequirePasswordChange(needsPasswordChange);
 
-              // CRITICAL: Set blockAppAccess if password change is required (but not for admin)
+              // CRITICAL: Set blockAppAccess if password change is required for ALL users
               if (needsPasswordChange) {
                 setBlockAppAccess(true);
                 console.log('🚫 [AuthContext] Blocking app access - password change required for user:', user.name);
               } else {
                 setBlockAppAccess(false);
-                console.log('✅ [AuthContext] App access allowed for user:', user.name, isAdmin ? '(admin)' : '(password already changed)');
+                console.log('✅ [AuthContext] App access allowed for user:', user.name, '(password already changed)');
               }
 
               console.log('🔄 [AuthContext] Restored session with password change status:', {
@@ -438,16 +437,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthToken(token);
       setLoginType(responseLoginType);
 
-      // Handle first login workflow - FIXED LOGIC WITH ADMIN EXCEPTION
-      const isAdmin = user.role === 'admin' || user.name === 'Khổng Đức Mạnh';
-      const isFirstLogin = !user.password_changed && !isAdmin;
-      const needsPasswordChange = (isFirstLogin || requiresPasswordChange) && !isAdmin;
+      // Handle first login workflow - REMOVED ADMIN EXCEPTION
+      // REMOVED: Special treatment for Khổng Đức Mạnh
+      // ALL users must change password on first login
+      const isFirstLogin = !user.password_changed;
+      const needsPasswordChange = isFirstLogin || requiresPasswordChange;
 
       console.log('🔍 [AuthContext] Login - password change check:', {
         userId: user.id,
         userName: user.name,
         passwordChanged: user.password_changed,
-        isAdmin,
         isFirstLogin,
         requiresPasswordChange,
         needsPasswordChange
@@ -456,7 +455,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsFirstLogin(isFirstLogin);
       setRequirePasswordChange(needsPasswordChange);
 
-      // Block app access if password change is required (but not for admin)
+      // Block app access if password change is required for ALL users
       if (needsPasswordChange) {
         setBlockAppAccess(true);
         console.log('🚫 Blocking app access - password change required for user:', user.name, {
@@ -467,7 +466,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } else {
         setBlockAppAccess(false);
-        console.log('✅ App access allowed for user:', user.name, isAdmin ? '(admin)' : '(password already changed)');
+        console.log('✅ App access allowed for user:', user.name, '(password already changed)');
       }
 
       // Store in localStorage with detailed logging

@@ -24,19 +24,4 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-// Initialize Stagewise Toolbar separately (only in development)
-if (import.meta.env.DEV) {
-  import('./config/stagewise').then(({ initStagewise }) => {
-    // Initialize immediately if DOM is ready, otherwise wait for DOMContentLoaded
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        initStagewise();
-      });
-    } else {
-      // DOM is already ready, initialize immediately
-      setTimeout(() => initStagewise(), 100);
-    }
-  }).catch((error) => {
-    console.warn('⚠️ Stagewise Toolbar not available:', error);
-  });
-}
+// Stagewise integration removed - cleaned up codebase
