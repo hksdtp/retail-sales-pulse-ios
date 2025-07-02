@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
-import { FirebaseService } from '@/services/FirebaseService';
 import {
   getTeams as getTeamsAPI,
   getUsers as getUsersAPI,
@@ -91,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // If mock data loaded successfully, return early
       if (mockUsersResponse.success && mockTeamsResponse.success) {
-        console.log('Mock data loaded successfully, skipping Firebase/API');
+        console.log('Mock data loaded successfully, skipping API');
         return;
       }
 
@@ -108,33 +107,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('API also failed. Users error:', usersResponse.error, 'Teams error:', teamsResponse.error);
       }
 
-      // Try Firebase last (may have CORS issues)
-      try {
-        const firebaseService = FirebaseService.getInstance();
-        if (firebaseService.getFirestore()) {
-          console.log('Trying Firebase as last resort...');
-          const [usersData, teamsData] = await Promise.all([
-            firebaseService.getDocuments('users'),
-            firebaseService.getDocuments('teams'),
-          ]);
-
-          if (usersData.length > 0 || teamsData.length > 0) {
-            setUsers(usersData as User[]);
-            setTeams(teamsData as Team[]);
-            console.log(
-              `Loaded ${usersData.length} users and ${teamsData.length} teams from Firebase`,
-            );
-            return;
-          }
-        }
-      } catch (firebaseError) {
-        console.warn('Firebase failed (CORS or network issue):', firebaseError);
-      }
-
     } catch (error) {
       console.error('Error loading users and teams:', error);
-      // Don't show error toast for CORS issues, just log
-      if (!error.toString().includes('CORS') && !error.toString().includes('access control')) {
+      // Don't show error toast for network issues, just log
+      if (!error.toString().includes('Network') && !error.toString().includes('fetch')) {
         toast({
           title: 'Lỗi tải dữ liệu',
           description: 'Không thể tải danh sách người dùng và nhóm',
@@ -147,12 +123,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Initialize Firebase if configured
-        const firebaseService = FirebaseService.initializeFromLocalStorage();
-        if (firebaseService) {
-          console.log('Firebase initialized from localStorage');
-        }
-
         // Load users and teams
         await loadUsersAndTeams();
 
@@ -180,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             userPreview: storedUser ? JSON.parse(storedUser).name : 'none'
           });
 
-          if (storedUser && storedToken) {
+          if (storedUser) {
             try {
               const user = JSON.parse(storedUser);
 
@@ -191,11 +161,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 userEmail: user.email,
                 userRole: user.role,
                 userTeamId: user.team_id,
-                loginType: storedLoginType
+                loginType: storedLoginType,
+                hasToken: !!storedToken
               });
 
               setCurrentUser(user);
-              setAuthToken(storedToken);
+              setAuthToken(storedToken); // Can be null for bypass login
               setLoginType(storedLoginType);
               setIsFirstLogin(!user.password_changed);
 
@@ -490,30 +461,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Updating user:', currentUser.id, userData);
 
-      // Try to update via Firebase first if configured
-      const firebaseService = FirebaseService.getInstance();
-      if (firebaseService.getFirestore()) {
-        const success = await firebaseService.updateDocument('users', currentUser.id, userData);
-        if (success) {
-          // Update local state
-          const updatedUser = { ...currentUser, ...userData };
-          setCurrentUser(updatedUser);
-          localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-          // Update users state to reflect changes
-          setUsers((prevUsers) =>
-            prevUsers.map((user) => (user.id === currentUser.id ? { ...user, ...userData } : user)),
-          );
-
-          toast({
-            title: 'Cập nhật thành công',
-            description: 'Thông tin cá nhân đã được cập nhật',
-          });
-          return;
-        }
-      }
-
-      // Fallback to API if Firebase is not configured or fails
+      // Try to update via API
       const response = await updateUserAPI(currentUser.id, userData);
 
       if (response.success && response.data) {

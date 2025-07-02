@@ -6,12 +6,12 @@ import { useNavigate } from 'react-router-dom';
 import { getAvatarText } from '@/components/login/LoginUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { useToast } from '@/hooks/use-toast';
 import { Team, UserLocation, User as UserType } from '@/types/user';
 import { getTeamNameWithLeader } from '@/utils/teamUtils';
 
-import ChangePasswordModal from './ChangePasswordModal';
+// ChangePasswordModal removed - using GlobalPasswordChangeModal instead
 import GoogleLoginButton from './GoogleLoginButton';
 import LocationSelector from './LocationSelector';
 
@@ -25,9 +25,8 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [password, setPassword] = useState(''); // Không đặt mật khẩu mặc định vì lý do bảo mật
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [pendingUser, setPendingUser] = useState<UserType | null>(null);
-  const { login, users, teams, isFirstLogin, changePassword } = useAuth();
+  // Removed showChangePassword and pendingUser - using GlobalPasswordChangeModal instead
+  const { login, users, teams, isFirstLogin, changePassword, currentUser, requirePasswordChange } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -61,6 +60,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
   // Lọc người dùng theo phòng ban, vị trí và nhóm
   const filteredUsers = users.filter((user) => {
+    console.log('🔍 FILTER DEBUG - selectedLocation:', selectedLocation, 'user:', user.name, 'role:', user.role);
     // ĐẢM BẢO TRƯỚC TIÊN LỌC THEO PHÒNG BAN
     // Chỉ hiển thị người dùng của phòng được chọn
     if (departmentType === 'project' && user.department_type !== 'project') {
@@ -70,17 +70,11 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       return false;
     }
 
-    // Khi chọn "Toàn Quốc" (hoặc "Khổng Đức Mạnh" hoặc "Hà Xuân Trường")
+    // Khi chọn "Khổng Đức Mạnh" - chỉ hiển thị Khổng Đức Mạnh (retail_director)
     if (selectedLocation === 'all') {
-      if (departmentType === 'project') {
-        // Chỉ hiển thị Trưởng phòng Dự án
-        return user.role === 'project_director';
-      } else if (departmentType === 'retail') {
-        // Chỉ hiển thị Trưởng phòng Bán lẻ
-        return user.role === 'retail_director';
-      }
-      // Nếu không chọn phòng ban, hiển thị cả hai trưởng phòng
-      return user.role === 'retail_director' || user.role === 'project_director';
+      console.log('🔍 KHỔNG ĐỨC MẠNH FILTER - User:', user.name, 'Role:', user.role, 'Match:', user.role === 'retail_director');
+      // Chỉ hiển thị Khổng Đức Mạnh (retail_director)
+      return user.role === 'retail_director';
     }
 
     // Khi chọn nhóm cụ thể
@@ -114,11 +108,17 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
         user.location === 'Ho Chi Minh'
       )) ||
       user.location === selectedLocation;
+
+    // If no departmentType selected, show all users for the location
+    if (!departmentType) {
+      return locationMatch;
+    }
+
     return locationMatch && user.department_type === departmentType;
   });
 
-  // Debug logging
-  console.log('LoginForm Debug:', {
+  // Debug logging - Enhanced for Supabase
+  console.log('🔍 LoginForm Debug - Supabase Data:', {
     selectedLocation,
     selectedTeam,
     departmentType,
@@ -126,23 +126,31 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     totalTeams: teams.length,
     filteredUsers: filteredUsers.length,
     filteredTeams: filteredTeams.length,
+    usersLoadedFromSupabase: users.length > 0 ? 'YES' : 'NO',
+    teamsLoadedFromSupabase: teams.length > 0 ? 'YES' : 'NO',
     filteredUsersData: filteredUsers.map((u) => ({
       id: u.id,
       name: u.name,
+      email: u.email,
       team_id: u.team_id,
       location: u.location,
+      department_type: u.department_type,
+      position: u.position,
     })),
     filteredTeamsData: filteredTeams.map((t) => ({
       id: t.id,
       name: t.name,
       location: t.location,
+      department_type: t.department_type,
     })),
     allUsersData: users.map((u) => ({
       id: u.id,
       name: u.name,
+      email: u.email,
       team_id: u.team_id,
       location: u.location,
       department_type: u.department_type,
+      position: u.position,
     })),
     allTeamsData: teams.map((t) => ({
       id: t.id,
@@ -155,15 +163,23 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    // Debug logging
-    console.log('LoginForm Debug:', {
+    // Debug logging - Enhanced for authentication
+    console.log('🔐 LoginForm Submit Debug:', {
       selectedLocation,
       selectedTeam,
       departmentType,
       totalUsers: users.length,
       filteredUsers: filteredUsers.length,
-      selectedUser,
-      password: password ? '***' : 'empty'
+      selectedUser: selectedUser ? {
+        id: selectedUser.id,
+        name: selectedUser.name,
+        email: selectedUser.email,
+        position: selectedUser.position,
+        department_type: selectedUser.department_type,
+        location: selectedUser.location
+      } : null,
+      password: password ? '***' : 'empty',
+      authenticationMethod: 'email'
     });
 
     if (!selectedUser) {
@@ -174,30 +190,43 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       });
       return;
     }
+
+    if (!selectedUser.email) {
+      toast({
+        title: 'Lỗi đăng nhập',
+        description: 'Người dùng không có email. Vui lòng liên hệ quản trị viên.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      console.log('Attempting login with email:', selectedUser.email);
+      console.log('🚀 Attempting login with email:', selectedUser.email, 'for user:', selectedUser.name);
       await login(selectedUser.email, password);
 
-      // Kiểm tra xem có phải lần đăng nhập đầu tiên không
-      if (isFirstLogin) {
-        setPendingUser(selectedUser);
-        setShowChangePassword(true);
-        setIsSubmitting(false);
-        return;
-      }
+      // Password change modal will be handled by GlobalPasswordChangeModal
+      // No need to handle first login here anymore
 
-      toast({
-        title: 'Đăng nhập thành công',
-        description: 'Chào mừng bạn quay trở lại!',
-      });
-      // Sử dụng setTimeout để đảm bảo state đã được cập nhật trước khi chuyển hướng
+      // Don't show success toast or navigate immediately - let GlobalPasswordChangeModal handle it
+      console.log('✅ Login successful - GlobalPasswordChangeModal will handle password change if needed');
+
+      // Reset submitting state after a short delay to allow auth state to update
       setTimeout(() => {
-        navigate('/');
-      }, 100);
+        setIsSubmitting(false);
+
+        // Only navigate if no password change is required
+        // This will be determined by the auth context and GlobalPasswordChangeModal
+        if (!requirePasswordChange && !isFirstLogin) {
+          // Removed success login toast - navigate silently
+          navigate('/');
+        }
+      }, 500);
     } catch (error) {
       // Lỗi đã được xử lý trong hàm login
       setIsSubmitting(false);
+      // Clear password để user có thể nhập lại, nhưng giữ nguyên location/user selection
+      setPassword('');
     }
   };
 
@@ -211,28 +240,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   // Xác định xem có hiển thị người dùng đặc biệt không (Hà Xuân Trường hoặc Khổng Đức Mạnh)
   const isSpecialRole = selectedLocation === 'all';
 
-  // Handlers cho modal đổi mật khẩu
-  const handlePasswordChange = (newPassword: string) => {
-    changePassword(newPassword);
-    setShowChangePassword(false);
-    setPendingUser(null);
-
-    toast({
-      title: 'Đăng nhập thành công',
-      description: 'Chào mừng bạn đến với hệ thống!',
-    });
-
-    setTimeout(() => {
-      navigate('/');
-    }, 100);
-  };
-
-  const handleCancelPasswordChange = () => {
-    setShowChangePassword(false);
-    setPendingUser(null);
-    // Logout user nếu họ hủy đổi mật khẩu
-    // logout();
-  };
+  // Password change handlers removed - using GlobalPasswordChangeModal instead
 
   // Reset team và user khi thay đổi khu vực
   useEffect(() => {
@@ -245,12 +253,14 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     setSelectedUser(null);
   }, [selectedTeam]);
 
-  // Tự động chọn người dùng đặc biệt khi chọn "Toàn quốc"
+  // Tự động chọn người dùng đặc biệt khi chọn "Khổng Đức Mạnh"
   useEffect(() => {
     if (isSpecialRole && filteredUsers.length > 0 && !selectedUser) {
       setSelectedUser(filteredUsers[0]);
     }
   }, [isSpecialRole, filteredUsers, selectedUser]);
+
+  // Password change modal handling removed - using GlobalPasswordChangeModal instead
 
   return (
     <div className="w-full">
@@ -330,7 +340,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
                   .filter((user) => user && user.id && user.name) // Lọc dữ liệu hợp lệ
                   .map((user) => (
                     <option key={user.id} value={user.id}>
-                      {user.name || 'Không có tên'} - {user.position}
+                      {user.name || 'Không có tên'}
                     </option>
                   ))}
               </select>
@@ -359,14 +369,20 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           </div>
         </div>
 
-        {/* Nút đăng nhập */}
+        {/* Nút đăng nhập - FIXED ANIMATION */}
         <motion.button
           type="submit"
           data-testid="login-submit-button"
-          className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
-          disabled={isSubmitting || !selectedUser || !password || (showTeamSelector && !selectedTeam)}
-          whileHover={{ scale: isSubmitting || !selectedUser || !password || (showTeamSelector && !selectedTeam) ? 1 : 1.01 }}
-          whileTap={{ scale: isSubmitting || !selectedUser || !password || (showTeamSelector && !selectedTeam) ? 1 : 0.99 }}
+          className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-150 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          disabled={isSubmitting || !selectedUser || !password}
+          whileHover={{
+            scale: isSubmitting || !selectedUser || !password ? 1 : 1.01,
+            y: isSubmitting || !selectedUser || !password ? 0 : -2
+          }}
+          whileTap={{
+            scale: isSubmitting || !selectedUser || !password ? 1 : 0.99,
+            y: isSubmitting || !selectedUser || !password ? 0 : 0
+          }}
           transition={{ duration: 0.1, ease: "easeInOut" }}
         >
           {isSubmitting ? (
@@ -397,13 +413,10 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       <GoogleLoginButton disabled={isSubmitting} />
       */}
 
-      {/* Modal đổi mật khẩu lần đầu */}
-      <ChangePasswordModal
-        isOpen={showChangePassword}
-        userName={pendingUser?.name || ''}
-        onPasswordChange={handlePasswordChange}
-        onCancel={handleCancelPasswordChange}
-      />
+      {/*
+        Modal đổi mật khẩu đã được chuyển sang GlobalPasswordChangeModal
+        để tránh duplicate rendering và handle globally across all pages
+      */}
     </div>
   );
 };

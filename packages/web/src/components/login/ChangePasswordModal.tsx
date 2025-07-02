@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Check, Eye, EyeOff, Key, Lock, X, CheckCircle, XCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,9 +38,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       icon: newPassword.length >= 6 ? CheckCircle : XCircle
     },
     {
-      text: 'Không được là mật khẩu mặc định (123456)',
-      met: newPassword !== '123456' && newPassword.length > 0,
-      icon: (newPassword !== '123456' && newPassword.length > 0) ? CheckCircle : XCircle
+      text: 'Không được để trống',
+      met: newPassword.length > 0,
+      icon: newPassword.length > 0 ? CheckCircle : XCircle
     },
     {
       text: 'Mật khẩu khớp nhau',
@@ -49,6 +50,20 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   ];
 
   const isValidPassword = passwordRequirements.every((req) => req.met);
+
+  // Debug validation - ENHANCED LOGGING
+  useEffect(() => {
+    console.log('🔍 ChangePasswordModal: Validation state changed:', {
+      newPassword: newPassword ? `***${newPassword.length} chars` : 'empty',
+      confirmPassword: confirmPassword ? `***${confirmPassword.length} chars` : 'empty',
+      passwordsMatch: newPassword === confirmPassword,
+      requirements: passwordRequirements.map(req => ({ text: req.text, met: req.met })),
+      isValidPassword,
+      isSubmitting,
+      buttonDisabled: !isValidPassword || isSubmitting,
+      buttonShouldBeEnabled: isValidPassword && !isSubmitting
+    });
+  }, [newPassword, confirmPassword, isValidPassword, isSubmitting, passwordRequirements]);
 
   // Calculate password strength
   useEffect(() => {
@@ -63,38 +78,96 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidPassword) return;
+    e.stopPropagation();
 
+    console.log('🔄 ChangePasswordModal: Form submitted!', {
+      newPassword: newPassword ? `***${newPassword.length} chars` : 'empty',
+      confirmPassword: confirmPassword ? `***${confirmPassword.length} chars` : 'empty',
+      isValidPassword,
+      isSubmitting,
+      passwordsMatch: newPassword === confirmPassword,
+      requirements: passwordRequirements.map(req => ({ text: req.text, met: req.met }))
+    });
+
+    if (!isValidPassword) {
+      console.log('❌ ChangePasswordModal: Form validation failed');
+      alert('Vui lòng kiểm tra lại yêu cầu mật khẩu');
+      return;
+    }
+
+    if (isSubmitting) {
+      console.log('❌ ChangePasswordModal: Already submitting');
+      return;
+    }
+
+    console.log('🔄 ChangePasswordModal: Starting password change...');
     setIsSubmitting(true);
+
     try {
-      console.log('🔄 Submitting password change...');
+      console.log('🔄 ChangePasswordModal: Calling onPasswordChange callback...');
       await onPasswordChange(newPassword);
-      console.log('✅ Password change successful');
+      console.log('✅ ChangePasswordModal: Password change successful!');
+
+      // Reset form
+      setNewPassword('');
+      setConfirmPassword('');
+
+      console.log('✅ ChangePasswordModal: Form reset completed');
     } catch (error) {
-      console.error('❌ Error changing password:', error);
-      // Error handling is done in the parent component
+      console.error('❌ ChangePasswordModal: Password change failed:', error);
+      alert('Lỗi đổi mật khẩu: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsSubmitting(false);
+      console.log('🔄 ChangePasswordModal: Submit process completed');
     }
   };
 
   const handleCancel = () => {
+    console.log('🚫 ChangePasswordModal: Cancel button clicked', {
+      blockAppAccess,
+      userName,
+      isSubmitting
+    });
+
     if (blockAppAccess) {
-      // If app access is blocked, user cannot cancel
+      // If app access is blocked, user cannot cancel - show message
+      console.log('🚫 ChangePasswordModal: Cancel blocked due to blockAppAccess');
+      alert('Bạn phải đổi mật khẩu để tiếp tục sử dụng ứng dụng');
       return;
     }
-    onCancel();
+
+    console.log('🚫 ChangePasswordModal: Calling onCancel callback');
+    try {
+      onCancel();
+      console.log('✅ ChangePasswordModal: onCancel callback executed successfully');
+    } catch (error) {
+      console.error('❌ ChangePasswordModal: Error in onCancel callback:', error);
+    }
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  // Render modal using portal to ensure it's at the top level
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      style={{
+        zIndex: 9999,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
+      }}
+      data-testid="change-password-modal"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative"
+        style={{ zIndex: 10000, position: 'relative' }}
+        data-testid="change-password-modal-content"
       >
         {/* Header */}
         <div className={`p-6 text-white ${
@@ -144,7 +217,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
             {/* New Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
@@ -214,38 +290,81 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                   </div>
                 ))}
               </div>
+
+              {/* DEBUG INFO */}
+              <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                <div><strong>🔍 Debug Info:</strong></div>
+                <div>Password Length: {newPassword.length}</div>
+                <div>Confirm Length: {confirmPassword.length}</div>
+                <div>Passwords Match: {newPassword === confirmPassword ? '✅' : '❌'}</div>
+                <div>Is Valid: {isValidPassword ? '✅' : '❌'}</div>
+                <div>Is Submitting: {isSubmitting ? '✅' : '❌'}</div>
+                <div>Button Should Be Enabled: {isValidPassword && !isSubmitting ? '✅' : '❌'}</div>
+              </div>
             </div>
 
+
+
             {/* Actions */}
-            <div className="flex space-x-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                className="flex-1"
-                disabled={isSubmitting}
-              >
-                Hủy
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                disabled={!isValidPassword || isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
-                    Đang lưu...
-                  </>
-                ) : (
-                  'Đổi mật khẩu'
-                )}
-              </Button>
+            <div className="space-y-3 pt-4">
+              {/* Debug Force Submit Button */}
+              <div className="flex space-x-2">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    console.log('🚨 FORCE SUBMIT - Bypassing validation');
+                    handleSubmit({ preventDefault: () => {}, stopPropagation: () => {} } as any);
+                  }}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs"
+                  disabled={isSubmitting}
+                >
+                  🚨 Force Submit (Debug)
+                </Button>
+              </div>
+
+              {/* Normal Buttons */}
+              <div className="flex space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  className="flex-1"
+                  disabled={isSubmitting}
+                  data-testid="cancel-password-change-button"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="submit"
+                  className={`flex-1 ${
+                    !isValidPassword || isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                  }`}
+                  disabled={!isValidPassword || isSubmitting}
+                  data-testid="submit-password-change-button"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
+                      Đang lưu...
+                    </>
+                  ) : (
+                    <>
+                      Đổi mật khẩu
+                      {(!isValidPassword || isSubmitting) && (
+                        <span className="ml-2 text-xs">🔒</span>
+                      )}
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

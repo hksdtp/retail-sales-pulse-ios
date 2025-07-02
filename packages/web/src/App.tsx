@@ -2,20 +2,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import ProtectedRoute from './components/ProtectedRoute';
-import FirebaseAutoSetupProvider from './components/firebase/FirebaseAutoSetupProvider';
 import VersionChecker from './components/layout/VersionChecker';
+// import GlobalPasswordChangeModal from './components/login/GlobalPasswordChangeModal'; // REMOVED - Duplicate modal
 
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
 import MobileOptimizations from './components/mobile/MobileOptimizations';
-import { TaskDataProvider } from './context/TaskDataProvider';
-import { AuthProvider } from './context/AuthContext';
+import { SupabaseTaskDataProvider } from './context/SupabaseTaskDataProvider';
+import { AuthProvider } from './context/AuthContextSupabase';
 import { ThemeProvider } from './context/ThemeContext';
 import Calendar from './pages/Calendar';
 import Customers from './pages/Customers';
 import Employees from './pages/Employees';
-import FirebaseSetup from './pages/FirebaseSetup';
+import SupabaseSetupPage from './pages/SupabaseSetupPage';
 import Index from './pages/Index';
 import Kpi from './pages/Kpi';
 import Login from './pages/Login';
@@ -43,13 +43,13 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <FirebaseAutoSetupProvider>
-        <AuthProvider>
-          <TaskDataProvider>
-            <TooltipProvider>
+      <AuthProvider>
+        <SupabaseTaskDataProvider>
+          <TooltipProvider>
             <Toaster />
             <Sonner />
             <VersionChecker />
+            {/* <GlobalPasswordChangeModal /> */} {/* REMOVED - Duplicate modal, ProtectedRoute handles this */}
             {/* <MobileOptimizations /> */}
             <BrowserRouter
               future={{
@@ -59,7 +59,7 @@ const App = () => (
             >
                 <Routes>
                   <Route path="/login" element={<Login />} />
-                  <Route path="/firebase-setup" element={<FirebaseSetup />} />
+                  <Route path="/supabase-setup" element={<SupabaseSetupPage />} />
 
                   <Route
                     path="/"
@@ -192,10 +192,9 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
-            </TooltipProvider>
-          </TaskDataProvider>
-        </AuthProvider>
-      </FirebaseAutoSetupProvider>
+          </TooltipProvider>
+        </SupabaseTaskDataProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

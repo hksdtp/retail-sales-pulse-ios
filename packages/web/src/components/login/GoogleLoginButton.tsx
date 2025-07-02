@@ -53,10 +53,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ disabled = false 
               localStorage.setItem('currentUser', JSON.stringify(user));
               localStorage.setItem('googleAuth', 'true');
 
-              toast({
-                title: 'Đăng nhập thành công',
-                description: `Chào mừng ${user.name}!`,
-              });
+              // Removed success login toast
 
               // Chuyển hướng về trang chính
               setTimeout(() => {

@@ -1,30 +1,14 @@
 // Thêm dòng này để chạy script cấu hình
 import { createRoot } from 'react-dom/client';
+import { StrictMode } from 'react';
 
 import '../setup-sheets.js';
 import App from './App.tsx';
 import './index.css';
 
-// Initialize Firebase
-import { FirebaseService } from '@services/FirebaseService';
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD15K9FMm2J0Hq4yeacqL9fQ0TNK7NI7Lo",
-  authDomain: "appqlgd.firebaseapp.com",
-  projectId: "appqlgd",
-  storageBucket: "appqlgd.appspot.com",
-  messagingSenderId: "873528436407",
-  appId: "1:873528436407:web:abcdefghijklmnop"
-};
-
-// Initialize Firebase
-try {
-  FirebaseService.initializeApp(firebaseConfig);
-  console.log('🔥 Firebase initialized successfully');
-} catch (error) {
-  console.error('🔥 Firebase initialization failed:', error);
-}
+// ⚠️ REMOVED: Supabase initialization moved to centralized service
+// Supabase will be initialized by SupabaseService when needed
+console.log('ℹ️ [main.tsx] Supabase initialization delegated to SupabaseService');
 import '@styles/dark-theme.css';
 import '@styles/login-theme.css';
 import '@styles/macos.css';
@@ -33,4 +17,26 @@ import '@utils/versionManager.ts';
 import '@utils/cacheHelper.ts';
 import '@utils/test-kpi.ts';
 
-createRoot(document.getElementById('root')!).render(<App />);
+// Render the main app
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+
+// Initialize Stagewise Toolbar separately (only in development)
+if (import.meta.env.DEV) {
+  import('./config/stagewise').then(({ initStagewise }) => {
+    // Initialize immediately if DOM is ready, otherwise wait for DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initStagewise();
+      });
+    } else {
+      // DOM is already ready, initialize immediately
+      setTimeout(() => initStagewise(), 100);
+    }
+  }).catch((error) => {
+    console.warn('⚠️ Stagewise Toolbar not available:', error);
+  });
+}

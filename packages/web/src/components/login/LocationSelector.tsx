@@ -32,6 +32,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 }) => {
   const locationNames = getLocationNames(departmentType);
 
+  console.log('🔍 LocationSelector - selectedLocation:', selectedLocation);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -46,7 +48,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
       <Select
         value={selectedLocation}
-        onValueChange={(value) => onLocationChange(value as UserLocation | 'all')}
+        onValueChange={(value) => {
+          console.log('🔍 LocationSelector - onValueChange:', value);
+          onLocationChange(value as UserLocation | 'all');
+        }}
       >
         <SelectTrigger className="h-10 bg-white/80 rounded-lg border border-[#dfe6e9] hover:border-[#6c5ce7] transition-all focus:border-[#6c5ce7] focus:ring-2 focus:ring-[#6c5ce7]/20 text-sm">
           <div className="flex items-center">
@@ -67,7 +72,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   {isSpecial ? (
                     <div className="flex flex-col">
                       <span className="font-medium">{label}</span>
-                      <span className="text-[10px] opacity-80">Trưởng Phòng Kinh doanh bán lẻ</span>
+                      <span className="text-[10px] opacity-80">Trưởng phòng kinh doanh</span>
                     </div>
                   ) : (
                     <span className="font-medium">{label}</span>

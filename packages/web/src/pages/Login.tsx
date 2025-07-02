@@ -4,16 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import LoginForm from '@/components/login/LoginForm';
-import LoginLoadingScreen from '@/components/login/LoginLoadingScreen';
+import InlineLoadingSpinner from '@/components/ui/InlineLoadingSpinner';
 import { Card } from '@/components/ui/card';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 
 import '../styles/login-theme.css';
 
 const Login = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
-  const departmentType = 'retail'; // Cố định là phòng bán lẻ
+  const departmentType = null; // Hiển thị tất cả users để test Supabase migration
 
   useEffect(() => {
     // Kiểm tra nếu người dùng đã xác thực, chuyển hướng đến trang chủ
@@ -24,7 +24,11 @@ const Login = () => {
 
   // Hiển thị loading screen khi đang tải
   if (isLoading) {
-    return <LoginLoadingScreen />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <InlineLoadingSpinner message="Đang khởi tạo hệ thống..." size="lg" />
+      </div>
+    );
   }
 
   const deptInfo = {
