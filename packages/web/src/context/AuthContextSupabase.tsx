@@ -38,6 +38,7 @@ import {
 } from '@/services/mockAuth';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
 import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
+import { LocalToSupabaseAutoSync } from '@/services/LocalToSupabaseAutoSync';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -524,6 +525,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!requiresPasswordChange) {
         autoPlanSyncService.startAutoSync(user.id);
         console.log('🔄 Started auto plan sync for user:', user.name);
+
+        // Auto sync local tasks to Supabase
+        try {
+          console.log('🚀 Starting auto sync of local tasks to Supabase...');
+          const autoSyncService = LocalToSupabaseAutoSync.getInstance();
+          const syncResult = await autoSyncService.autoSyncOnLogin(user.id, user.name);
+
+          if (syncResult.success && syncResult.syncedCount > 0) {
+            toast({
+              title: 'Đồng bộ thành công',
+              description: `Đã đồng bộ ${syncResult.syncedCount} công việc lên cloud`,
+              variant: 'default',
+            });
+            console.log(`✅ Auto synced ${syncResult.syncedCount} tasks to Supabase`);
+          } else if (syncResult.errorCount > 0) {
+            console.warn('⚠️ Some tasks failed to sync:', syncResult.errors);
+            toast({
+              title: 'Đồng bộ một phần',
+              description: `Đã đồng bộ ${syncResult.syncedCount}/${syncResult.syncedCount + syncResult.errorCount} công việc`,
+              variant: 'default',
+            });
+          }
+        } catch (syncError) {
+          console.error('❌ Auto sync failed:', syncError);
+          // Don't show error toast for sync failure to avoid disrupting login flow
+        }
       }
 
       // Show appropriate toast message only for password change requirement

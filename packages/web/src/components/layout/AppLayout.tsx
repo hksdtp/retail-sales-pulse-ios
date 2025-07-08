@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
+import AutoSyncStatus from '@/components/sync/AutoSyncStatus';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -102,6 +103,17 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       <Toaster />
       <Sonner />
+
+      {/* Auto Sync Status - Fixed position with mobile optimization */}
+      <div className={cn(
+        "fixed z-40 transition-all duration-300 ease-in-out",
+        // Desktop positioning
+        "bottom-4 right-4",
+        // Mobile positioning - avoid bottom nav
+        isMobile && "bottom-[calc(70px+env(safe-area-inset-bottom)+1rem)] right-[max(1rem,env(safe-area-inset-right))]"
+      )}>
+        <AutoSyncStatus compact={true} />
+      </div>
 
       {/* Plan to Task Notification */}
       {notificationData && (

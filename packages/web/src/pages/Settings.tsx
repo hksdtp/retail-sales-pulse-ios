@@ -4,7 +4,8 @@ import PageHeader from '@/components/layout/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/AuthContext';
-import { Settings as SettingsIcon, User, Bell, Shield } from 'lucide-react';
+import { Settings as SettingsIcon, User, Bell, Shield, Cloud } from 'lucide-react';
+import AutoSyncStatus from '@/components/sync/AutoSyncStatus';
 
 const Settings: React.FC = () => {
   const { currentUser } = useAuth();
@@ -26,10 +27,14 @@ const Settings: React.FC = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Hồ sơ
+            </TabsTrigger>
+            <TabsTrigger value="sync" className="flex items-center gap-2">
+              <Cloud className="h-4 w-4" />
+              Đồng bộ
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
@@ -72,6 +77,51 @@ const Settings: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="sync" className="mt-6">
+            <div className="space-y-6 animate-in fade-in-50 duration-300">
+              <div className="transform transition-all duration-300 ease-in-out hover:scale-[1.02]">
+                <AutoSyncStatus showDetails={true} />
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cách thức đồng bộ</CardTitle>
+                  <CardDescription>
+                    Hệ thống tự động đồng bộ dữ liệu khi bạn đăng nhập
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 text-sm text-gray-600">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <strong>Tự động khi đăng nhập:</strong> Tất cả công việc được lưu trên thiết bị sẽ tự động đồng bộ lên cloud khi bạn đăng nhập thành công.
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <strong>Đồng bộ thủ công:</strong> Bạn có thể nhấn nút "Đồng bộ ngay" để đồng bộ dữ liệu bất kỳ lúc nào.
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <strong>Tránh trùng lặp:</strong> Hệ thống tự động kiểm tra và bỏ qua các công việc đã tồn tại trên cloud.
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <strong>Dọn dẹp tự động:</strong> Sau khi đồng bộ thành công, dữ liệu cục bộ sẽ được dọn dẹp để tiết kiệm dung lượng.
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="notifications" className="mt-6">
