@@ -99,23 +99,31 @@
   border-right: 1px solid var(--macos-border-light);
 }
 
-/* macOS Scrollbar */
+/* macOS Scrollbar - Ultra Thin & Elegant - Optimized */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  transition: background-color 0.15s ease, width 0.15s ease;
+  will-change: background-color, width;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.25);
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: rgba(0, 0, 0, 0.35);
 }
 
 /* macOS Glass Effect */
@@ -124,6 +132,126 @@
   backdrop-filter: blur(20px);
   border: 1px solid var(--macos-border-light);
   border-radius: var(--macos-radius);
+}
+
+/* macOS Calendar - Beautiful & Elegant */
+.macos-calendar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  padding: 20px;
+}
+
+.macos-calendar .rdp-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.macos-calendar .rdp-caption_label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+}
+
+.macos-calendar .rdp-nav_button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #1d1d1f;
+}
+
+.macos-calendar .rdp-nav_button:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: scale(1.05);
+}
+
+.macos-calendar .rdp-nav_button:active {
+  transform: scale(0.95);
+}
+
+.macos-calendar .rdp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+.macos-calendar .rdp-head_cell {
+  font-size: 12px;
+  font-weight: 500;
+  color: #86868b;
+  text-align: center;
+  padding: 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.macos-calendar .rdp-day {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1d1d1f;
+  transition: background-color 0.15s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: background-color, transform;
+}
+
+.macos-calendar .rdp-day:hover {
+  background: rgba(0, 122, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.macos-calendar .rdp-day_selected {
+  background: #007aff !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.macos-calendar .rdp-day_today {
+  background: rgba(255, 149, 0, 0.1);
+  color: #ff9500;
+  font-weight: 600;
+}
+
+.macos-calendar .rdp-day_today:not(.rdp-day_selected) {
+  background: rgba(255, 149, 0, 0.1);
+  color: #ff9500;
+}
+
+.macos-calendar .rdp-day_outside {
+  color: #c7c7cc;
+  opacity: 0.5;
+}
+
+.macos-calendar .rdp-day_disabled {
+  color: #c7c7cc;
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.macos-calendar .rdp-day_disabled:hover {
+  background: transparent;
+  transform: none;
 }
 
 /* Dark Mode */
@@ -172,10 +300,60 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.25);
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: rgba(255, 255, 255, 0.35);
+  }
+
+  /* macOS Calendar Dark Mode */
+  .macos-calendar {
+    background: rgba(30, 30, 32, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .macos-calendar .rdp-caption_label {
+    color: #f5f5f7;
+  }
+
+  .macos-calendar .rdp-nav_button {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f5f5f7;
+  }
+
+  .macos-calendar .rdp-nav_button:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .macos-calendar .rdp-head_cell {
+    color: #98989d;
+  }
+
+  .macos-calendar .rdp-day {
+    color: #f5f5f7;
+  }
+
+  .macos-calendar .rdp-day:hover {
+    background: rgba(0, 122, 255, 0.2);
+  }
+
+  .macos-calendar .rdp-day_today:not(.rdp-day_selected) {
+    background: rgba(255, 149, 0, 0.2);
+    color: #ff9500;
+  }
+
+  .macos-calendar .rdp-day_outside {
+    color: #48484a;
+  }
+
+  .macos-calendar .rdp-day_disabled {
+    color: #48484a;
   }
 }
