@@ -13,6 +13,8 @@ interface SmartInputProps {
   disabled?: boolean;
   taskType?: string;
   onSuggestionSelect?: (suggestion: TaskSuggestion) => void;
+  id?: string;
+  name?: string;
 }
 
 const SmartInput: React.FC<SmartInputProps> = ({
@@ -22,7 +24,9 @@ const SmartInput: React.FC<SmartInputProps> = ({
   className,
   disabled = false,
   taskType,
-  onSuggestionSelect
+  onSuggestionSelect,
+  id,
+  name
 }) => {
   const [suggestions, setSuggestions] = useState<TaskSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -196,6 +200,8 @@ const SmartInput: React.FC<SmartInputProps> = ({
       <div className="relative">
         <Input
           ref={inputRef}
+          id={id}
+          name={name}
           value={value}
           onChange={handleInputChange}
           onFocus={handleInputFocus}

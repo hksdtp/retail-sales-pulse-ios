@@ -21,6 +21,8 @@ interface DateTimePickerProps {
   minDate?: Date;
   maxDate?: Date;
   label?: string;
+  id?: string;
+  name?: string;
 }
 
 const DateTimePicker: React.FC<DateTimePickerProps> = ({
@@ -35,7 +37,9 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   required = false,
   minDate,
   maxDate,
-  label
+  label,
+  id,
+  name
 }) => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isTimeOpen, setIsTimeOpen] = useState(false);
@@ -145,13 +149,12 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 
                 <div className="flex items-center gap-1">
                   {date && !disabled && (
-                    <button
-                      type="button"
+                    <div
                       onClick={handleClearDate}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
                     >
                       <X className="w-3 h-3" />
-                    </button>
+                    </div>
                   )}
                   <ChevronDown className="w-4 h-4 opacity-50" />
                 </div>

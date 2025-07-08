@@ -182,6 +182,40 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       authenticationMethod: 'email'
     });
 
+    // Special handling for Khổng Đức Mạnh - WORKAROUND
+    if (!selectedUser && isSpecialRole && filteredUsers.length > 0) {
+      console.log('🔧 Special role workaround: auto-selecting user');
+      setSelectedUser(filteredUsers[0]);
+      // Continue with login using the auto-selected user
+      const specialUser = filteredUsers[0];
+      if (!specialUser.email) {
+        toast({
+          title: 'Lỗi đăng nhập',
+          description: 'Người dùng không có email. Vui lòng liên hệ quản trị viên.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Proceed with login using special user
+      setIsSubmitting(true);
+      try {
+        console.log('🚀 Special role login with email:', specialUser.email, 'for user:', specialUser.name);
+        await login(specialUser.email, password);
+        console.log('✅ Special role login successful');
+        setTimeout(() => {
+          setIsSubmitting(false);
+          if (!requirePasswordChange && !isFirstLogin) {
+            navigate('/');
+          }
+        }, 500);
+        return;
+      } catch (error) {
+        setIsSubmitting(false);
+        setPassword('');
+        return;
+      }
+    }
+
     if (!selectedUser) {
       toast({
         title: 'Lỗi đăng nhập',
@@ -230,6 +264,14 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     }
   };
 
+  // Special handler for Khổng Đức Mạnh - WORKAROUND for cross-browser issues
+  const handleSpecialUserLogin = async () => {
+    if (selectedLocation === 'all' && password.trim()) {
+      console.log('🔧 Special login handler for Khổng Đức Mạnh');
+      await handleSubmit();
+    }
+  };
+
   // Xác định xem có hiển thị mục chọn nhóm không
   const showTeamSelector = selectedLocation !== 'all';
 
@@ -253,14 +295,73 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     setSelectedUser(null);
   }, [selectedTeam]);
 
-  // Tự động chọn người dùng đặc biệt khi chọn "Khổng Đức Mạnh"
+  // Tự động chọn người dùng đặc biệt khi chọn "Khổng Đức Mạnh" - FIXED với timeout
   useEffect(() => {
-    if (isSpecialRole && filteredUsers.length > 0 && !selectedUser) {
-      setSelectedUser(filteredUsers[0]);
-    }
-  }, [isSpecialRole, filteredUsers, selectedUser]);
+    console.log('🔍 Auto-select user effect:', {
+      isSpecialRole,
+      filteredUsersLength: filteredUsers.length,
+      selectedUser: selectedUser?.name || 'none',
+      selectedLocation,
+      departmentType
+    });
+
+    // Sử dụng setTimeout để đảm bảo state được update sau khi DOM render
+    const timer = setTimeout(() => {
+      if (isSpecialRole && filteredUsers.length > 0 && !selectedUser) {
+        console.log('✅ Auto-selecting first user:', filteredUsers[0].name);
+        setSelectedUser(filteredUsers[0]);
+      } else if (isSpecialRole && filteredUsers.length === 0) {
+        console.log('❌ No filtered users found for special role');
+        // Fallback: tìm Khổng Đức Mạnh trong toàn bộ users
+        const khongDucManh = users.find(user =>
+          user.name === 'Khổng Đức Mạnh' ||
+          user.name.includes('Khổng Đức Mạnh') ||
+          user.role === 'retail_director'
+        );
+        if (khongDucManh && !selectedUser) {
+          console.log('✅ Fallback: Found Khổng Đức Mạnh:', khongDucManh.name);
+          setSelectedUser(khongDucManh);
+        }
+      }
+    }, 100); // Delay 100ms để đảm bảo DOM đã render
+
+    return () => clearTimeout(timer);
+  }, [isSpecialRole, filteredUsers.length, selectedUser?.id, selectedLocation, departmentType, users]);
 
   // Password change modal handling removed - using GlobalPasswordChangeModal instead
+
+  // Debug validation state
+  const isFormValid = selectedUser && password.trim() && !isSubmitting;
+  console.log('🔍 Form validation state:', {
+    selectedUser: selectedUser?.name || 'none',
+    passwordLength: password.length,
+    passwordTrimmed: password.trim().length,
+    isSubmitting,
+    isFormValid,
+    buttonShouldBeEnabled: isFormValid
+  });
+
+  // Auto-trigger login for special users when conditions are met - WORKAROUND FIXED
+  useEffect(() => {
+    console.log('🔧 Auto-trigger effect check:', {
+      isSpecialRole,
+      selectedUser: selectedUser?.name || 'none',
+      passwordLength: password.length,
+      passwordTrimmed: password.trim().length,
+      isSubmitting,
+      shouldTrigger: isSpecialRole && selectedUser && password.trim() && !isSubmitting
+    });
+
+    if (isSpecialRole && selectedUser && password.trim() && !isSubmitting) {
+      console.log('🔧 Auto-triggering login for special user:', selectedUser.name);
+      const timer = setTimeout(() => {
+        console.log('🔧 Executing auto-login...');
+        handleSpecialUserLogin();
+      }, 1000); // Delay to ensure all state is synced
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSpecialRole, selectedUser?.id, password.trim(), isSubmitting]);
 
   return (
     <div className="w-full">
@@ -369,19 +470,19 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           </div>
         </div>
 
-        {/* Nút đăng nhập - FIXED ANIMATION */}
+        {/* Nút đăng nhập - SIMPLE WORKAROUND FOR KHỔNG ĐỨC MẠNH */}
         <motion.button
           type="submit"
           data-testid="login-submit-button"
           className="w-full py-3 mt-6 bg-gradient-to-r from-[#6c5ce7] to-[#a66efa] text-white font-semibold text-sm rounded-lg relative overflow-hidden hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#6c5ce7]/40 transition-all duration-150 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-          disabled={isSubmitting || !selectedUser || !password}
+          disabled={isSubmitting || (!selectedUser || !password.trim()) && !(isSpecialRole && password.trim())}
           whileHover={{
-            scale: isSubmitting || !selectedUser || !password ? 1 : 1.01,
-            y: isSubmitting || !selectedUser || !password ? 0 : -2
+            scale: (isSubmitting || (!selectedUser || !password.trim()) && !(isSpecialRole && password.trim())) ? 1 : 1.01,
+            y: (isSubmitting || (!selectedUser || !password.trim()) && !(isSpecialRole && password.trim())) ? 0 : -2
           }}
           whileTap={{
-            scale: isSubmitting || !selectedUser || !password ? 1 : 0.99,
-            y: isSubmitting || !selectedUser || !password ? 0 : 0
+            scale: (isSubmitting || (!selectedUser || !password.trim()) && !(isSpecialRole && password.trim())) ? 1 : 0.99,
+            y: (isSubmitting || (!selectedUser || !password.trim()) && !(isSpecialRole && password.trim())) ? 0 : 0
           }}
           transition={{ duration: 0.1, ease: "easeInOut" }}
         >

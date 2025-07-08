@@ -5,7 +5,6 @@
 export { SupabaseService } from './SupabaseService';
 export { default as CustomerService } from './CustomerService';
 export { default as SyncService } from './SyncService';
-export { default as LocalStorageSyncService } from './LocalStorageSyncService';
 export { default as DashboardSyncService } from './DashboardSyncService';
 
 // Google Sheets services

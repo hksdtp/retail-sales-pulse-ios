@@ -13,7 +13,7 @@ import '../styles/login-theme.css';
 const Login = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
-  const departmentType = null; // Hiển thị tất cả users để test Supabase migration
+  const departmentType = 'retail'; // Set to retail to show retail department users
 
   useEffect(() => {
     // Kiểm tra nếu người dùng đã xác thực, chuyển hướng đến trang chủ

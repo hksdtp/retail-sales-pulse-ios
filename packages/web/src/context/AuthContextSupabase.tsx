@@ -373,19 +373,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Since sample users don't have real Supabase Auth accounts
           const userData = await supabaseService.getUserByEmail(email);
 
-          if (userData && password === '123456') {
-            // Mock successful authentication for sample users
-            response = {
-              success: true,
-              data: {
-                user: userData,
-                token: `mock_token_${userData.id}_${Date.now()}`,
-                loginType: 'supabase_mock'
-              }
-            };
-            console.log('✅ Using Supabase mock authentication for user:', userData.name);
-          } else if (userData && password !== '123456') {
-            throw new Error('Mật khẩu không đúng');
+          if (userData) {
+            // Check if user has changed password
+            const userStoredPassword = localStorage.getItem(`user_password_${userData.id}`);
+            const correctPassword = userStoredPassword || '123456'; // Default to 123456 if no stored password
+
+            console.log('🔍 Password check:', {
+              userId: userData.id,
+              userName: userData.name,
+              hasStoredPassword: !!userStoredPassword,
+              passwordChanged: userData.password_changed,
+              inputPassword: password,
+              correctPassword: correctPassword
+            });
+
+            if (password === correctPassword) {
+              // Successful authentication
+              response = {
+                success: true,
+                data: {
+                  user: userData,
+                  token: `mock_token_${userData.id}_${Date.now()}`,
+                  loginType: 'supabase_mock'
+                }
+              };
+              console.log('✅ Using Supabase mock authentication for user:', userData.name);
+            } else {
+              throw new Error('Mật khẩu không đúng');
+            }
           } else {
             // Try real Supabase Auth for other users
             const supabaseResponse = await supabaseService.signIn(email, password);

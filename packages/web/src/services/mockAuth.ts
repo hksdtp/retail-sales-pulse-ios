@@ -505,11 +505,19 @@ function getUserInfoFromEmail(email: string): {
       position: 'Trưởng nhóm'
     },
     'khanhduy@example.com': {
-      id: 'abtSSmK0p0oeOyy5YWGZ', // Real API ID
+      id: 'user_khanh_duy', // Use consistent ID with database
       name: 'Lê Khánh Duy',
       role: 'employee',
       team_id: '1',
-      location: 'Hà Nội',
+      location: 'hanoi',
+      position: 'Nhân viên bán hàng'
+    },
+    'khanhduy.le@example.com': {
+      id: 'user_khanh_duy', // Same user, different email format
+      name: 'Lê Khánh Duy',
+      role: 'employee',
+      team_id: '1',
+      location: 'hanoi',
       position: 'Nhân viên bán hàng'
     },
     'thao.nguyen@example.com': {
@@ -522,6 +530,14 @@ function getUserInfoFromEmail(email: string): {
     },
     'manhlinh@example.com': {
       id: '76ui8I1vw3wiJLyvwFjq', // Real API ID
+      name: 'Nguyễn Mạnh Linh',
+      role: 'employee',
+      team_id: '2',
+      location: 'Hà Nội',
+      position: 'Nhân viên bán hàng'
+    },
+    'manhlinh.nguyen@example.com': {
+      id: '76ui8I1vw3wiJLyvwFjq', // Real API ID - same as above
       name: 'Nguyễn Mạnh Linh',
       role: 'employee',
       team_id: '2',

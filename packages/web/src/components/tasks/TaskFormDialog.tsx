@@ -130,6 +130,47 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     }
   }, [open, currentUser]);
 
+  // Map UI task types to database-allowed types
+  const mapTaskTypeToDatabase = (uiType: string): string => {
+    const typeMapping: Record<string, string> = {
+      // Work-related types
+      'sbg-new': 'work',
+      'sbg-old': 'work',
+      'partner-new': 'work',
+      'partner-old': 'work',
+      'customer-new': 'work',
+      'customer-old': 'work',
+      'project-new': 'work',
+      'project-old': 'work',
+      'maintenance': 'work',
+      'installation': 'work',
+      'repair': 'work',
+      'inspection': 'work',
+      'training': 'work',
+      'sales': 'work',
+      'marketing': 'work',
+      'support': 'work',
+
+      // Meeting types
+      'meeting': 'meeting',
+      'conference': 'meeting',
+      'presentation': 'meeting',
+      'review': 'meeting',
+
+      // Personal types
+      'personal': 'personal',
+      'leave': 'personal',
+      'vacation': 'personal',
+
+      // Default fallback
+      'other': 'other',
+      'misc': 'other',
+      'general': 'other'
+    };
+
+    return typeMapping[uiType] || 'other'; // Default to 'other' if not found
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.deadline || !formData.visibility) {
@@ -144,11 +185,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     try {
       setIsSubmitting(true);
 
+      // Map UI type to database type
+      const databaseType = mapTaskTypeToDatabase(formData.type);
+
       // Tạo task mới
       await addTask({
         title: formData.title,
         description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}${uploadedImages.length > 0 ? `\n📷 Có ${uploadedImages.length} hình ảnh đính kèm` : ''}`,
-        type: formData.type,
+        type: databaseType, // Use mapped database type
         types: formData.types, // Send multiple types
         status: formData.status as any,
         date: formData.date,
@@ -159,6 +203,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         priority: formData.priority,
         sharedWith: formData.sharedWith,
         images: uploadedImages, // Include uploaded images
+        // CRITICAL: Add team_id and location for proper filtering
+        team_id: currentUser?.team_id,
+        location: currentUser?.location,
       });
 
       // Learn from successful task creation
@@ -374,6 +421,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 </span>
               </label>
               <SmartInput
+                id="task-title"
+                name="title"
                 value={formData.title}
                 onChange={(value) => handleInputChange('title', value)}
                 placeholder="Nhập tiêu đề công việc..."
@@ -407,6 +456,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 Mô tả chi tiết <span className="text-red-500 ml-1">*</span>
               </label>
               <Textarea
+                id="task-description"
                 name="description"
                 placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
                 value={formData.description}
@@ -443,8 +493,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                   Trạng thái
                 </label>
-                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
+                <Select name="status" value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger id="task-status" className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
                     <SelectValue placeholder="Chọn trạng thái">
                       {formData.status && (
                         <div className="flex items-center gap-3">
@@ -480,8 +530,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                   Mức độ ưu tiên
                 </label>
-                <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                  <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
+                <Select name="priority" value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                  <SelectTrigger id="task-priority" className="w-full h-10 sm:h-12 text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm">
                     <SelectValue placeholder="Chọn mức độ ưu tiên">
                       {formData.priority && (
                         <div className="flex items-center gap-3">
@@ -517,6 +567,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             {/* Thời gian - Improved Date/Time Pickers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <DateTimePicker
+                id="task-date"
+                name="date"
                 date={selectedDate}
                 onDateChange={(date) => {
                   setSelectedDate(date);
@@ -535,6 +587,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               />
 
               <DateTimePicker
+                id="task-deadline"
+                name="deadline"
                 date={selectedDeadline}
                 onDateChange={(date) => {
                   setSelectedDeadline(date);

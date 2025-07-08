@@ -100,15 +100,28 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       console.log('➕ Adding new task to Supabase...');
       const supabaseService = SupabaseService.getInstance();
       
+      // Map to existing Supabase columns only
       const taskData = {
-        ...task,
+        title: task.title,
+        description: task.description,
+        type: task.type === 'test' ? 'work' : task.type, // Fix type constraint
+        status: task.status,
+        priority: task.priority || 'normal',
+        date: task.date,
+        time: task.time || '09:00',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         progress: task.progress || 0,
-        priority: task.priority || 'normal',
         is_new: true,
         is_shared: task.isShared || false,
         is_shared_with_team: task.isSharedWithTeam || false,
+        // Map to existing columns
+        assigned_to: task.assignedTo || task.assigned_to || 'user_khanh_duy',
+        user_id: task.user_id || 'user_khanh_duy',
+        user_name: task.user_name || 'Lê Khánh Duy',
+        team_id: task.team_id || '1',
+        location: task.location || 'hanoi',
+        // Skip missing columns: assignedTo, created_by, visibility, deadline, types, images, shared_with
       };
 
       const newTask = await supabaseService.addTask(taskData);

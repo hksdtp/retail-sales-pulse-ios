@@ -680,6 +680,18 @@ const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 e.preventDefault();
                 e.stopPropagation();
 
+                // DEBUG: Log permission check details
+                console.log('🔍 DELETE PERMISSION CHECK (Detail Panel):', {
+                  taskId: task.id,
+                  taskTitle: task.title,
+                  taskUserId: task.user_id,
+                  taskAssignedTo: task.assignedTo,
+                  currentUserId: currentUser?.id,
+                  currentUserName: currentUser?.name,
+                  currentUserRole: currentUser?.role,
+                  canEdit: canEditTask(task)
+                });
+
                 if (!canEditTask(task)) {
                   alert('Bạn không có quyền xóa công việc này!');
                   return;
