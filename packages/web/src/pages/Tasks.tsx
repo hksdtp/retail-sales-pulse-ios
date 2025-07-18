@@ -1,11 +1,10 @@
-import { Download, Plus, Trash2, UserRound, Users, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, UserRound, Users, RefreshCw } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 import { getApiUrl } from '@/config/api';
 
 import ErrorBoundary from '../components/ErrorBoundary';
-import { ExportDialog } from '../components/export/ExportDialog';
 
 import AppLayout from '../components/layout/AppLayout';
 import PageHeader from '../components/layout/PageHeader';
@@ -28,7 +27,6 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import { Button } from '../components/ui/button';
-import { RefreshButton, ExportButton } from '../components/ui/ActionButton';
 import { useAuth } from '../context/AuthContext';
 import { TaskViewLevel, useManagerTaskData } from '../hooks/use-manager-task-data';
 import { useTaskData } from '../hooks/use-task-data';
@@ -283,33 +281,6 @@ const Tasks = () => {
         }}
         actions={
           <div className="flex space-x-2">
-            <ExportDialog>
-              <ExportButton
-                size="icon"
-                title="Xuất dữ liệu tasks"
-                className="text-blue-600 border-blue-200 bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:bg-blue-900/20"
-              >
-                <span className="sr-only">Xuất dữ liệu</span>
-              </ExportButton>
-            </ExportDialog>
-
-            {/* Data refresh button */}
-            <RefreshButton
-              type="data"
-              size="icon"
-              variant="outline"
-              title="Tải lại dữ liệu từ Firebase"
-              className="text-green-600 border-green-200 bg-green-50 dark:text-green-400 dark:border-green-700 dark:bg-green-900/20"
-              onClick={() => {
-                console.log('🔄 Data refresh triggered');
-                setTaskUpdateTrigger((prev) => prev + 1);
-                // Không cần toast cho việc refresh - user sẽ thấy data được update
-                console.log('🔄 Dữ liệu đang được tải lại từ Firebase...');
-              }}
-            >
-              <span className="sr-only">Tải lại dữ liệu</span>
-            </RefreshButton>
-
             {/* Nút tạo công việc gộp */}
             <Button
               className="flex items-center gap-2 bg-gradient-to-r from-[#6c5ce7] to-[#4ecdc4] text-white shadow-md hover:opacity-90"

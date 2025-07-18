@@ -717,10 +717,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
             <div className="flex justify-between items-center p-4">
               <h1 className="text-2xl font-bold">Danh sách công việc</h1>
               <div className="flex gap-2">
-                <Button onClick={handleRefresh} size="sm" variant="outline">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Làm mới
-                </Button>
                 <Button onClick={() => navigate('/tasks/new')} size="sm">
                   Thêm công việc
                 </Button>

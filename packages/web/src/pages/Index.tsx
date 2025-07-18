@@ -137,31 +137,7 @@ const Index = () => {
       <PageHeader
         title="Dashboard"
         subtitle={subtitle}
-        actions={
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleViewDetailedReports}
-              className="hover:bg-blue-50 hover:border-blue-300 transition-colors flex items-center gap-2"
-              title="Xem báo cáo chi tiết với AI insights"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 3v18h18"/>
-                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-              </svg>
-              Báo cáo chi tiết
-            </Button>
-            <ExportButton
-              size="sm"
-              onClick={handleExportReport}
-              className="hover:bg-blue-600 transition-colors"
-              title="Xuất báo cáo dashboard dạng JSON"
-            >
-              Xuất báo cáo
-            </ExportButton>
-          </div>
-        }
+
       />
 
       <ErrorBoundary

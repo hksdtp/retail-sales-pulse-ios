@@ -347,19 +347,21 @@ export default function TaskManagementView({
     }
   }, [currentUser?.role, selectedMember, selectedMemberId]);
 
-  let regularTaskData, managerTaskData;
+  let regularTaskData, managerTaskData, deleteTaskFromSupabase;
   try {
     regularTaskData = useTaskData();
     managerTaskData = useManagerTaskData(viewLevel as any, selectedMemberForHook);
 
-    // Extract deleteTask function from regularTaskData with safety check
-    const { deleteTask: deleteTaskFromSupabase } = regularTaskData || {};
+    // Extract deleteTask function from regularTaskData with proper safety check
+    deleteTaskFromSupabase = regularTaskData?.deleteTask;
 
     // Debug: Check if deleteTask function is available
     console.log('🔍 [TaskManagementView] deleteTask function check:', {
       regularTaskData: !!regularTaskData,
+      regularTaskDataKeys: regularTaskData ? Object.keys(regularTaskData) : [],
       deleteTaskFromSupabase: !!deleteTaskFromSupabase,
-      deleteTaskType: typeof deleteTaskFromSupabase
+      deleteTaskType: typeof deleteTaskFromSupabase,
+      regularTaskDataDeleteTask: !!regularTaskData?.deleteTask
     });
 
     // Use localStorage tasks as fallback when API data is empty
