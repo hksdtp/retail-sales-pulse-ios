@@ -51,24 +51,101 @@ class PasswordService {
     return !userPassword || userPassword.isFirstLogin;
   }
 
-  // Xác thực mật khẩu
-  verifyPassword(userId: string, password: string): boolean {
+  // Xác thực mật khẩu - ALWAYS CHECK SUPABASE FIRST
+  async verifyPassword(userId: string, password: string): Promise<boolean> {
+    console.log('🔐 [PasswordService] verifyPassword called:', { userId, password: '***' });
+
+    try {
+      // STEP 1: Check Supabase database first (single source of truth)
+      const { SupabaseService } = await import('@/services/SupabaseService');
+      const supabaseClient = SupabaseService.getInstance().getClient();
+
+      if (supabaseClient) {
+        console.log('🔍 [PasswordService] Checking Supabase database...');
+        const { data: user, error } = await supabaseClient
+          .from('users')
+          .select('id, password, password_changed')
+          .eq('id', userId)
+          .single();
+
+        if (!error && user) {
+          console.log('✅ [PasswordService] Found user in Supabase:', {
+            id: user.id,
+            password: user.password,
+            password_changed: user.password_changed
+          });
+
+          // Use Supabase data for validation
+          if (user.password_changed === false) {
+            // User hasn't changed password, accept default
+            const isValid = password === this.DEFAULT_PASSWORD;
+            console.log('🔍 [PasswordService] Default password check:', isValid);
+            return isValid;
+          } else {
+            // User has changed password, check against stored password
+            const isValid = password === user.password;
+            console.log('🔍 [PasswordService] Custom password check:', isValid);
+            return isValid;
+          }
+        } else {
+          console.warn('⚠️ [PasswordService] User not found in Supabase, falling back to localStorage');
+        }
+      }
+    } catch (supabaseError) {
+      console.warn('⚠️ [PasswordService] Supabase check failed, falling back to localStorage:', supabaseError);
+    }
+
+    // STEP 2: Fallback to localStorage (legacy behavior)
+    console.log('🔄 [PasswordService] Using localStorage fallback...');
     const passwords = this.getStoredPasswords();
     const userPassword = passwords[userId];
 
     // Nếu là lần đầu đăng nhập, kiểm tra mật khẩu mặc định
     if (!userPassword || userPassword.isFirstLogin) {
-      return password === this.DEFAULT_PASSWORD;
+      const isValid = password === this.DEFAULT_PASSWORD;
+      console.log('🔍 [PasswordService] Default password fallback check:', isValid);
+      return isValid;
     }
 
     // Kiểm tra mật khẩu đã hash
     const hashedInput = this.hashPassword(password);
-    return hashedInput === userPassword.hashedPassword;
+    const isValid = hashedInput === userPassword.hashedPassword;
+    console.log('🔍 [PasswordService] Hashed password fallback check:', isValid);
+    return isValid;
   }
 
-  // Đổi mật khẩu cho user
-  changePassword(userId: string, newPassword: string): boolean {
+  // Đổi mật khẩu cho user - SYNC WITH SUPABASE
+  async changePassword(userId: string, newPassword: string): Promise<boolean> {
     try {
+      console.log('🔄 [PasswordService] changePassword called:', { userId, newPassword: '***' });
+
+      // STEP 1: Update Supabase database first
+      try {
+        const { SupabaseService } = await import('@/services/SupabaseService');
+        const supabaseClient = SupabaseService.getInstance().getClient();
+
+        if (supabaseClient) {
+          console.log('🔄 [PasswordService] Updating password in Supabase...');
+          const { error } = await supabaseClient
+            .from('users')
+            .update({
+              password: newPassword,
+              password_changed: true,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userId);
+
+          if (error) {
+            console.error('❌ [PasswordService] Supabase update failed:', error);
+          } else {
+            console.log('✅ [PasswordService] Password updated in Supabase');
+          }
+        }
+      } catch (supabaseError) {
+        console.warn('⚠️ [PasswordService] Supabase update failed:', supabaseError);
+      }
+
+      // STEP 2: Update localStorage (for backward compatibility)
       const passwords = this.getStoredPasswords();
       const hashedPassword = this.hashPassword(newPassword);
 
@@ -80,10 +157,25 @@ class PasswordService {
       };
 
       this.savePasswords(passwords);
-      console.log(`Password changed for user ${userId}`);
+
+      // STEP 3: Clear all password-related caches to force fresh check
+      console.log('🧹 [PasswordService] Clearing password caches...');
+
+      // Clear other user password caches
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('user_password_') || key.includes('password')) {
+          localStorage.removeItem(key);
+          console.log(`🗑️ [PasswordService] Cleared cache: ${key}`);
+        }
+      });
+
+      // Clear current user cache
+      localStorage.removeItem('currentUser');
+
+      console.log('✅ [PasswordService] Password changed and caches cleared for user:', userId);
       return true;
     } catch (error) {
-      console.error('Error changing password:', error);
+      console.error('❌ [PasswordService] Error changing password:', error);
       return false;
     }
   }

@@ -2,6 +2,10 @@
 @import './styles/dialog-fixes.css';
 @import './styles/mobile-performance.css';
 @import './styles/ios-design-system.css';
+@import './styles/animations.css';
+@import './styles/dark-theme-optimized.css';
+@import './styles/component-fixes.css';
+@import './styles/dark-mode-enhanced.css';
 
 @tailwind base;
 @tailwind components;

@@ -54,12 +54,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       const root = document.documentElement;
       root.classList.remove('light', 'dark');
       root.classList.add(newActualTheme);
-      
+
       // Update meta theme-color for mobile browsers
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) {
         metaThemeColor.setAttribute('content', newActualTheme === 'dark' ? '#1f2937' : '#ffffff');
       }
+
+      // Dispatch theme change event for dark mode enhancer
+      const themeChangeEvent = new CustomEvent('themechange', {
+        detail: { theme: newActualTheme }
+      });
+      document.dispatchEvent(themeChangeEvent);
     };
 
     updateActualTheme();

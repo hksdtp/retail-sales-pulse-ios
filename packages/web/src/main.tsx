@@ -8,6 +8,7 @@ import './index.css';
 import '@/styles/dark-theme.css';
 import '@/styles/login-theme.css';
 import '@/styles/macos.css';
+import '@/styles/thin-scrollbar.css';
 
 // Import essential utilities
 import '@/utils/versionManager.ts';

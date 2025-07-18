@@ -44,29 +44,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isTimeOpen, setIsTimeOpen] = useState(false);
 
-  // Quick date options
-  const quickDateOptions = [
-    {
-      label: 'Hôm nay',
-      value: new Date(),
-      shortLabel: 'Hôm nay'
-    },
-    {
-      label: 'Ngày mai',
-      value: addDays(new Date(), 1),
-      shortLabel: 'Ngày mai'
-    },
-    {
-      label: 'Tuần sau',
-      value: addDays(new Date(), 7),
-      shortLabel: '7 ngày'
-    },
-    {
-      label: '2 tuần sau',
-      value: addDays(new Date(), 14),
-      shortLabel: '14 ngày'
-    }
-  ];
+  // Removed quick date options for cleaner interface
 
   // Time options (every 30 minutes)
   const timeOptions = Array.from({ length: 48 }, (_, i) => {
@@ -94,11 +72,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     }
   };
 
-  // Handle quick date selection
-  const handleQuickDateSelect = (selectedDate: Date) => {
-    onDateChange(selectedDate);
-    setIsCalendarOpen(false);
-  };
+
 
   // Handle time selection
   const handleTimeSelect = (selectedTime: string) => {
@@ -135,74 +109,77 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 variant="outline"
                 disabled={disabled}
                 className={cn(
-                  "w-full justify-between text-left font-normal h-10",
-                  !date && "text-muted-foreground",
-                  "hover:bg-gray-50 dark:hover:bg-gray-800"
+                  "w-full justify-between text-left font-normal h-12 px-4 rounded-xl",
+                  "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm",
+                  "border-gray-200 dark:border-gray-600",
+                  "hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm",
+                  "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                  "transition-all duration-200",
+                  !date && "text-gray-500 dark:text-gray-400"
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-500" />
-                  <span className="truncate">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="truncate font-medium text-gray-900 dark:text-gray-100">
                     {formatDateDisplay(date)}
                   </span>
                 </div>
-                
-                <div className="flex items-center gap-1">
+
+                <div className="flex items-center gap-2">
                   {date && !disabled && (
                     <div
                       onClick={handleClearDate}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3 h-3 text-gray-400 hover:text-red-500" />
                     </div>
                   )}
-                  <ChevronDown className="w-4 h-4 opacity-50" />
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
                 </div>
               </Button>
             </PopoverTrigger>
             
-            <PopoverContent className="w-auto p-0" align="start">
-              <div className="flex">
-                {/* Quick Options */}
-                <div className="border-r border-gray-200 dark:border-gray-700 p-2 space-y-1 min-w-[120px]">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 py-1">
-                    Nhanh
-                  </div>
-                  {quickDateOptions.map((option, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleQuickDateSelect(option.value)}
-                      className={cn(
-                        "w-full text-left px-2 py-1.5 text-sm rounded transition-colors",
-                        date && startOfDay(date).getTime() === startOfDay(option.value).getTime()
-                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
-                      )}
-                    >
-                      {option.shortLabel}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Calendar */}
-                <div className="p-3">
-                  <CalendarComponent
-                    mode="single"
-                    selected={date}
-                    onSelect={(selectedDate) => {
-                      onDateChange(selectedDate);
-                      setIsCalendarOpen(false);
-                    }}
-                    disabled={(date) => {
-                      if (minDate && date < minDate) return true;
-                      if (maxDate && date > maxDate) return true;
-                      return false;
-                    }}
-                    locale={vi}
-                    className="rounded-md"
-                  />
-                </div>
+            <PopoverContent className="w-auto p-0 border-0 shadow-2xl rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl" align="start">
+              <div className="p-4">
+                <CalendarComponent
+                  mode="single"
+                  selected={date}
+                  onSelect={(selectedDate) => {
+                    onDateChange(selectedDate);
+                    setIsCalendarOpen(false);
+                  }}
+                  disabled={(date) => {
+                    if (minDate && date < minDate) return true;
+                    if (maxDate && date > maxDate) return true;
+                    return false;
+                  }}
+                  locale={vi}
+                  className="rounded-xl border-0 shadow-none"
+                  classNames={{
+                    months: "space-y-0",
+                    month: "space-y-4",
+                    caption: "flex justify-center pt-1 relative items-center text-sm font-medium",
+                    caption_label: "text-sm font-medium text-gray-900 dark:text-gray-100",
+                    nav: "space-x-1 flex items-center",
+                    nav_button: "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
+                    nav_button_previous: "absolute left-1",
+                    nav_button_next: "absolute right-1",
+                    table: "w-full border-collapse space-y-1",
+                    head_row: "flex",
+                    head_cell: "text-gray-500 dark:text-gray-400 rounded-md w-8 font-normal text-xs",
+                    row: "flex w-full mt-2",
+                    cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-blue-100 dark:[&:has([aria-selected])]:bg-blue-900/30 first:[&:has([aria-selected])]:rounded-l-lg last:[&:has([aria-selected])]:rounded-r-lg focus-within:relative focus-within:z-20 rounded-lg",
+                    day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
+                    day_selected: "bg-blue-500 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-500 focus:text-white rounded-lg",
+                    day_today: "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium rounded-lg",
+                    day_outside: "text-gray-400 dark:text-gray-600 opacity-50",
+                    day_disabled: "text-gray-400 dark:text-gray-600 opacity-50",
+                    day_range_middle: "aria-selected:bg-blue-100 dark:aria-selected:bg-blue-900/30 aria-selected:text-blue-900 dark:aria-selected:text-blue-100",
+                    day_hidden: "invisible",
+                  }}
+                />
               </div>
             </PopoverContent>
           </Popover>

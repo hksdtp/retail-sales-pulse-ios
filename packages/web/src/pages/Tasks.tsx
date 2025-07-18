@@ -38,16 +38,32 @@ import TaskList from './TaskList';
 
 
 const Tasks = () => {
+  const { currentUser, teams } = useAuth();
+  const { toast } = useToast();
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSupabaseConfigOpen, setIsSupabaseConfigOpen] = useState(false);
   const [taskFormType, setTaskFormType] = useState<'self' | 'team' | 'individual'>('self');
   const [taskUpdateTrigger, setTaskUpdateTrigger] = useState(0); // Trigger để kích hoạt làm mới danh sách công việc
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFirebaseSetup, setShowFirebaseSetup] = useState(false);
-  const [viewLevel, setViewLevel] = useState<TaskViewLevel>('personal');
+
+  // Set default viewLevel based on user role
+  const getDefaultViewLevel = (): TaskViewLevel => {
+    if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
+      return 'personal'; // Directors start with personal view
+    } else {
+      return 'team'; // Non-directors start with team view to see their team's tasks
+    }
+  };
+
+  const [viewLevel, setViewLevel] = useState<TaskViewLevel>(getDefaultViewLevel());
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-  const { currentUser, teams } = useAuth();
-  const { toast } = useToast();
+
+  // Update viewLevel when currentUser changes
+  useEffect(() => {
+    setViewLevel(getDefaultViewLevel());
+  }, [currentUser?.role]);
 
   // Kiểm tra xem user có phải manager không
   const isManager =

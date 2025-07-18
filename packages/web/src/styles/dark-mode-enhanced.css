@@ -1,0 +1,438 @@
+/* ===== ENHANCED DARK MODE WITH HIGH CONTRAST ===== */
+
+/* Force high contrast text colors in dark mode */
+.dark {
+  /* Enhanced text contrast */
+  color: white !important;
+}
+
+.dark body {
+  background-color: hsl(240 10% 3.9%) !important;
+  color: white !important;
+}
+
+/* ===== HIGH CONTRAST TEXT OVERRIDES ===== */
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  color: white !important;
+  font-weight: 500 !important; /* Slightly bolder for better visibility */
+}
+
+.dark .text-gray-600 {
+  color: hsl(0 0% 90%) !important;
+  font-weight: 450 !important;
+}
+
+.dark .text-gray-500 {
+  color: hsl(0 0% 80%) !important;
+  font-weight: 400 !important;
+}
+
+.dark .text-gray-400 {
+  color: hsl(0 0% 70%) !important;
+}
+
+.dark .text-gray-300 {
+  color: hsl(0 0% 85%) !important;
+}
+
+/* ===== ENHANCED CARD STYLING ===== */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: hsl(240 5.9% 12%) !important;
+  color: white !important;
+  border: 1px solid hsl(240 3.7% 25%) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Enhanced card hover effects */
+.dark .bg-white:hover,
+.dark .bg-gray-50:hover,
+.dark .bg-gray-100:hover {
+  background-color: hsl(240 5.9% 15%) !important;
+  border-color: hsl(240 3.7% 30%) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ===== ENHANCED FORM ELEMENTS ===== */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(240 5.9% 15%) !important;
+  color: white !important;
+  border: 2px solid hsl(240 3.7% 30%) !important;
+  font-weight: 450 !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: hsl(240 5.9% 18%) !important;
+  border-color: hsl(217.2 91.2% 59.8%) !important;
+  box-shadow: 0 0 0 3px hsla(217.2, 91.2%, 59.8%, 0.3) !important;
+  color: white !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(0 0% 65%) !important;
+  font-weight: 400 !important;
+}
+
+/* ===== ENHANCED BUTTON STYLING ===== */
+.dark button {
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .bg-blue-500,
+.dark .bg-blue-600 {
+  background-color: hsl(217.2 91.2% 59.8%) !important;
+  color: white !important;
+  border: 1px solid hsl(217.2 91.2% 65%) !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3) !important;
+}
+
+.dark .bg-blue-500:hover,
+.dark .bg-blue-600:hover {
+  background-color: hsl(217.2 91.2% 65%) !important;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ===== ENHANCED NAVIGATION ===== */
+.dark .sidebar-desktop {
+  background-color: hsl(240 5.9% 8%) !important;
+  border-right: 2px solid hsl(240 3.7% 25%) !important;
+  box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .sidebar-desktop .text-gray-600,
+.dark .sidebar-desktop .text-gray-700 {
+  color: hsl(0 0% 85%) !important;
+  font-weight: 450 !important;
+}
+
+.dark .sidebar-desktop .text-gray-500 {
+  color: hsl(0 0% 75%) !important;
+  font-weight: 400 !important;
+}
+
+/* ===== ENHANCED MODAL/DIALOG ===== */
+.dark [data-radix-dialog-content],
+.dark .bg-popover {
+  background-color: hsl(240 5.9% 10%) !important;
+  color: white !important;
+  border: 2px solid hsl(240 3.7% 30%) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark [data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* ===== ENHANCED LABELS AND HEADINGS ===== */
+.dark label,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: white !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ===== ENHANCED BORDERS ===== */
+.dark .border,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: hsl(240 3.7% 25%) !important;
+  border-width: 1px !important;
+}
+
+.dark .border-t,
+.dark .border-b,
+.dark .border-l,
+.dark .border-r {
+  border-color: hsl(240 3.7% 25%) !important;
+}
+
+/* ===== ENHANCED SHADOWS ===== */
+.dark .shadow-sm {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ===== ENHANCED LINKS ===== */
+.dark a {
+  color: hsl(217.2 91.2% 69.8%) !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+}
+
+.dark a:hover {
+  color: hsl(217.2 91.2% 79.8%) !important;
+  text-shadow: 0 0 8px hsla(217.2, 91.2%, 69.8%, 0.5) !important;
+}
+
+/* ===== ENHANCED SELECTION ===== */
+.dark ::selection {
+  background-color: hsla(217.2, 91.2%, 59.8%, 0.4) !important;
+  color: white !important;
+}
+
+/* ===== ENHANCED SCROLLBAR ===== */
+.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(240 5.9% 10%);
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(240 3.7% 30%);
+  border-radius: 5px;
+  border: 2px solid hsl(240 5.9% 10%);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(240 3.7% 40%);
+}
+
+/* ===== ENHANCED SPECIFIC COMPONENTS ===== */
+/* Task cards */
+.dark .task-card {
+  background-color: hsl(240 5.9% 12%) !important;
+  border: 1px solid hsl(240 3.7% 25%) !important;
+  color: white !important;
+}
+
+/* Navigation items */
+.dark .nav-item {
+  color: hsl(0 0% 85%) !important;
+  font-weight: 450 !important;
+}
+
+.dark .nav-item:hover {
+  color: white !important;
+  background-color: hsl(240 5.9% 15%) !important;
+  border-radius: 8px !important;
+}
+
+.dark .nav-item.active {
+  color: white !important;
+  background-color: hsl(217.2 91.2% 59.8%) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* ===== ENHANCED GRADIENTS ===== */
+.dark .bg-gradient-to-r.from-blue-600.to-indigo-600 {
+  background: linear-gradient(to right, 
+    hsl(217.2 91.2% 59.8%), 
+    hsl(243.4 75.4% 58.6%)) !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* ===== FORCE HIGH CONTRAST FOR ALL TEXT ===== */
+.dark * {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .text-foreground {
+  color: white !important;
+}
+
+.dark .text-muted-foreground {
+  color: hsl(0 0% 80%) !important;
+}
+
+/* ===== FORCE WHITE TEXT FOR ALL COMMON ELEMENTS ===== */
+.dark p,
+.dark span,
+.dark div,
+.dark li,
+.dark td,
+.dark th,
+.dark strong,
+.dark em,
+.dark small {
+  color: white !important;
+}
+
+/* ===== SPECIFIC TEXT UTILITIES ===== */
+.dark .text-sm {
+  color: hsl(0 0% 90%) !important;
+  font-weight: 400 !important;
+}
+
+.dark .text-xs {
+  color: hsl(0 0% 85%) !important;
+  font-weight: 400 !important;
+}
+
+.dark .text-lg {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+.dark .text-xl,
+.dark .text-2xl,
+.dark .text-3xl,
+.dark .text-4xl {
+  color: white !important;
+  font-weight: 600 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ===== ENHANCED FOCUS STATES ===== */
+.dark *:focus-visible {
+  outline: 2px solid hsl(217.2 91.2% 69.8%) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px hsla(217.2, 91.2%, 59.8%, 0.3) !important;
+}
+
+/* ===== TASK FORM DIALOG ENHANCEMENTS ===== */
+.dark .task-form-dialog {
+  background-color: hsl(240 5.9% 8%) !important;
+  border: 2px solid hsl(240 3.7% 30%) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .task-form-dialog * {
+  color: white !important;
+}
+
+.dark .task-form-dialog label {
+  color: white !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .task-form-dialog input,
+.dark .task-form-dialog textarea,
+.dark .task-form-dialog select {
+  background-color: hsl(240 5.9% 15%) !important;
+  color: white !important;
+  border: 2px solid hsl(240 3.7% 30%) !important;
+  font-weight: 500 !important;
+}
+
+/* ===== TASK MANAGEMENT VIEW ENHANCEMENTS ===== */
+.dark .task-management-view {
+  background-color: hsl(240 10% 3.9%) !important;
+  color: white !important;
+}
+
+.dark .task-management-view h1,
+.dark .task-management-view h2,
+.dark .task-management-view h3 {
+  color: white !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ===== SIDEBAR ENHANCEMENTS ===== */
+.dark .sidebar-desktop a {
+  color: hsl(0 0% 85%) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .sidebar-desktop a:hover {
+  color: white !important;
+  background-color: hsl(240 5.9% 15%) !important;
+  transform: translateX(4px) !important;
+}
+
+.dark .sidebar-desktop a.active {
+  color: white !important;
+  background-color: hsl(217.2 91.2% 59.8%) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* ===== TABLE ENHANCEMENTS ===== */
+.dark table {
+  background-color: hsl(240 5.9% 10%) !important;
+  border: 1px solid hsl(240 3.7% 25%) !important;
+}
+
+.dark th {
+  background-color: hsl(240 5.9% 12%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid hsl(240 3.7% 30%) !important;
+}
+
+.dark td {
+  color: white !important;
+  border-bottom: 1px solid hsl(240 3.7% 20%) !important;
+}
+
+.dark tr:hover {
+  background-color: hsl(240 5.9% 15%) !important;
+}
+
+/* ===== DROPDOWN/SELECT ENHANCEMENTS ===== */
+.dark [data-radix-select-content] {
+  background-color: hsl(240 5.9% 10%) !important;
+  border: 2px solid hsl(240 3.7% 30%) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark [data-radix-select-item] {
+  color: white !important;
+  font-weight: 450 !important;
+}
+
+.dark [data-radix-select-item]:hover,
+.dark [data-radix-select-item][data-highlighted] {
+  background-color: hsl(240 5.9% 15%) !important;
+  color: white !important;
+}
+
+/* ===== TOAST/NOTIFICATION ENHANCEMENTS ===== */
+.dark .toast {
+  background-color: hsl(240 5.9% 10%) !important;
+  color: white !important;
+  border: 1px solid hsl(240 3.7% 30%) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ===== FORCE OVERRIDE FOR STUBBORN ELEMENTS ===== */
+.dark [style*="color: rgb(107, 114, 126)"],
+.dark [style*="color: rgb(75, 85, 99)"],
+.dark [style*="color: rgb(55, 65, 81)"] {
+  color: white !important;
+}

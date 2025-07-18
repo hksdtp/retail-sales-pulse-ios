@@ -1,0 +1,262 @@
+/* ===== COMPONENT-SPECIFIC FIXES FOR DARK MODE ===== */
+
+/* Fix Dialog/Modal components */
+.dark [data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.dark [data-radix-dialog-content] {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+/* Fix Select components */
+.dark [data-radix-select-content] {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark [data-radix-select-item] {
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark [data-radix-select-item]:hover {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+.dark [data-radix-select-item][data-highlighted] {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+/* Fix Popover components */
+.dark [data-radix-popover-content] {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+/* Fix Calendar components */
+.dark .rdp {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .rdp-day {
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .rdp-day:hover {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+.dark .rdp-day_selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+/* Fix Button variants in dark mode */
+.dark .btn-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .btn-secondary {
+  background-color: hsl(var(--dark-surface-2)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark .btn-outline {
+  background-color: transparent !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark .btn-outline:hover {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+.dark .btn-ghost {
+  background-color: transparent !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .btn-ghost:hover {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+/* Fix Card components */
+.dark .card {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border-subtle)) !important;
+}
+
+/* Fix Input components */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="search"],
+.dark input[type="url"],
+.dark input[type="tel"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"] {
+  background-color: hsl(var(--dark-surface-2)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark input:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2) !important;
+}
+
+/* Fix Textarea components */
+.dark textarea {
+  background-color: hsl(var(--dark-surface-2)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark textarea:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2) !important;
+}
+
+/* Fix Label components */
+.dark label {
+  color: hsl(var(--dark-text-secondary)) !important;
+}
+
+/* Fix specific component classes that might be missed */
+.dark .bg-card {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .text-card-foreground {
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-popover {
+  background-color: hsl(var(--dark-surface-1)) !important;
+}
+
+.dark .text-popover-foreground {
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-muted {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+.dark .text-muted-foreground {
+  color: hsl(var(--dark-text-muted)) !important;
+}
+
+.dark .bg-accent {
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+.dark .text-accent-foreground {
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+/* Fix border utilities */
+.dark .border {
+  border-color: hsl(var(--dark-border-subtle)) !important;
+}
+
+.dark .border-border {
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark .border-input {
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+/* Fix ring utilities */
+.dark .ring-ring {
+  ring-color: hsl(var(--primary)) !important;
+}
+
+/* Fix focus-visible utilities */
+.dark .focus-visible\:ring-ring:focus-visible {
+  ring-color: hsl(var(--primary)) !important;
+}
+
+/* Fix destructive variants */
+.dark .bg-destructive {
+  background-color: hsl(var(--destructive)) !important;
+}
+
+.dark .text-destructive-foreground {
+  color: hsl(var(--destructive-foreground)) !important;
+}
+
+.dark .text-destructive {
+  color: hsl(var(--destructive)) !important;
+}
+
+/* Fix any remaining white backgrounds with enhanced styling */
+.dark [class*="bg-white"] {
+  background-color: hsl(240 5.9% 12%) !important;
+  color: white !important;
+  border: 1px solid hsl(240 3.7% 25%) !important;
+  font-weight: 450 !important;
+}
+
+/* Fix any remaining gray backgrounds with enhanced styling */
+.dark [class*="bg-gray-"] {
+  background-color: hsl(240 5.9% 15%) !important;
+  color: white !important;
+  border: 1px solid hsl(240 3.7% 25%) !important;
+  font-weight: 450 !important;
+}
+
+/* Fix any remaining text colors with high contrast */
+.dark [class*="text-gray-"] {
+  color: white !important;
+  font-weight: 450 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Ensure proper contrast for links */
+.dark a {
+  color: hsl(var(--primary)) !important;
+}
+
+.dark a:hover {
+  color: hsl(217.2 91.2% 69.8%) !important;
+}
+
+/* Fix any SVG icons that might not inherit color */
+.dark svg {
+  color: inherit !important;
+}
+
+/* Fix placeholder text */
+.dark ::placeholder {
+  color: hsl(var(--dark-text-subtle)) !important;
+  opacity: 1 !important;
+}
+
+/* Fix selection colors */
+.dark ::selection {
+  background-color: hsla(var(--primary), 0.3) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+/* Fix autofill styles */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px hsl(var(--dark-surface-2)) inset !important;
+  -webkit-text-fill-color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}

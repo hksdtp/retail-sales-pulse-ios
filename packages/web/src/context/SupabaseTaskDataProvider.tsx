@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Task } from '@/components/tasks/types/TaskTypes';
 import { TaskDataContextType, TaskFilters } from './TaskContext';
 import SupabaseService from '@/services/SupabaseService';
-import { useAuth } from './AuthContext';
+import { useAuth } from './AuthContextSupabase';
 
 interface SupabaseTaskDataProviderProps {
   children: ReactNode;
@@ -25,6 +25,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<TaskFilters>({});
   const { toast } = useToast();
+  const { currentUser } = useAuth();
 
   // Initialize Supabase (only if not already initialized)
   useEffect(() => {
@@ -98,9 +99,65 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
   ): Promise<Task> => {
     try {
       console.log('➕ Adding new task to Supabase...');
+
+      // DEBUG: Log current user state in SupabaseTaskDataProvider
+      console.log('🔍 [SupabaseTaskDataProvider] Debug currentUser:', {
+        currentUser,
+        hasCurrentUser: !!currentUser,
+        currentUserId: currentUser?.id,
+        currentUserName: currentUser?.name,
+        authContextType: 'AuthContextSupabase'
+      });
+
+      // CRITICAL: Validate that currentUser exists before proceeding
+      if (!currentUser) {
+        console.error('❌ [SupabaseTaskDataProvider] currentUser is null/undefined');
+
+        // TEMPORARY WORKAROUND: Try to get user from localStorage
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            console.log('🔧 [SupabaseTaskDataProvider] Using stored user as fallback:', parsedUser);
+
+            // Use stored user data for task creation
+            const fallbackUser = {
+              id: parsedUser.id,
+              name: parsedUser.name,
+              team_id: parsedUser.team_id,
+              location: parsedUser.location
+            };
+
+            // Continue with fallback user
+            return await createTaskWithFallbackUser(task, fallbackUser);
+          } catch (error) {
+            console.error('❌ Failed to parse stored user:', error);
+          }
+        }
+
+        throw new Error('Bạn cần đăng nhập để tạo công việc mới. Vui lòng đăng nhập lại.');
+      }
+
+      // CRITICAL: Validate required user information
+      if (!currentUser.id || !currentUser.name) {
+        console.error('❌ [SupabaseTaskDataProvider] currentUser missing required fields:', {
+          hasId: !!currentUser.id,
+          hasName: !!currentUser.name,
+          currentUser
+        });
+        throw new Error('Thông tin người dùng không đầy đủ. Vui lòng đăng nhập lại.');
+      }
+
+      console.log('👤 Creating task for user:', {
+        id: currentUser.id,
+        name: currentUser.name,
+        team_id: currentUser.team_id,
+        location: currentUser.location
+      });
+
       const supabaseService = SupabaseService.getInstance();
-      
-      // Map to existing Supabase columns only
+
+      // Map to existing Supabase columns only - STRICT USER VALIDATION
       const taskData = {
         title: task.title,
         description: task.description,
@@ -115,12 +172,12 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
         is_new: true,
         is_shared: task.isShared || false,
         is_shared_with_team: task.isSharedWithTeam || false,
-        // Map to existing columns
-        assigned_to: task.assignedTo || task.assigned_to || 'user_khanh_duy',
-        user_id: task.user_id || 'user_khanh_duy',
-        user_name: task.user_name || 'Lê Khánh Duy',
-        team_id: task.team_id || '1',
-        location: task.location || 'hanoi',
+        // CRITICAL: ALWAYS use currentUser info - NO fallbacks to prevent wrong attribution
+        assigned_to: task.assignedTo || task.assigned_to || currentUser.id,
+        user_id: currentUser.id, // ALWAYS use currentUser.id
+        user_name: currentUser.name, // ALWAYS use currentUser.name
+        team_id: currentUser.team_id, // ALWAYS use currentUser.team_id
+        location: currentUser.location || 'hanoi',
         // Skip missing columns: assignedTo, created_by, visibility, deadline, types, images, shared_with
       };
 
@@ -141,6 +198,65 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       }
     } catch (error) {
       console.error('❌ Error adding task:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể thêm công việc mới',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  // Helper function to create task with fallback user
+  const createTaskWithFallbackUser = async (
+    task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>,
+    user: any
+  ): Promise<Task> => {
+    console.log('🔧 [SupabaseTaskDataProvider] Creating task with fallback user:', user);
+
+    const supabaseService = SupabaseService.getInstance();
+
+    // Map to existing Supabase columns only - using fallback user (STRICT)
+    const taskData = {
+      title: task.title,
+      description: task.description,
+      type: task.type === 'test' ? 'work' : task.type,
+      status: task.status,
+      priority: task.priority || 'normal',
+      date: task.date,
+      time: task.time || '09:00',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      progress: task.progress || 0,
+      is_new: true,
+      is_shared: task.isShared || false,
+      is_shared_with_team: task.isSharedWithTeam || false,
+      // CRITICAL: Use fallback user info - NO hardcoded defaults
+      assigned_to: task.assignedTo || task.assigned_to || user.id,
+      user_id: user.id, // ALWAYS use fallback user.id
+      user_name: user.name, // ALWAYS use fallback user.name
+      team_id: user.team_id, // ALWAYS use fallback user.team_id
+      location: user.location || 'hanoi',
+    };
+
+    try {
+      const newTask = await supabaseService.addTask(taskData);
+
+      if (newTask) {
+        console.log('✅ Task added successfully with fallback user:', newTask.id);
+        await loadTasks(); // Refresh tasks
+
+        toast({
+          title: 'Thành công',
+          description: 'Công việc đã được thêm mới',
+        });
+
+        return newTask;
+      } else {
+        throw new Error('Failed to add task');
+      }
+    } catch (error) {
+      console.error('❌ Error adding task with fallback user:', error);
       toast({
         title: 'Lỗi',
         description: 'Không thể thêm công việc mới',

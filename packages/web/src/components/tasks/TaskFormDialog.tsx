@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search, Building, DollarSign, Image as ImageIcon, Lock } from 'lucide-react';
+import { Plus, X, Briefcase, FilePen, FileText, Users, Calendar, Clock, AlertCircle, CheckCircle, Zap, ArrowUp, ArrowDown, Minus, AlertTriangle, User, UserCheck, Globe, UserPlus, Search, Building, DollarSign, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { AnimatedModal } from '@/components/ui/animated-dialog';
+import { AnimatedButton } from '@/components/ui/animated-button';
 import ImageUpload from '@/components/ui/ImageUpload';
-import SmartInput from '@/components/ui/SmartInput';
 import TaskTypeSelector, { taskTypeConfig } from '@/components/ui/TaskTypeSelector';
 import DateTimePicker from '@/components/ui/DateTimePicker';
 import MultiUserPicker from '@/components/ui/MultiUserPicker';
@@ -31,7 +32,7 @@ import { useAuth } from '@/context/AuthContextSupabase';
 import { useTaskData } from '@/hooks/use-task-data';
 import { useToast } from '@/hooks/use-toast';
 import { UploadedImage } from '@/services/ImageUploadService';
-import TaskSuggestionService from '@/services/TaskSuggestionService';
+
 import { canAssignTasks } from '@/config/permissions';
 import { cn } from '@/lib/utils';
 import '@/styles/task-form-dark-theme.css';
@@ -64,10 +65,23 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   onTaskCreated,
   formType,
 }) => {
-  const { currentUser, users } = useAuth();
+  const { currentUser, users, isAuthenticated, isLoading } = useAuth();
   const { addTask } = useTaskData();
   const { toast } = useToast();
-  const suggestionService = TaskSuggestionService.getInstance();
+
+  // DEBUG: Log auth state when component mounts or currentUser changes
+  React.useEffect(() => {
+    console.log('🔍 [TaskFormDialog] Auth state:', {
+      currentUser,
+      hasCurrentUser: !!currentUser,
+      isAuthenticated,
+      isLoading,
+      currentUserId: currentUser?.id,
+      currentUserName: currentUser?.name,
+      usersCount: users?.length || 0
+    });
+  }, [currentUser, isAuthenticated, isLoading, users]);
+
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -81,9 +95,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     types: [], // Multiple types
     status: 'todo',
     priority: 'normal',
-    date: new Date().toISOString().split('T')[0], // Default to today
-    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 7 days from now
-    time: '12:30',
+    date: new Date().toISOString().split('T')[0], // Always default to today
+    deadline: '', // No default deadline - optional
+    time: '', // Remove time field
     assignedTo: currentUser?.id || '',
     visibility: 'personal',
     sharedWith: [],
@@ -104,9 +118,8 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
   useEffect(() => {
     if (open) {
       const today = new Date();
-      const defaultDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       setSelectedDate(today);
-      setSelectedDeadline(defaultDeadline);
+      setSelectedDeadline(null); // No default deadline
       setFormData({
         title: '',
         description: '',
@@ -114,19 +127,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         types: [],
         status: 'todo',
         priority: 'normal',
-        date: today.toISOString().split('T')[0],
-        deadline: defaultDeadline.toISOString().split('T')[0],
-        time: '12:30',
+        date: today.toISOString().split('T')[0], // Always today
+        deadline: '', // No default deadline
+        time: '', // Remove time
         assignedTo: currentUser?.id || '',
         visibility: 'personal',
         sharedWith: [],
       });
       setUploadedImages([]);
-
-      // Learn from task creation for suggestions
-      if (formData.title.trim()) {
-        suggestionService.learnFromTask(formData.title, formData.types[0]);
-      }
     }
   }, [open, currentUser]);
 
@@ -173,7 +181,73 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.deadline || !formData.visibility) {
+
+    // DEBUG: Log current user state
+    console.log('🔍 [TaskFormDialog] Debug currentUser:', {
+      currentUser,
+      hasCurrentUser: !!currentUser,
+      currentUserId: currentUser?.id,
+      currentUserName: currentUser?.name,
+      authContextType: 'AuthContextSupabase'
+    });
+
+    // CRITICAL: Validate user authentication first
+    if (!currentUser) {
+      console.error('❌ [TaskFormDialog] currentUser is null/undefined');
+
+      // TEMPORARY WORKAROUND: Try to get user from localStorage or use fallback
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('🔧 [TaskFormDialog] Using stored user as fallback:', parsedUser);
+
+          // Continue with stored user data
+          const fallbackUser = {
+            id: parsedUser.id,
+            name: parsedUser.name,
+            team_id: parsedUser.team_id,
+            location: parsedUser.location
+          };
+
+          // Proceed with task creation using fallback user
+          await createTaskWithUser(fallbackUser);
+          return;
+        } catch (error) {
+          console.error('❌ Failed to parse stored user:', error);
+        }
+      }
+
+      toast({
+        title: 'Lỗi xác thực',
+        description: 'Bạn cần đăng nhập để tạo công việc mới. Vui lòng đăng nhập lại.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // CRITICAL: Validate user information completeness
+    if (!currentUser.id || !currentUser.name) {
+      console.error('❌ [TaskFormDialog] currentUser missing required fields:', {
+        hasId: !!currentUser.id,
+        hasName: !!currentUser.name,
+        currentUser
+      });
+      toast({
+        title: 'Lỗi thông tin người dùng',
+        description: 'Thông tin người dùng không đầy đủ. Vui lòng đăng nhập lại.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Proceed with normal task creation
+    await createTaskWithUser(currentUser);
+  };
+
+  // Helper function to create task with user data
+  const createTaskWithUser = async (user: any) => {
+    if (!formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.visibility) {
       toast({
         title: 'Lỗi',
         description: 'Vui lòng điền đầy đủ thông tin bắt buộc (ít nhất 1 loại công việc)',
@@ -185,13 +259,20 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     try {
       setIsSubmitting(true);
 
+      console.log('🎯 Creating task for user:', {
+        id: user.id,
+        name: user.name,
+        team_id: user.team_id,
+        location: user.location
+      });
+
       // Map UI type to database type
       const databaseType = mapTaskTypeToDatabase(formData.type);
 
       // Tạo task mới
       await addTask({
         title: formData.title,
-        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}\n⏰ Deadline: ${formData.deadline}${uploadedImages.length > 0 ? `\n📷 Có ${uploadedImages.length} hình ảnh đính kèm` : ''}`,
+        description: `${formData.description}\n\n📋 Loại công việc: ${formData.types.map(type => taskTypeConfig[type as keyof typeof taskTypeConfig]?.label).join(', ')}${formData.deadline ? `\n⏰ Hạn chót: ${formData.deadline}` : ''}${uploadedImages.length > 0 ? `\n📷 Có ${uploadedImages.length} hình ảnh đính kèm` : ''}`,
         type: databaseType, // Use mapped database type
         types: formData.types, // Send multiple types
         status: formData.status as any,
@@ -203,17 +284,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         priority: formData.priority,
         sharedWith: formData.sharedWith,
         images: uploadedImages, // Include uploaded images
-        // CRITICAL: Add team_id and location for proper filtering
-        team_id: currentUser?.team_id,
-        location: currentUser?.location,
+        // CRITICAL: Add user info for proper ownership and filtering
+        user_id: user.id,
+        user_name: user.name,
+        team_id: user.team_id,
+        location: user.location,
       });
 
-      // Learn from successful task creation
-      suggestionService.learnFromTask(
-        formData.title,
-        formData.types[0],
-        formData.sharedWith.length > 0 ? users.find(u => u.id === formData.sharedWith[0])?.name : undefined
-      );
+
 
       toast({
         title: 'Thành công',
@@ -239,6 +317,29 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Function to auto-tag title with task type
+  const updateTitleWithTypeTag = (types: string[], currentTitle: string) => {
+    if (types.length === 0) return currentTitle;
+
+    const primaryType = types[0];
+    const typeConfig = taskTypeConfig[primaryType];
+    if (!typeConfig) return currentTitle;
+
+    const typeLabel = typeConfig.label;
+
+    // Remove existing type tags from title
+    let cleanTitle = currentTitle;
+    Object.values(taskTypeConfig).forEach(config => {
+      const tagPattern = new RegExp(`^${config.label}\\s*:\\s*`, 'i');
+      cleanTitle = cleanTitle.replace(tagPattern, '');
+    });
+
+    // Add new type tag if title doesn't already start with it
+    const newTitle = cleanTitle.trim() ? `${typeLabel}: ${cleanTitle.trim()}` : `${typeLabel}: `;
+
+    return newTitle;
+  };
+
   // Handle multiple type selection
   const handleTypeToggle = (typeKey: string) => {
     setFormData(prev => {
@@ -249,10 +350,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       // Update primary type to first selected type
       const primaryType = newTypes.length > 0 ? newTypes[0] : '';
 
+      // Auto-tag title with type
+      const updatedTitle = updateTitleWithTypeTag(newTypes, prev.title);
+
       return {
         ...prev,
         types: newTypes,
-        type: primaryType
+        type: primaryType,
+        title: updatedTitle
       };
     });
   };
@@ -410,63 +515,9 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 py-2 sm:py-4 px-2 sm:px-4 -mx-2 sm:-mx-4 overflow-y-auto custom-scrollbar" style={{ position: 'relative' }}>
+        <div className="flex-1 min-h-0 py-2 sm:py-4 px-2 sm:px-4 -mx-2 sm:-mx-4 overflow-y-auto thin-scrollbar" style={{ position: 'relative' }}>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 sm:space-y-5">
-            {/* Tiêu đề - Smart Input with Suggestions */}
-            <div className="group">
-              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                Tiêu đề công việc <span className="text-red-500 ml-1">*</span>
-                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-2 hidden sm:inline">
-                  (Gợi ý thông minh dựa trên lịch sử)
-                </span>
-              </label>
-              <SmartInput
-                id="task-title"
-                name="title"
-                value={formData.title}
-                onChange={(value) => handleInputChange('title', value)}
-                placeholder="Nhập tiêu đề công việc..."
-                taskType={formData.types[0]}
-                className="w-full"
-                onSuggestionSelect={(suggestion) => {
-                  // Learn from selection and auto-suggest task type if available
-                  suggestionService.learnFromTask(suggestion.title, formData.types[0]);
-
-                  // Auto-suggest task type based on suggestion category
-                  if (suggestion.category && formData.types.length === 0) {
-                    const categoryToType: Record<string, string> = {
-                      'KTS': 'kts-new',
-                      'SBG': 'sbg-new',
-                      'Customer': 'customer-new',
-                      'Partner': 'partner-new'
-                    };
-
-                    const suggestedType = categoryToType[suggestion.category];
-                    if (suggestedType) {
-                      handleTypeToggle(suggestedType);
-                    }
-                  }
-                }}
-              />
-            </div>
-
-            {/* Mô tả - Full width */}
-            <div className="group">
-              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
-                Mô tả chi tiết <span className="text-red-500 ml-1">*</span>
-              </label>
-              <Textarea
-                id="task-description"
-                name="description"
-                placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                className="w-full min-h-[80px] sm:min-h-[100px] text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl resize-none transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                required
-              />
-            </div>
-
-            {/* Loại công việc - Improved Selector */}
+            {/* Loại công việc - Moved to top */}
             <div className="group">
               <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
                 Loại công việc <span className="text-red-500 ml-1">*</span>
@@ -486,6 +537,40 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 className="w-full"
               />
             </div>
+
+            {/* Tiêu đề - Simple Input without Smart Suggestions */}
+            <div className="group">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                Tiêu đề công việc <span className="text-red-500 ml-1">*</span>
+              </label>
+              <Input
+                id="task-title"
+                name="title"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Nhập tiêu đề công việc..."
+                className="w-full text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                required
+              />
+            </div>
+
+            {/* Mô tả - Full width */}
+            <div className="group">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                Mô tả chi tiết <span className="text-red-500 ml-1">*</span>
+              </label>
+              <Textarea
+                id="task-description"
+                name="description"
+                placeholder="Mô tả chi tiết về công việc, yêu cầu, mục tiêu..."
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                className="w-full min-h-[80px] sm:min-h-[100px] text-sm sm:text-base bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg sm:rounded-xl resize-none transition-all duration-200 hover:bg-white dark:hover:bg-gray-800 hover:shadow-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                required
+              />
+            </div>
+
+
 
             {/* Trạng thái và Ưu tiên */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -564,8 +649,11 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
             </div>
 
-            {/* Thời gian - Improved Date/Time Pickers */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {/* Ngày thực hiện - Always default to today */}
+            <div className="group">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3">
+                Ngày thực hiện <span className="text-red-500 ml-1">*</span>
+              </label>
               <DateTimePicker
                 id="task-date"
                 name="date"
@@ -576,33 +664,70 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                     setFormData(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
                   }
                 }}
-                time={formData.time}
-                onTimeChange={(time) => handleInputChange('time', time)}
-                label="Ngày thực hiện"
+                label=""
                 placeholder="Chọn ngày thực hiện"
                 required={true}
-                showTime={true}
+                showTime={false}
                 minDate={new Date()}
                 className="w-full"
               />
+            </div>
 
-              <DateTimePicker
-                id="task-deadline"
-                name="deadline"
-                date={selectedDeadline}
-                onDateChange={(date) => {
-                  setSelectedDeadline(date);
-                  if (date) {
-                    setFormData(prev => ({ ...prev, deadline: date.toISOString().split('T')[0] }));
-                  }
-                }}
-                label="Hạn chót"
-                placeholder="Chọn hạn chót"
-                required={true}
-                showTime={false}
-                minDate={selectedDate || new Date()}
-                className="w-full"
-              />
+            {/* Hạn chót - Optional with button */}
+            <div className="group">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200">
+                  Hạn chót
+                </label>
+                {!selectedDeadline && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const defaultDeadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+                      setSelectedDeadline(defaultDeadline);
+                      setFormData(prev => ({ ...prev, deadline: defaultDeadline.toISOString().split('T')[0] }));
+                    }}
+                    className="text-xs px-3 py-1 h-7 border-dashed border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600"
+                  >
+                    + Thêm hạn chót
+                  </Button>
+                )}
+              </div>
+              {selectedDeadline && (
+                <div className="relative">
+                  <DateTimePicker
+                    id="task-deadline"
+                    name="deadline"
+                    date={selectedDeadline}
+                    onDateChange={(date) => {
+                      setSelectedDeadline(date);
+                      if (date) {
+                        setFormData(prev => ({ ...prev, deadline: date.toISOString().split('T')[0] }));
+                      }
+                    }}
+                    label=""
+                    placeholder="Chọn hạn chót"
+                    required={false}
+                    showTime={false}
+                    minDate={selectedDate || new Date()}
+                    className="w-full"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedDeadline(null);
+                      setFormData(prev => ({ ...prev, deadline: '' }));
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Assignment và Visibility - Responsive grid */}
@@ -698,40 +823,20 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
               </div>
             </div>
 
-            {/* Hình ảnh đính kèm - Repositioned to bottom and disabled */}
+            {/* Hình ảnh đính kèm - Cloudinary */}
             <div className="group">
               <div className="flex items-center justify-between mb-2 sm:mb-3">
                 <label className="block text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4" />
                   Hình ảnh đính kèm (tùy chọn)
                 </label>
-                <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                    Đang phát triển
-                  </span>
-                </div>
               </div>
 
-              {/* Disabled placeholder */}
-              <div className="relative">
-                <div className="w-full p-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 opacity-60">
-                  <div className="text-center">
-                    <div className="w-12 h-12 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                      <ImageIcon className="w-6 h-6 text-gray-400" />
-                    </div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                      Tính năng upload ảnh
-                    </h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      Sẽ được bổ sung trong phiên bản tiếp theo
-                    </p>
-                  </div>
-                </div>
-
-                {/* Overlay to prevent interaction */}
-                <div className="absolute inset-0 bg-transparent cursor-not-allowed" />
-              </div>
+              <ImageUpload
+                onImagesUploaded={setUploadedImages}
+                maxImages={5}
+                existingImages={uploadedImages}
+              />
             </div>
           </form>
         </div>
@@ -749,7 +854,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.deadline || !formData.visibility}
+            disabled={isSubmitting || !formData.title.trim() || !formData.description.trim() || formData.types.length === 0 || !formData.date || !formData.visibility}
             className="px-6 sm:px-8 py-2.5 sm:py-3 h-10 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg sm:rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] order-1 sm:order-2"
           >
             {isSubmitting ? (

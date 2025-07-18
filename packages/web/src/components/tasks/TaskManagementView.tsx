@@ -476,10 +476,18 @@ export default function TaskManagementView({
         const teamTasks = sourceData.filter((task) => {
           // Nếu đã chọn team cụ thể, áp dụng logic phân quyền
           if (selectedTeamForView) {
-            // FIXED: Check both team_id and teamId fields
-            const taskTeamId = String(task.team_id || task.teamId || '');
+            // STRICT: Only check team_id field (most reliable)
+            const taskTeamId = String(task.team_id || '');
             const selectedTeamId = String(selectedTeamForView.id);
             const currentUserTeamId = String(currentUser?.team_id || '');
+
+            console.log(`🔍 Team filter debug for task "${task.title}":`, {
+              taskTeamId,
+              selectedTeamId,
+              currentUserTeamId,
+              taskUserName: task.user_name,
+              taskUserId: task.user_id
+            });
 
             // Direct team_id match (most reliable)
             const directTeamMatch = taskTeamId === selectedTeamId;
@@ -680,63 +688,38 @@ export default function TaskManagementView({
         const sourceTasksForDept = managerTasks.length > 0 ? managerTasks : regularTasks;
         console.log('🏢 Using source:', managerTasks.length > 0 ? 'managerTasks' : 'regularTasks');
 
-        // Lọc công việc chung của phòng - RELAXED RULES để hiển thị nhiều shared tasks hơn
+        // Lọc công việc chung của phòng - STRICT RULES chỉ hiển thị tasks thực sự shared
         const departmentTasks = sourceTasksForDept.filter((task) => {
-          // Các điều kiện để xác định task là công việc chung của phòng:
+          // STRICT: Chỉ hiển thị tasks được đánh dấu rõ ràng là shared
 
           // 1. Được đánh dấu rõ ràng là shared/public
-          const isExplicitlyShared = task.isShared === true ||
-                                    task.isSharedWithTeam === true ||
-                                    task.visibility === 'public' ||
-                                    task.shared === true ||
-                                    task.department_wide === true ||
+          const isExplicitlyShared = task.is_shared === true ||
+                                    task.is_shared_with_team === true ||
                                     task.type === 'shared';
 
-          // 2. Thuộc về department hiện tại (relaxed check)
-          const isDepartmentTask = !task.department_type ||
-                                  task.department_type === currentUser?.department_type ||
-                                  task.department === currentUser?.department_type;
+          // 2. Công việc có title chứa từ khóa "chung", "phòng" (rõ ràng là công việc chung)
+          const hasExplicitPublicKeywords = task.title?.toLowerCase().includes('chung') ||
+                                           task.title?.toLowerCase().includes('phòng') ||
+                                           task.title?.toLowerCase().includes('tất cả') ||
+                                           task.title?.toLowerCase().includes('công ty');
 
-          // 3. Công việc có visibility team hoặc public
-          const hasTeamVisibility = task.visibility === 'team' ||
-                                   task.visibility === 'public' ||
-                                   task.isSharedWithTeam === true;
+          // 3. Công việc không có assignedTo cụ thể (công việc chung cho tất cả)
+          const isGeneralTask = !task.assigned_to || task.assigned_to === '' || task.assigned_to === null;
 
-          // 4. Công việc có title hoặc description chứa từ khóa "chung", "phòng", "tất cả"
-          const hasPublicKeywords = task.title?.toLowerCase().includes('chung') ||
-                                   task.title?.toLowerCase().includes('phòng') ||
-                                   task.title?.toLowerCase().includes('tất cả') ||
-                                   task.description?.toLowerCase().includes('chung') ||
-                                   task.description?.toLowerCase().includes('phòng') ||
-                                   task.description?.toLowerCase().includes('team') ||
-                                   task.description?.toLowerCase().includes('nhóm');
-
-          // 5. Công việc được tạo bởi manager/director (có thể là công việc chung)
-          const isFromManager = users && users.some(user =>
-            (user.role === 'team_leader' || user.role === 'retail_director') &&
-            (user.id === task.user_id || user.id === task.created_by || user.name === task.user_name)
-          );
-
-          // RELAXED LOGIC: Hiển thị task nếu thỏa mãn BẤT KỲ điều kiện nào
+          // STRICT LOGIC: Chỉ hiển thị nếu thỏa mãn ít nhất một điều kiện rõ ràng
           const shouldShow = isExplicitlyShared ||
-                           hasTeamVisibility ||
-                           hasPublicKeywords ||
-                           (isDepartmentTask && isFromManager);
+                           (hasExplicitPublicKeywords && isGeneralTask);
 
           console.log(`  📋 Task "${task.title}":`, {
-            isShared: task.isShared,
-            isSharedWithTeam: task.isSharedWithTeam,
-            visibility: task.visibility,
+            is_shared: task.is_shared,
+            is_shared_with_team: task.is_shared_with_team,
             type: task.type,
-            shared: task.shared,
-            department_wide: task.department_wide,
-            assignedTo: task.assignedTo,
+            assigned_to: task.assigned_to,
             user_name: task.user_name,
+            title: task.title,
             isExplicitlyShared,
-            isDepartmentTask,
-            hasTeamVisibility,
-            hasPublicKeywords,
-            isFromManager,
+            hasExplicitPublicKeywords,
+            isGeneralTask,
             shouldShow
           });
 

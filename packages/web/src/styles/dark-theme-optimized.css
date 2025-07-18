@@ -1,0 +1,290 @@
+/* ===== OPTIMIZED DARK THEME FOR RETAIL SALES PULSE ===== */
+
+/* Enhanced dark theme variables with improved contrast and accessibility */
+:root.dark {
+  /* Core background colors - deeper, richer blacks */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 100%;               /* Pure white text for maximum contrast */
+  
+  /* Card colors with subtle elevation */
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  
+  /* Popover colors */
+  --popover: 240 5.9% 10%;
+  --popover-foreground: 0 0% 98%;
+  
+  /* Primary colors - vibrant blue for better visibility */
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 240 10% 3.9%;
+  
+  /* Secondary colors with better contrast */
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  
+  /* Muted colors for subtle elements */
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  
+  /* Accent colors */
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  
+  /* Destructive colors - warmer red for better visibility */
+  --destructive: 0 72.2% 50.6%;
+  --destructive-foreground: 0 0% 98%;
+  
+  /* Border colors with better definition */
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  
+  /* Ring colors for focus states */
+  --ring: 217.2 91.2% 59.8%;
+  
+  /* Custom dark theme surface colors */
+  --dark-surface-1: 240 5.9% 10%;
+  --dark-surface-2: 240 3.7% 15.9%;
+  --dark-surface-3: 240 3.7% 18%;
+  --dark-surface-4: 240 3.7% 22%;
+  
+  /* Custom dark theme text colors with HIGH CONTRAST for better visibility */
+  --dark-text-primary: 0 0% 100%;        /* Pure white for maximum contrast */
+  --dark-text-secondary: 0 0% 95%;       /* Near white for secondary text */
+  --dark-text-muted: 0 0% 85%;          /* Light gray for muted text */
+  --dark-text-subtle: 0 0% 70%;         /* Medium gray for subtle text */
+  
+  /* Custom dark theme border colors */
+  --dark-border: 240 3.7% 25%;
+  --dark-border-subtle: 240 3.7% 20%;
+}
+
+/* ===== GLOBAL DARK THEME STYLES ===== */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== BACKGROUND COLOR OVERRIDES ===== */
+.dark .bg-white {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: hsl(var(--dark-surface-2)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: hsl(var(--dark-surface-3)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: hsl(var(--dark-surface-4)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+/* Transparent backgrounds */
+.dark .bg-white\/95 {
+  background-color: hsla(var(--dark-surface-1), 0.95) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-white\/90 {
+  background-color: hsla(var(--dark-surface-1), 0.90) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-white\/80 {
+  background-color: hsla(var(--dark-surface-1), 0.80) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+/* ===== TEXT COLOR OVERRIDES WITH IMPROVED CONTRAST ===== */
+.dark .text-gray-900 {
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .text-gray-800 {
+  color: hsl(var(--dark-text-secondary)) !important;
+}
+
+.dark .text-gray-700 {
+  color: hsl(var(--dark-text-secondary)) !important;
+}
+
+.dark .text-gray-600 {
+  color: hsl(var(--dark-text-muted)) !important;
+}
+
+.dark .text-gray-500 {
+  color: hsl(var(--dark-text-muted)) !important;
+}
+
+.dark .text-gray-400 {
+  color: hsl(var(--dark-text-subtle)) !important;
+}
+
+/* ===== BORDER COLOR OVERRIDES ===== */
+.dark .border-gray-200 {
+  border-color: hsl(var(--dark-border-subtle)) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark .border-gray-100 {
+  border-color: hsl(var(--dark-border-subtle)) !important;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: hsl(var(--dark-surface-2)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsla(var(--primary), 0.2) !important;
+}
+
+/* ===== BUTTON STYLES ===== */
+.dark .bg-blue-500 {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .bg-blue-600 {
+  background-color: hsl(217.2 91.2% 54.8%) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .hover\:bg-blue-600:hover {
+  background-color: hsl(217.2 91.2% 54.8%) !important;
+}
+
+/* ===== CARD AND COMPONENT STYLES ===== */
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ===== MODAL AND DIALOG STYLES ===== */
+.dark .bg-popover {
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+  border-color: hsl(var(--dark-border)) !important;
+}
+
+.dark .backdrop-blur-xl {
+  backdrop-filter: blur(24px) saturate(180%) !important;
+}
+
+/* ===== NAVIGATION STYLES ===== */
+.dark .sidebar-desktop {
+  background-color: hsla(var(--dark-surface-1), 0.85) !important;
+  border-color: hsl(var(--dark-border-subtle)) !important;
+}
+
+/* ===== SCROLLBAR STYLES ===== */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--dark-text-subtle));
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--dark-text-muted));
+}
+
+/* ===== ANIMATION INTEGRATION ===== */
+.dark * {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+.dark .focus\:ring-2:focus {
+  ring-color: hsl(var(--primary)) !important;
+}
+
+.dark .focus\:ring-blue-500:focus {
+  ring-color: hsl(var(--primary)) !important;
+}
+
+/* ===== COMPONENT-SPECIFIC FIXES ===== */
+/* Task cards */
+.dark .task-card {
+  background-color: hsl(var(--dark-surface-2)) !important;
+  border-color: hsl(var(--dark-border-subtle)) !important;
+}
+
+/* Navigation items */
+.dark .nav-item {
+  color: hsl(var(--dark-text-muted)) !important;
+}
+
+.dark .nav-item:hover {
+  color: hsl(var(--dark-text-primary)) !important;
+  background-color: hsl(var(--dark-surface-2)) !important;
+}
+
+.dark .nav-item.active {
+  color: hsl(var(--primary)) !important;
+  background-color: hsla(var(--primary), 0.1) !important;
+}
+
+/* Form labels */
+.dark label {
+  color: hsl(var(--dark-text-secondary)) !important;
+}
+
+/* Placeholder text */
+.dark ::placeholder {
+  color: hsl(var(--dark-text-subtle)) !important;
+}
+
+/* ===== BLUE ACCENT COLORS ===== */
+.dark .bg-blue-50 {
+  background-color: hsla(var(--primary), 0.1) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .text-blue-600 {
+  color: hsl(var(--primary)) !important;
+}
+
+.dark .text-blue-500 {
+  color: hsl(var(--primary)) !important;
+}

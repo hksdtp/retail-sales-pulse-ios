@@ -1,6 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+
+// Import dark mode enhancer
+import './utils/dark-mode-enhancer';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import VersionChecker from './components/layout/VersionChecker';
@@ -30,6 +33,7 @@ const Account = lazy(() => import('./pages/Account'));
 const SimpleCustomers = lazy(() => import('./pages/SimpleCustomers'));
 const CustomersSimple = lazy(() => import('./pages/CustomersSimple'));
 const Settings = lazy(() => import('./pages/Settings'));
+const ThemeAnimationDemo = lazy(() => import('./components/demo/ThemeAnimationDemo'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -159,6 +163,14 @@ const App = () => (
                       element={
                         <ProtectedRoute>
                           <Settings />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/demo"
+                      element={
+                        <ProtectedRoute>
+                          <ThemeAnimationDemo />
                         </ProtectedRoute>
                       }
                     />

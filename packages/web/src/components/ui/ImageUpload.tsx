@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Image as ImageIcon, Loader2, AlertCircle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ImageUploadService, UploadedImage, UploadProgress } from '@/services/ImageUploadService';
+import CloudinaryImageUpload, { UploadedImage, UploadProgress } from '@/services/CloudinaryImageUpload';
 
 interface ImageUploadProps {
   onImagesUploaded: (images: UploadedImage[]) => void;
@@ -29,9 +29,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Check if Google Drive is available
-  const isGoogleDriveAvailable = ImageUploadService.isGoogleDriveAvailable();
-  const isUploadDisabled = disabled || !isGoogleDriveAvailable;
+  // Check if Cloudinary is available
+  const isCloudinaryAvailable = CloudinaryImageUpload.isCloudinaryAvailable();
+  const isUploadDisabled = disabled || !isCloudinaryAvailable;
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files || isUploadDisabled) return;
@@ -57,7 +57,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     // Upload each file
     filesToUpload.forEach(async (file, index) => {
       try {
-        const result = await ImageUploadService.uploadImage(file, (progress) => {
+        const result = await CloudinaryImageUpload.uploadImage(file, (progress) => {
           setUploadingFiles(prev => prev.map((item, i) => {
             if (item.file === file) {
               return { ...item, progress };
@@ -134,21 +134,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Google Drive Not Available Warning */}
-      {!isGoogleDriveAvailable && (
+      {/* Cloudinary Not Available Warning */}
+      {!isCloudinaryAvailable && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
             <div>
               <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                Google Drive chưa được cấu hình
+                Đang phát triển
               </h4>
               <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                Để upload ảnh, vui lòng vào trang{' '}
-                <a href="/google-drive-setup" className="underline font-medium">
-                  Google Drive Setup
-                </a>{' '}
-                để cấu hình API key và Client ID.
+                Tính năng upload ảnh đang được phát triển.
               </p>
             </div>
           </div>
@@ -156,7 +152,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       )}
 
       {/* Upload Area */}
-      {canUploadMore && isGoogleDriveAvailable && (
+      {canUploadMore && isCloudinaryAvailable && (
         <div
           className={`relative border-2 border-dashed rounded-xl p-6 transition-all duration-200 ${
             dragOver

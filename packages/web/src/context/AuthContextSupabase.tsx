@@ -866,13 +866,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
         console.log('✅ [AuthContext] changePassword: Updated localStorage');
 
+        // CRITICAL: Clear all password-related caches to ensure sync across devices
+        console.log('🧹 [AuthContext] changePassword: Clearing password caches...');
+
+        // Clear password service cache
+        localStorage.removeItem('user_passwords');
+
+        // Clear any user-specific password caches
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('user_password_') || key.includes('password')) {
+            localStorage.removeItem(key);
+            console.log(`🗑️ [AuthContext] Cleared cache: ${key}`);
+          }
+        });
+
+        // Clear session storage as well
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.includes('password') || key.includes('auth')) {
+            sessionStorage.removeItem(key);
+            console.log(`🗑️ [AuthContext] Cleared session cache: ${key}`);
+          }
+        });
+
         // Start auto plan sync service now that password is changed
         autoPlanSyncService.startAutoSync(currentUser.id);
         console.log('🔄 [AuthContext] changePassword: Started auto plan sync after password change');
 
         toast({
           title: 'Đổi mật khẩu thành công',
-          description: 'Mật khẩu của bạn đã được cập nhật. Bạn có thể sử dụng ứng dụng ngay bây giờ.',
+          description: 'Mật khẩu của bạn đã được cập nhật và đồng bộ trên tất cả thiết bị.',
         });
 
         console.log('✅ [AuthContext] changePassword: Password change completed successfully');

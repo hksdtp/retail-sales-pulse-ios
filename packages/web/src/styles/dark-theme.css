@@ -1,55 +1,64 @@
-/* Dark Theme Styles */
+/* ===== OPTIMIZED DARK THEME FOR RETAIL SALES PULSE ===== */
 
-/* Root variables for dark theme */
+/* Enhanced dark theme variables with improved contrast */
 :root.dark {
-  /* Background colors */
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  
-  /* Card colors */
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  
+  /* Core background colors - deeper, richer blacks */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+
+  /* Card colors with subtle elevation */
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+
   /* Popover colors */
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  
-  /* Primary colors */
+  --popover: 240 5.9% 10%;
+  --popover-foreground: 0 0% 98%;
+
+  /* Primary colors - vibrant blue for better visibility */
   --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 84% 4.9%;
-  
-  /* Secondary colors */
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  
-  /* Muted colors */
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  
+  --primary-foreground: 240 10% 3.9%;
+
+  /* Secondary colors with better contrast */
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+
+  /* Muted colors for subtle elements */
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+
   /* Accent colors */
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  
-  /* Destructive colors */
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  
-  /* Border colors */
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  
-  /* Ring colors */
-  --ring: 224.3 76.3% 94.1%;
-  
-  /* Chart colors */
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+
+  /* Destructive colors - warmer red for better visibility */
+  --destructive: 0 72.2% 50.6%;
+  --destructive-foreground: 0 0% 98%;
+
+  /* Border colors with better definition */
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+
+  /* Ring colors for focus states */
+  --ring: 217.2 91.2% 59.8%;
+
+  /* Chart colors optimized for dark backgrounds */
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+
+  /* Custom dark theme colors */
+  --dark-surface-1: 240 5.9% 10%;
+  --dark-surface-2: 240 3.7% 15.9%;
+  --dark-surface-3: 240 3.7% 18%;
+  --dark-text-primary: 0 0% 98%;
+  --dark-text-secondary: 240 5% 84.9%;
+  --dark-text-muted: 240 5% 64.9%;
+  --dark-border: 240 3.7% 25%;
 }
 
-/* Dark theme body styles */
+/* ===== DARK THEME GLOBAL STYLES ===== */
 .dark {
   color-scheme: dark;
 }
@@ -57,52 +66,71 @@
 .dark body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark theme component overrides */
+/* ===== BACKGROUND COLOR OVERRIDES ===== */
 .dark .bg-white {
-  background-color: hsl(240 5.9% 10%) !important;
-  color: hsl(240 4.8% 95.9%) !important;
+  background-color: hsl(var(--dark-surface-1)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
 }
 
 .dark .bg-gray-50 {
-  background-color: hsl(240 3.7% 15.9%) !important;
+  background-color: hsl(var(--dark-surface-2)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
 }
 
 .dark .bg-gray-100 {
-  background-color: hsl(240 3.7% 18%) !important;
-}
-
-/* Fix white backgrounds in dark mode */
-.dark .bg-white\/95 {
-  background-color: rgba(15, 15, 17, 0.95) !important;
-}
-
-.dark .bg-white\/90 {
-  background-color: rgba(15, 15, 17, 0.90) !important;
-}
-
-.dark .bg-white\/80 {
-  background-color: rgba(15, 15, 17, 0.80) !important;
-}
-
-/* Fix all white backgrounds */
-.dark .bg-white {
-  background-color: hsl(240 5.9% 10%) !important;
-  color: hsl(240 4.8% 95.9%) !important;
-}
-
-/* Fix card backgrounds */
-.dark .bg-gray-50 {
-  background-color: hsl(240 3.7% 15.9%) !important;
-}
-
-.dark .bg-gray-100 {
-  background-color: hsl(240 3.7% 18%) !important;
+  background-color: hsl(var(--dark-surface-3)) !important;
+  color: hsl(var(--dark-text-primary)) !important;
 }
 
 .dark .bg-gray-200 {
   background-color: hsl(240 3.7% 20%) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-gray-300 {
+  background-color: hsl(240 3.7% 25%) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+/* ===== TRANSPARENT BACKGROUND OVERRIDES ===== */
+.dark .bg-white\/95 {
+  background-color: hsla(var(--dark-surface-1), 0.95) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-white\/90 {
+  background-color: hsla(var(--dark-surface-1), 0.90) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-white\/80 {
+  background-color: hsla(var(--dark-surface-1), 0.80) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-white\/70 {
+  background-color: hsla(var(--dark-surface-1), 0.70) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-white\/60 {
+  background-color: hsla(var(--dark-surface-1), 0.60) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+/* ===== BLUE BACKGROUND OVERRIDES ===== */
+.dark .bg-blue-50 {
+  background-color: hsl(217.2 32.6% 17.5%) !important;
+  color: hsl(var(--dark-text-primary)) !important;
+}
+
+.dark .bg-blue-50\/80 {
+  background-color: hsla(217.2, 32.6%, 17.5%, 0.8) !important;
+  color: hsl(var(--dark-text-primary)) !important;
 }
 
 /* Fix input and form backgrounds */
