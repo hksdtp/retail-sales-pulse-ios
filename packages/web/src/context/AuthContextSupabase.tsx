@@ -38,6 +38,7 @@ import {
 } from '@/services/mockAuth';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
 import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
+import ComprehensiveAutoSyncService from '@/services/ComprehensiveAutoSyncService';
 import { LocalToSupabaseAutoSync } from '@/services/LocalToSupabaseAutoSync';
 
 interface AuthContextType {
@@ -285,9 +286,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 currentUrl: window.location.href
               });
 
-              // Start auto plan sync for restored user
-              autoPlanSyncService.startAutoSync(user.id);
-              console.log('🔄 Started auto plan sync for restored user:', user.name);
+              // Start comprehensive auto sync for restored user
+              const comprehensiveAutoSync = ComprehensiveAutoSyncService.getInstance();
+              comprehensiveAutoSync.startAllAutoSyncServices(user.id, user.name);
+              console.log('🔄 Started comprehensive auto sync for restored user:', user.name);
 
               console.log('✅ [AuthContext] Successfully restored user session from localStorage');
             } catch (error) {
@@ -521,10 +523,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         blockAppAccess: requiresPasswordChange && responseLoginType === 'first_login'
       });
 
-      // Start auto plan sync service only if not blocked
+      // Start comprehensive auto sync service only if not blocked
       if (!requiresPasswordChange) {
-        autoPlanSyncService.startAutoSync(user.id);
-        console.log('🔄 Started auto plan sync for user:', user.name);
+        const comprehensiveAutoSync = ComprehensiveAutoSyncService.getInstance();
+        comprehensiveAutoSync.startAllAutoSyncServices(user.id, user.name);
+        console.log('🔄 Started comprehensive auto sync for user:', user.name);
 
         // Auto sync local tasks to Supabase
         try {
@@ -600,9 +603,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set logout flag to prevent session restore
     setIsLoggingOut(true);
 
-    // Stop auto plan sync service
-    autoPlanSyncService.stopAutoSync();
-    console.log('⏹️ Stopped auto plan sync');
+    // Stop all auto sync services
+    const comprehensiveAutoSync = ComprehensiveAutoSyncService.getInstance();
+    comprehensiveAutoSync.stopAllAutoSyncServices();
+    console.log('⏹️ Stopped all auto sync services');
 
     // Sign out from Supabase if configured
     const supabaseService = SupabaseService.getInstance();
@@ -888,9 +892,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         });
 
-        // Start auto plan sync service now that password is changed
-        autoPlanSyncService.startAutoSync(currentUser.id);
-        console.log('🔄 [AuthContext] changePassword: Started auto plan sync after password change');
+        // Start comprehensive auto sync service now that password is changed
+        const comprehensiveAutoSync = ComprehensiveAutoSyncService.getInstance();
+        comprehensiveAutoSync.startAllAutoSyncServices(currentUser.id, currentUser.name);
+        console.log('🔄 [AuthContext] changePassword: Started comprehensive auto sync after password change');
 
         toast({
           title: 'Đổi mật khẩu thành công',

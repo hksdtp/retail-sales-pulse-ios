@@ -104,7 +104,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <Toaster />
       <Sonner />
 
-      {/* Auto Sync Status - Fixed position with mobile optimization */}
+      {/* Auto Sync Status - HIDDEN: Auto sync runs in background, no need for manual UI */}
+      {/*
       <div className={cn(
         "fixed z-40 transition-all duration-300 ease-in-out",
         // Desktop positioning
@@ -114,6 +115,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       )}>
         <AutoSyncStatus compact={true} />
       </div>
+      */}
 
       {/* Plan to Task Notification */}
       {notificationData && (

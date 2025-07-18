@@ -9,7 +9,7 @@ import { Task } from '@/components/tasks/types/TaskTypes';
 class AutoPlanSyncService {
   private static instance: AutoPlanSyncService;
   private syncInterval: NodeJS.Timeout | null = null;
-  private readonly SYNC_INTERVAL_MS = 60000; // Check every minute
+  private readonly SYNC_INTERVAL_MS = 30000; // Check every 30 seconds for better responsiveness
   private taskDataContext: any = null; // Will be injected
 
   public static getInstance(): AutoPlanSyncService {

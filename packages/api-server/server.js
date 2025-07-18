@@ -17,10 +17,137 @@ app.use((req, res, next) => {
 });
 
 // Mock data
-// Mock tasks array - EMPTY - Data will be loaded from Firebase
+// Mock tasks array - Test data for team filtering
 const mockTasks = [
-  // EMPTY - Firebase is the primary data source
-  // Mock data only used as fallback when Firebase is not available
+  {
+    id: 'task-team1-1',
+    title: 'Task của NHÓM 1 - VIỆT ANH',
+    description: 'Công việc test cho nhóm Việt Anh',
+    type: 'other',
+    status: 'todo',
+    priority: 'normal',
+    date: '2025-01-08',
+    time: '09:00',
+    progress: 0,
+    user_id: 'Ue4vzSj1KDg4vZyXwlHJ',
+    user_name: 'Lương Việt Anh',
+    team_id: '1',
+    teamId: '1',
+    location: 'Hà Nội',
+    assignedTo: 'Ue4vzSj1KDg4vZyXwlHJ',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'task-team2-1',
+    title: 'Task của NHÓM 2 - THẢO',
+    description: 'Công việc test cho nhóm Thảo',
+    type: 'other',
+    status: 'todo',
+    priority: 'normal',
+    date: '2025-01-08',
+    time: '10:00',
+    progress: 0,
+    user_id: 'user-thao-id',
+    user_name: 'Nguyễn Thị Thảo',
+    team_id: '2',
+    teamId: '2',
+    location: 'Hà Nội',
+    assignedTo: 'user-thao-id',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'task-team3-1',
+    title: 'Task của NHÓM 3',
+    description: 'Công việc test cho nhóm 3',
+    type: 'other',
+    status: 'todo',
+    priority: 'normal',
+    date: '2025-01-08',
+    time: '11:00',
+    progress: 0,
+    user_id: 'user-bon-id',
+    user_name: 'Trịnh Thị Bốn',
+    team_id: '3',
+    teamId: '3',
+    location: 'Hà Nội',
+    assignedTo: 'user-bon-id',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'task-team4-1',
+    title: 'Task của NHÓM 4',
+    description: 'Công việc test cho nhóm 4',
+    type: 'other',
+    status: 'todo',
+    priority: 'normal',
+    date: '2025-01-08',
+    time: '12:00',
+    progress: 0,
+    user_id: 'pham_thi_huong_hn_id',
+    user_name: 'Phạm Thị Hương',
+    team_id: '4',
+    teamId: '4',
+    location: 'Hà Nội',
+    assignedTo: 'pham_thi_huong_hn_id',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'task-team5-1',
+    title: 'Task của NHÓM 1 - HCM',
+    description: 'Công việc test cho nhóm 1 HCM',
+    type: 'other',
+    status: 'todo',
+    priority: 'normal',
+    date: '2025-01-08',
+    time: '13:00',
+    progress: 0,
+    user_id: 'nguyen_thi_nga_id',
+    user_name: 'Nguyễn Thị Nga',
+    team_id: '5',
+    teamId: '5',
+    location: 'Hồ Chí Minh',
+    assignedTo: 'nguyen_thi_nga_id',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'task-team6-1',
+    title: 'Task của NHÓM 2 - HCM',
+    description: 'Công việc test cho nhóm 2 HCM',
+    type: 'other',
+    status: 'todo',
+    priority: 'normal',
+    date: '2025-01-08',
+    time: '14:00',
+    progress: 0,
+    user_id: 'nguyen_ngoc_viet_khanh_id',
+    user_name: 'Nguyễn Ngọc Việt Khanh',
+    team_id: '6',
+    teamId: '6',
+    location: 'Hồ Chí Minh',
+    assignedTo: 'nguyen_ngoc_viet_khanh_id',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'task-shared-1',
+    title: 'Task chung của phòng - Tất cả teams',
+    description: 'Công việc chung cho tất cả các nhóm',
+    type: 'other',
+    status: 'todo',
+    priority: 'high',
+    date: '2025-01-08',
+    time: '13:00',
+    progress: 0,
+    user_id: 'Ve7sGRnMoRvT1E0VL5Ds',
+    user_name: 'Khổng Đức Mạnh',
+    team_id: '0',
+    teamId: '0',
+    location: 'Toàn quốc',
+    assignedTo: 'all',
+    isSharedWithTeam: true,
+    visibility: 'public',
+    department_wide: true,
+    created_at: new Date().toISOString()
+  }
 ];
 
 const mockUsers = [
@@ -60,7 +187,20 @@ const mockUsers = [
     location: 'Hà Nội',
     department: 'Bán lẻ',
     department_type: 'retail',
-    position: 'Nhân viên bán hàng',
+    position: 'Nhân viên 1 - Nhóm 1',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: 'quan_thu_ha_id',
+    name: 'Quản Thu Hà',
+    email: 'ha.quan@example.com',
+    role: 'employee',
+    team_id: '1',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Nhân viên 2 - Nhóm 1',
     status: 'active',
     password_changed: false
   },
@@ -82,13 +222,108 @@ const mockUsers = [
     name: 'Nguyễn Mạnh Linh',
     email: 'linh.nguyen@example.com',
     role: 'employee',
-    team_id: '1',
+    team_id: '2',
     location: 'Hà Nội',
     department: 'Bán lẻ',
     department_type: 'retail',
-    position: 'Nhân viên bán hàng',
+    position: 'Nhân viên 1 - Nhóm 2',
     status: 'active',
     password_changed: true
+  },
+  {
+    id: 'nguyen_thi_thao_id',
+    name: 'Nguyễn Thị Thảo',
+    email: 'thao.nguyen@example.com',
+    role: 'team_leader',
+    team_id: '2',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm 2',
+    status: 'active',
+    password_changed: false
+  },
+  // NHÓM 3 - Hà Nội
+  {
+    id: 'trinh_thi_bon_id',
+    name: 'Trịnh Thị Bốn',
+    email: 'bon.trinh@example.com',
+    role: 'team_leader',
+    team_id: '3',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm 3',
+    status: 'active',
+    password_changed: false
+  },
+  // NHÓM 4 - Hà Nội
+  {
+    id: 'pham_thi_huong_hn_id',
+    name: 'Phạm Thị Hương',
+    email: 'huong.pham.hn@example.com',
+    role: 'team_leader',
+    team_id: '4',
+    location: 'Hà Nội',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm 4',
+    status: 'active',
+    password_changed: false
+  },
+  // NHÓM 1 HCM
+  {
+    id: 'nguyen_thi_nga_id',
+    name: 'Nguyễn Thị Nga',
+    email: 'nga.nguyen@example.com',
+    role: 'team_leader',
+    team_id: '5',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm 1 - HCM',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: 'ha_nguyen_thanh_tuyen_id',
+    name: 'Hà Nguyễn Thanh Tuyền',
+    email: 'tuyen.ha@example.com',
+    role: 'employee',
+    team_id: '5',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Nhân viên - Nhóm 1 HCM',
+    status: 'active',
+    password_changed: false
+  },
+  // NHÓM 2 HCM
+  {
+    id: 'nguyen_ngoc_viet_khanh_id',
+    name: 'Nguyễn Ngọc Việt Khanh',
+    email: 'khanh.nguyen@example.com',
+    role: 'team_leader',
+    team_id: '6',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Trưởng nhóm 2 - HCM',
+    status: 'active',
+    password_changed: false
+  },
+  {
+    id: 'phung_thi_thuy_van_id',
+    name: 'Phùng Thị Thuỳ Vân',
+    email: 'van.phung@example.com',
+    role: 'employee',
+    team_id: '6',
+    location: 'Hồ Chí Minh',
+    department: 'Bán lẻ',
+    department_type: 'retail',
+    position: 'Nhân viên - Nhóm 2 HCM',
+    status: 'active',
+    password_changed: false
   }
 ];
 
@@ -104,19 +339,55 @@ const mockTeams = [
   },
   {
     id: '1',
-    name: 'Nhóm 1 Hà Nội',
+    name: 'NHÓM 1 - VIỆT ANH',
     leader_id: 'Ue4vzSj1KDg4vZyXwlHJ', // Lương Việt Anh
     location: 'Hà Nội',
-    description: 'Nhóm bán hàng số 1 tại Hà Nội',
+    description: 'Nhóm 1 Hà Nội - Trưởng nhóm Lương Việt Anh',
+    department: 'Bán lẻ',
+    department_type: 'retail'
+  },
+  {
+    id: '2',
+    name: 'NHÓM 2 - THẢO',
+    leader_id: 'nguyen_thi_thao_id', // Nguyễn Thị Thảo
+    location: 'Hà Nội',
+    description: 'Nhóm 2 Hà Nội - Trưởng nhóm Nguyễn Thị Thảo',
+    department: 'Bán lẻ',
+    department_type: 'retail'
+  },
+  {
+    id: '3',
+    name: 'NHÓM 3',
+    leader_id: 'trinh_thi_bon_id', // Trịnh Thị Bốn
+    location: 'Hà Nội',
+    description: 'Nhóm 3 Hà Nội - Trưởng nhóm Trịnh Thị Bốn',
+    department: 'Bán lẻ',
+    department_type: 'retail'
+  },
+  {
+    id: '4',
+    name: 'NHÓM 4',
+    leader_id: 'pham_thi_huong_hn_id', // Phạm Thị Hương
+    location: 'Hà Nội',
+    description: 'Nhóm 4 Hà Nội - Trưởng nhóm Phạm Thị Hương',
     department: 'Bán lẻ',
     department_type: 'retail'
   },
   {
     id: '5',
-    name: 'Nhóm 5 Hà Nội',
-    leader_id: 'pham_thi_huong_id', // Phạm Thị Hương
-    location: 'Hà Nội',
-    description: 'Nhóm bán hàng số 5 tại Hà Nội',
+    name: 'NHÓM 1 - HCM',
+    leader_id: 'nguyen_thi_nga_id', // Nguyễn Thị Nga
+    location: 'Hồ Chí Minh',
+    description: 'Nhóm 1 HCM - Trưởng nhóm Nguyễn Thị Nga',
+    department: 'Bán lẻ',
+    department_type: 'retail'
+  },
+  {
+    id: '6',
+    name: 'NHÓM 2 - HCM',
+    leader_id: 'nguyen_ngoc_viet_khanh_id', // Nguyễn Ngọc Việt Khanh
+    location: 'Hồ Chí Minh',
+    description: 'Nhóm 2 HCM - Trưởng nhóm Nguyễn Ngọc Việt Khanh',
     department: 'Bán lẻ',
     department_type: 'retail'
   }
