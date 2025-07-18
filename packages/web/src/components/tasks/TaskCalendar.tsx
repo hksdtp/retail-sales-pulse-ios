@@ -21,8 +21,6 @@ interface CalendarTask {
   status?: 'pending' | 'in_progress' | 'completed';
 }
 
-
-
 const getTypeColor = (type: string) => {
   switch (type) {
     case 'meeting':
@@ -140,7 +138,6 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
     if (currentUser) {
       console.log('🔄 Loading plans for user:', currentUser.id);
       const userPlans = personalPlanService.getUserPlans(currentUser.id);
-      console.log('📋 Found plans:', userPlans.length, userPlans);
 
       const migratedPlans = migrateOldPlansToToday(userPlans);
 
@@ -166,10 +163,9 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onCreatePlan }) => {
             creator: plan.creator
           });
         });
-        console.log('✅ Đã migrate kế hoạch cũ về ngày hiện tại');
+        
       }
 
-      console.log(`📋 Setting ${migratedPlans.length} plans in TaskCalendar state`);
       setPlans(migratedPlans);
     }
   }, [currentUser?.id]);

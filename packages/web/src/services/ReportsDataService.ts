@@ -356,7 +356,6 @@ class ReportsDataService {
     };
   }
 
-
 }
 
 export const reportsDataService = ReportsDataService.getInstance();

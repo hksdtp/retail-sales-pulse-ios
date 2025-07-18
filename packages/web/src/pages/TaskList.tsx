@@ -17,6 +17,7 @@ import {
   ArrowUpDown,
   Calendar,
   CheckCircle,
+  Clock,
   Edit,
   Filter,
   MoreHorizontal,
@@ -118,7 +119,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
   }, [taskData]);
 
   const debugTasks = useCallback(() => {
-    console.log('DEBUG: TaskList Component');
+    
     console.log('Tasks from Context:', tasks?.length || 0);
     console.log('Is Loading:', isLoading);
     if (tasks?.length > 0) {
@@ -178,8 +179,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
 
   useEffect(() => {
     try {
-      console.log('DEBUG: Bắt đầu lọc tasks');
-      console.log('DEBUG: tasks:', tasks?.length || 0);
 
       let result = [...(tasks || [])];
 
@@ -200,8 +199,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
       }
 
       result = result.filter(filterTasksByDate);
-
-      console.log('DEBUG: Trước khi sắp xếp: Số task =', result.length);
 
       // Áp dụng logic sắp xếp mới: thời gian + priority
       const sortedResult = sortTasks(result);
@@ -291,8 +288,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
     };
     return statusMapping[status] || 'Không xác định';
   };
-
-
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -906,7 +901,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks: propTasks }) => {
                           className="justify-start"
                           onClick={() => handleStatusChange(selectedTask.id, 'completed')}
                         >
-                          <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
+                          <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
                           Hoàn thành
                         </Button>
                       </div>

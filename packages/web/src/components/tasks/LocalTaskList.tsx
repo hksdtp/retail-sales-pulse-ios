@@ -52,7 +52,7 @@ class LocalTaskService {
       }
 
       this.saveUserTasks(userId, filteredTasks);
-      console.log('✅ Đã xóa task với ID:', taskId);
+      
       return true;
     } catch (error) {
       console.error('Lỗi khi xóa task:', error);
@@ -85,7 +85,6 @@ const LocalTaskList: React.FC = () => {
     const userTasks = localTaskService.getUserTasks(currentUser.id);
     setTasks(userTasks);
 
-    console.log(`📋 Loaded ${userTasks.length} tasks for ${currentUser.name}`, userTasks);
   }, [currentUser?.id]);
 
   useEffect(() => {

@@ -60,7 +60,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
   // Lọc người dùng theo phòng ban, vị trí và nhóm
   const filteredUsers = users.filter((user) => {
-    console.log('🔍 FILTER DEBUG - selectedLocation:', selectedLocation, 'user:', user.name, 'role:', user.role);
+    
     // ĐẢM BẢO TRƯỚC TIÊN LỌC THEO PHÒNG BAN
     // Chỉ hiển thị người dùng của phòng được chọn
     if (departmentType === 'project' && user.department_type !== 'project') {
@@ -72,7 +72,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
     // Khi chọn "Khổng Đức Mạnh" - chỉ hiển thị Khổng Đức Mạnh (retail_director)
     if (selectedLocation === 'all') {
-      console.log('🔍 KHỔNG ĐỨC MẠNH FILTER - User:', user.name, 'Role:', user.role, 'Match:', user.role === 'retail_director');
+      
       // Chỉ hiển thị Khổng Đức Mạnh (retail_director)
       return user.role === 'retail_director';
     }
@@ -184,7 +184,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
     // Special handling for Khổng Đức Mạnh - WORKAROUND
     if (!selectedUser && isSpecialRole && filteredUsers.length > 0) {
-      console.log('🔧 Special role workaround: auto-selecting user');
+      
       setSelectedUser(filteredUsers[0]);
       // Continue with login using the auto-selected user
       const specialUser = filteredUsers[0];
@@ -199,9 +199,9 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
       // Proceed with login using special user
       setIsSubmitting(true);
       try {
-        console.log('🚀 Special role login with email:', specialUser.email, 'for user:', specialUser.name);
+        
         await login(specialUser.email, password);
-        console.log('✅ Special role login successful');
+        
         setTimeout(() => {
           setIsSubmitting(false);
           if (!requirePasswordChange && !isFirstLogin) {
@@ -236,14 +236,13 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
 
     setIsSubmitting(true);
     try {
-      console.log('🚀 Attempting login with email:', selectedUser.email, 'for user:', selectedUser.name);
+      
       await login(selectedUser.email, password);
 
       // Password change modal will be handled by GlobalPasswordChangeModal
       // No need to handle first login here anymore
 
       // Don't show success toast or navigate immediately - let GlobalPasswordChangeModal handle it
-      console.log('✅ Login successful - GlobalPasswordChangeModal will handle password change if needed');
 
       // Reset submitting state after a short delay to allow auth state to update
       setTimeout(() => {
@@ -267,7 +266,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
   // Special handler for Khổng Đức Mạnh - WORKAROUND for cross-browser issues
   const handleSpecialUserLogin = async () => {
     if (selectedLocation === 'all' && password.trim()) {
-      console.log('🔧 Special login handler for Khổng Đức Mạnh');
+      
       await handleSubmit();
     }
   };
@@ -308,10 +307,10 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     // Sử dụng setTimeout để đảm bảo state được update sau khi DOM render
     const timer = setTimeout(() => {
       if (isSpecialRole && filteredUsers.length > 0 && !selectedUser) {
-        console.log('✅ Auto-selecting first user:', filteredUsers[0].name);
+        
         setSelectedUser(filteredUsers[0]);
       } else if (isSpecialRole && filteredUsers.length === 0) {
-        console.log('❌ No filtered users found for special role');
+        
         // Fallback: tìm Khổng Đức Mạnh trong toàn bộ users
         const khongDucManh = users.find(user =>
           user.name === 'Khổng Đức Mạnh' ||
@@ -319,7 +318,7 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
           user.role === 'retail_director'
         );
         if (khongDucManh && !selectedUser) {
-          console.log('✅ Fallback: Found Khổng Đức Mạnh:', khongDucManh.name);
+          
           setSelectedUser(khongDucManh);
         }
       }
@@ -353,9 +352,9 @@ const LoginForm = ({ departmentType }: LoginFormProps) => {
     });
 
     if (isSpecialRole && selectedUser && password.trim() && !isSubmitting) {
-      console.log('🔧 Auto-triggering login for special user:', selectedUser.name);
+      
       const timer = setTimeout(() => {
-        console.log('🔧 Executing auto-login...');
+        
         handleSpecialUserLogin();
       }, 1000); // Delay to ensure all state is synced
 

@@ -109,8 +109,7 @@ const EditPlanModal: React.FC<EditPlanModalProps> = ({
       });
 
       if (updatedPlan) {
-        console.log('✅ Đã cập nhật kế hoạch:', updatedPlan.title);
-        
+
         // Callback để refresh data
         if (onPlanUpdated) {
           onPlanUpdated();

@@ -55,7 +55,7 @@ export const useAutoSync = (): UseAutoSyncReturn => {
     setIsRunning(true);
     
     try {
-      console.log('🔧 Manual sync triggered by user');
+      
       const result = await autoSyncService.manualSync(currentUser.id, currentUser.name);
       setLastSyncResult(result);
 

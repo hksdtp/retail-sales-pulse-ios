@@ -58,7 +58,6 @@ const TaskCard: React.FC<TaskCardProps> = memo(({
     return 'Chưa xác định';
   }, [task.user_name, task.user_id, task.assignedTo, users]);
 
-
   // Memoized task type badge
   const taskTypeBadge = useMemo(() => {
     let label = '';

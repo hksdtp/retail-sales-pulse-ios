@@ -2,13 +2,10 @@
 export const debugPlans = {
   // Check all plans in localStorage
   checkAllPlans: () => {
-    console.log('🔍 Checking all plans in localStorage...');
-    
+
     const allKeys = Object.keys(localStorage);
     const planKeys = allKeys.filter(key => key.startsWith('personal_plans_'));
-    
-    console.log('📋 Found plan keys:', planKeys);
-    
+
     planKeys.forEach(key => {
       const userId = key.replace('personal_plans_', '');
       const plans = JSON.parse(localStorage.getItem(key) || '[]');
@@ -18,13 +15,10 @@ export const debugPlans = {
 
   // Check plans for specific user
   checkUserPlans: (userId: string) => {
-    console.log(`🔍 Checking plans for user: ${userId}`);
-    
+
     const key = `personal_plans_${userId}`;
     const plans = JSON.parse(localStorage.getItem(key) || '[]');
-    
-    console.log(`📋 Found ${plans.length} plans:`, plans);
-    
+
     // Group by month
     const plansByMonth: Record<string, any[]> = {};
     plans.forEach((plan: any) => {
@@ -52,8 +46,7 @@ export const debugPlans = {
       localStorage.removeItem(key);
       console.log(`🗑️ Removed: ${key}`);
     });
-    
-    console.log('✅ All plans cleared');
+
   },
 
   // Add test plan
@@ -85,9 +78,7 @@ export const debugPlans = {
     
     const updatedPlans = [...existingPlans, testPlan];
     localStorage.setItem(key, JSON.stringify(updatedPlans));
-    
-    console.log('✅ Test plan added:', testPlan);
-    
+
     // Trigger refresh
     if ((window as any).refreshModernCalendar) {
       (window as any).refreshModernCalendar();
@@ -115,8 +106,7 @@ export const debugPlans = {
       const value = localStorage.getItem(key) || '';
       planSize += key.length + value.length;
     });
-    
-    console.log(`📋 Plans storage size: ${(planSize / 1024).toFixed(2)} KB`);
+
     console.log(`📊 Plan keys: ${planKeys.length}`);
   }
 };
@@ -124,4 +114,3 @@ export const debugPlans = {
 // Expose to window for easy access in console
 (window as any).debugPlans = debugPlans;
 
-console.log('🔧 Debug utility loaded. Use debugPlans.checkAllPlans() in console to check plans.');

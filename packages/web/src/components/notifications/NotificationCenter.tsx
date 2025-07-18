@@ -263,7 +263,6 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onTaskClick }) 
                 )}
               </div>
 
-
             </motion.div>
           </>
         </AnimatePresence>,

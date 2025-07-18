@@ -51,7 +51,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Nếu không có user, redirect về login
   if (!currentUser) {
-    console.log('❌ ProtectedRoute: No user, redirecting to login');
+    
     return <Navigate to="/login" replace />;
   }
 
@@ -62,7 +62,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   // Nếu user đã xác thực và không cần đổi mật khẩu, cho phép truy cập
-  console.log('✅ ProtectedRoute: Access granted for user:', currentUser.name);
+  
   return <>{children}</>;
 };
 

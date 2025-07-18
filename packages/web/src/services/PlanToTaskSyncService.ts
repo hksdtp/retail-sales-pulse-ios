@@ -46,7 +46,6 @@ class PlanToTaskSyncService {
     }
 
     this.isRunning = true;
-    console.log(`🚀 Khởi tạo PlanToTaskSyncService với interval ${intervalMinutes} phút`);
 
     // Chạy ngay lần đầu
     this.syncPlansToTasks();
@@ -76,8 +75,7 @@ class PlanToTaskSyncService {
   // Hàm chính để sync plans thành tasks
   private async syncPlansToTasks(): Promise<void> {
     try {
-      console.log('🔍 Kiểm tra plans cần chuyển đổi thành tasks...');
-      
+
       // Lấy danh sách tất cả users từ localStorage
       const allUsers = this.getAllUsersFromStorage();
       
@@ -86,8 +84,7 @@ class PlanToTaskSyncService {
       }
 
       this.stats.lastSyncTime = new Date().toISOString();
-      console.log('✅ Hoàn thành sync plans to tasks:', this.stats);
-      
+
     } catch (error) {
       console.error('❌ Lỗi khi sync plans to tasks:', error);
     }
@@ -99,8 +96,6 @@ class PlanToTaskSyncService {
     const now = new Date();
     let converted = 0;
     let failed = 0;
-
-    console.log(`📋 Kiểm tra ${userPlans.length} plans của user ${userId}`);
 
     for (const plan of userPlans) {
       this.stats.totalPlansChecked++;
@@ -125,8 +120,7 @@ class PlanToTaskSyncService {
     }
 
     if (converted > 0) {
-      console.log(`✅ Đã convert ${converted} plans thành tasks cho user ${userId}`);
-      
+
       // Gửi thông báo cho user
       this.sendConversionNotification(userId, converted);
     }
@@ -211,7 +205,6 @@ class PlanToTaskSyncService {
       // Trigger custom event để thông báo cho UI
       this.dispatchPlanToTaskEvent(newTask, plan);
 
-      console.log(`✅ Đã convert plan "${plan.title}" thành task ${taskId}`);
       return true;
 
     } catch (error) {
@@ -354,7 +347,7 @@ class PlanToTaskSyncService {
 
   // Debug function - force sync ngay lập tức
   public async debugForceSync(userId: string): Promise<void> {
-    console.log('🔧 DEBUG: Force sync for user:', userId);
+    
     await this.syncUserPlansToTasks(userId);
   }
 }

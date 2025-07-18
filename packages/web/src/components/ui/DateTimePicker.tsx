@@ -72,8 +72,6 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     }
   };
 
-
-
   // Handle time selection
   const handleTimeSelect = (selectedTime: string) => {
     if (onTimeChange) {

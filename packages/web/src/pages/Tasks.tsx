@@ -34,7 +34,6 @@ import { useToast } from '../hooks/use-toast';
 import { SupabaseService } from '../services/SupabaseService';
 import TaskList from './TaskList';
 
-
 const Tasks = () => {
   const { currentUser, teams } = useAuth();
   const { toast } = useToast();
@@ -87,7 +86,7 @@ const Tasks = () => {
 
   // Hàm xóa toàn bộ công việc
   const handleDeleteAllTasks = async () => {
-    console.log('🚀 === DELETE ALL TASKS STARTED ===');
+    
     console.log('Current user:', currentUser);
 
     setIsDeleting(true);
@@ -97,15 +96,11 @@ const Tasks = () => {
         throw new Error('Không tìm thấy thông tin người dùng');
       }
 
-      console.log('✅ User ID found:', currentUser.id, 'Type:', typeof currentUser.id);
-
       // SỬ DỤNG FIRESTORE REST API THAY VÌ SDK
       console.log('🔥 USING FIRESTORE REST API FOR DEBUGGING');
 
       const projectId = 'appqlgd';
       const baseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
-
-      console.log('🔧 Fetching tasks via REST API...');
 
       try {
         // Lấy tất cả tasks qua REST API
@@ -116,7 +111,6 @@ const Tasks = () => {
         }
 
         const data = await response.json();
-        console.log('✅ REST API response:', data);
 
         const tasks = data.documents || [];
         console.log(`📊 Total tasks found: ${tasks.length}`);
@@ -183,7 +177,7 @@ const Tasks = () => {
       }
 
       // Fallback: Nếu REST API không hoạt động, thông báo lỗi
-      console.log('❌ All methods failed');
+      
     } catch (error) {
       console.error('Lỗi khi xóa toàn bộ công việc:', error);
       toast({
@@ -201,7 +195,7 @@ const Tasks = () => {
     const isConfigured = SupabaseService.isConfigured();
 
     if (isConfigured) {
-      console.log('✅ Firebase is ready');
+      
     } else {
       console.log('⚠️ Firebase not configured, some features may be limited');
     }

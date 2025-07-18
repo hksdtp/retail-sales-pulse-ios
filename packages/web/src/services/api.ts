@@ -148,8 +148,6 @@ class ApiClient {
         throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
       }
 
-      console.log(`✅ API Response:`, data);
-
       return data;
     } catch (error) {
       console.error(`❌ API Error:`, error);

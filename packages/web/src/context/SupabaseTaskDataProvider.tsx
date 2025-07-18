@@ -36,7 +36,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
 
       // Check if already initialized
       if (supabaseService.isInitialized()) {
-        console.log('✅ Supabase already initialized, loading tasks...');
+        
         loadTasks();
         return;
       }
@@ -44,7 +44,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       // Try to initialize from localStorage first
       const fromLocalStorage = SupabaseService.initializeFromLocalStorage();
       if (fromLocalStorage) {
-        console.log('✅ Supabase initialized from localStorage');
+        
         loadTasks();
         return;
       }
@@ -55,11 +55,10 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYWt4YXZ3eHVibmJ1Y2ZvdWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1ODY2NjEsImV4cCI6MjA2NjE2MjY2MX0.Gj4RYtx-fnTHHoLe71mGvhVze5NgWy25PME4OVle22M'
       };
 
-      console.log('🔧 Initializing Supabase with fallback config...');
       const initialized = supabaseService.initialize(config);
 
       if (initialized) {
-        console.log('✅ Supabase initialized successfully');
+        
         loadTasks();
       } else {
         console.error('❌ Failed to initialize Supabase');
@@ -74,11 +73,10 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
   const loadTasks = async () => {
     setIsLoading(true);
     try {
-      console.log('📋 Loading tasks from Supabase...');
+      
       const supabaseService = SupabaseService.getInstance();
       const tasksData = await supabaseService.getTasks();
-      
-      console.log(`✅ Loaded ${tasksData.length} tasks from Supabase`);
+
       setTasks(tasksData);
       setFilteredTasks(tasksData);
     } catch (error) {
@@ -118,7 +116,6 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
         if (storedUser) {
           try {
             const parsedUser = JSON.parse(storedUser);
-            console.log('🔧 [SupabaseTaskDataProvider] Using stored user as fallback:', parsedUser);
 
             // Use stored user data for task creation
             const fallbackUser = {
@@ -184,7 +181,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       const newTask = await supabaseService.addTask(taskData);
       
       if (newTask) {
-        console.log('✅ Task added successfully:', newTask.id);
+        
         await loadTasks(); // Refresh tasks
         
         toast({
@@ -212,7 +209,6 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
     task: Partial<Task> & Pick<Task, 'title' | 'description' | 'type' | 'date' | 'status'>,
     user: any
   ): Promise<Task> => {
-    console.log('🔧 [SupabaseTaskDataProvider] Creating task with fallback user:', user);
 
     const supabaseService = SupabaseService.getInstance();
 
@@ -243,7 +239,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       const newTask = await supabaseService.addTask(taskData);
 
       if (newTask) {
-        console.log('✅ Task added successfully with fallback user:', newTask.id);
+        
         await loadTasks(); // Refresh tasks
 
         toast({
@@ -278,7 +274,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       });
       
       if (updatedTask) {
-        console.log('✅ Task updated successfully:', id);
+        
         await loadTasks(); // Refresh tasks
         
         toast({
@@ -310,7 +306,7 @@ export const SupabaseTaskDataProvider: React.FC<SupabaseTaskDataProviderProps> =
       const success = await supabaseService.deleteTask(id);
       
       if (success) {
-        console.log('✅ Task deleted successfully:', id);
+        
         await loadTasks(); // Refresh tasks
         
         toast({

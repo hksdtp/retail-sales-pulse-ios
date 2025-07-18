@@ -20,7 +20,7 @@ export const useSupabaseAutoSetup = () => {
         const service = SupabaseService.initializeFromLocalStorage();
         if (service) {
           setIsConfigured(true);
-          console.log('✅ Supabase loaded from localStorage');
+          
           return;
         }
       }
@@ -32,9 +32,7 @@ export const useSupabaseAutoSetup = () => {
       if (envUrl && envAnonKey && 
           envUrl !== 'https://your-project.supabase.co' && 
           envAnonKey !== 'your-anon-key-here') {
-        
-        console.log('🔧 Initializing Supabase with environment config...');
-        
+
         const supabaseService = SupabaseService.initializeApp({
           url: envUrl,
           anonKey: envAnonKey
@@ -44,9 +42,8 @@ export const useSupabaseAutoSetup = () => {
           const isDev = SupabaseService.isDevelopmentMode();
           const isLocal = SupabaseService.isUsingLocalSupabase();
 
-          console.log('✅ Supabase auto-configured successfully');
           if (isDev) {
-            console.log(`🚀 Development mode: ${isLocal ? 'Using local Supabase' : 'Using cloud services'}`);
+            
           }
           setIsConfigured(true);
 
@@ -81,7 +78,7 @@ export const useSupabaseAutoSetup = () => {
       
       if (supabaseService) {
         setIsConfigured(true);
-        console.log('✅ Supabase configured manually');
+        
         return true;
       } else {
         throw new Error('Failed to initialize Supabase');

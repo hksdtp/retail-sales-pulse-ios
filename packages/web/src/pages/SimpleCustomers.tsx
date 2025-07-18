@@ -107,7 +107,7 @@ const SimpleCustomers: React.FC = () => {
             </p>
             <button 
               onClick={() => {
-                console.log('✅ Simple customers page loaded successfully');
+                
                 console.log('Current URL:', window.location.href);
                 console.log('Local storage:', {
                   currentUser: localStorage.getItem('currentUser'),

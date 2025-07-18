@@ -54,7 +54,6 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
     const userPlans = personalPlanService.getUserPlans(currentUser.id);
     setPlans(userPlans);
 
-    console.log(`📋 Loaded ${userPlans.length} personal plans for ${currentUser.name}`, userPlans);
   }, [currentUser?.id]);
 
   useEffect(() => {
@@ -196,7 +195,7 @@ const PlanList: React.FC<PlanListProps> = ({ currentUser }) => {
         if (confirm('Bạn có chắc chắn muốn xóa kế hoạch này?')) {
           const success = personalPlanService.deletePlan(currentUser.id, planId);
           if (success) {
-            console.log('✅ Đã xóa kế hoạch:', planId);
+            
             // Reload plans
             loadPlans();
             alert('Đã xóa kế hoạch thành công!');

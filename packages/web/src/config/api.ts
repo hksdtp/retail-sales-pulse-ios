@@ -24,21 +24,19 @@ export const API_CONFIG = {
 export const getApiUrl = () => {
   // Check if we have a custom API URL from environment
   if (import.meta.env.VITE_API_URL) {
-    console.log('🔧 Using custom API URL from environment:', import.meta.env.VITE_API_URL);
+    
     return import.meta.env.VITE_API_URL;
   }
 
   // For development, use proxy path (Vite will proxy /api to localhost:3003)
   if (API_CONFIG.IS_DEVELOPMENT) {
-    console.log('🔧 Development mode: Using Vite proxy for API calls');
+    
     return '/api'; // This will be proxied to localhost:3003
   }
 
   // Use production API for production
   return API_CONFIG.BASE_URL;
 };
-
-
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -71,7 +69,6 @@ export const API_ENDPOINTS = {
   // Export & Sync
   EXPORT_CSV: '/export/csv',
   SYNC_SHEETS: '/sync/sheets',
-
 
 };
 

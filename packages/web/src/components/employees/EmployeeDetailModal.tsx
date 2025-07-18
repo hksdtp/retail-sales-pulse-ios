@@ -120,7 +120,7 @@ const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
         ...formData
       });
       setIsEditing(false);
-      console.log('✅ Employee updated successfully');
+      
     } catch (error) {
       console.error('❌ Error updating employee:', error);
     } finally {

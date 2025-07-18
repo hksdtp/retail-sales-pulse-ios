@@ -74,7 +74,6 @@ export class ImageUploadService {
         driveFileId: driveFile.id
       };
 
-      console.log('✅ Image uploaded successfully:', uploadedImage);
       return uploadedImage;
 
     } catch (error) {

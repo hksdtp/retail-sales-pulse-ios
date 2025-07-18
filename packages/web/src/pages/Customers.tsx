@@ -50,8 +50,6 @@ const Customers: React.FC = () => {
 
   // Handle save customer
   const handleSaveCustomer = async () => {
-    console.log('🔍 Debug currentUser:', currentUser);
-    console.log('🔍 Debug currentUser.id:', currentUser?.id);
 
     if (!currentUser) {
       toast({

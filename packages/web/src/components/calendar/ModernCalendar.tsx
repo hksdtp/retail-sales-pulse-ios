@@ -51,8 +51,6 @@ const ModernCalendar: React.FC<ModernCalendarProps> = ({ onCreatePlan, onEditPla
     if (currentUser?.id) {
       console.log('🔄 ModernCalendar: Loading plans for user:', currentUser.id);
       const userPlans = personalPlanService.getUserPlans(currentUser.id);
-      console.log('📋 ModernCalendar: Found plans:', userPlans.length);
-      console.log('📋 ModernCalendar: Plans data:', userPlans);
 
       // Debug: Check current month plans
       const year = currentDate.getFullYear();

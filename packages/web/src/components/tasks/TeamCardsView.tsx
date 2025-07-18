@@ -88,7 +88,6 @@ const TeamCardsView: React.FC<TeamCardsViewProps> = ({ onTeamSelect }) => {
       return userTeam;
     }
 
-    console.log('❌ No team access for user:', currentUser?.name);
     return [];
   };
 

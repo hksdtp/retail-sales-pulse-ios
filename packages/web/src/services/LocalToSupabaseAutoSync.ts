@@ -49,7 +49,6 @@ export class LocalToSupabaseAutoSync {
     }
 
     this.isRunning = true;
-    console.log(`🚀 Starting auto sync for user: ${userName} (${userId})`);
 
     try {
       // Kiểm tra Supabase connection
@@ -59,7 +58,6 @@ export class LocalToSupabaseAutoSync {
 
       // Lấy tasks từ localStorage
       const localTasks = this.getLocalTasks(userId);
-      console.log(`📋 Found ${localTasks.length} local tasks for user ${userId}`);
 
       if (localTasks.length === 0) {
         return {
@@ -84,7 +82,6 @@ export class LocalToSupabaseAutoSync {
         this.cleanupLocalTasks(userId, result.syncedCount);
       }
 
-      console.log(`✅ Auto sync completed:`, result);
       return result;
 
     } catch (error) {
@@ -135,7 +132,6 @@ export class LocalToSupabaseAutoSync {
       }
     }
 
-    console.log(`📋 Collected ${allTasks.length} unique valid tasks from localStorage`);
     return allTasks;
   }
 
@@ -203,7 +199,7 @@ export class LocalToSupabaseAutoSync {
         if (insertedTask) {
           result.syncedCount++;
           result.details.push(`Synced: ${localTask.title}`);
-          console.log(`✅ Synced task: ${localTask.title}`);
+          
         } else {
           throw new Error('Failed to insert task');
         }
@@ -279,7 +275,7 @@ export class LocalToSupabaseAutoSync {
    * Manual sync trigger (for testing)
    */
   public async manualSync(userId: string, userName: string): Promise<SyncResult> {
-    console.log('🔧 Manual sync triggered');
+    
     return this.autoSyncOnLogin(userId, userName);
   }
 

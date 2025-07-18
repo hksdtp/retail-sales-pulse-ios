@@ -23,9 +23,6 @@ export class CustomerService {
    */
   async createCustomer(customerData: CustomerFormData, currentUser: User): Promise<Customer | null> {
     try {
-      console.log('🔍 Creating customer with data:', customerData);
-      console.log('🔍 Current user:', currentUser);
-      console.log('🔍 Current user ID:', currentUser?.id);
 
       // Validate currentUser
       if (!currentUser || !currentUser.id) {
@@ -66,7 +63,6 @@ export class CustomerService {
           id: customerId,
         };
 
-        console.log('✅ Customer created successfully:', newCustomer.name);
         return newCustomer;
       }
 
@@ -106,7 +102,7 @@ export class CustomerService {
       const success = await this.supabaseService.updateDocument('customers', customerId, updateData);
       
       if (success) {
-        console.log('✅ Customer updated successfully:', customerId);
+        
       }
 
       return success;
@@ -124,7 +120,7 @@ export class CustomerService {
       const success = await this.supabaseService.deleteDocument('customers', customerId);
       
       if (success) {
-        console.log('✅ Customer deleted successfully:', customerId);
+        
       }
 
       return success;

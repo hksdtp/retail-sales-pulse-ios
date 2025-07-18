@@ -158,8 +158,6 @@ const SimpleCreatePlanModal: React.FC<SimpleCreatePlanModalProps> = ({
         creator: currentUser.name
       });
 
-      console.log('✅ Đã tạo kế hoạch:', newPlan.title);
-
       toast({
         title: 'Thành công',
         description: 'Đã tạo kế hoạch mới thành công! Kế hoạch sẽ tự động chuyển thành công việc khi đến hạn.',
@@ -185,10 +183,10 @@ const SimpleCreatePlanModal: React.FC<SimpleCreatePlanModalProps> = ({
       }
 
       // Trigger auto-sync
-      console.log('🚀 Triggering auto-sync after plan creation...');
+      
       autoPlanSyncService.manualSync(currentUser.id)
         .then(() => {
-          console.log('✅ Auto-sync completed');
+          
         })
         .catch((error) => {
           console.error('❌ Error in auto-sync:', error);

@@ -107,7 +107,6 @@ export class MockUploadService {
       // Store in memory
       this.uploadedImages.push(uploadedImage);
 
-      console.log('✅ [MOCK] Image uploaded successfully:', uploadedImage);
       return uploadedImage;
 
     } catch (error) {
@@ -134,7 +133,7 @@ export class MockUploadService {
           onProgress?.(i, progress);
         });
         results.push(result);
-        console.log(`✅ [MOCK] Uploaded ${i + 1}/${files.length}: ${file.name}`);
+        
       } catch (error) {
         console.error(`❌ [MOCK] Failed to upload ${file.name}:`, error);
         // Continue with other files instead of stopping

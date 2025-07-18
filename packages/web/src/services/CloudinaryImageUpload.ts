@@ -75,7 +75,6 @@ export class CloudinaryImageUpload {
         cloudinaryId: response.public_id
       };
 
-      console.log('✅ Image uploaded successfully to Cloudinary:', uploadedImage);
       return uploadedImage;
 
     } catch (error) {

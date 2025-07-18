@@ -71,7 +71,7 @@ export class PlanAutomationService {
         if (result.status === 'rejected') {
           console.error(`❌ ${operations[index]} failed:`, result.reason);
         } else {
-          console.log(`✅ ${operations[index]} completed`);
+          
         }
       });
 
@@ -116,7 +116,6 @@ export class PlanAutomationService {
           // Create notification about auto-created task
           await this.createNotification(plan, 'auto_created', plan.user_id);
 
-          console.log(`✅ Auto-created task from plan: ${plan.title}`);
         } catch (error) {
           console.error(`❌ Failed to auto-create task from plan ${plan.id}:`, error);
         }
@@ -388,7 +387,7 @@ export class PlanAutomationService {
    * Manual trigger for automation (for testing)
    */
   public async runManualAutomation(): Promise<void> {
-    console.log('🔧 Running manual automation cycle...');
+    
     await this.runAutomationCycle();
   }
 }

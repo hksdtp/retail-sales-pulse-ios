@@ -16,13 +16,12 @@ const SupabaseAutoSetupProvider: React.FC<SupabaseAutoSetupProviderProps> = ({ c
   useEffect(() => {
     const autoSetupSupabase = async () => {
       try {
-        console.log('🚀 Starting Supabase auto-setup...');
 
         // Check if already configured
         let isConfigured = SupabaseService.isConfigured();
 
         if (isConfigured) {
-          console.log('✅ Supabase already configured');
+          
           setIsSetupComplete(true);
           setIsConfiguring(false);
           return;
@@ -31,7 +30,7 @@ const SupabaseAutoSetupProvider: React.FC<SupabaseAutoSetupProviderProps> = ({ c
         // Try to initialize from localStorage first
         const fromLocalStorage = SupabaseService.initializeFromLocalStorage();
         if (fromLocalStorage) {
-          console.log('✅ Supabase initialized from localStorage');
+          
           setIsSetupComplete(true);
           setIsConfiguring(false);
           return;
@@ -44,9 +43,7 @@ const SupabaseAutoSetupProvider: React.FC<SupabaseAutoSetupProviderProps> = ({ c
         if (envUrl && envAnonKey && 
             envUrl !== 'https://your-project.supabase.co' && 
             envAnonKey !== 'your-anon-key-here') {
-          
-          console.log('🔧 Initializing Supabase with environment config...');
-          
+
           const supabaseService = SupabaseService.initializeApp({
             url: envUrl,
             anonKey: envAnonKey
@@ -56,9 +53,8 @@ const SupabaseAutoSetupProvider: React.FC<SupabaseAutoSetupProviderProps> = ({ c
             const isDev = SupabaseService.isDevelopmentMode();
             const isLocal = SupabaseService.isUsingLocalSupabase();
 
-            console.log('✅ Supabase auto-configured with environment settings');
             if (isDev) {
-              console.log(`🚀 Development mode: ${isLocal ? 'Using local Supabase' : 'Using cloud services'}`);
+              
             }
 
             // Save config for next time

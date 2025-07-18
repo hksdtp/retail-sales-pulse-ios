@@ -195,9 +195,6 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
         creator: currentUser.name
       });
 
-      console.log('✅ Đã tạo kế hoạch cá nhân:', newPlan.title);
-      console.log('📋 Plan data:', newPlan);
-
       toast({
         title: 'Thành công',
         description: 'Đã tạo kế hoạch mới thành công',
@@ -224,10 +221,10 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({ isOpen, onClose, curr
       }
 
       // Trigger auto-sync ngay lập tức
-      console.log('🚀 Triggering immediate auto-sync after plan creation...');
+      
       autoPlanSyncService.manualSync(currentUser.id)
         .then(() => {
-          console.log('✅ Auto-sync completed after plan creation');
+          
         })
         .catch((error) => {
           console.error('❌ Error in auto-sync after plan creation:', error);

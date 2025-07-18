@@ -333,7 +333,6 @@ const DetailedReports = () => {
                   </div>
                 </div>
 
-
               </div>
             )}
 
@@ -496,7 +495,6 @@ const DetailedReports = () => {
                 <AIInsights />
               </div>
             )}
-
 
           </div>
         </div>

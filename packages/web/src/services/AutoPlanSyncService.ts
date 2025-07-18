@@ -63,8 +63,6 @@ class AutoPlanSyncService {
       });
     }, this.SYNC_INTERVAL_MS);
 
-    console.log('✅ Auto-sync service started successfully');
-
     // Expose to window for debugging
     this.exposeToWindow();
   }
@@ -88,11 +86,8 @@ class AutoPlanSyncService {
       const today = new Date();
       const todayString = this.formatDate(today);
 
-      console.log(`🔍 Checking due plans for user ${userId} on ${todayString}`);
-
       // Lấy tất cả kế hoạch của user
       const plans = personalPlanService.getUserPlans(userId);
-      console.log(`📋 Found ${plans.length} total plans for user`);
 
       if (plans.length > 0) {
         console.log('📋 Plan details:', plans.map(p => ({
@@ -154,15 +149,13 @@ class AutoPlanSyncService {
           }
 
           // Tạo task từ plan
-          console.log(`🔧 Converting plan to task: ${plan.title}`);
+          
           const taskData = this.planToTask(plan, userId);
-          console.log('📋 Task data created:', taskData);
 
           // Sync vào TaskDataProvider nếu có
           if (this.taskDataContext && this.taskDataContext.addTask) {
             console.log('📤 Adding task to main system via TaskDataContext...');
             await this.taskDataContext.addTask(taskData);
-            console.log(`✅ Auto-synced plan to main task system: ${plan.title}`);
 
             // Force UI refresh với delay
             setTimeout(() => {
@@ -183,7 +176,6 @@ class AutoPlanSyncService {
             const tasks = await this.getTasksFromStorage(userId);
             tasks.push(taskData);
             await this.saveTasksToStorage(userId, tasks);
-            console.log(`✅ Auto-synced plan to localStorage: ${plan.title}`);
 
             // Emit event ngay cả khi không có context
             console.log('📡 Emitting tasks-updated event (fallback)...');
@@ -289,7 +281,7 @@ class AutoPlanSyncService {
     try {
       const taskKey = `user_tasks_${userId}`;
       const tasks = JSON.parse(localStorage.getItem(taskKey) || '[]');
-      console.log(`📋 Loaded ${tasks.length} tasks from storage for user ${userId}`);
+      
       return tasks;
     } catch (error) {
       console.error('Error loading tasks from storage:', error);
@@ -386,16 +378,16 @@ class AutoPlanSyncService {
   public exposeToWindow(): void {
     (window as any).autoPlanSyncService = this;
     (window as any).testAutoSync = (userId: string) => this.manualSync(userId);
-    console.log('🔧 AutoPlanSyncService exposed to window for debugging');
-    console.log('🔧 Use window.testAutoSync("1") to test manual sync');
+    
+     to test manual sync');
   }
 }
 
 export const autoPlanSyncService = AutoPlanSyncService.getInstance();
 
 // Debug: Log service creation
-console.log('🔧 AutoPlanSyncService instance created and exported');
-console.log('🔧 Service methods available:', Object.getOwnPropertyNames(Object.getPrototypeOf(autoPlanSyncService)));
+
+));
 
 // Global exposure for debugging (immediate)
 if (typeof window !== 'undefined') {

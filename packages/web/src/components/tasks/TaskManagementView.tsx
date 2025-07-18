@@ -241,7 +241,6 @@ export default function TaskManagementView({
 
   // Debug log cho selectedMember changes
   useEffect(() => {
-    console.log(`🔍 selectedMember changed to: ${selectedMember}`);
 
     // Debug user data khi selectedMember thay đổi
     if (selectedMember) {
@@ -261,7 +260,7 @@ export default function TaskManagementView({
   // Use currentUser if available, fallback to stored user, then mock user
   const getEffectiveUser = () => {
     if (currentUser) {
-      console.log('✅ [TaskManagementView] Using currentUser:', currentUser);
+      
       return currentUser;
     }
 
@@ -270,7 +269,7 @@ export default function TaskManagementView({
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        console.log('🔧 [TaskManagementView] Using stored user as fallback:', parsedUser);
+        
         return parsedUser;
       } catch (error) {
         console.error('❌ Failed to parse stored user:', error);
@@ -334,15 +333,13 @@ export default function TaskManagementView({
 
   const mockTasks: any[] = localStorageTasks;
 
-
-
   // Tính toán selectedMemberForHook một cách reactive
   const selectedMemberForHook = React.useMemo(() => {
     if (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') {
-      console.log(`🔍 Director using selectedMember: ${selectedMember}`);
+      
       return selectedMember; // Directors sử dụng selectedMember từ filters
     } else {
-      console.log(`🔍 Team leader using selectedMemberId: ${selectedMemberId}`);
+      
       return selectedMemberId; // Team leaders sử dụng selectedMemberId từ props
     }
   }, [currentUser?.role, selectedMember, selectedMemberId]);
@@ -389,13 +386,13 @@ export default function TaskManagementView({
     });
 
     // Debug logs disabled for performance
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] ===== DETAILED TASK DATA =====');
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] regularTaskData:', regularTaskData);
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] regularTaskData.tasks:', regularTaskData?.tasks);
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] managerTaskData:', managerTaskData);
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] managerTaskData.tasks:', managerTaskData?.tasks);
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] currentUser:', currentUser);
-    // console.log('🔍 [TASK_MANAGEMENT_DEBUG] ===============================');
+    // 
+    // 
+    // 
+    // 
+    // 
+    // 
+    // 
 
   } catch (error) {
     console.error('Error with hooks, using mock data:', error);
@@ -431,12 +428,11 @@ export default function TaskManagementView({
       });
     }
 
-    console.log('🔍 Task filtering called with view:', view, 'selectedView:', selectedView);
     switch (view) {
       case 'personal':
         // Tab "Của tôi": CHỈ hiển thị công việc do chính người dùng hiện tại TẠO RA
         // Debug logs disabled for performance
-        // console.log('🔍 Personal view filtering - ONLY tasks CREATED BY current user:');
+        // 
         // console.log('  - effectiveUser.id:', effectiveUser?.id);
         // console.log('  - effectiveUser.name:', effectiveUser?.name);
         // console.log('  - regularTasks count:', regularTasks.length);
@@ -587,11 +583,10 @@ export default function TaskManagementView({
 
         // Kiểm tra quyền truy cập - CHỈ Khổng Đức Mạnh được phép
         if (currentUser?.name !== 'Khổng Đức Mạnh' && currentUser?.role !== 'retail_director') {
-          console.log('❌ Access denied - Only Khổng Đức Mạnh can access individual view');
+          
           return [];
         }
 
-        console.log('✅ Access granted - Khổng Đức Mạnh can view all member tasks');
         console.log('  - selectedMemberId:', selectedMemberId);
         console.log('  - selectedMember:', selectedMember);
         console.log('  - users count:', users.length);
@@ -754,9 +749,9 @@ export default function TaskManagementView({
   useEffect(() => {
     // Debug logs disabled for performance
     // console.log('🔄 Updating localTasks with baseTasks:', baseTasks.length);
-    // console.log('🔍 Current selectedView:', selectedView);
-    // console.log('🔍 regularTaskData tasks:', regularTaskData?.tasks?.length || 0);
-    // console.log('🔍 managerTaskData tasks:', managerTaskData?.tasks?.length || 0);
+    // 
+    // 
+    // 
 
     // Cập nhật localTasks với baseTasks mới
     // Chỉ dựa vào length và selectedView để tránh infinite loop
@@ -875,7 +870,7 @@ export default function TaskManagementView({
         }
       }
     } else {
-      console.log('📋 Setting up non-team view: showTeamCards=false');
+      
       setShowTeamCards(false);
     }
   }, [effectiveViewLevel, isDirector, userTeam]);
@@ -889,7 +884,6 @@ export default function TaskManagementView({
       console.log('🔄 TaskManagementView refreshing due to auto-sync...');
       if (regularTaskData?.refreshTasks) {
         regularTaskData.refreshTasks().then(() => {
-          console.log('✅ Regular tasks refreshed in TaskManagementView');
 
           // Force update localTasks after refresh
           setTimeout(() => {
@@ -904,7 +898,6 @@ export default function TaskManagementView({
 
       if (managerTaskData?.refreshTasks) {
         managerTaskData.refreshTasks().then(() => {
-          console.log('✅ Manager tasks refreshed in TaskManagementView');
 
           // Force update localTasks after refresh
           setTimeout(() => {
@@ -1142,7 +1135,7 @@ export default function TaskManagementView({
 
     // Kiểm tra quyền edit
     if (!canEditTask(task)) {
-      console.log('❌ Không có quyền thay đổi trạng thái task này');
+      
       return;
     }
 
@@ -1189,7 +1182,6 @@ export default function TaskManagementView({
         );
       }
 
-      console.log(`✅ Đã cập nhật trạng thái task ${taskId} và sync với API`);
     } catch (error) {
       console.error('❌ Lỗi khi cập nhật trạng thái:', error);
       // Revert nếu có lỗi
@@ -1217,7 +1209,7 @@ export default function TaskManagementView({
 
     // Kiểm tra quyền edit
     if (!canEditTask(task)) {
-      console.log('❌ Không có quyền thay đổi ưu tiên task này');
+      
       return;
     }
 
@@ -1266,7 +1258,6 @@ export default function TaskManagementView({
         );
       }
 
-      console.log(`✅ Đã cập nhật ưu tiên task ${taskId} và sync với API`);
     } catch (error) {
       console.error('❌ Lỗi khi cập nhật mức độ ưu tiên:', error);
       // Revert nếu có lỗi
@@ -1284,11 +1275,9 @@ export default function TaskManagementView({
     console.log(`🎯 Selected team set: ${teamName} (ID: ${teamId}), showTeamCards=false`);
   };
 
-
-
   // Debug selectedTeamForView changes and trigger re-filtering
   React.useEffect(() => {
-    console.log('🔍 selectedTeamForView changed:', selectedTeamForView);
+    
     if (selectedTeamForView) {
       console.log('🔄 Triggering re-filtering for team:', selectedTeamForView.name);
       // Force re-render to trigger filtering
@@ -1379,8 +1368,6 @@ export default function TaskManagementView({
                 </div>
               );
             })()}
-
-
 
             {/* Member Selector cho Team Leaders */}
             {currentUser?.role === 'team_leader' && effectiveViewLevel === 'individual' && (
@@ -1693,7 +1680,6 @@ export default function TaskManagementView({
                             if (confirm(`Bạn có chắc muốn xóa công việc "${task.title}"?\n\nHành động này không thể hoàn tác.`)) {
                               try {
                                 console.log('🗑️ Deleting task via Supabase:', task.id);
-                                console.log('🔍 deleteTaskFromSupabase function:', deleteTaskFromSupabase);
 
                                 // Check if deleteTask function is available
                                 if (!deleteTaskFromSupabase) {
@@ -1706,7 +1692,7 @@ export default function TaskManagementView({
                                 const success = await deleteTaskFromSupabase(task.id);
 
                                 if (success) {
-                                  console.log('✅ Task deleted successfully from Supabase');
+                                  
                                   // Remove from local state as well for immediate UI update
                                   setLocalTasks((prev) => prev.filter((t) => t.id !== task.id));
                                 } else {
@@ -1769,7 +1755,7 @@ export default function TaskManagementView({
 
           // Kiểm tra quyền edit
           if (!canEditTask(selectedTask)) {
-            console.log('❌ Không có quyền edit task này');
+            
             return;
           }
 
@@ -1813,7 +1799,7 @@ export default function TaskManagementView({
               ...updatedTask,
               updated_at: new Date().toISOString()
             });
-            console.log('✅ Task updated successfully and synced with API!');
+            
           } catch (error) {
             console.error('❌ Error updating task:', error);
             alert('Lỗi khi lưu công việc. Vui lòng thử lại!');
@@ -1832,7 +1818,6 @@ export default function TaskManagementView({
 
           try {
             console.log('🗑️ Deleting task via Supabase from detail panel:', taskId);
-            console.log('🔍 deleteTaskFromSupabase function:', deleteTaskFromSupabase);
 
             // Check if deleteTask function is available
             if (!deleteTaskFromSupabase) {
@@ -1845,7 +1830,7 @@ export default function TaskManagementView({
             const success = await deleteTaskFromSupabase(taskId);
 
             if (success) {
-              console.log('✅ Task deleted successfully from Supabase');
+              
               // Update UI after successful deletion
               setLocalTasks((prev) => prev.filter((t) => t.id !== taskId));
               setShowTaskDetail(false);

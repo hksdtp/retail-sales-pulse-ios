@@ -26,7 +26,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
   // Debug: Log currentUser changes
   useEffect(() => {
-    console.log('🔍 Sidebar currentUser changed:', currentUser?.name || 'null');
+    
   }, [currentUser]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -248,9 +248,7 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               "text-gray-600 hover:text-ios-blue hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-lg hover:transform hover:scale-[1.02] hover:border hover:border-blue-100"
             )}
             onClick={() => {
-              console.log('🔍 Avatar clicked, current state:', isDropdownOpen);
-              console.log('🔍 Current user:', currentUser?.name);
-              console.log('🔍 Current user full:', currentUser);
+
               setIsDropdownOpen(!isDropdownOpen);
             }}
           >
@@ -377,8 +375,6 @@ const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           )}
         </div>
       </div>
-
-
 
       {/* Account Settings Modal */}
       {showAccountSettings && (

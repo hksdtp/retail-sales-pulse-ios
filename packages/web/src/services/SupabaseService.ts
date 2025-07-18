@@ -47,7 +47,6 @@ export class SupabaseService {
       // Save config to localStorage
       localStorage.setItem('supabaseConfig', JSON.stringify(config));
 
-      console.log('✅ Supabase initialized successfully');
       return true;
     } catch (error) {
       console.error('❌ Error initializing Supabase:', error);
@@ -69,7 +68,7 @@ export class SupabaseService {
       if (storedConfig) {
         const config = JSON.parse(storedConfig);
         if (instance.initialize(config)) {
-          console.log('✅ Supabase initialized from localStorage');
+          
           return instance;
         }
       }
@@ -108,7 +107,6 @@ export class SupabaseService {
         return [];
       }
 
-      console.log(`✅ Loaded ${data?.length || 0} tasks from Supabase`);
       return data || [];
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -140,7 +138,6 @@ export class SupabaseService {
         return null;
       }
 
-      console.log('✅ Task added successfully:', data.id);
       return data;
     } catch (error) {
       console.error('Error adding task:', error);
@@ -167,7 +164,6 @@ export class SupabaseService {
         return null;
       }
 
-      console.log('✅ Task updated successfully:', id);
       return data;
     } catch (error) {
       console.error('Error updating task:', error);
@@ -192,7 +188,6 @@ export class SupabaseService {
         return false;
       }
 
-      console.log('✅ Task deleted successfully:', id);
       return true;
     } catch (error) {
       console.error('Error deleting task:', error);
@@ -219,7 +214,6 @@ export class SupabaseService {
         return [];
       }
 
-      console.log(`✅ Loaded ${data?.length || 0} users from Supabase`);
       return data || [];
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -246,7 +240,6 @@ export class SupabaseService {
         return [];
       }
 
-      console.log(`✅ Loaded ${data?.length || 0} teams from Supabase`);
       return data || [];
     } catch (error) {
       console.error('Error fetching teams:', error);
@@ -277,7 +270,6 @@ export class SupabaseService {
         return null;
       }
 
-      console.log(`✅ Document added to ${tableName}:`, result.id);
       return result.id;
     } catch (error) {
       console.error(`Error adding document to ${tableName}:`, error);
@@ -306,7 +298,6 @@ export class SupabaseService {
         return false;
       }
 
-      console.log(`✅ Document updated in ${tableName}:`, docId);
       return true;
     } catch (error) {
       console.error(`Error updating document ${docId} in ${tableName}:`, error);
@@ -331,7 +322,6 @@ export class SupabaseService {
         return false;
       }
 
-      console.log(`✅ Document deleted from ${tableName}:`, docId);
       return true;
     } catch (error) {
       console.error(`Error deleting document ${docId} from ${tableName}:`, error);
@@ -356,7 +346,6 @@ export class SupabaseService {
         return [];
       }
 
-      console.log(`✅ Loaded ${data?.length || 0} documents from ${tableName}`);
       return data || [];
     } catch (error) {
       console.error(`Error fetching documents from ${tableName}:`, error);
@@ -409,7 +398,6 @@ export class SupabaseService {
         return [];
       }
 
-      console.log(`✅ Query returned ${data?.length || 0} documents from ${tableName}`);
       return data || [];
     } catch (error) {
       console.error(`Error querying documents from ${tableName}:`, error);
@@ -448,7 +436,6 @@ export class SupabaseService {
         .from('files')
         .getPublicUrl(path);
 
-      console.log(`✅ File uploaded successfully: ${path}`);
       return urlData.publicUrl;
     } catch (error) {
       console.error(`Error uploading file ${path}:`, error);
@@ -475,7 +462,6 @@ export class SupabaseService {
         return { data: null, error: error.message };
       }
 
-      console.log('✅ User signed in successfully');
       return { data, error: null };
     } catch (error) {
       console.error('Error signing in:', error);
@@ -497,7 +483,6 @@ export class SupabaseService {
         return { error: error.message };
       }
 
-      console.log('✅ User signed out successfully');
       return { error: null };
     } catch (error) {
       console.error('Error signing out:', error);
@@ -552,7 +537,6 @@ export class SupabaseService {
         return false;
       }
 
-      console.log('✅ Supabase connection test successful');
       return true;
     } catch (error) {
       console.error('Connection test failed:', error);
@@ -567,8 +551,6 @@ export class SupabaseService {
   public getConfig(): SupabaseConfig | null {
     return this.config;
   }
-
-
 
   // ===== STATIC UTILITY METHODS (Firebase compatibility) =====
 
@@ -623,7 +605,6 @@ export class SupabaseService {
         )
         .subscribe();
 
-      console.log(`✅ Subscribed to ${tableName} changes`);
       return subscription;
     } catch (error) {
       console.error(`Error subscribing to ${tableName}:`, error);
@@ -634,7 +615,7 @@ export class SupabaseService {
   public unsubscribe(subscription: any) {
     if (subscription && this.client) {
       this.client.removeChannel(subscription);
-      console.log('✅ Unsubscribed from real-time updates');
+      
     }
   }
 }

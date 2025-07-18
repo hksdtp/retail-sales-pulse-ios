@@ -59,7 +59,6 @@ export class CustomerGoogleSheetsService {
         mode: 'no-cors',
       });
 
-      console.log('✅ Customer saved to Google Sheets:', response);
       return true;
     } catch (error) {
       console.error('❌ Error saving customer to Google Sheets:', error);
@@ -93,7 +92,6 @@ export class CustomerGoogleSheetsService {
         mode: 'no-cors',
       });
 
-      console.log('✅ Customer updated in Google Sheets:', response);
       return true;
     } catch (error) {
       console.error('❌ Error updating customer in Google Sheets:', error);
@@ -124,7 +122,6 @@ export class CustomerGoogleSheetsService {
         mode: 'no-cors',
       });
 
-      console.log('✅ Customer deleted from Google Sheets:', response);
       return true;
     } catch (error) {
       console.error('❌ Error deleting customer from Google Sheets:', error);
@@ -154,7 +151,6 @@ export class CustomerGoogleSheetsService {
         mode: 'no-cors',
       });
 
-      console.log('✅ Employee customer sheet created:', response);
       return true;
     } catch (error) {
       console.error('❌ Error creating employee customer sheet:', error);
@@ -191,7 +187,6 @@ export class CustomerGoogleSheetsService {
         mode: 'no-cors',
       });
 
-      console.log('✅ Employee customers synced to Google Sheets:', response);
       return true;
     } catch (error) {
       console.error('❌ Error syncing employee customers:', error);

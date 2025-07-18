@@ -13,7 +13,6 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import AccountSettings from '@/components/account/AccountSettings';
 
-
 // Haptic feedback utility
 const triggerHapticFeedback = () => {
   if ('vibrate' in navigator) {
@@ -62,12 +61,6 @@ const BottomNavigation = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-
-
-
-
-
 
   return (
     <>

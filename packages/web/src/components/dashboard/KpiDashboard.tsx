@@ -3,7 +3,6 @@ import React from 'react';
 
 import { DashboardIcon, TrendingUpIcon, UsersIcon, DollarSignIcon } from '@/components/ui/sf-symbol';
 
-
 import ConversionRates from '@/components/dashboard/ConversionRates';
 import KpiCard from '@/components/dashboard/KpiCard';
 import RegionDistribution from '@/components/dashboard/RegionDistribution';

@@ -95,7 +95,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Loading users and teams from Supabase/Mock/API...');
 
       // TEMPORARILY SKIP SUPABASE - Use mock data with updated structure
-      console.log('🔧 TEMPORARILY SKIPPING SUPABASE - Using mock data for updated structure');
 
       // Try Supabase first if configured (DISABLED FOR NOW)
       if (false) {
@@ -270,7 +269,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 console.log('🚫 [AuthContext] Blocking app access - password change required for user:', user.name);
               } else {
                 setBlockAppAccess(false);
-                console.log('✅ [AuthContext] App access allowed for user:', user.name, '(password already changed)');
+                ');
               }
 
               console.log('🔄 [AuthContext] Restored session with password change status:', {
@@ -290,7 +289,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               comprehensiveAutoSync.startAllAutoSyncServices(user.id, user.name);
               console.log('🔄 Started comprehensive auto sync for restored user:', user.name);
 
-              console.log('✅ [AuthContext] Successfully restored user session from localStorage');
             } catch (error) {
               console.error('❌ [AuthContext] Error parsing stored user data:', error);
               localStorage.removeItem('currentUser');
@@ -348,7 +346,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authToken,
       loginType
     };
-    console.log('🔧 Auth state exposed to window.authState and window.currentUser');
+    
   }, [currentUser]);
 
   const login = async (email: string, password: string): Promise<void> => {
@@ -369,7 +367,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (false && supabaseService.isInitialized()) {
         try {
-          console.log('🚀 Trying Supabase authentication...');
 
           // For development: Use mock authentication with Supabase users
           // Since sample users don't have real Supabase Auth accounts
@@ -399,7 +396,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   loginType: 'supabase_mock'
                 }
               };
-              console.log('✅ Using Supabase mock authentication for user:', userData.name);
+              
             } else {
               throw new Error('Mật khẩu không đúng');
             }
@@ -420,7 +417,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     loginType: 'supabase'
                   }
                 };
-                console.log('✅ Using real Supabase authentication');
+                
               } else {
                 throw new Error('User data not found in Supabase');
               }
@@ -483,7 +480,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       } else {
         setBlockAppAccess(false);
-        console.log('✅ App access allowed for user:', user.name, '(password already changed)');
+        ');
       }
 
       // Store in localStorage with detailed logging
@@ -530,7 +527,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Auto sync local tasks to Supabase
         try {
-          console.log('🚀 Starting auto sync of local tasks to Supabase...');
+          
           const autoSyncService = LocalToSupabaseAutoSync.getInstance();
           const syncResult = await autoSyncService.autoSyncOnLogin(user.id, user.name);
 
@@ -540,7 +537,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               description: `Đã đồng bộ ${syncResult.syncedCount} công việc lên cloud`,
               variant: 'default',
             });
-            console.log(`✅ Auto synced ${syncResult.syncedCount} tasks to Supabase`);
+            
           } else if (syncResult.errorCount > 0) {
             console.warn('⚠️ Some tasks failed to sync:', syncResult.errors);
             toast({
@@ -612,7 +609,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (supabaseService.isInitialized()) {
       try {
         await supabaseService.signOut();
-        console.log('✅ Signed out from Supabase');
+        
       } catch (error) {
         console.warn('⚠️ Error signing out from Supabase:', error);
       }
@@ -681,14 +678,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem(key, value);
     });
 
-    console.log('✅ Emergency logout completed, preserved', Object.keys(storedPasswords).length, 'stored passwords');
+    .length, 'stored passwords');
     sessionStorage.setItem('justLoggedOut', 'true');
     window.location.replace('/login');
   };
 
   // Manual login function for debugging
   const manualLogin = async () => {
-    console.log('🔧 Manual login triggered');
+    
     try {
       // Use correct email from current user
       await login('manh.khong@example.com', '123456');
@@ -705,14 +702,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Force reset auth state function
   const forceResetAuthState = () => {
-    console.log('🔧 Force resetting auth state...');
+    
     if (currentUser && currentUser.password_changed) {
       setIsFirstLogin(false);
       setRequirePasswordChange(false);
       setBlockAppAccess(false);
-      console.log('✅ Auth state reset completed');
+      
     } else {
-      console.log('❌ Cannot reset - no current user or password not changed');
+      
     }
   };
 
@@ -734,7 +731,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (targetUserId) {
         return debugUserPasswordStatus(targetUserId);
       } else {
-        console.log('❌ No user ID provided and no current user');
+        
         return null;
       }
     };
@@ -789,7 +786,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     };
 
-    console.log('🔧 Debug functions exposed:');
     console.log('  - window.emergencyLogout()');
     console.log('  - window.manualLogin()');
     console.log('  - window.checkLocalStorage()');
@@ -837,7 +833,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('📥 [AuthContext] changePassword: Mock response:', mockResponse);
 
       if (mockResponse.success) {
-        console.log('✅ [AuthContext] changePassword: Mock response successful, updating user state...');
 
         // Update current user state
         const updatedUser = { ...currentUser, password_changed: true };
@@ -867,7 +862,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Update localStorage
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-        console.log('✅ [AuthContext] changePassword: Updated localStorage');
 
         // CRITICAL: Clear all password-related caches to ensure sync across devices
         console.log('🧹 [AuthContext] changePassword: Clearing password caches...');
@@ -901,7 +895,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: 'Mật khẩu của bạn đã được cập nhật và đồng bộ trên tất cả thiết bị.',
         });
 
-        console.log('✅ [AuthContext] changePassword: Password change completed successfully');
       } else {
         console.error('❌ [AuthContext] changePassword: Mock response failed:', mockResponse.error);
         throw new Error(mockResponse.error || 'Mock change password failed');

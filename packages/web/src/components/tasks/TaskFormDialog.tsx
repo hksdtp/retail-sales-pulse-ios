@@ -82,7 +82,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     });
   }, [currentUser, isAuthenticated, isLoading, users]);
 
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedDeadline, setSelectedDeadline] = useState<Date | undefined>(
@@ -200,7 +199,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       if (storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
-          console.log('🔧 [TaskFormDialog] Using stored user as fallback:', parsedUser);
 
           // Continue with stored user data
           const fallbackUser = {
@@ -291,8 +289,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
         location: user.location,
       });
 
-
-
       toast({
         title: 'Thành công',
         description: 'Đã tạo công việc mới thành công',
@@ -361,8 +357,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
       };
     });
   };
-
-
 
   // Task type configurations with colors and icons
   const taskTypeConfig = {
@@ -569,8 +563,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 required
               />
             </div>
-
-
 
             {/* Trạng thái và Ưu tiên */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">

@@ -250,6 +250,6 @@ function filterTasksByUser(tasks: Task[], currentUser: User | null): Task[] {
 export const getTaskKpiData = (currentUser: User | null, realTasks: Task[] = []): TaskKpiSummary => {
   // Ưu tiên sử dụng realTasks nếu có, fallback về mock tasks
   const tasksToUse = realTasks.length > 0 ? realTasks : tasks;
-  console.log(`🔍 KPI calculation using ${tasksToUse.length} tasks (${realTasks.length > 0 ? 'real' : 'mock'} data)`);
+  `);
   return calculateTaskKpi(tasksToUse, currentUser);
 };

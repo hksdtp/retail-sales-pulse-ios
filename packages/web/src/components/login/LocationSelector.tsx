@@ -32,8 +32,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 }) => {
   const locationNames = getLocationNames(departmentType);
 
-  console.log('🔍 LocationSelector - selectedLocation:', selectedLocation);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -49,7 +47,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       <Select
         value={selectedLocation}
         onValueChange={(value) => {
-          console.log('🔍 LocationSelector - onValueChange:', value);
+          
           onLocationChange(value as UserLocation | 'all');
         }}
       >

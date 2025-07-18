@@ -97,7 +97,7 @@ export const testSupabaseMigration = async (): Promise<MigrationTestResult> => {
     }
 
     // Test 5: Tasks table
-    console.log('📋 Testing tasks table...');
+    
     try {
       const tasks = await supabaseService.getTasks();
       result.tests.tasks = Array.isArray(tasks);
@@ -128,8 +128,7 @@ export const testSupabaseMigration = async (): Promise<MigrationTestResult> => {
 
 // Test specific operations
 export const testSupabaseOperations = async () => {
-  console.log('🔧 Testing Supabase CRUD operations...');
-  
+
   const supabaseService = SupabaseService.getInstance();
   
   try {
@@ -150,8 +149,7 @@ export const testSupabaseOperations = async () => {
     const addedTask = await supabaseService.addTask(testTask);
     
     if (addedTask) {
-      console.log('✅ Task added successfully:', addedTask.id);
-      
+
       // Test updating the task
       console.log('✏️ Testing update task...');
       const updatedTask = await supabaseService.updateTask(addedTask.id, {
@@ -160,14 +158,13 @@ export const testSupabaseOperations = async () => {
       });
       
       if (updatedTask) {
-        console.log('✅ Task updated successfully');
-        
+
         // Test deleting the task
         console.log('🗑️ Testing delete task...');
         const deleted = await supabaseService.deleteTask(addedTask.id);
         
         if (deleted) {
-          console.log('✅ Task deleted successfully');
+          
         } else {
           console.error('❌ Failed to delete test task');
         }

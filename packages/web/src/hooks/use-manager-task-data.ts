@@ -84,7 +84,6 @@ export const useManagerTaskData = (
         }
 
         const url = `${apiUrl}/tasks/manager-view?${params.toString()}`;
-        console.log(`🔍 Fetching ${level} tasks:`, url);
 
         console.log(`📡 API Request: ${url}`);
         const response = await fetch(url);
@@ -108,7 +107,7 @@ export const useManagerTaskData = (
         console.log(`📊 API Response for ${level}:`, result);
 
         if (result.success && result.data) {
-          console.log(`✅ Loaded ${result.data.length} ${level} tasks`);
+          
           return result.data;
         } else {
           console.error(`❌ Error loading ${level} tasks:`, result.error);
@@ -135,16 +134,13 @@ export const useManagerTaskData = (
 
       let tasksData = await fetchTasksByLevel(viewLevel);
 
-      console.log(`🔍 Raw tasks data for ${viewLevel}:`, tasksData);
-
       // Load auto-synced tasks từ localStorage và merge
       if (viewLevel === 'personal' || viewLevel === 'individual') {
-        console.log('📋 Loading auto-synced tasks from localStorage...');
+        
         try {
           const taskKey = `user_tasks_${currentUser.id}`;
           const storedTasks = localStorage.getItem(taskKey);
           const autoSyncedTasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
-          console.log(`📋 Found ${autoSyncedTasks.length} auto-synced tasks for user ${currentUser.id}`);
 
           if (autoSyncedTasks.length > 0) {
             console.log(`🔄 Merging ${autoSyncedTasks.length} auto-synced tasks with ${tasksData.length} API tasks`);
@@ -157,7 +153,7 @@ export const useManagerTaskData = (
 
               if (!isDuplicate) {
                 tasksData.push(autoTask);
-                console.log(`✅ Added auto-synced task: ${autoTask.title}`);
+                
               } else {
                 console.log(`⏭️ Skipped duplicate task: ${autoTask.title}`);
               }
@@ -180,8 +176,6 @@ export const useManagerTaskData = (
           const isAssignedToMember = task.assignedTo === selectedMemberId;
           const isCreatedByMember = task.user_id === selectedMemberId;
           const shouldInclude = isAssignedToMember || isCreatedByMember;
-
-          console.log(`📋 Task "${task.title}": assignedTo=${task.assignedTo}, user_id=${task.user_id}, selectedMember=${selectedMemberId}, include=${shouldInclude}`);
 
           return shouldInclude;
         });

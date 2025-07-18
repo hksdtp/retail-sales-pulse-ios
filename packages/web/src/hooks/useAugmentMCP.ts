@@ -155,7 +155,7 @@ export function useAugmentMCP(): MCPHookReturn {
 
     try {
       const response = await augmentMCP.createTask(task);
-      console.log('✅ Task created:', response);
+      
       return response.success;
     } catch (error) {
       console.error('❌ Task creation failed:', error);
@@ -181,7 +181,7 @@ export function useAugmentMCP(): MCPHookReturn {
 
     try {
       const tasks = await augmentMCP.listTasks(filters);
-      console.log('📋 Tasks retrieved:', tasks);
+      
       return tasks;
     } catch (error) {
       console.error('❌ Task listing failed:', error);

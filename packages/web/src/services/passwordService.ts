@@ -61,7 +61,7 @@ class PasswordService {
       const supabaseClient = SupabaseService.getInstance().getClient();
 
       if (supabaseClient) {
-        console.log('🔍 [PasswordService] Checking Supabase database...');
+        
         const { data: user, error } = await supabaseClient
           .from('users')
           .select('id, password, password_changed')
@@ -79,12 +79,12 @@ class PasswordService {
           if (user.password_changed === false) {
             // User hasn't changed password, accept default
             const isValid = password === this.DEFAULT_PASSWORD;
-            console.log('🔍 [PasswordService] Default password check:', isValid);
+            
             return isValid;
           } else {
             // User has changed password, check against stored password
             const isValid = password === user.password;
-            console.log('🔍 [PasswordService] Custom password check:', isValid);
+            
             return isValid;
           }
         } else {
@@ -103,14 +103,14 @@ class PasswordService {
     // Nếu là lần đầu đăng nhập, kiểm tra mật khẩu mặc định
     if (!userPassword || userPassword.isFirstLogin) {
       const isValid = password === this.DEFAULT_PASSWORD;
-      console.log('🔍 [PasswordService] Default password fallback check:', isValid);
+      
       return isValid;
     }
 
     // Kiểm tra mật khẩu đã hash
     const hashedInput = this.hashPassword(password);
     const isValid = hashedInput === userPassword.hashedPassword;
-    console.log('🔍 [PasswordService] Hashed password fallback check:', isValid);
+    
     return isValid;
   }
 
@@ -138,7 +138,7 @@ class PasswordService {
           if (error) {
             console.error('❌ [PasswordService] Supabase update failed:', error);
           } else {
-            console.log('✅ [PasswordService] Password updated in Supabase');
+            
           }
         }
       } catch (supabaseError) {
@@ -172,7 +172,6 @@ class PasswordService {
       // Clear current user cache
       localStorage.removeItem('currentUser');
 
-      console.log('✅ [PasswordService] Password changed and caches cleared for user:', userId);
       return true;
     } catch (error) {
       console.error('❌ [PasswordService] Error changing password:', error);

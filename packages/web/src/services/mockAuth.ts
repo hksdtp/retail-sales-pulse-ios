@@ -213,7 +213,7 @@ export const mockLogin = async (email: string, password: string): Promise<{
       const existingUser = mockUsers[existingUserIndex];
       user.password_changed = existingUser.password_changed;
       mockUsers[existingUserIndex] = user;
-      console.log('✅ Preserved password_changed flag:', user.password_changed);
+      
     }
 
     // Also save to localStorage for persistence (avoid duplicates)
@@ -223,13 +223,13 @@ export const mockLogin = async (email: string, password: string): Promise<{
       const existingStoredIndex = parsedUsers.findIndex((u: any) => u.id === user.id);
       if (existingStoredIndex === -1) {
         parsedUsers.push(user);
-        console.log('✅ Saved new real data user to localStorage');
+        
       } else {
         // CRITICAL: Preserve password_changed flag from stored user
         const existingStoredUser = parsedUsers[existingStoredIndex];
         user.password_changed = existingStoredUser.password_changed || user.password_changed;
         parsedUsers[existingStoredIndex] = user;
-        console.log('✅ Updated existing real data user in localStorage, preserved password_changed:', user.password_changed);
+        
       }
       localStorage.setItem('mockUsers', JSON.stringify(parsedUsers));
     } catch (error) {
@@ -265,7 +265,7 @@ export const mockLogin = async (email: string, password: string): Promise<{
       const storedPassword = getStoredPassword(user.id);
 
       if (storedPassword && !user.password_changed && !isPasswordResetMode) {
-        console.log('🔧 [MockAuth] FIXING: User has stored password but password_changed is false. Setting to true for:', user.name);
+        
         user.password_changed = true;
 
         // Update mockUsers array
@@ -326,7 +326,7 @@ export const mockLogin = async (email: string, password: string): Promise<{
       const existingUser = mockUsers[existingUserIndex];
       user.password_changed = existingUser.password_changed;
       mockUsers[existingUserIndex] = user;
-      console.log('✅ Preserved password_changed flag:', user.password_changed);
+      
     }
 
     // Also save to localStorage for persistence (avoid duplicates)
@@ -336,13 +336,13 @@ export const mockLogin = async (email: string, password: string): Promise<{
       const existingStoredIndex = parsedUsers.findIndex((u: any) => u.id === user.id);
       if (existingStoredIndex === -1) {
         parsedUsers.push(user);
-        console.log('✅ Saved new dynamic user to localStorage');
+        
       } else {
         // CRITICAL: Preserve password_changed flag from stored user
         const existingStoredUser = parsedUsers[existingStoredIndex];
         user.password_changed = existingStoredUser.password_changed || user.password_changed;
         parsedUsers[existingStoredIndex] = user;
-        console.log('✅ Updated existing dynamic user in localStorage, preserved password_changed:', user.password_changed);
+        
       }
       localStorage.setItem('mockUsers', JSON.stringify(parsedUsers));
     } catch (error) {
@@ -367,14 +367,14 @@ export const mockLogin = async (email: string, password: string): Promise<{
   if (isAdminLogin) {
     // UPDATED: Admin password works for all users but still requires password change
     // Removed special treatment for Khổng Đức Mạnh
-    console.log('✅ [MockAuth] ADMIN LOGIN - allowing access for:', user.name);
+    
     isValidPassword = true;
     // CHANGED: Admin login still requires password change for consistency
     requirePasswordChange = !user.password_changed;
     loginType = 'admin_access';
   } else if (user.role === 'retail_director' && isDefaultPassword && !user.password_changed) {
     // Special case: Director can use default password 123456 ONLY if haven't changed password yet
-    console.log('✅ [MockAuth] Director first login with default password - allowed');
+    
     isValidPassword = true;
     requirePasswordChange = false;
     loginType = 'director_default';
@@ -393,20 +393,18 @@ export const mockLogin = async (email: string, password: string): Promise<{
 
     if (storedPassword) {
       // User has custom password - check against it ONLY
-      console.log('🔍 [MockAuth] Checking against stored custom password for:', user.name);
+      
       isValidPassword = password === storedPassword;
       requirePasswordChange = false;
       loginType = 'custom_password';
-      console.log('🔍 [MockAuth] Custom password check result:', isValidPassword ? '✅ MATCH' : '❌ NO MATCH');
 
       // IMPORTANT: If user has custom password, NEVER allow default password
       if (!isValidPassword && isDefaultPassword) {
-        console.log('❌ [MockAuth] User has custom password - default password 123456 is NO LONGER VALID');
+        
       }
     } else if (isDefaultPassword && !user.password_changed) {
       // First time login with default password - WORKS FOR ALL USERS
-      console.log('🔍 [MockAuth] First time login with default password for:', user.name);
-      console.log('🔍 [MockAuth] User password_changed status:', user.password_changed);
+
       isValidPassword = true;
       requirePasswordChange = true;
       loginType = 'first_login';
@@ -428,7 +426,6 @@ export const mockLogin = async (email: string, password: string): Promise<{
     let errorMessage = 'Mật khẩu không đúng';
 
     // SECURITY FIX: Remove dangerous reset mode that bypassed password validation
-    console.log('❌ [MockAuth] Invalid password for user:', user.name);
 
     // Provide specific error messages based on user state
     const storedPassword = getStoredPassword(user.id);
@@ -451,7 +448,6 @@ export const mockLogin = async (email: string, password: string): Promise<{
       requirePasswordChange: false,
       loginType: 'failed'
     };
-
 
   }
 
@@ -891,13 +887,12 @@ export const mockChangePassword = async (userId: string, newPassword: string): P
 
   // Store new password in localStorage
   localStorage.setItem(`user_password_${userId}`, newPassword);
-  console.log('✅ Stored new password in localStorage for user:', userId);
 
   // Mark user as password changed in mockUsers array
   const userIndex = mockUsers.findIndex(u => u.id === userId);
   if (userIndex !== -1) {
     mockUsers[userIndex].password_changed = true;
-    console.log('✅ Updated mockUsers array - password_changed = true for user:', mockUsers[userIndex].name);
+    
   } else {
     console.error('❌ User not found in mockUsers array:', userId);
   }
@@ -911,7 +906,7 @@ export const mockChangePassword = async (userId: string, newPassword: string): P
       if (storedUserIndex !== -1) {
         parsedUsers[storedUserIndex].password_changed = true;
         localStorage.setItem('mockUsers', JSON.stringify(parsedUsers));
-        console.log('✅ Updated localStorage mockUsers backup');
+        
       }
     }
   } catch (error) {
@@ -921,13 +916,11 @@ export const mockChangePassword = async (userId: string, newPassword: string): P
   // 3. Sync password change to Supabase
   try {
     const supabaseResult = await syncPasswordChangeToSupabase(userId, newPassword);
-    console.log('✅ Supabase password sync result:', supabaseResult);
+    
   } catch (supabaseError) {
     console.error('❌ Failed to sync password to Supabase (continuing with local change):', supabaseError);
     // Don't fail the entire operation if Supabase sync fails
   }
-
-  console.log('✅ Password change completed for user (Local + Supabase):', userId);
 
   return {
     success: true,
@@ -992,14 +985,14 @@ export const debugListAllUsers = () => {
     const storedUsers = localStorage.getItem('mockUsers');
     if (storedUsers) {
       const parsedUsers = JSON.parse(storedUsers);
-      console.log('📋 All users in localStorage:', parsedUsers.map((u: any) => ({
+       => ({
         id: u.id,
         name: u.name,
         email: u.email,
         password_changed: u.password_changed
       })));
     } else {
-      console.log('📋 No users found in localStorage');
+      
     }
   } catch (error) {
     console.warn('Could not parse stored users:', error);
@@ -1013,7 +1006,6 @@ export const debugListAllUsers = () => {
 
 // Function to debug all stored passwords
 export const debugAllStoredPasswords = () => {
-  console.log('🔍 Debugging all stored passwords...');
 
   const allStoredPasswords: { key: string, userId: string, password: string }[] = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -1024,8 +1016,6 @@ export const debugAllStoredPasswords = () => {
       allStoredPasswords.push({ key, userId, password });
     }
   }
-
-  console.log('🔍 All stored passwords:', allStoredPasswords);
 
   // Check each stored password against users
   allStoredPasswords.forEach(({ key, userId, password }) => {
@@ -1047,22 +1037,19 @@ export const debugAllStoredPasswords = () => {
 export const getStoredPassword = (userId: string): string | null => {
   const key = `user_password_${userId}`;
   const password = localStorage.getItem(key);
-  console.log('🔍 [getStoredPassword] Looking for:', { userId, key, found: !!password, passwordLength: password?.length });
+  
   return password;
 };
 
 // Debug function to test localStorage directly
 export const debugLocalStorageAccess = (userId: string) => {
   const key = `user_password_${userId}`;
-  console.log('🔍 Direct localStorage test for:', userId);
 
   // Test direct access
   const directAccess = localStorage.getItem(key);
-  console.log('📋 Direct localStorage.getItem result:', { key, value: directAccess, found: !!directAccess });
 
   // Test via getStoredPassword function
   const viaFunction = getStoredPassword(userId);
-  console.log('📋 Via getStoredPassword function:', { value: viaFunction, found: !!viaFunction });
 
   // List all localStorage keys
   const allKeys = [];
@@ -1075,7 +1062,6 @@ export const debugLocalStorageAccess = (userId: string) => {
       });
     }
   }
-  console.log('📋 All password keys in localStorage:', allKeys);
 
   return {
     directAccess,
@@ -1087,14 +1073,14 @@ export const debugLocalStorageAccess = (userId: string) => {
 
 // Function to restore stored password for testing
 export const restoreStoredPassword = (userId: string, password: string) => {
-  console.log('🔧 Restoring stored password for user:', userId);
+  
   localStorage.setItem(`user_password_${userId}`, password);
 
   // Also update user's password_changed flag
   const userIndex = mockUsers.findIndex(u => u.id === userId);
   if (userIndex !== -1) {
     mockUsers[userIndex].password_changed = true;
-    console.log('✅ Updated password_changed flag for:', mockUsers[userIndex].name);
+    
   }
 
   // Update localStorage backup
@@ -1106,14 +1092,13 @@ export const restoreStoredPassword = (userId: string, password: string) => {
       if (storedUserIndex !== -1) {
         parsedUsers[storedUserIndex].password_changed = true;
         localStorage.setItem('mockUsers', JSON.stringify(parsedUsers));
-        console.log('✅ Updated localStorage backup');
+        
       }
     }
   } catch (error) {
     console.warn('⚠️ Could not update localStorage backup:', error);
   }
 
-  console.log('✅ Stored password restored successfully');
   return true;
 };
 
@@ -1123,7 +1108,6 @@ export const resetAllPasswordsToDefault = () => {
 
   // 1. Enable password reset mode to prevent auto-restore
   localStorage.setItem('password_reset_mode', 'true');
-  console.log('🔧 Enabled password reset mode');
 
   let clearedCount = 0;
   let resetCount = 0;
@@ -1190,9 +1174,7 @@ export const resetAllPasswordsToDefault = () => {
 
   // Store the reset data temporarily
   localStorage.setItem('realUsers_reset', JSON.stringify(realUsers));
-  console.log('✅ Stored reset realUsers data');
 
-  console.log(`✅ PASSWORD RESET COMPLETE:`);
   console.log(`   - Cleared ${clearedCount} stored passwords`);
   console.log(`   - Reset ${resetCount} user flags`);
   console.log(`   - All users can now login with: 123456`);
@@ -1236,7 +1218,6 @@ export const syncPasswordChangeToSupabase = async (userId: string, newPassword: 
       return { success: false, error: error.message };
     }
 
-    console.log('✅ Successfully updated user password in Supabase:', userId);
     return {
       success: true,
       message: 'User password updated in Supabase',
@@ -1277,7 +1258,6 @@ export const syncPasswordResetToSupabase = async () => {
       return { success: false, error: error.message };
     }
 
-    console.log('✅ Successfully reset all user passwords in Supabase');
     return {
       success: true,
       message: 'All user passwords reset to default in Supabase',
@@ -1318,7 +1298,6 @@ export const addPasswordColumnToSupabaseSQL = async () => {
       return { success: false, error: error.message };
     }
 
-    console.log('✅ Successfully added password column via SQL');
     return {
       success: true,
       message: 'Password column added successfully',
@@ -1352,16 +1331,14 @@ export const ensurePasswordColumnInSupabase = async () => {
       .limit(1);
 
     if (testError && testError.message.includes('password')) {
-      console.log('❌ Password column does not exist.');
-      console.log('🔧 Attempting to add password column automatically...');
 
       // Try to add column automatically
       const addResult = await addPasswordColumnToSupabaseSQL();
       if (addResult.success) {
-        console.log('✅ Password column added automatically!');
+        
         return addResult;
       } else {
-        console.log('❌ Auto-add failed. Please run this SQL manually in Supabase dashboard:');
+        
         console.log(`
           -- Add password column to users table
           ALTER TABLE users ADD COLUMN password TEXT;
@@ -1387,8 +1364,6 @@ export const ensurePasswordColumnInSupabase = async () => {
       return { success: false, error: testError.message };
     }
 
-    console.log('✅ Password column exists in Supabase');
-
     // If column exists, ensure all users have default password
     const { data: updateData, error: updateError } = await supabaseClient
       .from('users')
@@ -1400,8 +1375,6 @@ export const ensurePasswordColumnInSupabase = async () => {
       console.error('❌ Error setting default passwords:', updateError);
       return { success: false, error: updateError.message };
     }
-
-    console.log('✅ Password column ready, default passwords set');
 
     return {
       success: true,
@@ -1441,7 +1414,6 @@ export const updateAllUsersPasswordChangedToFalse = async () => {
       return { success: false, error: error.message };
     }
 
-    console.log('✅ Successfully updated all users to password_changed: false in Supabase');
     console.log('📊 Updated users count:', data?.length || 0);
 
     return {
@@ -1475,7 +1447,7 @@ export const testCompletePasswordSyncFlow = async () => {
     console.log('Step 1 result:', results.step1_ensureColumn.success ? '✅ SUCCESS' : '❌ FAILED');
 
     if (!results.step1_ensureColumn.success) {
-      console.log('❌ Cannot proceed without password column. Please add it manually.');
+      
       return results;
     }
 
@@ -1510,7 +1482,7 @@ export const testCompletePasswordSyncFlow = async () => {
     };
 
     console.log('\\n🎉 TEST SUMMARY:');
-    console.log(`✅ Successful steps: ${successCount}/4`);
+    
     console.log(`🎯 Overall result: ${results.summary.overallSuccess ? 'SUCCESS' : 'PARTIAL SUCCESS'}`);
 
     return results;
@@ -1529,7 +1501,6 @@ export const testCompletePasswordSyncFlow = async () => {
 
 // Force reset Khổng Đức Mạnh password_changed to false
 export const forceResetManhPasswordChanged = () => {
-  console.log('🔧 Force resetting Khổng Đức Mạnh password_changed to false...');
 
   try {
     const usersStr = localStorage.getItem('users');
@@ -1558,15 +1529,13 @@ export const forceResetManhPasswordChanged = () => {
         currentUser.password_changed = false;
         currentUser.password = '123456';
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        console.log('✅ Also updated currentUser');
+        
       }
     }
 
     // Clear any auth tokens to force fresh login
     localStorage.removeItem('authToken');
     localStorage.removeItem('loginType');
-
-    console.log(`✅ Successfully reset password_changed for Khổng Đức Mạnh`);
 
     return {
       success: true,
@@ -1582,12 +1551,11 @@ export const forceResetManhPasswordChanged = () => {
 
 // Fix password change requirement after successful password change
 export const fixPasswordChangeRequirement = () => {
-  console.log('🔧 Fixing password change requirement...');
 
   // Get current user from localStorage
   const currentUserStr = localStorage.getItem('currentUser');
   if (!currentUserStr) {
-    console.log('❌ No current user found in localStorage');
+    
     return { success: false, error: 'No current user' };
   }
 
@@ -1601,7 +1569,6 @@ export const fixPasswordChangeRequirement = () => {
 
     // If user has changed password, force update the flag
     if (currentUser.password_changed) {
-      console.log('✅ User already has password_changed = true, forcing auth state reset');
 
       // Force reload to reset auth state
       setTimeout(() => {
@@ -1620,7 +1587,6 @@ export const fixPasswordChangeRequirement = () => {
       currentUser.password_changed = true;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-      console.log('✅ Forced password_changed = true and reloading');
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -1643,7 +1609,7 @@ export const fixPasswordChangeRequirement = () => {
 export const disablePasswordResetMode = () => {
   localStorage.removeItem('password_reset_mode');
   localStorage.removeItem('post_reset_session');
-  console.log('🔧 Disabled password reset mode and post-reset session - auto-restore will work again');
+  
   return { success: true, message: 'Password reset mode and post-reset session disabled' };
 };
 
@@ -1676,7 +1642,7 @@ export const ultimatePasswordReset = async () => {
   // 5. Sync password reset to Supabase
   try {
     const supabaseResult = await syncPasswordResetToSupabase();
-    console.log('✅ Supabase password reset sync result:', supabaseResult);
+    
   } catch (error) {
     console.error('❌ Failed to sync password reset to Supabase:', error);
   }
@@ -1719,8 +1685,6 @@ export const autoRestoreKnownPasswords = () => {
   //   };
   // }
 
-  console.log('🔧 Auto-restoring known stored passwords...');
-
   // Known users who have changed passwords (for testing)
   // EXPANDED: Add all users who might have changed passwords during testing
   const knownPasswordChanges = [
@@ -1736,7 +1700,7 @@ export const autoRestoreKnownPasswords = () => {
     const existingPassword = localStorage.getItem(`user_password_${userId}`);
     if (!existingPassword) {
       localStorage.setItem(`user_password_${userId}`, password);
-      console.log(`✅ Restored password for ${userName}`);
+      
       restoredCount++;
 
       // Also update user's password_changed flag
@@ -1768,7 +1732,7 @@ export const autoRestoreKnownPasswords = () => {
   }
 
   if (restoredCount > 0) {
-    console.log(`✅ Auto-restored ${restoredCount} stored passwords`);
+    
   }
 
   if (existingStoredPasswords.length > 0) {
@@ -1785,7 +1749,6 @@ export const autoRestoreKnownPasswords = () => {
 
 // Function to fix inconsistent user data
 export const fixUserDataConsistency = () => {
-  console.log('🔧 Fixing user data consistency...');
 
   // Get all stored passwords
   const allStoredPasswords: string[] = [];
@@ -1796,7 +1759,7 @@ export const fixUserDataConsistency = () => {
     }
   }
 
-  console.log('🔍 Found stored passwords for:', allStoredPasswords.map(key => key.replace('user_password_', '')));
+  ));
 
   // For each stored password, ensure user exists and password_changed is true
   allStoredPasswords.forEach(passwordKey => {
@@ -1805,7 +1768,7 @@ export const fixUserDataConsistency = () => {
 
     if (userIndex !== -1) {
       if (!mockUsers[userIndex].password_changed) {
-        console.log('🔧 Fixing password_changed flag for user:', mockUsers[userIndex].name);
+        
         mockUsers[userIndex].password_changed = true;
       }
     } else {
@@ -1816,7 +1779,7 @@ export const fixUserDataConsistency = () => {
   // Update localStorage
   try {
     localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
-    console.log('✅ Updated localStorage with fixed user data');
+    
   } catch (error) {
     console.warn('⚠️ Could not update localStorage:', error);
   }

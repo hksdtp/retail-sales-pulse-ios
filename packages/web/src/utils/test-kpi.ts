@@ -62,7 +62,7 @@ export const testKpiCalculation = () => {
   console.log('📊 Công việc khác KPI:', calculateTaskKpiByCategory(sampleTasks, ['other']));
 
   // Expected results:
-  console.log('✅ Expected Results:');
+  
   console.log('- KTS: Total=3, Completed=2, InProgress=1, OnHold=0, Todo=0, Rate=67%');
   console.log('- Đối tác: Total=2, Completed=1, InProgress=0, OnHold=0, Todo=1, Rate=50%');
   console.log('- Khách hàng: Total=3, Completed=1, InProgress=1, OnHold=1, Todo=0, Rate=33%');

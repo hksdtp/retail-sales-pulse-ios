@@ -1,9 +1,7 @@
 // Dialog Centering Fix - Force center all dialogs
 (function() {
   'use strict';
-  
-  console.log('🔧 Dialog Centering Fix loaded');
-  
+
   // Function to center a dialog element
   function centerDialog(element) {
     if (!element) return;
@@ -27,8 +25,7 @@
     Object.keys(styles).forEach(key => {
       element.style.setProperty(key.replace(/([A-Z])/g, '-$1').toLowerCase(), styles[key], 'important');
     });
-    
-    console.log('✅ Dialog centered:', element);
+
   }
   
   // Function to fix overlay
@@ -51,8 +48,7 @@
     Object.keys(styles).forEach(key => {
       element.style.setProperty(key.replace(/([A-Z])/g, '-$1').toLowerCase(), styles[key], 'important');
     });
-    
-    console.log('✅ Overlay fixed:', element);
+
   }
   
   // Observer to watch for dialog elements
@@ -116,6 +112,5 @@
   
   // Expose global function for manual fixing
   window.fixDialogCentering = fixExistingDialogs;
-  
-  console.log('🚀 Dialog Centering Fix initialized');
+
 })();

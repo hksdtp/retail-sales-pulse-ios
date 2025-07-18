@@ -81,7 +81,6 @@ const Calendar = () => {
   const handleDebugSync = async () => {
     if (!currentUser?.id) return;
 
-    console.log('🔧 DEBUG: Manual sync triggered');
     try {
       await planToTaskSyncService.debugForceSync(currentUser.id);
       alert('✅ Debug sync completed! Check console for details.');
@@ -98,10 +97,6 @@ const Calendar = () => {
         subtitle="Quản lý và theo dõi kế hoạch công việc hàng ngày"
         actions={
           <div className="flex gap-2">
-            <Button onClick={handleDebugSync} variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Debug Sync
-            </Button>
             <Button onClick={handleCreatePlan} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Tạo kế hoạch

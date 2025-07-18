@@ -54,7 +54,7 @@ export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'current')
     // Sử dụng created_at thay vì date để filter theo ngày tạo task
     const createdAtField = task.created_at || task.date;
     if (!createdAtField) {
-      console.log('❌ Task missing created_at and date:', task.id);
+      
       return true; // Hiển thị task không có ngày
     }
 
@@ -81,13 +81,13 @@ export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'current')
 
       // Validate parsed date
       if (isNaN(taskCreatedDate.getTime())) {
-        console.log('❌ Invalid date for task:', task.id, createdAtField);
+        
         return false;
       }
 
       taskCreatedDate.setHours(0, 0, 0, 0);
     } catch (error) {
-      console.log('❌ Error parsing date for task:', task.id, error.message);
+      
       return false;
     }
 

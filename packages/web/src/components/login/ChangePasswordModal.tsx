@@ -90,13 +90,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     });
 
     if (!isValidPassword) {
-      console.log('❌ ChangePasswordModal: Form validation failed');
+      
       alert('Vui lòng kiểm tra lại yêu cầu mật khẩu');
       return;
     }
 
     if (isSubmitting) {
-      console.log('❌ ChangePasswordModal: Already submitting');
+      
       return;
     }
 
@@ -106,13 +106,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     try {
       console.log('🔄 ChangePasswordModal: Calling onPasswordChange callback...');
       await onPasswordChange(newPassword);
-      console.log('✅ ChangePasswordModal: Password change successful!');
 
       // Reset form
       setNewPassword('');
       setConfirmPassword('');
 
-      console.log('✅ ChangePasswordModal: Form reset completed');
     } catch (error) {
       console.error('❌ ChangePasswordModal: Password change failed:', error);
       alert('Lỗi đổi mật khẩu: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -139,7 +137,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     console.log('🚫 ChangePasswordModal: Calling onCancel callback');
     try {
       onCancel();
-      console.log('✅ ChangePasswordModal: onCancel callback executed successfully');
+      
     } catch (error) {
       console.error('❌ ChangePasswordModal: Error in onCancel callback:', error);
     }
@@ -302,8 +300,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 <div>Button Should Be Enabled: {isValidPassword && !isSubmitting ? '✅' : '❌'}</div>
               </div>
             </div>
-
-
 
             {/* Actions */}
             <div className="space-y-3 pt-4">

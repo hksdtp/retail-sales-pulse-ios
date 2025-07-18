@@ -174,7 +174,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               autoPlanSyncService.startAutoSync(user.id);
               console.log('🔄 Started auto plan sync for restored user:', user.name);
 
-              console.log('✅ [AuthContext] Successfully restored user session from localStorage');
             } catch (error) {
               console.error('❌ [AuthContext] Error parsing stored user data:', error);
               localStorage.removeItem('currentUser');
@@ -231,7 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check if API response is successful
       if (apiResponse.success && apiResponse.data) {
         response = apiResponse;
-        console.log('✅ Using API authentication');
+        
       } else {
         // If API server is running but returns error, don't fallback to mock
         // Only fallback if API server is completely unreachable

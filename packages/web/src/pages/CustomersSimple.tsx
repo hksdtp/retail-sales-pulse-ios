@@ -81,7 +81,6 @@ const CustomersSimple: React.FC = () => {
         localStorage.setItem('customers_simple', JSON.stringify(mockCustomers));
       }
 
-      console.log('✅ Loaded customers successfully');
     } catch (err) {
       setError('Không thể tải danh sách khách hàng');
       console.error('❌ Error loading customers:', err);
@@ -137,7 +136,6 @@ const CustomersSimple: React.FC = () => {
     setShowDeleteDialog(false);
     setCustomerToDelete(null);
 
-    console.log('✅ Customer deleted:', customerToDelete.name);
   };
 
   const handleSubmitForm = (e: React.FormEvent) => {
@@ -165,7 +163,6 @@ const CustomersSimple: React.FC = () => {
       const updatedCustomers = [...customers, newCustomer];
       saveCustomers(updatedCustomers);
 
-      console.log('✅ Customer created:', newCustomer.name);
     } else if (formMode === 'edit' && selectedCustomer) {
       const updatedCustomers = customers.map(c =>
         c.id === selectedCustomer.id
@@ -183,7 +180,6 @@ const CustomersSimple: React.FC = () => {
 
       saveCustomers(updatedCustomers);
 
-      console.log('✅ Customer updated:', formData.name);
     }
 
     setShowForm(false);

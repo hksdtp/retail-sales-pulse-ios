@@ -50,8 +50,7 @@ export class GoogleApiLoader {
         
         // Wait for gapi to be available
         await this.waitForGapi();
-        
-        console.log('✅ Google APIs loaded successfully');
+
       }
 
       return true;
@@ -121,7 +120,6 @@ export class GoogleApiLoader {
         });
       });
 
-      console.log('✅ Google API client initialized');
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize Google API client:', error);

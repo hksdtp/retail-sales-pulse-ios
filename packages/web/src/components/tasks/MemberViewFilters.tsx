@@ -54,7 +54,7 @@ export default function MemberViewFilters({
 
   // Lấy danh sách members theo team
   const getMembersByTeam = () => {
-    console.log('🔍 MemberViewFilters - Debug getMembersByTeam:');
+    
     console.log('  currentUser:', currentUser);
     console.log('  all users:', users.map(u => ({ id: u.id, name: u.name, department_type: u.department_type, location: u.location, team_id: u.team_id })));
 

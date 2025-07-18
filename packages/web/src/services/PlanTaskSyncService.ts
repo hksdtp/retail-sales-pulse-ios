@@ -39,7 +39,6 @@ class LocalTaskService {
 
     this.saveUserTasks(userId, updatedTasks);
 
-    console.log('✅ Đã thêm task mới:', newTask.title);
     return newTask;
   }
 
@@ -224,7 +223,7 @@ class PlanTaskSyncService {
       });
 
       if (newTask) {
-        console.log(`✅ Đã sync plan "${plan.title}" thành task "${newTask.title}"`);
+        
         return true;
       } else {
         console.error('❌ Lỗi khi tạo task từ plan');
@@ -244,7 +243,7 @@ class PlanTaskSyncService {
       const planId = personalPlanService.addPlan(userId, planData);
       
       if (planId) {
-        console.log(`✅ Đã sync task "${task.title}" thành plan`);
+        
         return true;
       } else {
         console.error('❌ Lỗi khi sync task to plan');
@@ -279,10 +278,10 @@ class PlanTaskSyncService {
         const success = await this.syncPlanToTask(plan, userId);
         if (success) {
           result.plansToTasks++;
-          console.log(`✅ Successfully synced plan: ${plan.title}`);
+          
         } else {
           result.errors.push(`Failed to sync plan: ${plan.title}`);
-          console.log(`❌ Failed to sync plan: ${plan.title}`);
+          
         }
       }
 

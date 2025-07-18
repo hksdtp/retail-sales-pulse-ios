@@ -81,7 +81,7 @@ const GlobalPasswordChangeModal: React.FC = () => {
       console.log('🔄 GlobalPasswordChangeModal: CLOSING modal');
       setShowModal(false);
     } else if (shouldShowModal && showModal) {
-      console.log('✅ GlobalPasswordChangeModal: Modal already open - no action needed');
+      
     } else {
       console.log('ℹ️ GlobalPasswordChangeModal: No modal needed', {
         reason: 'password already changed',
@@ -104,7 +104,6 @@ const GlobalPasswordChangeModal: React.FC = () => {
       console.log('🔄 GlobalPasswordChangeModal: Calling changePassword from AuthContext...');
       await changePassword(newPassword);
 
-      console.log('✅ GlobalPasswordChangeModal: Password change successful');
       console.log('✅ GlobalPasswordChangeModal: Auth states after change:', {
         isFirstLogin,
         requirePasswordChange,
@@ -132,7 +131,7 @@ const GlobalPasswordChangeModal: React.FC = () => {
           console.log('🔄 GlobalPasswordChangeModal: Redirecting from login page to main app');
           window.location.href = '/';
         } else {
-          console.log('✅ GlobalPasswordChangeModal: Password change completed, staying on current page');
+          
         }
       }, 500); // Increased timeout to ensure state updates
 

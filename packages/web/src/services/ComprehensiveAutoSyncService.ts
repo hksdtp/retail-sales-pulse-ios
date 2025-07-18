@@ -52,15 +52,14 @@ class ComprehensiveAutoSyncService {
    * Khởi động tất cả auto sync services
    */
   public startAllAutoSyncServices(userId: string, userName: string): void {
-    console.log('🚀 Starting comprehensive auto sync for user:', userName);
-    
+
     try {
       // 1. Start Auto Plan Sync (30 seconds interval)
       console.log('🔄 Starting Auto Plan Sync Service...');
       autoPlanSyncService.startAutoSync(userId);
       
       // 2. Start Plan to Task Sync (1 minute interval)
-      console.log('📋 Starting Plan to Task Sync Service...');
+      
       planToTaskSyncService.startAutoSync(1); // 1 minute
       
       // 3. Trigger initial Local to Supabase sync
@@ -71,9 +70,7 @@ class ComprehensiveAutoSyncService {
       
       // 4. Start health monitoring
       this.startHealthMonitoring(userId, userName);
-      
-      console.log('✅ All auto sync services started successfully');
-      
+
       // 5. Expose to window for debugging
       this.exposeToWindow();
       
@@ -96,8 +93,7 @@ class ComprehensiveAutoSyncService {
         clearInterval(this.healthCheckInterval);
         this.healthCheckInterval = null;
       }
-      
-      console.log('✅ All auto sync services stopped');
+
     } catch (error) {
       console.error('❌ Error stopping auto sync services:', error);
     }
@@ -138,7 +134,7 @@ class ComprehensiveAutoSyncService {
         
         // Restart Plan to Task Sync if needed
         if (!status.planToTask.isRunning) {
-          console.log('📋 Restarting Plan to Task Sync...');
+          
           planToTaskSyncService.startAutoSync(1);
         }
         
@@ -223,8 +219,7 @@ class ComprehensiveAutoSyncService {
     localToSupabase: any;
     planToTask: any;
   }> {
-    console.log('🔧 Triggering manual sync for all services...');
-    
+
     try {
       const results = await Promise.allSettled([
         autoPlanSyncService.manualSync(userId),
@@ -238,7 +233,6 @@ class ComprehensiveAutoSyncService {
         planToTask: results[2].status === 'fulfilled' ? results[2].value : null
       };
 
-      console.log('✅ Manual sync completed:', syncResults);
       return syncResults;
     } catch (error) {
       console.error('❌ Error in manual sync:', error);
@@ -258,7 +252,7 @@ class ComprehensiveAutoSyncService {
         manualSyncAll: (userId: string, userName: string) => this.triggerManualSyncAll(userId, userName),
         healthCheck: (userId: string, userName: string) => this.performHealthCheck(userId, userName)
       };
-      console.log('🔧 Comprehensive Auto Sync exposed to window.comprehensiveAutoSync');
+      
     }
   }
 }
