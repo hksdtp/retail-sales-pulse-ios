@@ -39,8 +39,8 @@ export const sortTasks = (tasks: Task[]): Task[] => {
   });
 };
 
-// Hàm filter tasks theo ngày tạo (created_at) - mặc định chỉ hiển thị hôm nay
-export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'today'): Task[] => {
+// Hàm filter tasks theo ngày - ưu tiên hiển thị công việc hiện tại và pending tasks
+export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'current'): Task[] => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -55,7 +55,7 @@ export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'today'): 
     const createdAtField = task.created_at || task.date;
     if (!createdAtField) {
       console.log('❌ Task missing created_at and date:', task.id);
-      return false;
+      return true; // Hiển thị task không có ngày
     }
 
     // Parse ngày tạo task - handle multiple formats
@@ -100,10 +100,23 @@ export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'today'): 
     });
 
     switch (dateFilter) {
-      case 'today':
+      case 'current':
+        // LOGIC MỚI: Hiển thị công việc hiện tại + pending tasks từ quá khứ
         const isToday = taskCreatedDate.getTime() === today.getTime();
-        console.log(`📅 Today filter for ${task.id}:`, isToday);
-        return isToday;
+        const isFromPast = taskCreatedDate.getTime() < today.getTime();
+        const isPending = task.status === 'todo' || task.status === 'in-progress' || task.status === 'on-hold';
+
+        // Hiển thị nếu:
+        // 1. Là công việc hôm nay
+        // 2. Là công việc cũ nhưng chưa hoàn thành (pending)
+        const shouldShow = isToday || (isFromPast && isPending);
+        console.log(`📅 Current filter for ${task.id}:`, { isToday, isFromPast, isPending, shouldShow });
+        return shouldShow;
+
+      case 'today':
+        const isTodayOnly = taskCreatedDate.getTime() === today.getTime();
+        console.log(`📅 Today filter for ${task.id}:`, isTodayOnly);
+        return isTodayOnly;
 
       case 'yesterday':
         const yesterday = new Date(today);
@@ -140,9 +153,13 @@ export const filterTasksByDate = (tasks: Task[], dateFilter: string = 'today'): 
         return true;
 
       default:
+        // Default to 'current' behavior
         const isDefaultToday = taskCreatedDate.getTime() === today.getTime();
-        console.log(`📅 Default (today) filter for ${task.id}:`, isDefaultToday);
-        return isDefaultToday; // Default to today
+        const isDefaultFromPast = taskCreatedDate.getTime() < today.getTime();
+        const isDefaultPending = task.status === 'todo' || task.status === 'in-progress' || task.status === 'on-hold';
+        const defaultShouldShow = isDefaultToday || (isDefaultFromPast && isDefaultPending);
+        console.log(`📅 Default (current) filter for ${task.id}:`, defaultShouldShow);
+        return defaultShouldShow;
     }
   });
 };

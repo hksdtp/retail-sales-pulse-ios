@@ -48,7 +48,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContextSupabase';
 import { useManagerTaskData } from '@/hooks/use-manager-task-data';
 import { useTaskData } from '@/hooks/use-task-data';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -171,9 +171,19 @@ export default function TaskManagementView({
   onSelectedMemberChange,
   onCreateTask,
 }: TaskManagementViewProps) {
-  const { users, teams } = useAuth();
-  const { currentUser } = useTaskData(); // Get currentUser from task context
+  const { users, teams, currentUser } = useAuth(); // Get currentUser from auth context
   const isMobile = useIsMobile();
+
+  // DEBUG: Log current user in TaskManagementView
+  React.useEffect(() => {
+    console.log('🔍 [TaskManagementView] Debug currentUser:', {
+      currentUser,
+      hasCurrentUser: !!currentUser,
+      currentUserId: currentUser?.id,
+      currentUserName: currentUser?.name,
+      authContextType: 'AuthContextSupabase'
+    });
+  }, [currentUser]);
   const [selectedMenu, setSelectedMenu] = useState('Việc tôi làm');
   const [expandedSections, setExpandedSections] = useState({
     'HỘP TIN': true,
@@ -185,6 +195,26 @@ export default function TaskManagementView({
     'BỘ LỌC GẦN SAO': false,
     'THƯ MỤC GẦN SAO': false,
   });
+
+  // Auto-detect user's team and set appropriate viewLevel for non-directors
+  const isDirector = currentUser?.role === 'retail_director' || currentUser?.role === 'project_director';
+  const userTeamId = currentUser?.team_id;
+  const userTeam = teams.find(team => team.id === userTeamId);
+
+  // Auto-set viewLevel for non-director users to show team tasks by default
+  const effectiveViewLevel = React.useMemo(() => {
+    if (isDirector) {
+      return viewLevel; // Directors use the passed viewLevel
+    } else {
+      // Non-directors default to 'team' view to see their team's tasks
+      return userTeamId ? 'team' : 'personal';
+    }
+  }, [isDirector, userTeamId, viewLevel]);
+
+  // Auto-select user's team for non-directors
+  const [selectedTeamForView, setSelectedTeamForView] = useState<{ id: string; name: string } | null>(
+    !isDirector && userTeam ? { id: userTeam.id, name: userTeam.name } : null
+  );
   const [selectedView, setSelectedView] = useState(viewLevel);
   const [localTasks, setLocalTasks] = useState<any[]>([]);
   const [selectedTask, setSelectedTask] = useState<any>(null);
@@ -193,7 +223,7 @@ export default function TaskManagementView({
   const [showFilters, setShowFilters] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0); // Force refresh trigger
   const [filters, setFilters] = useState({
-    timeRange: 'all',
+    timeRange: 'current', // Mặc định hiển thị công việc hiện tại + pending tasks
     status: 'all',
     type: 'all',
     priority: 'all'
@@ -205,9 +235,9 @@ export default function TaskManagementView({
   const [selectedTeam, setSelectedTeam] = useState('all');
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
 
-  // State cho team cards view
-  const [showTeamCards, setShowTeamCards] = useState(true);
-  const [selectedTeamForView, setSelectedTeamForView] = useState<{id: string, name: string} | null>(null);
+  // State cho team cards view - ẩn cho non-director users
+  const [showTeamCards, setShowTeamCards] = useState(isDirector);
+  // selectedTeamForView đã được khởi tạo ở trên với auto-select cho non-directors
 
   // Debug log cho selectedMember changes
   useEffect(() => {
@@ -228,13 +258,36 @@ export default function TaskManagementView({
   }, [selectedMember, users]);
 
   // SIMPLIFIED: Always proceed with rendering to avoid hooks order issues
-  // Use currentUser if available, fallback to mock user
-  const effectiveUser = currentUser || {
-    id: 'mock-user',
-    name: 'Mock User',
-    role: 'retail_director', // Use director role to see all tasks
-    team_id: '1'
+  // Use currentUser if available, fallback to stored user, then mock user
+  const getEffectiveUser = () => {
+    if (currentUser) {
+      console.log('✅ [TaskManagementView] Using currentUser:', currentUser);
+      return currentUser;
+    }
+
+    // Try to get user from localStorage
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        console.log('🔧 [TaskManagementView] Using stored user as fallback:', parsedUser);
+        return parsedUser;
+      } catch (error) {
+        console.error('❌ Failed to parse stored user:', error);
+      }
+    }
+
+    // Final fallback to mock user
+    console.log('⚠️ [TaskManagementView] Using mock user fallback');
+    return {
+      id: 'mock-user',
+      name: 'Mock User',
+      role: 'retail_director',
+      team_id: '1'
+    };
   };
+
+  const effectiveUser = getEffectiveUser();
 
   // console.log('👤 TaskManagementView: Using effective user:', effectiveUser, 'currentUser available:', !!currentUser);
 
@@ -380,7 +433,7 @@ export default function TaskManagementView({
           const currentUserId = effectiveUser?.id;
           const currentUserName = effectiveUser?.name;
 
-          // CHỈ hiển thị công việc do người dùng hiện tại TẠO RA (không bao gồm công việc được giao)
+          // Hiển thị công việc thuộc về user hiện tại (bao gồm cả tạo ra và được giao)
           // 1. ID-based matching - kiểm tra user_id (người tạo/sở hữu)
           const isCreatedById = task.user_id === currentUserId;
 
@@ -390,12 +443,15 @@ export default function TaskManagementView({
           // 3. Fallback for created_by if available
           const isCreatedByField = task.created_by === currentUserId || task.created_by === currentUserName;
 
+          // 4. Assigned to user - kiểm tra assignedTo (công việc được giao)
+          const isAssignedToUser = task.assignedTo === currentUserId || task.assigned_to === currentUserId;
+
           // Accept task if any condition matches
-          const isCreatedByCurrentUser = isCreatedById || isCreatedByName || isCreatedByField;
+          const belongsToCurrentUser = isCreatedById || isCreatedByName || isCreatedByField || isAssignedToUser;
 
-          console.log(`  📋 Task "${task.title}": created_by=${task.created_by}, user_id=${task.user_id}, user_name=${task.user_name}, currentUserId=${currentUserId}, currentUserName=${currentUserName}, isCreatedByCurrentUser=${isCreatedByCurrentUser}, reasons={byId: ${isCreatedById}, byName: ${isCreatedByName}, byCreatedBy: ${isCreatedByField}}`);
+          console.log(`  📋 Task "${task.title}": created_by=${task.created_by}, user_id=${task.user_id}, user_name=${task.user_name}, assignedTo=${task.assignedTo}, assigned_to=${task.assigned_to}, currentUserId=${currentUserId}, currentUserName=${currentUserName}, belongsToCurrentUser=${belongsToCurrentUser}, reasons={byId: ${isCreatedById}, byName: ${isCreatedByName}, byCreatedBy: ${isCreatedByField}, byAssigned: ${isAssignedToUser}}`);
 
-          return isCreatedByCurrentUser;
+          return belongsToCurrentUser;
         });
 
         console.log('👤 Final personal tasks (created by user):', personalTasks.length);
@@ -520,6 +576,7 @@ export default function TaskManagementView({
         console.log('  - selectedMember:', selectedMember);
         console.log('  - users count:', users.length);
         console.log('  - regularTasks count:', regularTasks.length);
+
         // Khổng Đức Mạnh có thể xem TOÀN BỘ công việc của TẤT CẢ thành viên trong Phòng Kinh doanh
         // Bao gồm cả Hà Nội và Hồ Chí Minh
         let filteredUsers = users.filter((user) => {
@@ -581,17 +638,28 @@ export default function TaskManagementView({
 
         // Lấy công việc của các thành viên được filter cụ thể
         const memberTasks = tasksToFilter.filter((task) => {
-          const isAssignedToMember = memberIds.includes(task.assignedTo || '');
-          const isCreatedByMember = memberIds.includes(task.user_id || '');
-          const shouldInclude = isAssignedToMember || isCreatedByMember;
+          const isAssignedToMember = memberIds.includes(task.assignedTo || '') || memberIds.includes(task.assigned_to || '');
+          const isCreatedByMember = memberIds.includes(task.user_id || '') || memberIds.includes(task.created_by || '');
+
+          // Kiểm tra theo tên user (fallback cho trường hợp ID không match)
+          const memberNames = filteredUsers.map(u => u.name);
+          const isAssignedByName = memberNames.includes(task.user_name || '');
+          const isAssignedToByName = memberNames.includes(task.assignedTo || '');
+
+          const shouldInclude = isAssignedToMember || isCreatedByMember || isAssignedByName || isAssignedToByName;
 
           console.log(`  📋 Task "${task.title}":`, {
             assignedTo: task.assignedTo,
+            assigned_to: task.assigned_to,
             user_id: task.user_id,
+            created_by: task.created_by,
             user_name: task.user_name,
             memberIds,
+            memberNames,
             isAssignedToMember,
             isCreatedByMember,
+            isAssignedByName,
+            isAssignedToByName,
             shouldInclude
           });
 
@@ -612,7 +680,7 @@ export default function TaskManagementView({
         const sourceTasksForDept = managerTasks.length > 0 ? managerTasks : regularTasks;
         console.log('🏢 Using source:', managerTasks.length > 0 ? 'managerTasks' : 'regularTasks');
 
-        // Lọc công việc chung của phòng - các công việc có tính chất chung, không thuộc về cá nhân hay nhóm cụ thể
+        // Lọc công việc chung của phòng - RELAXED RULES để hiển thị nhiều shared tasks hơn
         const departmentTasks = sourceTasksForDept.filter((task) => {
           // Các điều kiện để xác định task là công việc chung của phòng:
 
@@ -621,37 +689,54 @@ export default function TaskManagementView({
                                     task.isSharedWithTeam === true ||
                                     task.visibility === 'public' ||
                                     task.shared === true ||
-                                    task.department_wide === true;
+                                    task.department_wide === true ||
+                                    task.type === 'shared';
 
-          // 2. Thuộc về department hiện tại và có visibility public
-          const isDepartmentPublicTask = (task.department === currentUser?.department_type ||
-                                         task.department_type === currentUser?.department_type) &&
-                                        (task.visibility === 'public' || task.isShared);
+          // 2. Thuộc về department hiện tại (relaxed check)
+          const isDepartmentTask = !task.department_type ||
+                                  task.department_type === currentUser?.department_type ||
+                                  task.department === currentUser?.department_type;
 
-          // 3. Công việc không có assignedTo cụ thể (công việc chung)
-          const isGeneralTask = !task.assignedTo || task.assignedTo === '' || task.assignedTo === 'all';
+          // 3. Công việc có visibility team hoặc public
+          const hasTeamVisibility = task.visibility === 'team' ||
+                                   task.visibility === 'public' ||
+                                   task.isSharedWithTeam === true;
 
           // 4. Công việc có title hoặc description chứa từ khóa "chung", "phòng", "tất cả"
           const hasPublicKeywords = task.title?.toLowerCase().includes('chung') ||
                                    task.title?.toLowerCase().includes('phòng') ||
                                    task.title?.toLowerCase().includes('tất cả') ||
                                    task.description?.toLowerCase().includes('chung') ||
-                                   task.description?.toLowerCase().includes('phòng');
+                                   task.description?.toLowerCase().includes('phòng') ||
+                                   task.description?.toLowerCase().includes('team') ||
+                                   task.description?.toLowerCase().includes('nhóm');
 
-          const shouldShow = isExplicitlyShared || isDepartmentPublicTask ||
-                           (isGeneralTask && hasPublicKeywords);
+          // 5. Công việc được tạo bởi manager/director (có thể là công việc chung)
+          const isFromManager = users && users.some(user =>
+            (user.role === 'team_leader' || user.role === 'retail_director') &&
+            (user.id === task.user_id || user.id === task.created_by || user.name === task.user_name)
+          );
+
+          // RELAXED LOGIC: Hiển thị task nếu thỏa mãn BẤT KỲ điều kiện nào
+          const shouldShow = isExplicitlyShared ||
+                           hasTeamVisibility ||
+                           hasPublicKeywords ||
+                           (isDepartmentTask && isFromManager);
 
           console.log(`  📋 Task "${task.title}":`, {
             isShared: task.isShared,
             isSharedWithTeam: task.isSharedWithTeam,
             visibility: task.visibility,
+            type: task.type,
             shared: task.shared,
             department_wide: task.department_wide,
             assignedTo: task.assignedTo,
+            user_name: task.user_name,
             isExplicitlyShared,
-            isDepartmentPublicTask,
-            isGeneralTask,
+            isDepartmentTask,
+            hasTeamVisibility,
             hasPublicKeywords,
+            isFromManager,
             shouldShow
           });
 
@@ -767,28 +852,38 @@ export default function TaskManagementView({
 
   const taskViewButtons = getTaskViewButtons();
 
-  // Cập nhật selectedView dựa trên viewLevel và reset filters
+  // Cập nhật selectedView dựa trên effectiveViewLevel và reset filters
   useEffect(() => {
-    console.log('🔄 ViewLevel changed:', viewLevel, '→ Setting selectedView to:', viewLevel);
-    setSelectedView(viewLevel);
+    console.log('🔄 ViewLevel changed:', effectiveViewLevel, '→ Setting selectedView to:', effectiveViewLevel);
+    setSelectedView(effectiveViewLevel);
 
     // Reset filters khi chuyển view
-    if (viewLevel !== 'individual') {
+    if (effectiveViewLevel !== 'individual') {
       setSelectedLocation('all');
       setSelectedTeam('all');
       setSelectedMember(null);
     }
 
-    // Reset team cards view khi chuyển tab
-    if (viewLevel === 'team') {
-      console.log('👥 Setting up team view: showTeamCards=true, selectedTeamForView=null');
-      setShowTeamCards(true);
-      setSelectedTeamForView(null);
+    // Setup team view logic
+    if (effectiveViewLevel === 'team') {
+      if (isDirector) {
+        // Directors see team cards to choose from
+        console.log('👥 Director team view: showTeamCards=true, selectedTeamForView=null');
+        setShowTeamCards(true);
+        setSelectedTeamForView(null);
+      } else {
+        // Non-directors auto-select their team, no team cards
+        console.log('👤 Non-director team view: auto-selecting user team, showTeamCards=false');
+        setShowTeamCards(false);
+        if (userTeam) {
+          setSelectedTeamForView({ id: userTeam.id, name: userTeam.name });
+        }
+      }
     } else {
       console.log('📋 Setting up non-team view: showTeamCards=false');
       setShowTeamCards(false);
     }
-  }, [viewLevel]);
+  }, [effectiveViewLevel, isDirector, userTeam]);
 
   // Listen for auto-sync events và refresh tasks
   useEffect(() => {
@@ -1268,12 +1363,12 @@ export default function TaskManagementView({
 
             {/* Member Filters cho Individual view - chỉ cho Directors */}
             {(() => {
-              const shouldShowMemberFilters = (currentUser?.role === 'retail_director' || currentUser?.role === 'project_director') && viewLevel === 'individual';
+              const shouldShowMemberFilters = isDirector && effectiveViewLevel === 'individual';
               console.log('🔍 MemberViewFilters render check:', {
                 currentUserRole: currentUser?.role,
-                viewLevel,
+                effectiveViewLevel,
                 shouldShowMemberFilters,
-                isDirector: currentUser?.role === 'retail_director' || currentUser?.role === 'project_director'
+                isDirector
               });
 
               return shouldShowMemberFilters && (
@@ -1293,7 +1388,7 @@ export default function TaskManagementView({
 
 
             {/* Member Selector cho Team Leaders */}
-            {currentUser?.role === 'team_leader' && viewLevel === 'individual' && (
+            {currentUser?.role === 'team_leader' && effectiveViewLevel === 'individual' && (
               <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 relative z-[100]">
                 <MemberTaskSelector
                   selectedMemberId={selectedMemberId}
@@ -1323,8 +1418,8 @@ export default function TaskManagementView({
 
         {/* Content - responsive */}
         <div className="relative z-10">
-          {/* Team Cards View - Hiển thị khi ở tab "Của nhóm" và chưa chọn team */}
-          {selectedView === 'team' && showTeamCards && (
+          {/* Team Cards View - CHỈ hiển thị cho directors khi ở tab "Của nhóm" và chưa chọn team */}
+          {selectedView === 'team' && showTeamCards && isDirector && (
             <div className="p-4 sm:p-6">
               {selectedTeamForView && (
                 <div className="mb-4">
@@ -1341,20 +1436,23 @@ export default function TaskManagementView({
             </div>
           )}
 
-          {/* Task List - Hiển thị khi không phải team cards view */}
-          {!(selectedView === 'team' && showTeamCards) && (
+          {/* Task List - Hiển thị khi không phải team cards view HOẶC khi là non-director */}
+          {!(selectedView === 'team' && showTeamCards && isDirector) && (
             <>
               {/* Header cho team đã chọn */}
               {selectedView === 'team' && selectedTeamForView && (
                 <div className="px-4 sm:px-6 py-3 bg-blue-50 border-b border-blue-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <button
-                        onClick={handleBackToTeamCards}
-                        className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </button>
+                      {/* Back button chỉ hiển thị cho directors */}
+                      {isDirector && (
+                        <button
+                          onClick={handleBackToTeamCards}
+                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                      )}
                       <div>
                         <h3 className="text-lg font-semibold text-blue-900">
                           {selectedTeamForView.name}
