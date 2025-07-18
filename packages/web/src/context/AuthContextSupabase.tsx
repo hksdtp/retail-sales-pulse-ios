@@ -37,7 +37,6 @@ import {
   fixUserDataConsistency
 } from '@/services/mockAuth';
 import { Team, User, UserCredentials, UserLocation, UserRole } from '@/types/user';
-import { autoPlanSyncService } from '@/services/AutoPlanSyncService';
 import ComprehensiveAutoSyncService from '@/services/ComprehensiveAutoSyncService';
 import { LocalToSupabaseAutoSync } from '@/services/LocalToSupabaseAutoSync';
 

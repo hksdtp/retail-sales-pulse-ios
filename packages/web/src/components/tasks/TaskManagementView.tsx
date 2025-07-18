@@ -352,6 +352,9 @@ export default function TaskManagementView({
     regularTaskData = useTaskData();
     managerTaskData = useManagerTaskData(viewLevel as any, selectedMemberForHook);
 
+    // Extract deleteTask function from regularTaskData
+    const { deleteTask: deleteTaskFromSupabase } = regularTaskData;
+
     // Use localStorage tasks as fallback when API data is empty
     const hasApiData = (regularTaskData?.tasks?.length || 0) > 0 || (managerTaskData?.tasks?.length || 0) > 0;
 
@@ -1679,31 +1682,23 @@ export default function TaskManagementView({
                             }
 
                             if (confirm(`Bạn có chắc muốn xóa công việc "${task.title}"?\n\nHành động này không thể hoàn tác.`)) {
-                              // Cập nhật UI ngay lập tức để responsive
-                              setLocalTasks((prev) => prev.filter((t) => t.id !== task.id));
-
                               try {
-                                // Gọi API để sync với server (background)
-                                const response = await fetch(`https://us-central1-appqlgd.cloudfunctions.net/api/tasks/${task.id}`, {
-                                  method: 'DELETE',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                  },
-                                });
+                                console.log('🗑️ Deleting task via Supabase:', task.id);
 
-                                const result = await response.json();
-                                console.log('🔄 Delete API response:', result);
+                                // Use Supabase deleteTask function instead of manual API call
+                                const success = await deleteTaskFromSupabase(task.id);
 
-                                if (result.success) {
-                                  console.log('✅ Task deleted successfully from server');
-                                  alert('Đã xóa công việc thành công!');
+                                if (success) {
+                                  console.log('✅ Task deleted successfully from Supabase');
+                                  // Remove from local state as well for immediate UI update
+                                  setLocalTasks((prev) => prev.filter((t) => t.id !== task.id));
                                 } else {
-                                  console.error('❌ Delete API failed, but UI already updated');
-                                  // UI đã được cập nhật, chỉ log lỗi
+                                  console.error('❌ Failed to delete task from Supabase');
+                                  alert('Không thể xóa công việc. Vui lòng thử lại!');
                                 }
                               } catch (error) {
-                                console.error('❌ Error deleting task from server:', error);
-                                // UI đã được cập nhật, chỉ log lỗi
+                                console.error('❌ Error deleting task:', error);
+                                alert('Lỗi khi xóa công việc. Vui lòng thử lại!');
                               }
                             }
                           }}
@@ -1817,10 +1812,26 @@ export default function TaskManagementView({
             return;
           }
 
-          // Cập nhật UI ngay lập tức để responsive
-          setLocalTasks((prev) => prev.filter((t) => t.id !== taskId));
-          setShowTaskDetail(false);
-          setSelectedTask(null);
+          try {
+            console.log('🗑️ Deleting task via Supabase from detail panel:', taskId);
+
+            // Use Supabase deleteTask function
+            const success = await deleteTaskFromSupabase(taskId);
+
+            if (success) {
+              console.log('✅ Task deleted successfully from Supabase');
+              // Update UI after successful deletion
+              setLocalTasks((prev) => prev.filter((t) => t.id !== taskId));
+              setShowTaskDetail(false);
+              setSelectedTask(null);
+            } else {
+              console.error('❌ Failed to delete task from Supabase');
+              alert('Không thể xóa công việc. Vui lòng thử lại!');
+            }
+          } catch (error) {
+            console.error('❌ Error deleting task:', error);
+            alert('Lỗi khi xóa công việc. Vui lòng thử lại!');
+          }
 
           try {
             console.log('🔄 Starting delete process for task:', taskId);

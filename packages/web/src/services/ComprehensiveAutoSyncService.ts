@@ -4,9 +4,9 @@
  * Ninh ơi - Retail Sales Pulse iOS Project
  */
 
-import { AutoPlanSyncService } from './AutoPlanSyncService';
+import { autoPlanSyncService } from './AutoPlanSyncService';
 import { LocalToSupabaseAutoSync } from './LocalToSupabaseAutoSync';
-import { PlanToTaskSyncService } from './PlanToTaskSyncService';
+import { planToTaskSyncService } from './PlanToTaskSyncService';
 
 export interface ComprehensiveSyncStatus {
   planSync: {
@@ -34,14 +34,11 @@ class ComprehensiveAutoSyncService {
   private healthCheckInterval: NodeJS.Timeout | null = null;
   private readonly HEALTH_CHECK_INTERVAL = 60000; // Check every minute
   
-  private autoPlanSyncService: AutoPlanSyncService;
   private localToSupabaseSync: LocalToSupabaseAutoSync;
-  private planToTaskSync: PlanToTaskSyncService;
 
   private constructor() {
-    this.autoPlanSyncService = AutoPlanSyncService.getInstance();
+    // autoPlanSyncService and planToTaskSyncService are already singleton instances
     this.localToSupabaseSync = LocalToSupabaseAutoSync.getInstance();
-    this.planToTaskSync = PlanToTaskSyncService.getInstance();
   }
 
   public static getInstance(): ComprehensiveAutoSyncService {
@@ -60,11 +57,11 @@ class ComprehensiveAutoSyncService {
     try {
       // 1. Start Auto Plan Sync (30 seconds interval)
       console.log('🔄 Starting Auto Plan Sync Service...');
-      this.autoPlanSyncService.startAutoSync(userId);
+      autoPlanSyncService.startAutoSync(userId);
       
       // 2. Start Plan to Task Sync (1 minute interval)
       console.log('📋 Starting Plan to Task Sync Service...');
-      this.planToTaskSync.startAutoSync(1); // 1 minute
+      planToTaskSyncService.startAutoSync(1); // 1 minute
       
       // 3. Trigger initial Local to Supabase sync
       console.log('☁️ Triggering initial Local to Supabase sync...');
@@ -92,8 +89,8 @@ class ComprehensiveAutoSyncService {
     console.log('⏹️ Stopping all auto sync services...');
     
     try {
-      this.autoPlanSyncService.stopAutoSync();
-      this.planToTaskSync.stopAutoSync();
+      autoPlanSyncService.stopAutoSync();
+      planToTaskSyncService.stopAutoSync();
       
       if (this.healthCheckInterval) {
         clearInterval(this.healthCheckInterval);
@@ -136,13 +133,13 @@ class ComprehensiveAutoSyncService {
         // Restart Auto Plan Sync if needed
         if (!status.planSync.isRunning) {
           console.log('🔄 Restarting Auto Plan Sync...');
-          this.autoPlanSyncService.startAutoSync(userId);
+          autoPlanSyncService.startAutoSync(userId);
         }
         
         // Restart Plan to Task Sync if needed
         if (!status.planToTask.isRunning) {
           console.log('📋 Restarting Plan to Task Sync...');
-          this.planToTaskSync.startAutoSync(1);
+          planToTaskSyncService.startAutoSync(1);
         }
         
         // Trigger Local to Supabase sync if needed
@@ -170,9 +167,9 @@ class ComprehensiveAutoSyncService {
   public getSyncStatus(): ComprehensiveSyncStatus {
     try {
       // Get individual service statuses
-      const planSyncStatus = this.autoPlanSyncService.getSyncStatus();
+      const planSyncStatus = autoPlanSyncService.getSyncStatus();
       const localToSupabaseStatus = this.localToSupabaseSync.getSyncStatus();
-      const planToTaskStatus = this.planToTaskSync.getSyncStatus();
+      const planToTaskStatus = planToTaskSyncService.getSyncStatus();
 
       const status: ComprehensiveSyncStatus = {
         planSync: {
@@ -230,9 +227,9 @@ class ComprehensiveAutoSyncService {
     
     try {
       const results = await Promise.allSettled([
-        this.autoPlanSyncService.manualSync(userId),
+        autoPlanSyncService.manualSync(userId),
         this.localToSupabaseSync.manualSync(userId, userName),
-        this.planToTaskSync.manualSync(userId)
+        planToTaskSyncService.manualSync(userId)
       ]);
 
       const syncResults = {
